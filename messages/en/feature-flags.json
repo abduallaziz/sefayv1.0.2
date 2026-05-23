@@ -1,0 +1,34 @@
+{
+  "featureFlags": {
+    "title": "Feature Flags",
+    "subtitle": "Control features globally or per tenant",
+    "globalView": "Global View",
+    "tenantView": "Per Tenant",
+    "selectTenant": "Select tenant",
+    "allFeatures": "All Features",
+    "allFeaturesDesc": "Complete list of available system features",
+    "category": {
+      "all": "All",
+      "core": "Core",
+      "advanced": "Advanced",
+      "premium": "Premium"
+    },
+    "overridden": "Overridden",
+    "overriddenCount": "{count} active overrides",
+    "noOverrides": "No overrides — follows plan",
+    "limit": "Limit",
+    "planDefault": "Plan Default",
+    "on": "On",
+    "off": "Off",
+    "resetOverride": "Reset to plan",
+    "overrideLimit": "Override Limit",
+    "limitValue": "Value",
+    "unlimited": "Unlimited",
+    "note": "Note",
+    "notePlaceholder": "Reason for override...",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving...",
+    "noFeatures": "No features in this category"
+  }
+}

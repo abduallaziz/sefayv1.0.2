@@ -1,0 +1,33 @@
+﻿{
+  "subscriptions": {
+    "title": "الاشتراكات والخطط",
+    "subtitle": "إدارة اشتراكات المستأجرين وخطط الأسعار",
+    "tabs": { "subscriptions": "الاشتراكات", "plans": "الخطط" },
+    "actions": {
+      "manualPayment": "دفع يدوي", "newPlan": "خطة جديدة",
+      "cancel": "إلغاء", "save": "حفظ التغييرات", "create": "إنشاء خطة",
+      "saving": "جاري الحفظ...", "confirm": "تأكيد الدفع", "processing": "جاري المعالجة..."
+    },
+    "table": {
+      "tenant": "المستأجر", "plan": "الخطة", "status": "الحالة",
+      "interval": "الدورة", "endsAt": "تاريخ الانتهاء", "amount": "المبلغ",
+      "actions": "الإجراءات", "empty": "لا توجد اشتراكات", "cancelAction": "إلغاء"
+    },
+    "status": { "active": "نشط", "trial": "تجريبي", "cancelled": "ملغي", "expired": "منتهي", "suspended": "موقوف" },
+    "interval": { "monthly": "شهري", "yearly": "سنوي" },
+    "filters": { "search": "بحث عن مستأجر...", "allStatus": "جميع الحالات" },
+    "plan": { "active": "نشط", "inactive": "غير نشط", "monthly": "شهري", "yearly": "سنوي", "maxUsers": "أقصى مستخدمين", "maxBranches": "أقصى فروع" },
+    "planForm": {
+      "titleCreate": "خطة جديدة", "titleEdit": "تعديل الخطة",
+      "name": "اسم الخطة", "namePlaceholder": "مثال: Starter",
+      "priceMonthly": "السعر الشهري ($)", "priceYearly": "السعر السنوي ($)",
+      "maxUsers": "أقصى مستخدمين", "maxBranches": "أقصى فروع"
+    },
+    "payment": {
+      "title": "دفع يدوي", "tenant": "المستأجر", "tenantPlaceholder": "اختر مستأجر...",
+      "plan": "الخطة", "planPlaceholder": "اختر خطة...", "interval": "الدورة",
+      "amount": "المبلغ ($)", "note": "ملاحظة (اختياري)", "notePlaceholder": "السبب أو المرجع..."
+    },
+    "loading": "جاري التحميل..."
+  }
+}

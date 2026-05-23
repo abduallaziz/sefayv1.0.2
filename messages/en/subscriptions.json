@@ -1,0 +1,33 @@
+﻿{
+  "subscriptions": {
+    "title": "Subscriptions & Plans",
+    "subtitle": "Manage tenant subscriptions and pricing plans",
+    "tabs": { "subscriptions": "Subscriptions", "plans": "Plans" },
+    "actions": {
+      "manualPayment": "Manual Payment", "newPlan": "New Plan",
+      "cancel": "Cancel", "save": "Save Changes", "create": "Create Plan",
+      "saving": "Saving...", "confirm": "Confirm Payment", "processing": "Processing..."
+    },
+    "table": {
+      "tenant": "Tenant", "plan": "Plan", "status": "Status",
+      "interval": "Interval", "endsAt": "Ends At", "amount": "Amount",
+      "actions": "Actions", "empty": "No subscriptions found", "cancelAction": "Cancel"
+    },
+    "status": { "active": "Active", "trial": "Trial", "cancelled": "Cancelled", "expired": "Expired", "suspended": "Suspended" },
+    "interval": { "monthly": "Monthly", "yearly": "Yearly" },
+    "filters": { "search": "Search tenant...", "allStatus": "All Status" },
+    "plan": { "active": "Active", "inactive": "Inactive", "monthly": "Monthly", "yearly": "Yearly", "maxUsers": "Max Users", "maxBranches": "Max Branches" },
+    "planForm": {
+      "titleCreate": "New Plan", "titleEdit": "Edit Plan",
+      "name": "Plan Name", "namePlaceholder": "e.g. Starter",
+      "priceMonthly": "Monthly Price ($)", "priceYearly": "Yearly Price ($)",
+      "maxUsers": "Max Users", "maxBranches": "Max Branches"
+    },
+    "payment": {
+      "title": "Manual Payment", "tenant": "Tenant", "tenantPlaceholder": "Select tenant...",
+      "plan": "Plan", "planPlaceholder": "Select plan...", "interval": "Interval",
+      "amount": "Amount ($)", "note": "Note (optional)", "notePlaceholder": "Reason or reference..."
+    },
+    "loading": "Loading..."
+  }
+}

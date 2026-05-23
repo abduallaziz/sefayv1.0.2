@@ -1,0 +1,413 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "loading": "Loading...",
+    "confirm": "Confirm",
+    "actions": "Actions",
+    "status": "Active",
+    "all": "All",
+    "export": "Export"
+  },
+  "nav": {
+    "overview": "Overview",
+    "tenants": "Tenants",
+    "subscriptions": "Subscriptions",
+    "featureFlags": "Feature Flags",
+    "authControl": "Auth Control",
+    "reports": "Reports & Audit",
+    "settings": "Settings"
+  },
+  "console": {
+    "title": "Operations Console",
+    "subtitle": "Sefay Platform — Real-time monitoring",
+    "production": "Production"
+  },
+  "overview": {
+    "totalTenants": "Total Tenants",
+    "monthlyRevenue": "Monthly Revenue",
+    "activeTenants": "Active Tenants",
+    "annualRevenue": "Annual Revenue"
+  },
+  "systemHealth": {
+    "overall": {
+      "healthy": "All Systems Operational",
+      "warning": "Degraded Performance",
+      "critical": "Incident Detected"
+    },
+    "status": {
+      "healthy": "Healthy",
+      "warning": "Warning",
+      "critical": "Critical",
+      "offline": "Offline"
+    },
+    "incident": {
+      "title": "Incident detected:",
+      "detail": "Payment failure spike — 22% increase in the last 15 minutes.",
+      "action": "Investigate →"
+    },
+    "services": {
+      "api": "API",
+      "database": "Database",
+      "queue": "Queue",
+      "ai": "AI",
+      "storage": "Storage",
+      "payments": "Payments",
+      "apiSub": "99.99% uptime",
+      "dbSub": "43 connections",
+      "queueSub": "48 failed jobs",
+      "aiSub": "8 workers active",
+      "storageSub": "68% capacity",
+      "paymentsSub": "Failure spike"
+    }
+  },
+  "tenants": {
+    "title": "Tenants",
+    "subtitle": "Manage all tenants on the platform",
+    "search": "Search tenants...",
+    "allStatus": "All Status",
+    "active": "Active",
+    "trial": "Trial",
+    "suspended": "Suspended",
+    "cancelled": "Cancelled",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "extendTrial": "Extend Trial",
+    "extendDays": "Number of days to extend:",
+    "confirmExtend": "Confirm Extension",
+    "extending": "Extending...",
+    "delete": "Delete",
+    "deleted": "Deleted",
+    "noResults": "No results found",
+    "prev": "Previous",
+    "next": "Next",
+    "cancel": "Cancel",
+    "common_actions": "Actions",
+    "col": {
+      "name": "Name",
+      "businessType": "Business Type",
+      "status": "Status",
+      "plan": "Plan",
+      "branches": "Branches",
+      "users": "Users",
+      "createdAt": "Created At",
+      "actions": "Actions"
+    }
+  },
+  "subscriptions": {
+    "title": "Subscriptions & Plans",
+    "subtitle": "Manage subscriptions and billing plans",
+    "loading": "Loading...",
+    "actions": {
+      "manualPayment": "Manual Payment",
+      "newPlan": "New Plan",
+      "cancel": "Cancel",
+      "save": "Save",
+      "create": "Create",
+      "saving": "Saving...",
+      "processing": "Processing...",
+      "confirm": "Confirm Payment"
+    },
+    "tabs": {
+      "subscriptions": "Subscriptions",
+      "plans": "Plans"
+    },
+    "filters": {
+      "search": "Search subscriptions...",
+      "allStatus": "All Status"
+    },
+    "status": {
+      "active": "Active",
+      "trial": "Trial",
+      "cancelled": "Cancelled",
+      "expired": "Expired",
+      "suspended": "Suspended"
+    },
+    "interval": {
+      "monthly": "Monthly",
+      "yearly": "Yearly"
+    },
+    "table": {
+      "tenant": "Tenant",
+      "plan": "Plan",
+      "status": "Status",
+      "interval": "Interval",
+      "endsAt": "Ends At",
+      "amount": "Amount",
+      "actions": "Actions",
+      "empty": "No subscriptions found",
+      "cancelAction": "Cancel"
+    },
+    "planForm": {
+      "titleCreate": "Create Plan",
+      "titleEdit": "Edit Plan",
+      "name": "Plan Name",
+      "namePlaceholder": "e.g. Pro",
+      "priceMonthly": "Monthly Price ($)",
+      "priceYearly": "Yearly Price ($)",
+      "maxUsers": "Max Users",
+      "maxBranches": "Max Branches"
+    },
+    "payment": {
+      "title": "Manual Payment",
+      "tenant": "Tenant",
+      "tenantPlaceholder": "Select tenant",
+      "plan": "Plan",
+      "planPlaceholder": "Select plan",
+      "interval": "Interval",
+      "amount": "Amount ($)",
+      "note": "Note",
+      "notePlaceholder": "Optional note..."
+    },
+    "plan": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "maxUsers": "Max Users",
+      "maxBranches": "Max Branches"
+    }
+  },
+  "featureFlags": {
+    "title": "Feature Flags",
+    "subtitle": "Control features per tenant",
+    "loading": "Loading...",
+    "search": "Search features...",
+    "allTenants": "All Tenants",
+    "enable": "Enable",
+    "disable": "Disable",
+    "override": "Override",
+    "reset": "Reset",
+    "global": "Global",
+    "perTenant": "Per Tenant",
+    "globalView": "Global View",
+    "tenantView": "Per Tenant",
+    "selectTenant": "Select Tenant",
+    "allFeatures": "All Features",
+    "allFeaturesDesc": "Global feature flags applied to all tenants by default",
+    "noOverrides": "No overrides — using plan defaults",
+    "overriddenCount": "{count} overrides active",
+    "noFeatures": "No features found",
+    "overridden": "Overridden",
+    "limit": "Limit",
+    "planDefault": "Plan Default",
+    "on": "On",
+    "off": "Off",
+    "resetOverride": "Reset Override",
+    "overrideLimit": "Override Limit",
+    "limitValue": "Limit Value",
+    "unlimited": "Unlimited",
+    "note": "Note",
+    "notePlaceholder": "Reason for override...",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving...",
+    "category": {
+      "all": "All",
+      "core": "Core",
+      "advanced": "Advanced",
+      "premium": "Premium"
+    }
+  },
+  "authControl": {
+    "title": "Auth Control",
+    "subtitle": "Manage users, roles, passwords, and sessions",
+    "allTenants": "All Tenants",
+    "tenant": "Tenant",
+    "users": "Users",
+    "sessions": "Sessions",
+    "selectTenant": "Select a tenant to view users",
+    "noSessions": "No sessions found",
+    "loading": "Loading...",
+    "user": "User",
+    "role": "Role",
+    "status": "Status",
+    "actions": "Actions",
+    "active": "Active",
+    "inactive": "Inactive",
+    "revoked": "Revoked",
+    "device": "Device",
+    "ip": "IP Address",
+    "lastActive": "Last Active",
+    "resetPassword": "Reset Password",
+    "newPassword": "New Password",
+    "passwordPlaceholder": "Min 8 characters",
+    "confirmPassword": "Confirm Password",
+    "confirmPlaceholder": "Repeat password",
+    "revokeAll": "Revoke All Sessions",
+    "revoke": "Revoke",
+    "cancel": "Cancel",
+    "saving": "Saving...",
+    "changeRole": "Change Role"
+  },
+  "reports": {
+    "title": "Reports & Audit",
+    "subtitle": "Platform analytics and security audit trail",
+    "overview": "Overview",
+    "revenue": "Revenue",
+    "tenants": "Tenants",
+    "auditLog": "Audit Log",
+    "export": "Export",
+    "mrr": "MRR",
+    "arr": "ARR",
+    "activeTenants": "Active Tenants",
+    "churnRate": "Churn Rate",
+    "mrrGrowth": "MRR Growth",
+    "last6months": "Last 6 months",
+    "tenantsByPlan": "Tenants by Plan",
+    "churnTrend": "Churn Rate Trend",
+    "improving": "Improving",
+    "currentMrr": "Current MRR",
+    "currentArr": "Current ARR",
+    "newMrr": "New MRR",
+    "churnedMrr": "Churned MRR",
+    "mrrVsArr": "MRR vs ARR (÷12)",
+    "topTenants": "Top Revenue Tenants",
+    "totalTenants": "Total Tenants",
+    "newThisMonth": "New This Month",
+    "churned": "Churned",
+    "avgRevenue": "Avg Revenue/Tenant",
+    "newPerMonth": "New Tenants per Month",
+    "planDist": "Plan Distribution"
+  },
+  "auditLog": {
+    "searchPlaceholder": "Search by actor, tenant, action...",
+    "allSeverity": "All Severity",
+    "allActions": "All Actions",
+    "entries": "entries",
+    "noResults": "No audit logs match your filters",
+    "severity": {
+      "info": "Info",
+      "warning": "Warning",
+      "critical": "Critical"
+    },
+    "actionTypes": {
+      "invoice": "Invoices",
+      "expense": "Expenses",
+      "shift": "Shifts",
+      "tenant": "Tenants",
+      "user": "Users",
+      "plan": "Plans",
+      "settings": "Settings"
+    },
+    "actions": {
+      "invoice_create": "Invoice Created",
+      "invoice_cancel": "Invoice Cancelled",
+      "shift_open": "Shift Opened",
+      "shift_close": "Shift Closed",
+      "expense_approve": "Expense Approved",
+      "expense_reject": "Expense Rejected",
+      "user_login": "User Login",
+      "user_logout": "User Logout",
+      "tenant_activate": "Tenant Activated",
+      "tenant_deactivate": "Tenant Deactivated",
+      "settings_change": "Settings Changed",
+      "user_delete": "User Deleted",
+      "plan_change": "Plan Changed",
+      "permission_grant": "Permission Granted"
+    },
+    "details": {
+      "actor": "Actor",
+      "tenant": "Tenant",
+      "ip": "IP Address",
+      "device": "Device",
+      "action": "Action",
+      "resource": "Resource",
+      "timestamp": "Timestamp",
+      "severity": "Severity"
+    }
+  },
+  "activity": {
+    "title": "Live Activity",
+    "eventsCount": "events",
+    "resume": "Resume",
+    "pause": "Pause",
+    "new": "New",
+    "severity": {
+      "info": "INFO",
+      "ok": "OK",
+      "warn": "WARN",
+      "crit": "CRIT"
+    },
+    "filters": {
+      "all": "All",
+      "critical": "Critical",
+      "billing": "Billing",
+      "security": "Security",
+      "system": "System",
+      "ai": "AI"
+    },
+    "actions": {
+      "investigate": "Investigate",
+      "review": "Review"
+    },
+    "events": {
+      "paymentFailure": "Payment failure spike",
+      "paymentFailureDetail": "+22% in 15 min",
+      "queueDelay": "Queue delay exceeded",
+      "queueDelayDetail": "EU region / 48 jobs",
+      "newTenant": "New tenant onboarded",
+      "newTenantDetail": "Coffee House — Riyadh",
+      "subUpgraded": "Subscription upgraded",
+      "subUpgradedDetail": "Pro → Enterprise",
+      "suspiciousLogin": "Suspicious login detected",
+      "suspiciousLoginDetail": "Multiple IPs / 3 fails",
+      "aiAnomaly": "AI anomaly detected",
+      "aiAnomalyDetail": "Unusual usage pattern",
+      "invoicePaid": "Invoice paid",
+      "invoicePaidDetail": "$599 / Monthly plan",
+      "restaurantGrowth": "Restaurant sector +18%",
+      "restaurantGrowthDetail": "12 new signups this week",
+      "newSignup": "New tenant signed up",
+      "newSignupDetail": "Beauty Salon — Jeddah",
+      "trialExpiring": "Trial expiring soon",
+      "trialExpiringDetail": "3 tenants / 2 days left",
+      "aiWorkflow": "AI workflow generated",
+      "aiWorkflowDetail": "Invoice automation / POS"
+    },
+    "time": {
+      "justNow": "just now"
+    }
+  },
+  "aiInsights": {
+    "title": "AI Intelligence",
+    "updated": "Updated 2 min ago",
+    "critical": "critical",
+    "aiConfidence": "AI confidence",
+    "actions": {
+      "viewTenants": "View tenants",
+      "viewSegment": "View segment",
+      "investigate": "Investigate",
+      "review": "Review",
+      "viewLogs": "View logs"
+    },
+    "metrics": {
+      "confidence": "confidence",
+      "thisWeek": "this week",
+      "failureRate": "failure rate",
+      "deviation": "deviation",
+      "normalUsage": "normal usage"
+    },
+    "insights": {
+      "churnTitle": "3 tenants likely to churn",
+      "churnDetail": "Inactivity > 14 days, no API calls, billing overdue",
+      "growthTitle": "Restaurant sector surging +18%",
+      "growthDetail": "12 new restaurant signups this week — Riyadh & Jeddah",
+      "riskTitle": "Payment failures spiking in EU",
+      "riskDetail": "22% increase — likely Stripe gateway issue or card expiry wave",
+      "securityTitle": "2 tenants suspicious refund activity",
+      "securityDetail": "Refund patterns deviate 3x from baseline — possible abuse",
+      "anomalyTitle": "API usage spike — Coffee House",
+      "anomalyDetail": "Unusually high POS calls — 8x normal. Possible integration loop."
+    }
+  },
+  "revenueChart": {
+    "title": "Revenue Overview",
+    "subtitle": "Monthly performance metrics",
+    "revenue": "Revenue",
+    "tenants": "Tenants"
+  }
+}
