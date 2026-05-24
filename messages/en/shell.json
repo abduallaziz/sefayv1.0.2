@@ -1,0 +1,28 @@
+{
+  "nav": {
+    "general": "General",
+    "mainBranch": "Main Branch",
+    "sales": "Sales",
+    "operations": "Operations",
+    "management": "Management",
+    "overview": "Overview",
+    "pos": "Point of Sale",
+    "invoices": "Orders",
+    "customers": "Customers",
+    "items": "Items",
+    "users": "Users",
+    "expenses": "Expenses",
+    "shifts": "Shifts",
+    "reports": "Reports",
+    "settings": "Settings",
+    "superadmin": {
+      "overview": "Overview",
+      "tenants": "Tenants",
+      "subscriptions": "Subscriptions",
+      "featureFlags": "Feature Flags",
+      "authControl": "Auth Control",
+      "reports": "Reports & Audit",
+      "settings": "Settings"
+    }
+  }
+}

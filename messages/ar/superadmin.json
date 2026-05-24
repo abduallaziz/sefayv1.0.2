@@ -1,0 +1,254 @@
+{
+  "console": {
+    "title": "لوحة العمليات",
+    "subtitle": "منصة Sefay — مراقبة في الوقت الفعلي",
+    "production": "الإنتاج"
+  },
+  "overview": {
+    "totalTenants": "إجمالي المستأجرين",
+    "monthlyRevenue": "الإيرادات الشهرية",
+    "activeTenants": "المستأجرون النشطون",
+    "annualRevenue": "الإيرادات السنوية"
+  },
+  "systemHealth": {
+    "overall": {
+      "healthy": "كل الأنظمة تعمل",
+      "warning": "أداء متدهور",
+      "critical": "حادثة مكتشفة"
+    },
+    "status": {
+      "healthy": "سليم",
+      "warning": "تحذير",
+      "critical": "حرج",
+      "offline": "غير متصل"
+    },
+    "incident": {
+      "title": "حادثة مكتشفة:",
+      "detail": "ارتفاع في فشل الدفع — زيادة 22% في آخر 15 دقيقة.",
+      "action": "تحقيق ←"
+    },
+    "services": {
+      "api": "API",
+      "database": "قاعدة البيانات",
+      "queue": "قائمة الانتظار",
+      "ai": "الذكاء الاصطناعي",
+      "storage": "التخزين",
+      "payments": "المدفوعات",
+      "apiSub": "99.99% وقت تشغيل",
+      "dbSub": "43 اتصال",
+      "queueSub": "48 مهمة فاشلة",
+      "aiSub": "8 عمال نشطون",
+      "storageSub": "68% سعة",
+      "paymentsSub": "ارتفاع في الفشل"
+    }
+  },
+  "tenants": {
+    "title": "المستأجرون",
+    "subtitle": "إدارة جميع المستأجرين في المنصة",
+    "search": "ابحث عن مستأجر...",
+    "allStatus": "كل الحالات",
+    "status": {
+      "active": "نشط",
+      "trial": "تجريبي",
+      "suspended": "موقوف",
+      "cancelled": "ملغي"
+    },
+    "actions": {
+      "activate": "تفعيل",
+      "deactivate": "تعطيل",
+      "extendTrial": "تمديد التجربة",
+      "delete": "حذف"
+    },
+    "extendTrial": {
+      "days": "عدد أيام التمديد:",
+      "confirm": "تأكيد التمديد",
+      "submitting": "جاري التمديد..."
+    },
+    "col": {
+      "name": "الاسم",
+      "businessType": "نوع البزنس",
+      "status": "الحالة",
+      "plan": "الخطة",
+      "branches": "الفروع",
+      "users": "المستخدمين",
+      "createdAt": "تاريخ الإنشاء",
+      "actions": "إجراءات"
+    },
+    "empty": "لا توجد نتائج"
+  },
+  "subscriptions": {
+    "title": "الاشتراكات والخطط",
+    "subtitle": "إدارة الاشتراكات وخطط الفوترة",
+    "tabs": {
+      "subscriptions": "الاشتراكات",
+      "plans": "الخطط"
+    },
+    "filters": {
+      "search": "ابحث في الاشتراكات...",
+      "allStatus": "كل الحالات"
+    },
+    "status": {
+      "active": "نشط",
+      "trial": "تجريبي",
+      "cancelled": "ملغي",
+      "expired": "منتهي",
+      "suspended": "موقوف"
+    },
+    "interval": {
+      "monthly": "شهري",
+      "yearly": "سنوي"
+    },
+    "table": {
+      "tenant": "المستأجر",
+      "plan": "الخطة",
+      "status": "الحالة",
+      "interval": "الفترة",
+      "endsAt": "تاريخ الانتهاء",
+      "amount": "المبلغ",
+      "empty": "لا توجد اشتراكات"
+    },
+    "planForm": {
+      "titleCreate": "إنشاء خطة",
+      "titleEdit": "تعديل الخطة",
+      "name": "اسم الخطة",
+      "namePlaceholder": "مثال: Pro",
+      "priceMonthly": "السعر الشهري ($)",
+      "priceYearly": "السعر السنوي ($)",
+      "maxUsers": "الحد الأقصى للمستخدمين",
+      "maxBranches": "الحد الأقصى للفروع"
+    },
+    "payment": {
+      "title": "دفع يدوي",
+      "tenant": "المستأجر",
+      "tenantPlaceholder": "اختر مستأجر",
+      "plan": "الخطة",
+      "planPlaceholder": "اختر خطة",
+      "interval": "الفترة",
+      "amount": "المبلغ ($)",
+      "note": "ملاحظة",
+      "notePlaceholder": "ملاحظة اختيارية..."
+    }
+  },
+  "featureFlags": {
+    "title": "المميزات",
+    "subtitle": "التحكم في المميزات لكل مستأجر",
+    "search": "ابحث في المميزات...",
+    "allTenants": "كل المستأجرين",
+    "selectTenant": "اختر مستأجر",
+    "allFeatures": "كل المميزات",
+    "allFeaturesDesc": "المميزات العامة المطبقة على كل المستأجرين افتراضياً",
+    "noOverrides": "لا توجد تخصيصات — يستخدم إعدادات الخطة",
+    "overriddenCount": "{count} تخصيص نشط",
+    "noFeatures": "لا توجد مميزات",
+    "planDefault": "افتراضي الخطة",
+    "resetOverride": "إعادة ضبط التخصيص",
+    "overrideLimit": "تخصيص الحد",
+    "limitValue": "قيمة الحد",
+    "unlimited": "غير محدود",
+    "notePlaceholder": "سبب التخصيص...",
+    "category": {
+      "all": "الكل",
+      "core": "أساسي",
+      "advanced": "متقدم",
+      "premium": "مميز"
+    }
+  },
+  "authControl": {
+    "title": "التحكم في المصادقة",
+    "subtitle": "إدارة المستخدمين والصلاحيات وكلمات المرور والجلسات",
+    "allTenants": "كل المستأجرين",
+    "selectTenant": "اختر مستأجراً لعرض المستخدمين",
+    "noSessions": "لا توجد جلسات",
+    "resetPassword": {
+      "title": "إعادة تعيين كلمة المرور",
+      "newPassword": "كلمة المرور الجديدة",
+      "placeholder": "8 أحرف على الأقل",
+      "confirm": "تأكيد كلمة المرور",
+      "confirmPlaceholder": "أعد كتابة كلمة المرور"
+    },
+    "col": {
+      "user": "المستخدم",
+      "role": "الصلاحية",
+      "status": "الحالة",
+      "device": "الجهاز",
+      "ip": "عنوان IP",
+      "lastActive": "آخر نشاط"
+    },
+    "actions": {
+      "revokeAll": "إلغاء كل الجلسات",
+      "revoke": "إلغاء",
+      "changeRole": "تغيير الصلاحية"
+    }
+  },
+  "reports": {
+    "title": "التقارير والمراجعة",
+    "subtitle": "تحليلات المنصة وسجل المراجعة الأمني",
+    "tabs": {
+      "overview": "نظرة عامة",
+      "revenue": "الإيرادات",
+      "tenants": "المستأجرون",
+      "auditLog": "سجل المراجعة"
+    },
+    "metrics": {
+      "mrr": "الإيرادات الشهرية",
+      "arr": "الإيرادات السنوية",
+      "activeTenants": "المستأجرون النشطون",
+      "churnRate": "معدل المغادرة",
+      "newThisMonth": "جديد هذا الشهر",
+      "avgRevenue": "متوسط الإيراد/مستأجر"
+    },
+    "auditLog": {
+      "searchPlaceholder": "ابحث بالمستخدم، المستأجر، الإجراء...",
+      "allSeverity": "كل الأهمية",
+      "allActions": "كل الإجراءات",
+      "noResults": "لا توجد سجلات مطابقة",
+      "severity": {
+        "info": "معلومة",
+        "warning": "تحذير",
+        "critical": "حرج"
+      },
+      "col": {
+        "actor": "المنفذ",
+        "tenant": "المستأجر",
+        "ip": "عنوان IP",
+        "device": "الجهاز",
+        "action": "الإجراء",
+        "resource": "المورد",
+        "timestamp": "الوقت",
+        "severity": "الأهمية"
+      }
+    }
+  },
+  "activity": {
+    "title": "النشاط المباشر",
+    "resume": "استمرار",
+    "pause": "إيقاف",
+    "new": "جديد",
+    "severity": {
+      "info": "معلومة",
+      "ok": "ناجح",
+      "warn": "تحذير",
+      "crit": "حرج"
+    },
+    "filters": {
+      "all": "الكل",
+      "critical": "حرج",
+      "billing": "الفوترة",
+      "security": "الأمان",
+      "system": "النظام",
+      "ai": "الذكاء"
+    }
+  },
+  "aiInsights": {
+    "title": "الذكاء الاصطناعي",
+    "updated": "تحديث منذ دقيقتين",
+    "critical": "حرج",
+    "aiConfidence": "ثقة الذكاء الاصطناعي"
+  },
+  "revenueChart": {
+    "title": "نظرة على الإيرادات",
+    "subtitle": "مقاييس الأداء الشهري",
+    "revenue": "الإيرادات",
+    "tenants": "المستأجرون"
+  }
+}

@@ -25,12 +25,12 @@ export function TenantsFiltersBar({ search, status, onSearchChange, onStatusChan
   return (
     <div className="flex items-center gap-3 flex-wrap">
       <div className="relative flex-1 min-w-[200px]">
-        <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Search className="absolute end-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input
           placeholder={t('search')}
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="pr-9"
+          className="pe-9"
         />
       </div>
       <div className="flex gap-2">

@@ -1,0 +1,68 @@
+{
+  "title": "المصروفات",
+  "subtitle": "إدارة طلبات المصروفات والقوالب",
+  "tabs": {
+    "requests": "الطلبات",
+    "templates": "القوالب"
+  },
+  "stats": {
+    "pending": "طلبات معلقة",
+    "approvedToday": "موافق عليها اليوم",
+    "totalToday": "إجمالي اليوم",
+    "expired": "منتهية الصلاحية"
+  },
+  "status": {
+    "pending": "معلق",
+    "approved": "موافق",
+    "rejected": "مرفوض",
+    "expired": "منتهي"
+  },
+  "actions": {
+    "newRequest": "طلب جديد",
+    "newTemplate": "قالب جديد",
+    "approve": "موافقة",
+    "reject": "رفض"
+  },
+  "table": {
+    "type": "النوع",
+    "requestedBy": "مقدم الطلب",
+    "amount": "المبلغ",
+    "note": "الملاحظة",
+    "expires": "ينتهي",
+    "actions": "الإجراءات"
+  },
+  "request": {
+    "title": "طلب مصروف جديد",
+    "template": "نوع المصروف",
+    "selectTemplate": "اختر نوع المصروف",
+    "amount": "المبلغ",
+    "note": "ملاحظة",
+    "notePlaceholder": "سبب المصروف..."
+  },
+  "reject": {
+    "title": "رفض الطلب",
+    "reason": "سبب الرفض",
+    "reasonPlaceholder": "اكتب سبب الرفض...",
+    "submit": "تأكيد الرفض"
+  },
+  "template": {
+    "title": "قالب جديد",
+    "name": "اسم القالب",
+    "defaultAmount": "المبلغ الافتراضي",
+    "requiresPhoto": "يتطلب صورة",
+    "expiryHours": "مدة الصلاحية (ساعات)"
+  },
+  "empty": {
+    "requests": "لا توجد طلبات مصروفات",
+    "templates": "لا توجد قوالب مصروفات"
+  },
+  "validation": {
+    "templateRequired": "اختر نوع المصروف",
+    "amountRequired": "أدخل المبلغ",
+    "amountMin": "المبلغ يجب أن يكون أكبر من 0",
+    "nameRequired": "أدخل اسم القالب",
+    "expiryRequired": "أدخل مدة الصلاحية"
+  },
+  "expiresIn": "ينتهي بعد",
+  "hours": "ساعة"
+}

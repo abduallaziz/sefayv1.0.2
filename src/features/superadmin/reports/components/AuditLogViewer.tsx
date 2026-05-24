@@ -102,13 +102,14 @@ export default function AuditLogViewer() {
       {/* Filters */}
       <div className="bg-[#141720] border border-[#1e2130] rounded-xl p-4">
         <div className="flex flex-wrap gap-3 items-center">
+
           <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+            <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder={t('searchPlaceholder')}
-              className="w-full bg-[#0f1117] border border-[#1e2130] rounded-lg pl-9 pr-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50"
+              className="w-full bg-[#0f1117] border border-[#1e2130] rounded-lg ps-9 pe-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50"
             />
           </div>
 
@@ -116,21 +117,21 @@ export default function AuditLogViewer() {
             <select
               value={severityFilter}
               onChange={e => setSeverityFilter(e.target.value)}
-              className="appearance-none bg-[#0f1117] border border-[#1e2130] rounded-lg px-3 py-2 pr-8 text-sm text-slate-300 focus:outline-none focus:border-blue-500/50 cursor-pointer"
+              className="appearance-none bg-[#0f1117] border border-[#1e2130] rounded-lg px-3 py-2 pe-8 text-sm text-slate-300 focus:outline-none focus:border-blue-500/50 cursor-pointer"
             >
               <option value="all">{t('allSeverity')}</option>
               <option value="info">{t('severity.info')}</option>
               <option value="warning">{t('severity.warning')}</option>
               <option value="critical">{t('severity.critical')}</option>
             </select>
-            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-500 pointer-events-none" />
+            <ChevronDown className="absolute end-2 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-500 pointer-events-none" />
           </div>
 
           <div className="relative">
             <select
               value={actionFilter}
               onChange={e => setActionFilter(e.target.value)}
-              className="appearance-none bg-[#0f1117] border border-[#1e2130] rounded-lg px-3 py-2 pr-8 text-sm text-slate-300 focus:outline-none focus:border-blue-500/50 cursor-pointer"
+              className="appearance-none bg-[#0f1117] border border-[#1e2130] rounded-lg px-3 py-2 pe-8 text-sm text-slate-300 focus:outline-none focus:border-blue-500/50 cursor-pointer"
             >
               <option value="all">{t('allActions')}</option>
               <option value="invoice">{t('actionTypes.invoice')}</option>
@@ -141,7 +142,7 @@ export default function AuditLogViewer() {
               <option value="plan">{t('actionTypes.plan')}</option>
               <option value="settings">{t('actionTypes.settings')}</option>
             </select>
-            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-500 pointer-events-none" />
+            <ChevronDown className="absolute end-2 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-500 pointer-events-none" />
           </div>
 
           <button
@@ -151,9 +152,10 @@ export default function AuditLogViewer() {
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           </button>
 
-          <div className="text-xs text-slate-500 ml-auto">
+          <div className="text-xs text-slate-500 ms-auto">
             {filtered.length} {t('entries')}
           </div>
+
         </div>
       </div>
 
@@ -199,7 +201,7 @@ export default function AuditLogViewer() {
                     </div>
                   </div>
 
-                  <div className="text-xs text-slate-500 flex-shrink-0 text-right">
+                  <div className="text-xs text-slate-500 flex-shrink-0 text-end">
                     {timeAgo(log.created_at)}
                   </div>
 

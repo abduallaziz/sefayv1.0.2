@@ -1,75 +1,12 @@
 {
-  "nav": {
-    "general": "General",
-    "sales": "Sales",
-    "operations": "Operations",
-    "management": "Management",
-    "overview": "Overview",
-    "pos": "Point of Sale",
-    "customers": "Customers",
-    "items": "Items",
-    "users": "Users",
-    "expenses": "Expenses",
-    "shifts": "Shifts",
-    "reports": "Reports",
-    "settings": "Settings"
-  },
-  "dashboard": {
-    "welcome": "Welcome",
-    "todaySales": "Today's Sales",
-    "invoices": "Invoices",
-    "customers": "Customers",
-    "shiftDuration": "Shift Duration",
-    "openShift": "Open Shift",
-    "recentInvoices": "Recent Invoices",
-    "salesChart": "Sales Chart",
-    "comingSoon": "Coming Soon"
-  },
-  "pos": {
-    "title": "Point of Sale",
-    "search": "Search items...",
-    "allCategories": "All",
-    "currentOrder": "Current Order",
-    "clearAll": "Clear All",
-    "noItems": "No items",
-    "subtotal": "Subtotal",
-    "discount": "Discount",
-    "tax": "VAT",
-    "total": "Total",
-    "checkout": "Checkout",
-    "addDiscount": "+ Add discount / coupon",
-    "discountApplied": "Discount applied",
-    "percentage": "Percentage %",
-    "fixed": "Fixed amount",
-    "couponCode": "Coupon code",
-    "apply": "Apply",
-    "service": "Service",
-    "multiple": "Variants",
-    "payment": {
-      "title": "Checkout",
-      "due": "Amount Due",
-      "cash": "Cash",
-      "card": "Card",
-      "split": "Split",
-      "tendered": "Amount Tendered",
-      "change": "Change",
-      "splitCash": "Cash Amount",
-      "splitCard": "Remaining on Card",
-      "cardInstruction": "Direct customer to terminal and confirm payment",
-      "confirm": "Confirm Payment",
-      "cancel": "Cancel"
-    },
-    "receipt": {
-      "success": "Payment Successful",
-      "invoice": "Invoice",
-      "paymentMethod": "Payment Method",
-      "change": "Change",
-      "print": "Print",
-      "newOrder": "New Order"
-    },
-    "variant": {
-      "title": "Select Option",
-      "cancel": "Cancel"
-    }
-  }
+  "welcome": "Welcome",
+  "todaySales": "Today's Sales",
+  "invoices": "Invoices",
+  "customers": "Customers",
+  "shiftDuration": "Shift Duration",
+  "openShift": "Open Shift",
+  "recentInvoices": "Recent Invoices",
+  "salesChart": "Sales Chart",
+  "comingSoon": "Coming Soon",
+  "search": "Search..."
 }

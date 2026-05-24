@@ -1,0 +1,68 @@
+{
+  "title": "Expenses",
+  "subtitle": "Manage expense requests and templates",
+  "tabs": {
+    "requests": "Requests",
+    "templates": "Templates"
+  },
+  "stats": {
+    "pending": "Pending Requests",
+    "approvedToday": "Approved Today",
+    "totalToday": "Total Today",
+    "expired": "Expired"
+  },
+  "status": {
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "expired": "Expired"
+  },
+  "actions": {
+    "newRequest": "New Request",
+    "newTemplate": "New Template",
+    "approve": "Approve",
+    "reject": "Reject"
+  },
+  "table": {
+    "type": "Type",
+    "requestedBy": "Requested By",
+    "amount": "Amount",
+    "note": "Note",
+    "expires": "Expires",
+    "actions": "Actions"
+  },
+  "request": {
+    "title": "New Expense Request",
+    "template": "Expense Type",
+    "selectTemplate": "Select expense type",
+    "amount": "Amount",
+    "note": "Note",
+    "notePlaceholder": "Reason for expense..."
+  },
+  "reject": {
+    "title": "Reject Request",
+    "reason": "Reject Reason",
+    "reasonPlaceholder": "Write reject reason...",
+    "submit": "Confirm Reject"
+  },
+  "template": {
+    "title": "New Template",
+    "name": "Template Name",
+    "defaultAmount": "Default Amount",
+    "requiresPhoto": "Requires Photo",
+    "expiryHours": "Expiry Hours"
+  },
+  "empty": {
+    "requests": "No expense requests found",
+    "templates": "No expense templates found"
+  },
+  "validation": {
+    "templateRequired": "Select expense type",
+    "amountRequired": "Enter amount",
+    "amountMin": "Amount must be greater than 0",
+    "nameRequired": "Enter template name",
+    "expiryRequired": "Enter expiry hours"
+  },
+  "expiresIn": "Expires in",
+  "hours": "hours"
+}

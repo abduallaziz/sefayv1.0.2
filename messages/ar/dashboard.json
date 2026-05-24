@@ -1,75 +1,12 @@
 {
-  "nav": {
-    "general": "عام",
-    "sales": "المبيعات",
-    "operations": "العمليات",
-    "management": "الإدارة",
-    "overview": "الرئيسية",
-    "pos": "نقطة البيع",
-    "customers": "العملاء",
-    "items": "المنتجات",
-    "users": "المستخدمون",
-    "expenses": "المصروفات",
-    "shifts": "الورديات",
-    "reports": "التقارير",
-    "settings": "الإعدادات"
-  },
-  "dashboard": {
-    "welcome": "مرحباً",
-    "todaySales": "مبيعات اليوم",
-    "invoices": "الفواتير",
-    "customers": "العملاء",
-    "shiftDuration": "الوردية",
-    "openShift": "وردية مفتوحة",
-    "recentInvoices": "آخر الفواتير",
-    "salesChart": "مخطط المبيعات",
-    "comingSoon": "قادم"
-  },
-  "pos": {
-    "title": "نقطة البيع",
-    "search": "بحث عن منتج...",
-    "allCategories": "الكل",
-    "currentOrder": "الطلب الحالي",
-    "clearAll": "مسح الكل",
-    "noItems": "لا توجد منتجات",
-    "subtotal": "المجموع الجزئي",
-    "discount": "الخصم",
-    "tax": "ضريبة القيمة المضافة",
-    "total": "الإجمالي",
-    "checkout": "إتمام الدفع",
-    "addDiscount": "+ إضافة خصم / كوبون",
-    "discountApplied": "خصم مطبق",
-    "percentage": "نسبة %",
-    "fixed": "مبلغ ثابت",
-    "couponCode": "كود الكوبون",
-    "apply": "تطبيق",
-    "service": "خدمة",
-    "multiple": "متعدد",
-    "payment": {
-      "title": "إتمام الدفع",
-      "due": "المبلغ المستحق",
-      "cash": "نقداً",
-      "card": "بطاقة",
-      "split": "مختلط",
-      "tendered": "المبلغ المدفوع",
-      "change": "الباقي للعميل",
-      "splitCash": "المبلغ نقداً",
-      "splitCard": "المتبقي على البطاقة",
-      "cardInstruction": "وجّه العميل للطرفية وأكّد الدفع",
-      "confirm": "تأكيد الدفع",
-      "cancel": "إلغاء"
-    },
-    "receipt": {
-      "success": "تم الدفع بنجاح",
-      "invoice": "فاتورة",
-      "paymentMethod": "طريقة الدفع",
-      "change": "الباقي",
-      "print": "طباعة",
-      "newOrder": "طلب جديد"
-    },
-    "variant": {
-      "title": "اختر الخيار",
-      "cancel": "إلغاء"
-    }
-  }
+  "welcome": "مرحباً",
+  "todaySales": "مبيعات اليوم",
+  "invoices": "الفواتير",
+  "customers": "العملاء",
+  "shiftDuration": "الوردية",
+  "openShift": "وردية مفتوحة",
+  "recentInvoices": "آخر الفواتير",
+  "salesChart": "مخطط المبيعات",
+  "comingSoon": "قادم",
+  "search": "بحث..."
 }

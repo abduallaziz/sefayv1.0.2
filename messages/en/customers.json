@@ -1,0 +1,76 @@
+{
+  "customers": {
+    "title": "Customers",
+    "subtitle": "Manage your customers and their order history",
+    "add_customer": "Add Customer",
+    "loading": "Loading...",
+    "currency": "SAR",
+    "search_placeholder": "Search by name, phone, or email...",
+    "count": "{count} customers",
+    "stats": {
+      "total": "Total Customers",
+      "new_month": "New this month",
+      "total_points": "Total Loyalty Points"
+    },
+    "table": {
+      "customer": "Customer",
+      "contact": "Contact",
+      "orders": "Orders",
+      "spent": "Spent",
+      "points": "Points"
+    },
+    "sort": {
+      "newest": "Newest",
+      "name": "Name",
+      "points": "Points",
+      "spent": "Amount Spent",
+      "asc": "Ascending",
+      "desc": "Descending"
+    },
+    "empty": {
+      "title": "No customers yet",
+      "desc": "Add your first customer to get started"
+    },
+    "status": {
+      "completed": "Completed",
+      "pending": "Pending",
+      "cancelled": "Cancelled"
+    },
+    "actions": {
+      "view": "View Details",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "form": {
+      "title_add": "Add New Customer",
+      "title_edit": "Edit Customer",
+      "name": "Name",
+      "phone": "Phone Number",
+      "email": "Email (optional)",
+      "cancel": "Cancel",
+      "save": "Save",
+      "add": "Add",
+      "saving": "Saving...",
+      "errors": {
+        "name": "Name is required (at least 2 characters)",
+        "phone": "Phone number is required",
+        "email": "Invalid email address"
+      }
+    },
+    "details": {
+      "since": "Customer since",
+      "orders": "orders",
+      "points": "points",
+      "history": "Order History",
+      "no_orders": "No orders yet",
+      "items": "items"
+    },
+    "delete": {
+      "title": "Delete Customer",
+      "message": "Are you sure you want to delete {name}? This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Delete",
+      "deleting": "Deleting..."
+    }
+  }
+}

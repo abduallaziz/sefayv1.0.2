@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { NAV_CONFIG } from '../config/nav.config';
 import { usePermission, useFeature, useRole } from '@/core/permissions/hooks/usePermission';
@@ -11,8 +11,9 @@ import { Building2, ChevronDown, LogOut } from 'lucide-react';
 import { useState } from 'react';
 
 function NavItemComponent({ item }: { item: (typeof NAV_CONFIG)[0]['items'][0] }) {
-  const t = useTranslations();
+  const t = useTranslations('shell.nav');
   const pathname = usePathname();
+  const locale = useLocale();
   const hasPermission = usePermission(item.permission ?? '');
   const hasFeature = useFeature(item.feature ?? '');
   const role = useRole();
@@ -21,12 +22,13 @@ function NavItemComponent({ item }: { item: (typeof NAV_CONFIG)[0]['items'][0] }
   if (item.feature && !hasFeature) return null;
   if (item.roles && role && !item.roles.includes(role)) return null;
 
-  const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+  const fullHref = `/${locale}${item.href}`;
+  const isActive = pathname === fullHref || pathname.startsWith(fullHref + '/');
   const Icon = item.icon;
 
   return (
     <Link
-      href={item.href}
+      href={fullHref}
       className={cn(
         'flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-150',
         isActive
@@ -46,7 +48,7 @@ function NavItemComponent({ item }: { item: (typeof NAV_CONFIG)[0]['items'][0] }
 }
 
 export function DashboardSidebar() {
-  const t = useTranslations();
+  const t = useTranslations('shell.nav');
   const user = useAuthStore((s) => s.user);
   const clearAuth = useAuthStore((s) => s.clearAuth);
   const [branchOpen, setBranchOpen] = useState(false);
@@ -71,7 +73,7 @@ export function DashboardSidebar() {
           className="w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.07] transition-colors text-sm text-slate-300"
         >
           <Building2 className="w-4 h-4 text-slate-500" />
-          <span className="flex-1 text-start truncate">الفرع الرئيسي</span>
+          <span className="flex-1 text-start truncate">{t('mainBranch')}</span>
           <ChevronDown className={cn('w-4 h-4 text-slate-500 transition-transform', branchOpen && 'rotate-180')} />
         </button>
       </div>

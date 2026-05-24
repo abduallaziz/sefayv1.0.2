@@ -1,6 +1,9 @@
+// src/features/pos/components/CartPanel.tsx
+
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Cart } from '../types/pos.types'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
@@ -15,6 +18,7 @@ interface Props {
 }
 
 export function CartPanel({ cart, onUpdateQty, onRemoveItem, onApplyDiscount, onCheckout, onClear }: Props) {
+  const t = useTranslations('pos')
   const [showDiscount, setShowDiscount] = useState(false)
   const [discountInput, setDiscountInput] = useState('')
   const [discountType, setDiscountType] = useState<'percentage' | 'fixed'>('percentage')
@@ -32,10 +36,10 @@ export function CartPanel({ cart, onUpdateQty, onRemoveItem, onApplyDiscount, on
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
-        <h2 className="font-semibold text-base">الطلب الحالي</h2>
+        <h2 className="font-semibold text-base">{t('currentOrder')}</h2>
         {cart.items.length > 0 && (
           <button onClick={onClear} className="text-xs text-destructive hover:underline">
-            مسح الكل
+            {t('clearAll')}
           </button>
         )}
       </div>
@@ -45,7 +49,7 @@ export function CartPanel({ cart, onUpdateQty, onRemoveItem, onApplyDiscount, on
         {cart.items.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-40 text-muted-foreground">
             <span className="text-4xl mb-2">🛒</span>
-            <p className="text-sm">لا توجد منتجات</p>
+            <p className="text-sm">{t('noItems')}</p>
           </div>
         ) : (
           cart.items.map((item) => (
@@ -55,7 +59,7 @@ export function CartPanel({ cart, onUpdateQty, onRemoveItem, onApplyDiscount, on
                 {item.variant_name && (
                   <p className="text-xs text-muted-foreground">{item.variant_name}</p>
                 )}
-                <p className="text-xs text-primary mt-0.5">{item.unit_price} ر.س / قطعة</p>
+                <p className="text-xs text-primary mt-0.5">{item.unit_price} {t('payment.cash')}</p>
               </div>
               <div className="flex items-center gap-1">
                 <button
@@ -78,7 +82,7 @@ export function CartPanel({ cart, onUpdateQty, onRemoveItem, onApplyDiscount, on
                   onClick={() => onRemoveItem(item.id)}
                   className="text-xs text-destructive hover:underline"
                 >
-                  حذف
+                  ×
                 </button>
               </div>
             </div>
@@ -92,7 +96,9 @@ export function CartPanel({ cart, onUpdateQty, onRemoveItem, onApplyDiscount, on
           onClick={() => setShowDiscount(!showDiscount)}
           className="text-sm text-primary hover:underline"
         >
-          {cart.discount_amount > 0 ? `✓ خصم مطبق: −${cart.discount_amount} ر.س` : '+ إضافة خصم / كوبون'}
+          {cart.discount_amount > 0
+            ? `✓ ${t('discountApplied')}: −${cart.discount_amount} ر.س`
+            : t('addDiscount')}
         </button>
 
         {showDiscount && (
@@ -102,30 +108,30 @@ export function CartPanel({ cart, onUpdateQty, onRemoveItem, onApplyDiscount, on
                 onClick={() => setDiscountType('percentage')}
                 className={`flex-1 py-1 rounded-md text-xs font-medium transition-colors ${discountType === 'percentage' ? 'bg-primary text-primary-foreground' : 'bg-background border border-border'}`}
               >
-                نسبة %
+                {t('percentage')}
               </button>
               <button
                 onClick={() => setDiscountType('fixed')}
                 className={`flex-1 py-1 rounded-md text-xs font-medium transition-colors ${discountType === 'fixed' ? 'bg-primary text-primary-foreground' : 'bg-background border border-border'}`}
               >
-                مبلغ ثابت
+                {t('fixed')}
               </button>
             </div>
             <Input
               type="number"
-              placeholder={discountType === 'percentage' ? 'النسبة (مثال: 10)' : 'المبلغ (مثال: 20)'}
+              placeholder={discountType === 'percentage' ? '10' : '20'}
               value={discountInput}
               onChange={(e) => setDiscountInput(e.target.value)}
               className="text-sm h-8"
             />
             <Input
-              placeholder="كود الكوبون (اختياري)"
+              placeholder={t('couponCode')}
               value={couponInput}
               onChange={(e) => setCouponInput(e.target.value)}
               className="text-sm h-8"
             />
             <Button size="sm" className="w-full h-8" onClick={handleApplyDiscount}>
-              تطبيق
+              {t('apply')}
             </Button>
           </div>
         )}
@@ -134,21 +140,21 @@ export function CartPanel({ cart, onUpdateQty, onRemoveItem, onApplyDiscount, on
       {/* Totals */}
       <div className="space-y-1.5 text-sm border-t border-border pt-3 mb-3">
         <div className="flex justify-between text-muted-foreground">
-          <span>المجموع الجزئي</span>
+          <span>{t('subtotal')}</span>
           <span>{cart.subtotal.toFixed(2)} ر.س</span>
         </div>
         {cart.discount_amount > 0 && (
           <div className="flex justify-between text-green-600">
-            <span>الخصم</span>
+            <span>{t('discount')}</span>
             <span>−{cart.discount_amount.toFixed(2)} ر.س</span>
           </div>
         )}
         <div className="flex justify-between text-muted-foreground">
-          <span>ضريبة القيمة المضافة (15%)</span>
+          <span>{t('tax')}</span>
           <span>{cart.tax_amount.toFixed(2)} ر.س</span>
         </div>
         <div className="flex justify-between font-bold text-base pt-1 border-t border-border">
-          <span>الإجمالي</span>
+          <span>{t('total')}</span>
           <span className="text-primary">{cart.total.toFixed(2)} ر.س</span>
         </div>
       </div>
@@ -159,7 +165,7 @@ export function CartPanel({ cart, onUpdateQty, onRemoveItem, onApplyDiscount, on
         disabled={cart.items.length === 0}
         onClick={onCheckout}
       >
-        إتمام الدفع — {cart.total.toFixed(2)} ر.س
+        {t('checkout')} — {cart.total.toFixed(2)} ر.س
       </Button>
     </div>
   )

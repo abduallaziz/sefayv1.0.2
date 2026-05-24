@@ -10,7 +10,9 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-const navItems = [
+type NavLabel = { en: string; ar: string }
+
+const navItems: { href: string; icon: React.ElementType; label: NavLabel }[] = [
   { href: '/superadmin', icon: LayoutDashboard, label: { en: 'Overview', ar: 'الرئيسية' } },
   { href: '/superadmin/tenants', icon: Building2, label: { en: 'Tenants', ar: 'المستأجرون' } },
   { href: '/superadmin/subscriptions', icon: CreditCard, label: { en: 'Subscriptions', ar: 'الاشتراكات' } },

@@ -1,21 +1,30 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/core/auth/stores/auth.store';
 
 export function useTenantAuth() {
   const router = useRouter();
-  const { user, isLoading, isAuthenticated } = useAuthStore();
+  const pathname = usePathname();
+  const { user, isAuthenticated } = useAuthStore();
+  const [hydrated, setHydrated] = useState(false);
+
+  const locale = pathname.split('/')[1] || 'ar';
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.replace('/login');
-    }
-    if (!isLoading && isAuthenticated && user?.role === 'superadmin') {
-      router.replace('/superadmin');
-    }
-  }, [isLoading, isAuthenticated, user, router]);
+    setHydrated(true);
+  }, []);
 
-  return { user, isLoading, isAuthenticated };
+  useEffect(() => {
+    if (!hydrated) return;
+    if (!isAuthenticated) {
+      router.replace(`/${locale}/login`);
+    }
+    if (isAuthenticated && user?.role === 'superadmin') {
+      router.replace(`/${locale}/superadmin`);
+    }
+  }, [hydrated, isAuthenticated, user, router, locale]);
+
+  return { user, isLoading: !hydrated, isAuthenticated };
 }

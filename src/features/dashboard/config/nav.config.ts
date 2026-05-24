@@ -8,6 +8,7 @@ import {
   BarChart3,
   Settings,
   UserCircle,
+  FileText,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -29,76 +30,76 @@ export interface NavSection {
 
 export const NAV_CONFIG: NavSection[] = [
   {
-    titleKey: 'nav.general',
+    titleKey: 'general',
     items: [
       {
         key: 'overview',
         href: '/dashboard',
         icon: LayoutDashboard,
-        labelKey: 'nav.overview',
+        labelKey: 'overview',
       },
     ],
   },
   {
-    titleKey: 'nav.sales',
+    titleKey: 'sales',
     items: [
       {
         key: 'pos',
         href: '/dashboard/pos',
         icon: ShoppingCart,
-        labelKey: 'nav.pos',
+        labelKey: 'pos',
         permission: 'invoice.create.own',
         feature: 'pos',
       },
       {
         key: 'invoices',
-        href: '/dashboard/invoices',
-        icon: ShoppingCart,
-        labelKey: 'nav.invoices',
+        href: '/dashboard/orders',
+        icon: FileText,
+        labelKey: 'invoices',
         permission: 'invoice.view.own',
       },
       {
         key: 'customers',
         href: '/dashboard/customers',
         icon: UserCircle,
-        labelKey: 'nav.customers',
+        labelKey: 'customers',
       },
     ],
   },
   {
-    titleKey: 'nav.operations',
+    titleKey: 'operations',
     items: [
       {
         key: 'items',
         href: '/dashboard/items',
         icon: Package,
-        labelKey: 'nav.items',
+        labelKey: 'items',
         permission: 'items.manage',
       },
       {
         key: 'shifts',
         href: '/dashboard/shifts',
         icon: Clock,
-        labelKey: 'nav.shifts',
+        labelKey: 'shifts',
         permission: 'shift.view.own',
       },
       {
         key: 'expenses',
         href: '/dashboard/expenses',
         icon: TrendingDown,
-        labelKey: 'nav.expenses',
+        labelKey: 'expenses',
         permission: 'expense.request',
       },
     ],
   },
   {
-    titleKey: 'nav.management',
+    titleKey: 'management',
     items: [
       {
         key: 'users',
         href: '/dashboard/users',
         icon: Users,
-        labelKey: 'nav.users',
+        labelKey: 'users',
         permission: 'users.manage',
         roles: ['owner', 'manager'],
       },
@@ -106,14 +107,14 @@ export const NAV_CONFIG: NavSection[] = [
         key: 'reports',
         href: '/dashboard/reports',
         icon: BarChart3,
-        labelKey: 'nav.reports',
+        labelKey: 'reports',
         permission: 'reports.view.branch',
       },
       {
         key: 'settings',
         href: '/dashboard/settings',
         icon: Settings,
-        labelKey: 'nav.settings',
+        labelKey: 'settings',
         roles: ['owner'],
       },
     ],

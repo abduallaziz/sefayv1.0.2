@@ -8,11 +8,66 @@ export default getRequestConfig(async ({ requestLocale }) => {
     locale = routing.defaultLocale
   }
 
+  const loadNamespace = async (ns: string) => {
+    try {
+      return (await import(`../../messages/${locale}/${ns}.json`)).default
+    } catch {
+      return {}
+    }
+  }
+
+  const loadLegacy = async (file: string) => {
+    try {
+      return (await import(`../../messages/${file}.json`)).default
+    } catch {
+      return {}
+    }
+  }
+
+  const [
+    common,
+    shell,
+    superadmin,
+    dashboard,
+    orders,
+    pos,
+    expenses,
+    legacyRoot,
+    legacyDashboard,
+    legacyItems,
+    legacyCustomers,
+  ] = await Promise.all([
+    loadNamespace('common'),
+    loadNamespace('shell'),
+    loadNamespace('superadmin'),
+    loadNamespace('dashboard'),
+    loadNamespace('orders'),
+    loadNamespace('pos'),
+    loadNamespace('expenses'),
+    loadLegacy(locale),
+    loadLegacy(`${locale}/dashboard`),
+    loadLegacy(`${locale}/items`),
+    loadLegacy(`${locale}/customers`),
+  ])
+
   return {
     locale,
     messages: {
-  ...(await import(`../../messages/${locale}.json`)).default,
-  ...(await import(`../../messages/${locale}/dashboard.json`)).default,
-}
-}
+      // new system first — highest priority
+      common,
+      shell,
+      superadmin,
+      dashboard: {
+        ...(legacyDashboard?.dashboard ?? {}),
+        ...dashboard,
+      },
+      orders,
+      pos,
+      expenses,
+      // legacy last — fallback only
+      ...legacyRoot,
+      ...legacyItems,
+      ...legacyCustomers,
+    }
+  }
 })
