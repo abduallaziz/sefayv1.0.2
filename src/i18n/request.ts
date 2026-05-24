@@ -32,6 +32,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
     orders,
     pos,
     expenses,
+    items,
     legacyRoot,
     legacyDashboard,
     legacyItems,
@@ -44,6 +45,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
     loadNamespace('orders'),
     loadNamespace('pos'),
     loadNamespace('expenses'),
+    loadNamespace('items'),
     loadLegacy(locale),
     loadLegacy(`${locale}/dashboard`),
     loadLegacy(`${locale}/items`),
@@ -64,6 +66,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
       orders,
       pos,
       expenses,
+      items,
       // legacy last — fallback only
       ...legacyRoot,
       ...legacyItems,

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useTranslations } from 'next-intl';
@@ -17,20 +16,20 @@ export function ItemFiltersBar({ filters, onChange, categories }: Props) {
   return (
     <div className="flex flex-wrap gap-3">
       <div className="relative flex-1 min-w-[200px]">
-        <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
         <input
           type="text"
           placeholder={t('searchPlaceholder')}
           value={filters.search}
           onChange={(e) => onChange({ ...filters, search: e.target.value })}
-          className="w-full ps-9 pe-4 py-2 text-sm bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+          className="w-full ps-9 pe-4 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-700"
         />
       </div>
 
       <select
         value={filters.type}
         onChange={(e) => onChange({ ...filters, type: e.target.value as ItemType | 'all' })}
-        className="px-3 py-2 text-sm bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+        className="px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-700"
       >
         <option value="all">{t('allTypes')}</option>
         <option value="product">{t('product')}</option>
@@ -41,7 +40,7 @@ export function ItemFiltersBar({ filters, onChange, categories }: Props) {
       <select
         value={filters.category_id}
         onChange={(e) => onChange({ ...filters, category_id: e.target.value })}
-        className="px-3 py-2 text-sm bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+        className="px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-700"
       >
         <option value="all">{t('allCategories')}</option>
         {categories.map((c) => (
@@ -55,7 +54,7 @@ export function ItemFiltersBar({ filters, onChange, categories }: Props) {
           const val = e.target.value;
           onChange({ ...filters, is_active: val === 'all' ? 'all' : val === 'true' });
         }}
-        className="px-3 py-2 text-sm bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+        className="px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-700"
       >
         <option value="all">{t('allStatus')}</option>
         <option value="true">{t('active')}</option>
