@@ -1,1 +1,20 @@
- 
+{
+  "title": "Shifts",
+  "subtitle": "Manage work shifts",
+  "open": "Open Shift",
+  "close": "Close Shift",
+  "current": "Current Shift",
+  "history": "Shift History",
+  "status": {
+    "open": "Open",
+    "closed": "Closed"
+  },
+  "openingCash": "Opening Cash",
+  "closingCash": "Closing Cash",
+  "expectedCash": "Expected Cash",
+  "discrepancy": "Discrepancy",
+  "openedAt": "Opened At",
+  "closedAt": "Closed At",
+  "noShift": "No open shift",
+  "confirmClose": "Confirm Close Shift"
+}
