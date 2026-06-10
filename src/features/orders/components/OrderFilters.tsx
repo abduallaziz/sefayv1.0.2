@@ -12,17 +12,17 @@ export function OrderFilters({ filters, onChange }: Props) {
   const t = useTranslations('orders');
 
   const statuses: { value: OrderStatus | ''; labelKey: string }[] = [
-    { value: '', labelKey: 'all' },
-    { value: 'completed', labelKey: 'completed' },
-    { value: 'pending', labelKey: 'pending' },
-    { value: 'cancelled', labelKey: 'cancelled' },
+    { value: '', labelKey: 'status.all' },
+    { value: 'completed', labelKey: 'status.completed' },
+    { value: 'pending', labelKey: 'status.pending' },
+    { value: 'cancelled', labelKey: 'status.cancelled' },
   ];
 
   const methods: { value: PaymentMethod | ''; labelKey: string }[] = [
-    { value: '', labelKey: 'all' },
-    { value: 'cash', labelKey: 'cash' },
-    { value: 'card', labelKey: 'card' },
-    { value: 'split', labelKey: 'split' },
+    { value: '', labelKey: 'status.all' },
+    { value: 'cash', labelKey: 'payment_method.cash' },
+    { value: 'card', labelKey: 'payment_method.card' },
+    { value: 'split', labelKey: 'payment_method.split' },
   ];
 
   return (
@@ -41,7 +41,7 @@ export function OrderFilters({ filters, onChange }: Props) {
         className="border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground focus:outline-none"
       >
         {statuses.map(s => (
-          <option key={s.value} value={s.value}>{t(s.labelKey)}</option>
+          <option key={s.value} value={s.value}>{t(s.labelKey as any)}</option>
         ))}
       </select>
 
@@ -51,7 +51,7 @@ export function OrderFilters({ filters, onChange }: Props) {
         className="border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground focus:outline-none"
       >
         {methods.map(m => (
-          <option key={m.value} value={m.value}>{t(m.labelKey)}</option>
+          <option key={m.value} value={m.value}>{t(m.labelKey as any)}</option>
         ))}
       </select>
 

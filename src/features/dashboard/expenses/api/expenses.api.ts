@@ -1,56 +1,85 @@
-export type ExpenseStatus = 'pending' | 'approved' | 'rejected' | 'expired'
+import { apiClient } from '@/lib/api';
 
-export interface ExpenseTemplate {
-  id: string
-  name: string
-  default_amount: number | null
-  requires_photo: boolean
-  expiry_hours: number
-  is_active: boolean
-}
+export type ExpenseStatus = 'pending' | 'approved' | 'rejected' | 'expired';
 
 export interface Expense {
-  id: string
-  template_id: string | null
-  template_name: string
-  requested_by: string
-  amount: number
-  note: string
-  photo_url: string | null
-  status: ExpenseStatus
-  expires_at: string
-  created_at: string
-  resolved_at: string | null
+  id: string;
+  branch_id: string | null;
+  category_id: string | null;
+  template_id: string | null;
+  title: string;
+  amount: number;
+  notes: string | null;
+  status: ExpenseStatus;
+  requested_by: string | null;
+  approved_by: string | null;
+  photo_url: string | null;
+  expires_at: string | null;
+  resolved_at: string | null;
+  deleted_at: string | null;
+  created_at: string;
+  updated_at: string;
+  template: { id: string; name: string } | null;
+  requester: { id: string; name: string; role: string } | null;
+  approver: { id: string; name: string; role: string } | null;
 }
 
-export const mockTemplates: ExpenseTemplate[] = [
-  { id: '1', name: 'مستلزمات مكتبية', default_amount: 100, requires_photo: false, expiry_hours: 24, is_active: true },
-  { id: '2', name: 'وقود', default_amount: 200, requires_photo: true, expiry_hours: 12, is_active: true },
-  { id: '3', name: 'صيانة', default_amount: null, requires_photo: true, expiry_hours: 48, is_active: true },
-]
+export interface ExpenseTemplate {
+  id: string;
+  tenant_id: string;
+  name: string;
+  default_amount: number | null;
+  requires_photo: boolean;
+  expiry_hours: number;
+  is_active: boolean;
+  deleted_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
 
-export const mockExpenses: Expense[] = [
-  {
-    id: '1', template_id: '1', template_name: 'مستلزمات مكتبية',
-    requested_by: 'أحمد الكاشير', amount: 85, note: 'ورق طباعة',
-    photo_url: null, status: 'pending',
-    expires_at: new Date(Date.now() + 3600000 * 20).toISOString(),
-    created_at: new Date().toISOString(), resolved_at: null,
-  },
-  {
-    id: '2', template_id: '2', template_name: 'وقود',
-    requested_by: 'سارة المديرة', amount: 180, note: 'توصيل طلبات',
-    photo_url: null, status: 'approved',
-    expires_at: new Date(Date.now() + 3600000 * 8).toISOString(),
-    created_at: new Date(Date.now() - 3600000 * 2).toISOString(),
-    resolved_at: new Date(Date.now() - 3600000).toISOString(),
-  },
-  {
-    id: '3', template_id: '3', template_name: 'صيانة',
-    requested_by: 'أحمد الكاشير', amount: 350, note: 'إصلاح طابعة',
-    photo_url: null, status: 'rejected',
-    expires_at: new Date(Date.now() - 3600000).toISOString(),
-    created_at: new Date(Date.now() - 3600000 * 5).toISOString(),
-    resolved_at: new Date(Date.now() - 3600000 * 3).toISOString(),
-  },
-]
+export interface CreateExpenseDto {
+  amount: number;
+  description?: string;
+  category_id?: string;
+  branch_id?: string;
+}
+
+export interface ExpenseStatsResult {
+  total_count: number;
+  total_amount: number;
+  approved_count: number;
+  approved_amount: number;
+  pending_count: number;
+  pending_amount: number;
+  rejected_count: number;
+  rejected_amount: number;
+}
+
+export const expensesApi = {
+  getAll: (): Promise<Expense[]> =>
+    apiClient.get<Expense[]>('/expenses'),
+
+  getTemplates: (): Promise<ExpenseTemplate[]> =>
+    apiClient.get<ExpenseTemplate[]>('/expense-templates'),
+
+  getStats: (): Promise<ExpenseStatsResult> =>
+    apiClient.get<ExpenseStatsResult>('/expenses/stats'),
+
+  create: (dto: CreateExpenseDto): Promise<Expense> =>
+    apiClient.post<Expense>('/expenses', dto),
+
+  approve: (id: string): Promise<Expense> =>
+    apiClient.patch<Expense>(`/expenses/${id}/approve`, {}),
+
+  reject: (id: string, reason?: string): Promise<Expense> =>
+    apiClient.patch<Expense>(`/expenses/${id}/reject`, { reason }),
+
+  createTemplate: (dto: Omit<ExpenseTemplate, 'id' | 'tenant_id' | 'deleted_at' | 'created_at' | 'updated_at'>): Promise<ExpenseTemplate> =>
+    apiClient.post<ExpenseTemplate>('/expense-templates', dto),
+
+  updateTemplate: (id: string, dto: Partial<Omit<ExpenseTemplate, 'id' | 'tenant_id' | 'deleted_at' | 'created_at' | 'updated_at'>>): Promise<ExpenseTemplate> =>
+    apiClient.patch<ExpenseTemplate>(`/expense-templates/${id}`, dto),
+
+  deleteTemplate: (id: string): Promise<void> =>
+    apiClient.delete<void>(`/expense-templates/${id}`),
+};

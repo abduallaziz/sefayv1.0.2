@@ -37,7 +37,7 @@ export function OrdersTable({ orders, onViewOrder }: Props) {
             <th className="text-right px-4 py-3 font-medium">{t('customer')}</th>
             <th className="text-right px-4 py-3 font-medium">{t('total')}</th>
             <th className="text-right px-4 py-3 font-medium">{t('payment')}</th>
-            <th className="text-right px-4 py-3 font-medium">{t('status')}</th>
+            <th className="text-right px-4 py-3 font-medium">{t('status.all')}</th>
             <th className="text-right px-4 py-3 font-medium">{t('date')}</th>
             <th className="px-4 py-3"></th>
           </tr>
@@ -56,10 +56,12 @@ export function OrdersTable({ orders, onViewOrder }: Props) {
               <td className="px-4 py-3 text-foreground font-medium">{order.cashier_name}</td>
               <td className="px-4 py-3 text-foreground">{order.customer_name || '—'}</td>
               <td className="px-4 py-3 font-bold text-foreground">{order.total} ر.س</td>
-              <td className="px-4 py-3 text-muted-foreground">{t(order.payment_method)}</td>
+              <td className="px-4 py-3 text-muted-foreground">
+                {t(`payment_method.${order.payment_method}`)}
+              </td>
               <td className="px-4 py-3">
                 <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[order.status]}`}>
-                  {t(order.status)}
+                  {t(`status.${order.status}`)}
                 </span>
               </td>
               <td className="px-4 py-3 text-muted-foreground text-xs">

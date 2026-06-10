@@ -7,7 +7,7 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer,
 } from 'recharts'
-import type { RevenueData } from '../types'
+import type { MRRHistoryPoint } from '../types'
 
 const PERIODS = ['7D', '1M', '3M', '1Y'] as const
 type Period = typeof PERIODS[number]
@@ -22,17 +22,13 @@ function CustomTooltip({ active, payload, label, t }: any) {
           <div className="h-2 w-2 rounded-full bg-violet-500" />
           <p className="text-sm font-bold text-white">${payload[0]?.value?.toLocaleString()}</p>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-cyan-400" />
-          <p className="text-sm text-white/60">{payload[1]?.value} {t('tenants')}</p>
-        </div>
       </div>
     </div>
   )
 }
 
 interface RevenueChartProps {
-  data: RevenueData[]
+  data: MRRHistoryPoint[]
 }
 
 export function RevenueChart({ data }: RevenueChartProps) {
@@ -76,10 +72,6 @@ export function RevenueChart({ data }: RevenueChartProps) {
           <div className="h-2.5 w-2.5 rounded-full bg-violet-500" />
           <span className="text-xs text-white/40">{t('revenue')}</span>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="h-2.5 w-2.5 rounded-full bg-cyan-400" />
-          <span className="text-xs text-white/40">{t('tenants')}</span>
-        </div>
       </div>
 
       <div className="relative">
@@ -90,17 +82,12 @@ export function RevenueChart({ data }: RevenueChartProps) {
                 <stop offset="0%" stopColor="#7c3aed" stopOpacity={0.4} />
                 <stop offset="100%" stopColor="#7c3aed" stopOpacity={0} />
               </linearGradient>
-              <linearGradient id="gTenants" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#22d3ee" stopOpacity={0.3} />
-                <stop offset="100%" stopColor="#22d3ee" stopOpacity={0} />
-              </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" vertical={false} />
             <XAxis dataKey="month" tick={{ fill: '#ffffff30', fontSize: 11 }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fill: '#ffffff30', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${v / 1000}k`} width={45} />
             <Tooltip content={<CustomTooltip t={t} />} cursor={{ stroke: '#ffffff10', strokeWidth: 1 }} />
-            <Area type="monotone" dataKey="revenue" stroke="#7c3aed" strokeWidth={2.5} fill="url(#gRevenue)" dot={false} activeDot={{ r: 5, fill: '#7c3aed', strokeWidth: 2, stroke: '#fff' }} />
-            <Area type="monotone" dataKey="tenants" stroke="#22d3ee" strokeWidth={2} fill="url(#gTenants)" dot={false} activeDot={{ r: 4, fill: '#22d3ee', strokeWidth: 2, stroke: '#fff' }} />
+            <Area type="monotone" dataKey="mrr" stroke="#7c3aed" strokeWidth={2.5} fill="url(#gRevenue)" dot={false} activeDot={{ r: 5, fill: '#7c3aed', strokeWidth: 2, stroke: '#fff' }} />
           </AreaChart>
         </ResponsiveContainer>
       </div>

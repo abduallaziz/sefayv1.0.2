@@ -37,6 +37,11 @@ export function CustomersPage() {
   const updateMutation = useUpdateCustomer();
   const deleteMutation = useDeleteCustomer();
 
+  const totalLoyaltyPoints = useMemo(
+    () => customers?.reduce((sum, c) => sum + (c.loyalty_points ?? 0), 0) ?? 0,
+    [customers],
+  );
+
   const filtered = useMemo(() => {
     if (!customers) return [];
     let list = [...customers];
@@ -45,14 +50,14 @@ export function CustomersPage() {
       const q = filters.search.toLowerCase();
       list = list.filter(
         (c) =>
-          c.name.toLowerCase().includes(q) ||
-          c.phone.includes(q) ||
-          c.email?.toLowerCase().includes(q)
+          c.full_name.toLowerCase().includes(q) ||
+          c.phone?.includes(q) ||
+          c.email?.toLowerCase().includes(q),
       );
     }
 
     list.sort((a, b) => {
-      const key = filters.sortBy;
+      const key = filters.sortBy as keyof Customer;
       const aVal = a[key] ?? 0;
       const bVal = b[key] ?? 0;
       if (filters.sortOrder === 'asc') return aVal > bVal ? 1 : -1;
@@ -101,43 +106,41 @@ export function CustomersPage() {
       </div>
 
       {/* Stats */}
-      {stats && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex items-center gap-4">
-            <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-              <Users className="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                {stats.total.toLocaleString()}
-              </p>
-              <p className="text-xs text-gray-400">{t('stats.total')}</p>
-            </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex items-center gap-4">
+          <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+            <Users className="w-5 h-5 text-blue-600" />
           </div>
-          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex items-center gap-4">
-            <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-green-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                +{stats.new_this_month}
-              </p>
-              <p className="text-xs text-gray-400">{t('stats.new_month')}</p>
-            </div>
-          </div>
-          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex items-center gap-4">
-            <div className="w-10 h-10 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
-              <Star className="w-5 h-5 text-yellow-600 fill-yellow-500" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                {stats.total_loyalty_points.toLocaleString()}
-              </p>
-              <p className="text-xs text-gray-400">{t('stats.total_points')}</p>
-            </div>
+          <div>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              {stats?.total.toLocaleString() ?? '—'}
+            </p>
+            <p className="text-xs text-gray-400">{t('stats.total')}</p>
           </div>
         </div>
-      )}
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex items-center gap-4">
+          <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+            <TrendingUp className="w-5 h-5 text-green-600" />
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              +{stats?.new_this_month ?? 0}
+            </p>
+            <p className="text-xs text-gray-400">{t('stats.new_month')}</p>
+          </div>
+        </div>
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex items-center gap-4">
+          <div className="w-10 h-10 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
+            <Star className="w-5 h-5 text-yellow-600 fill-yellow-500" />
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              {totalLoyaltyPoints.toLocaleString()}
+            </p>
+            <p className="text-xs text-gray-400">{t('stats.total_points')}</p>
+          </div>
+        </div>
+      </div>
 
       {/* Table card */}
       <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700">
@@ -156,7 +159,6 @@ export function CustomersPage() {
           />
         )}
 
-        {/* Footer count */}
         <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-800 text-xs text-gray-400">
           {t('count', { count: filtered.length })}
         </div>

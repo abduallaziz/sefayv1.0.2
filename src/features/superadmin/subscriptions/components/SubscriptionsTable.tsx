@@ -5,11 +5,12 @@ import { Ban } from 'lucide-react'
 import type { Subscription, SubscriptionStatus } from '../types/subscription.types'
 
 const statusStyles: Record<SubscriptionStatus, string> = {
-  active:    'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-  trial:     'bg-blue-500/10 text-blue-400 border-blue-500/20',
-  cancelled: 'bg-red-500/10 text-red-400 border-red-500/20',
-  expired:   'bg-slate-500/10 text-slate-400 border-slate-500/20',
-  suspended: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+  active:       'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+  trial:        'bg-blue-500/10 text-blue-400 border-blue-500/20',
+  cancelled:    'bg-red-500/10 text-red-400 border-red-500/20',
+  expired:      'bg-slate-500/10 text-slate-400 border-slate-500/20',
+  suspended:    'bg-orange-500/10 text-orange-400 border-orange-500/20',
+  grace_period: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
 }
 
 interface Props {
@@ -42,16 +43,18 @@ export function SubscriptionsTable({ subscriptions, onCancel }: Props) {
           )}
           {subscriptions.map((sub) => (
             <tr key={sub.id} className="transition hover:bg-[#141720]">
-              <td className="px-4 py-3 font-medium text-white">{sub.tenant_name}</td>
-              <td className="px-4 py-3 text-slate-300">{sub.plan_name}</td>
+              <td className="px-4 py-3 font-medium text-white">{sub.tenant_name ?? '—'}</td>
+              <td className="px-4 py-3 text-slate-300">{sub.plan_name ?? '—'}</td>
               <td className="px-4 py-3">
                 <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${statusStyles[sub.status]}`}>
                   {t(`status.${sub.status}`)}
                 </span>
               </td>
-              <td className="px-4 py-3 text-slate-400">{t(`interval.${sub.interval}`)}</td>
-              <td className="px-4 py-3 text-slate-400">{new Date(sub.ends_at).toLocaleDateString()}</td>
-              <td className="px-4 py-3 text-slate-300">${sub.amount_paid}</td>
+              <td className="px-4 py-3 text-slate-400">{t(`interval.${sub.billing_cycle}`)}</td>
+              <td className="px-4 py-3 text-slate-400">
+                {sub.current_period_end ? new Date(sub.current_period_end).toLocaleDateString() : '—'}
+              </td>
+              <td className="px-4 py-3 text-slate-300">{sub.amount_paid ?? '—'}</td>
               <td className="px-4 py-3 text-right">
                 {sub.status === 'active' || sub.status === 'trial' ? (
                   <button onClick={() => onCancel(sub.id)} className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-red-400 transition hover:bg-red-500/10">

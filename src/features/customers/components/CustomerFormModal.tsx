@@ -9,7 +9,7 @@ import { X } from 'lucide-react';
 import { Customer, CreateCustomerDto } from '../types/customer.types';
 
 const schema = z.object({
-  name: z.string().min(2),
+  full_name: z.string().min(2),
   phone: z.string().min(9),
   email: z.string().email().optional().or(z.literal('')),
 });
@@ -27,69 +27,47 @@ export function CustomerFormModal({ customer, onClose, onSubmit, isLoading }: Pr
   const t = useTranslations('customers');
   const isEdit = !!customer;
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<FormValues>({
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
   });
 
   useEffect(() => {
     if (customer) {
-      reset({
-        name: customer.name,
-        phone: customer.phone,
-        email: customer.email ?? '',
-      });
+      reset({ full_name: customer.full_name, phone: customer.phone, email: customer.email ?? '' });
     } else {
-      reset({ name: '', phone: '', email: '' });
+      reset({ full_name: '', phone: '', email: '' });
     }
   }, [customer, reset]);
 
   const onValid = (data: FormValues) => {
-    onSubmit({
-      name: data.name,
-      phone: data.phone,
-      email: data.email || undefined,
-    });
+    onSubmit({ full_name: data.full_name, phone: data.phone, email: data.email || undefined });
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-md">
-        {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
             {isEdit ? t('form.title_edit') : t('form.title_add')}
           </h2>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-          >
+          <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
             <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
 
-        {/* Body */}
         <form onSubmit={handleSubmit(onValid)} className="p-6 space-y-4">
-          {/* Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
               {t('form.name')} *
             </label>
             <input
-              {...register('name')}
+              {...register('full_name')}
               className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            {errors.name && (
-              <p className="mt-1 text-xs text-red-500">{t('form.errors.name')}</p>
-            )}
+            {errors.full_name && <p className="mt-1 text-xs text-red-500">{t('form.errors.name')}</p>}
           </div>
 
-          {/* Phone */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
               {t('form.phone')} *
@@ -100,12 +78,9 @@ export function CustomerFormModal({ customer, onClose, onSubmit, isLoading }: Pr
               dir="ltr"
               className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            {errors.phone && (
-              <p className="mt-1 text-xs text-red-500">{t('form.errors.phone')}</p>
-            )}
+            {errors.phone && <p className="mt-1 text-xs text-red-500">{t('form.errors.phone')}</p>}
           </div>
 
-          {/* Email */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
               {t('form.email')}
@@ -116,25 +91,14 @@ export function CustomerFormModal({ customer, onClose, onSubmit, isLoading }: Pr
               dir="ltr"
               className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            {errors.email && (
-              <p className="mt-1 text-xs text-red-500">{t('form.errors.email')}</p>
-            )}
+            {errors.email && <p className="mt-1 text-xs text-red-500">{t('form.errors.email')}</p>}
           </div>
 
-          {/* Actions */}
           <div className="flex gap-3 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-            >
+            <button type="button" onClick={onClose} className="flex-1 px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
               {t('form.cancel')}
             </button>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors"
-            >
+            <button type="submit" disabled={isLoading} className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors">
               {isLoading ? t('form.saving') : isEdit ? t('form.save') : t('form.add')}
             </button>
           </div>

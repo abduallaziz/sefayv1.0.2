@@ -30,11 +30,11 @@ export const tenantsApi = {
   },
 
   activate: async (id: string): Promise<void> => {
-    return apiClient.patch(`/superadmin/tenants/${id}/activate`);
+    return apiClient.patch(`/superadmin/tenants/${id}/activate`, {});
   },
 
   deactivate: async (id: string): Promise<void> => {
-    return apiClient.patch(`/superadmin/tenants/${id}/deactivate`);
+    return apiClient.patch(`/superadmin/tenants/${id}/deactivate`, {});
   },
 
   softDelete: async (id: string): Promise<void> => {

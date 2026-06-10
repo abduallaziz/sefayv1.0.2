@@ -12,7 +12,7 @@ import type { Plan, ManualPaymentDto } from '../types/subscription.types'
 const schema = z.object({
   tenant_id: z.string().min(1),
   plan_id: z.string().min(1),
-  interval: z.enum(['monthly', 'yearly']),
+  billing_cycle: z.enum(['monthly', 'yearly']),
   amount: z.number().min(1),
   note: z.string().optional(),
 })
@@ -30,7 +30,7 @@ export function ManualPaymentDialog({ open, plans, tenants, onClose, onSubmit, i
   const t = useTranslations('subscriptions')
   const { register, handleSubmit } = useForm<ManualPaymentDto>({
     resolver: zodResolver(schema) as any,
-    defaultValues: { interval: 'monthly' },
+    defaultValues: { billing_cycle: 'monthly' },
   })
 
   return (
@@ -57,7 +57,7 @@ export function ManualPaymentDialog({ open, plans, tenants, onClose, onSubmit, i
             </div>
             <div>
               <label className="mb-1.5 block text-sm text-slate-400">{t('payment.interval')}</label>
-              <select {...register('interval')} className="w-full rounded-lg border border-[#1e2130] bg-[#0f1117] px-3 py-2 text-sm text-white focus:outline-none">
+              <select {...register('billing_cycle')} className="w-full rounded-lg border border-[#1e2130] bg-[#0f1117] px-3 py-2 text-sm text-white focus:outline-none">
                 <option value="monthly">{t('interval.monthly')}</option>
                 <option value="yearly">{t('interval.yearly')}</option>
               </select>

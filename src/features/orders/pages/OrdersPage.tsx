@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { Order, OrderFilters as IOrderFilters } from '../types/order.types';
-import { useOrders, useCancelOrder } from '../hooks/useOrders';
+import { useOrders, useOrder, useCancelOrder } from '../hooks/useOrders';
 import { OrdersTable } from '../components/OrdersTable';
 import { OrderFilters } from '../components/OrderFilters';
 import { OrderDetailsModal } from '../components/OrderDetailsModal';
@@ -13,10 +13,11 @@ import { FileText } from 'lucide-react';
 export function OrdersPage() {
   const t = useTranslations('orders');
   const [filters, setFilters] = useState<IOrderFilters>({});
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [cancelTarget, setCancelTarget] = useState<Order | null>(null);
 
   const { data: orders = [], isLoading } = useOrders(filters);
+  const { data: selectedOrder = null } = useOrder(selectedOrderId ?? '');
   const { mutate: cancelOrder, isPending: isCancelling } = useCancelOrder();
 
   const filteredOrders = useMemo(() => {
@@ -27,7 +28,7 @@ export function OrdersPage() {
         const q = filters.search.toLowerCase();
         if (
           !order.id.toLowerCase().includes(q) &&
-          !order.cashier_name.toLowerCase().includes(q) &&
+          !order.cashier_name?.toLowerCase().includes(q) &&
           !(order.customer_name?.toLowerCase().includes(q))
         ) return false;
       }
@@ -57,7 +58,7 @@ export function OrdersPage() {
       {
         onSuccess: () => {
           setCancelTarget(null);
-          setSelectedOrder(null);
+          setSelectedOrderId(null);
         },
       }
     );
@@ -78,7 +79,7 @@ export function OrdersPage() {
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         {statsConfig.map(stat => (
           <div key={stat.labelKey} className="bg-card border border-border rounded-xl p-4">
-            <p className="text-xs text-muted-foreground mb-1">{t(stat.labelKey)}</p>
+            <p className="text-xs text-muted-foreground mb-1">{t(stat.labelKey as any)}</p>
             <p className={`text-xl font-bold ${stat.color}`}>{stat.value}</p>
           </div>
         ))}
@@ -91,14 +92,14 @@ export function OrdersPage() {
           {t('loading')}
         </div>
       ) : (
-        <OrdersTable orders={filteredOrders} onViewOrder={setSelectedOrder} />
+        <OrdersTable orders={filteredOrders} onViewOrder={(order) => setSelectedOrderId(order.id)} />
       )}
 
       <OrderDetailsModal
         order={selectedOrder}
-        onClose={() => setSelectedOrder(null)}
+        onClose={() => setSelectedOrderId(null)}
         onCancel={order => {
-          setSelectedOrder(null);
+          setSelectedOrderId(null);
           setCancelTarget(order);
         }}
       />

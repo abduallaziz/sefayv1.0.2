@@ -1,14 +1,16 @@
 ﻿import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { subscriptionsApi } from '../api/subscriptions.api'
-import type { CreatePlanDto, ManualPaymentDto } from '../types/subscription.types'
+import type { CreatePlanDto, Subscription } from '../types/subscription.types'
 
-export const SUBSCRIPTIONS_KEY = ['superadmin', 'subscriptions']
 export const PLANS_KEY = ['superadmin', 'plans']
+export const SUBSCRIPTIONS_KEY = ['superadmin', 'subscriptions']
 
-export function useSubscriptions(filters?: { status?: string; search?: string }) {
-  return useQuery({
-    queryKey: [...SUBSCRIPTIONS_KEY, filters],
-    queryFn: () => subscriptionsApi.getSubscriptions(filters),
+// No backend endpoint for superadmin subscriptions list yet — returns empty array
+export function useSubscriptions(_filters?: { status?: string; search?: string }) {
+  return useQuery<Subscription[]>({
+    queryKey: [...SUBSCRIPTIONS_KEY, _filters],
+    queryFn: async (): Promise<Subscription[]> => [],
+    staleTime: Infinity,
   })
 }
 
@@ -45,18 +47,18 @@ export function useTogglePlan() {
   })
 }
 
+// No superadmin cancel endpoint — stub
 export function useCancelSubscription() {
-  const qc = useQueryClient()
   return useMutation({
-    mutationFn: (id: string) => subscriptionsApi.cancelSubscription(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: SUBSCRIPTIONS_KEY }),
+    mutationFn: (_id: string): Promise<void> =>
+      Promise.reject(new Error('Cancel subscription: no superadmin endpoint available')),
   })
 }
 
+// No manual payment endpoint — stub
 export function useManualPayment() {
-  const qc = useQueryClient()
   return useMutation({
-    mutationFn: (data: ManualPaymentDto) => subscriptionsApi.manualPayment(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: SUBSCRIPTIONS_KEY }),
+    mutationFn: (_data: unknown): Promise<void> =>
+      Promise.reject(new Error('Manual payment: no endpoint available')),
   })
 }

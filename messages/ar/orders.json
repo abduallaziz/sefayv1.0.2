@@ -11,6 +11,12 @@
   "searchPlaceholder": "بحث...",
   "noOrders": "لا توجد فواتير",
   "tryFilters": "جرّب تغيير الفلاتر",
+  "loading": "جاري التحميل...",
+  "totalInvoices": "إجمالي الفواتير",
+  "completedCount": "مكتملة",
+  "pendingCount": "معلقة",
+  "cancelledCount": "ملغاة",
+  "todayRevenue": "الإيراد اليوم",
   "status": {
     "all": "الكل",
     "completed": "مكتملة",

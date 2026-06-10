@@ -1,38 +1,35 @@
-
-export type OrderStatus = 'pending' | 'completed' | 'cancelled';
-export type PaymentMethod = 'cash' | 'card' | 'split';
+export type OrderStatus = 'pending' | 'completed' | 'cancelled' | 'refunded';
+export type PaymentMethod = 'cash' | 'card' | 'split' | 'wallet';
 
 export interface OrderItem {
   id: string;
   item_id: string;
   item_name: string;
-  variant_id?: string;
-  variant_name?: string;
-  quantity: number;
-  unit_price: number;
+  variant_id?: string | null;
+  variant_name?: string | null;
+  qty: number;
+  price: number;
   total_price: number;
 }
 
 export interface Order {
   id: string;
-  tenant_id: string;
+  tenant_id?: string;
   branch_id: string;
   cashier_id: string;
-  cashier_name: string;
-  customer_id?: string;
-  customer_name?: string;
-  shift_id: string;
+  cashier_name: string | null;
+  customer_id?: string | null;
+  customer_name?: string | null;
+  shift_id?: string | null;
   status: OrderStatus;
   subtotal: number;
-  discount_amount: number;
-  tax_amount: number;
+  discount: number;
+  tax: number;
   total: number;
   payment_method: PaymentMethod;
-  notes?: string;
-  items: OrderItem[];
+  notes?: string | null;
+  items?: OrderItem[];
   created_at: string;
-  cancelled_at?: string;
-  cancelled_by?: string;
 }
 
 export interface OrderFilters {

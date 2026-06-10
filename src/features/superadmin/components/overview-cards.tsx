@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { motion } from 'framer-motion'
 import { Building2, TrendingUp, Users, DollarSign, ArrowUpRight, ArrowDownRight } from 'lucide-react'
-import type { OverviewStats } from '../types'
+import type { GlobalStats } from '../types'
 
 interface StatCardProps {
   title: string
@@ -17,7 +17,7 @@ interface StatCardProps {
   badge?: string
 }
 
-function StatCard({ title, value, change, icon, gradient, glowColor, index, badge }: StatCardProps) {
+function StatCard({ title, value, change, icon, gradient, index, badge }: StatCardProps) {
   const [hovered, setHovered] = useState(false)
   const isPositive = change !== undefined && change > 0
 
@@ -76,16 +76,18 @@ function StatCard({ title, value, change, icon, gradient, glowColor, index, badg
 }
 
 interface OverviewCardsProps {
-  stats: OverviewStats
+  stats: GlobalStats
+  mrr?: number
+  arr?: number
 }
 
-export function OverviewCards({ stats }: OverviewCardsProps) {
+export function OverviewCards({ stats, mrr = 0, arr = 0 }: OverviewCardsProps) {
   const t = useTranslations('overview')
 
   const cards = [
     {
       title: t('totalTenants'),
-      value: stats.total_tenants.toLocaleString(),
+      value: stats.totalTenants.toLocaleString(),
       change: 12,
       icon: <Building2 className="h-4 w-4 text-white" />,
       gradient: 'bg-gradient-to-br from-violet-600 to-indigo-600',
@@ -94,7 +96,7 @@ export function OverviewCards({ stats }: OverviewCardsProps) {
     },
     {
       title: t('monthlyRevenue'),
-      value: `$${stats.mrr.toLocaleString()}`,
+      value: `$${mrr.toLocaleString()}`,
       change: 8,
       icon: <DollarSign className="h-4 w-4 text-white" />,
       gradient: 'bg-gradient-to-br from-emerald-500 to-teal-600',
@@ -102,8 +104,8 @@ export function OverviewCards({ stats }: OverviewCardsProps) {
       badge: 'MRR',
     },
     {
-      title: t('activeTenants'),
-      value: stats.active_tenants.toLocaleString(),
+      title: t('totalUsers'),
+      value: stats.totalUsers.toLocaleString(),
       change: 5,
       icon: <Users className="h-4 w-4 text-white" />,
       gradient: 'bg-gradient-to-br from-blue-500 to-cyan-600',
@@ -111,7 +113,7 @@ export function OverviewCards({ stats }: OverviewCardsProps) {
     },
     {
       title: t('annualRevenue'),
-      value: `$${(stats.arr / 1000).toFixed(0)}k`,
+      value: `$${(arr / 1000).toFixed(0)}k`,
       change: -2,
       icon: <TrendingUp className="h-4 w-4 text-white" />,
       gradient: 'bg-gradient-to-br from-amber-500 to-orange-600',

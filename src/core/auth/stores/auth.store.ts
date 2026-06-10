@@ -8,7 +8,8 @@ export interface AuthUser {
   name: string;
   email: string;
   role: UserRole;
-  tenantId: string;
+  tenantId: string | null;
+  sessionId: string;
   branchId?: string;
   permissions: string[];
   features: string[];
@@ -17,9 +18,12 @@ export interface AuthUser {
 interface AuthState {
   user: AuthUser | null;
   accessToken: string | null;
+  refreshToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  setAuth: (user: AuthUser, token: string) => void;
+
+  setAuth: (user: AuthUser, accessToken: string, refreshToken: string) => void;
+  setTokens: (accessToken: string, refreshToken: string) => void;
   clearAuth: () => void;
   setLoading: (v: boolean) => void;
 }
@@ -29,20 +33,28 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       user: null,
       accessToken: null,
+      refreshToken: null,
       isAuthenticated: false,
       isLoading: false,
-      setAuth: (user, accessToken) =>
-        set({ user, accessToken, isAuthenticated: true }),
+
+      setAuth: (user, accessToken, refreshToken) =>
+        set({ user, accessToken, refreshToken, isAuthenticated: true }),
+
+      setTokens: (accessToken, refreshToken) =>
+        set({ accessToken, refreshToken }),
+
       clearAuth: () =>
-        set({ user: null, accessToken: null, isAuthenticated: false }),
+        set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false }),
+
       setLoading: (isLoading) => set({ isLoading }),
     }),
     {
       name: 'sefay-auth',
       partialize: (state) => ({
         user: state.user,
-        accessToken: state.accessToken,
+        refreshToken: state.refreshToken,
         isAuthenticated: state.isAuthenticated,
+        // accessToken لا يُحفظ — يتجدد عبر refresh
       }),
     }
   )

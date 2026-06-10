@@ -1,13 +1,11 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { OrderFilters, CancelOrderPayload } from '../types/order.types';
 import { fetchOrders, fetchOrderById, cancelOrder } from '../api/orders.api';
-import { MOCK_ORDERS } from '../mock/orders.mock';
 
 export function useOrders(filters: OrderFilters = {}) {
   return useQuery({
     queryKey: ['orders', filters],
-    queryFn: () => MOCK_ORDERS, // استبدل بـ fetchOrders(filters) عند ربط API
+    queryFn: () => fetchOrders(filters),
     staleTime: 30_000,
   });
 }
@@ -15,7 +13,7 @@ export function useOrders(filters: OrderFilters = {}) {
 export function useOrder(id: string) {
   return useQuery({
     queryKey: ['orders', id],
-    queryFn: () => MOCK_ORDERS.find(o => o.id === id) ?? null,
+    queryFn: () => fetchOrderById(id),
     enabled: !!id,
   });
 }

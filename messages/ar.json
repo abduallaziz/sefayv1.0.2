@@ -10,7 +10,11 @@
     "actions": "إجراءات",
     "status": "نشط",
     "all": "الكل",
-    "export": "تصدير"
+    "export": "تصدير",
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "optional": "اختياري",
+    "create": "إنشاء"
   },
   "nav": {
     "overview": "الرئيسية",
@@ -20,6 +24,36 @@
     "authControl": "المستخدمون",
     "reports": "التقارير",
     "settings": "الإعدادات"
+  },
+  "dashboardNav": {
+    "overview": "الرئيسية",
+    "pos": "نقطة البيع",
+    "items": "المنتجات",
+    "customers": "العملاء",
+    "expenses": "المصروفات",
+    "shifts": "الورديات",
+    "reports": "التقارير",
+    "settings": "الإعدادات",
+    "logout": "تسجيل الخروج"
+  },
+  "shell": {
+    "nav": {
+      "overview": "الرئيسية",
+      "pos": "نقطة البيع",
+      "invoices": "الفواتير",
+      "customers": "العملاء",
+      "items": "المنتجات",
+      "shifts": "الورديات",
+      "expenses": "المصروفات",
+      "users": "المستخدمون",
+      "reports": "التقارير",
+      "settings": "الإعدادات",
+      "mainBranch": "الفرع الرئيسي",
+      "general": "عام",
+      "sales": "المبيعات",
+      "operations": "العمليات",
+      "management": "الإدارة"
+    }
   },
   "console": {
     "title": "لوحة العمليات",
@@ -409,5 +443,103 @@
     "subtitle": "مقاييس الأداء الشهري",
     "revenue": "الإيرادات",
     "tenants": "المستأجرون"
+  },
+  "shifts": {
+    "title": "الورديات",
+    "subtitle": "إدارة ورديات العمل",
+    "open_shift": "فتح وردية",
+    "close_shift": "إغلاق وردية",
+    "opening_cash": "النقد الافتتاحي",
+    "closing_cash": "النقد الختامي",
+    "opening_was": "النقد الافتتاحي كان",
+    "opened_at": "فُتحت في",
+    "closed_at": "أُغلقت في",
+    "no_open_shift": "لا توجد وردية مفتوحة",
+    "shift_open": "وردية مفتوحة",
+    "summary": "الملخص",
+    "history": "السجل",
+    "no_shifts": "لا توجد ورديات",
+    "loading": "جاري التحميل...",
+    "cancel": "إلغاء",
+    "open": "فتح",
+    "close": "إغلاق",
+    "opening": "جاري الفتح...",
+    "closing": "جاري الإغلاق...",
+    "cashier": "الكاشير",
+    "status": "الحالة",
+    "status_open": "مفتوحة",
+    "status_closed": "مغلقة",
+    "total_invoices": "إجمالي الفواتير",
+    "total_sales": "إجمالي المبيعات",
+    "cash_sales": "مبيعات نقدية",
+    "card_sales": "مبيعات بطاقة",
+    "total_expenses": "إجمالي المصروفات",
+    "expected_cash": "النقد المتوقع",
+    "discrepancy": "الفرق"
+  },
+  "expenses": {
+    "title": "المصروفات",
+    "subtitle": "إدارة طلبات المصروفات والقوالب",
+    "loading": "جاري التحميل...",
+    "hours": "ساعة",
+    "expiresIn": "تنتهي خلال",
+    "tabs": {
+      "requests": "الطلبات",
+      "templates": "القوالب"
+    },
+    "stats": {
+      "pending": "قيد الانتظار",
+      "approvedToday": "معتمدة اليوم",
+      "totalToday": "الإجمالي اليوم",
+      "expired": "منتهية"
+    },
+    "status": {
+      "pending": "قيد الانتظار",
+      "approved": "معتمد",
+      "rejected": "مرفوض",
+      "expired": "منتهي"
+    },
+    "table": {
+      "type": "النوع",
+      "requestedBy": "طلب بواسطة",
+      "amount": "المبلغ",
+      "note": "ملاحظة",
+      "expires": "الانتهاء",
+      "actions": "إجراءات"
+    },
+    "actions": {
+      "approve": "قبول",
+      "reject": "رفض",
+      "newTemplate": "قالب جديد"
+    },
+    "reject": {
+      "title": "رفض الطلب",
+      "reason": "السبب",
+      "reasonPlaceholder": "سبب الرفض...",
+      "submit": "رفض"
+    },
+    "empty": {
+      "requests": "لا توجد طلبات",
+      "templates": "لا توجد قوالب"
+    },
+    "template": {
+      "title": "قالب جديد",
+      "name": "الاسم",
+      "defaultAmount": "المبلغ الافتراضي",
+      "requiresPhoto": "يتطلب صورة",
+      "expiryHours": "مدة الصلاحية (ساعات)"
+    }
+  },
+  "customers": {
+    "title": "العملاء",
+    "subtitle": "إدارة قاعدة العملاء",
+    "add_customer": "إضافة عميل",
+    "loading": "جاري التحميل...",
+    "count": "{count} عميل",
+    "stats": {
+      "total": "إجمالي العملاء",
+      "new_month": "جديد هذا الشهر",
+      "total_points": "إجمالي النقاط"
+    }
   }
 }

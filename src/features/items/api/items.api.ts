@@ -1,53 +1,68 @@
-
 import { apiClient } from '@/lib/api';
-import { Item, ItemVariant, CreateItemDTO, UpdateItemDTO, CreateVariantDTO, Category } from '../types/item.types';
+
+export interface Item {
+  id: string;
+  name: string;
+  type: 'product' | 'service' | 'custom';
+  operation_type: 'sell' | 'book' | 'repair' | 'rent';
+  price: number;
+  category_id: string | null;
+  category_name: string | null;
+  category_type: string | null;
+  has_inventory: boolean;
+  has_variants: boolean;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  type: 'product' | 'service' | 'expense';
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface ItemVariant {
+  id: string;
+  name: string;
+  price_adjustment: number;
+  sku: string | null;
+  stock_quantity: number;
+  is_active: boolean;
+}
+
+export interface CreateItemDto {
+  name: string;
+  type: 'product' | 'service' | 'custom';
+  operation_type: 'sell' | 'book' | 'repair' | 'rent';
+  price: number;
+  category_id?: string;
+  has_inventory?: boolean;
+  has_variants?: boolean;
+}
+
+export interface CreateVariantDto {
+  name: string;
+  price_adjustment: number;
+  sku?: string;
+  stock_quantity?: number;
+}
 
 export const itemsApi = {
-  getItems: async (tenantId: string): Promise<Item[]> => {
-    const res = await apiClient.get(`/items?tenant_id=${tenantId}`);
-    return (res as any).data;
-  },
+  getAll: () => apiClient.get<Item[]>('/items'),
+  getById: (id: string) => apiClient.get<Item>(`/items/${id}`),
+  create: (dto: CreateItemDto) => apiClient.post<Item>('/items', dto),
+  update: (id: string, dto: Partial<CreateItemDto> & { is_active?: boolean }) =>
+    apiClient.patch<Item>(`/items/${id}`, dto),
+  delete: (id: string) => apiClient.delete<void>(`/items/${id}`),
 
-  getItem: async (id: string): Promise<Item> => {
-    const res = await apiClient.get(`/items/${id}`);
-    return (res as any).data;
-  },
+  getCategories: () => apiClient.get<Category[]>('/categories'),
 
-  createItem: async (data: CreateItemDTO): Promise<Item> => {
-    const res = await apiClient.post('/items', data);
-    return (res as any).data;
-  },
-
-  updateItem: async (id: string, data: UpdateItemDTO): Promise<Item> => {
-    const res = await apiClient.patch(`/items/${id}`, data);
-    return (res as any).data;
-  },
-
-  deleteItem: async (id: string): Promise<void> => {
-    await apiClient.delete(`/items/${id}`);
-  },
-
-  getVariants: async (itemId: string): Promise<ItemVariant[]> => {
-    const res = await apiClient.get(`/items/${itemId}/variants`);
-    return (res as any).data;
-  },
-
-  createVariant: async (itemId: string, data: CreateVariantDTO): Promise<ItemVariant> => {
-    const res = await apiClient.post(`/items/${itemId}/variants`, data);
-    return (res as any).data;
-  },
-
-  updateVariant: async (itemId: string, variantId: string, data: Partial<CreateVariantDTO>): Promise<ItemVariant> => {
-    const res = await apiClient.patch(`/items/${itemId}/variants/${variantId}`, data);
-    return (res as any).data;
-  },
-
-  deleteVariant: async (itemId: string, variantId: string): Promise<void> => {
-    await apiClient.delete(`/items/${itemId}/variants/${variantId}`);
-  },
-
-  getCategories: async (): Promise<Category[]> => {
-    const res = await apiClient.get('/categories');
-    return (res as any).data;
-  },
+  getVariants: (itemId: string) =>
+    apiClient.get<ItemVariant[]>(`/items/${itemId}/variants`),
+  createVariant: (itemId: string, dto: CreateVariantDto) =>
+    apiClient.post<ItemVariant>(`/items/${itemId}/variants`, dto),
+  deleteVariant: (itemId: string, variantId: string) =>
+    apiClient.delete<void>(`/items/${itemId}/variants/${variantId}`),
 };

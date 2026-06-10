@@ -1,50 +1,44 @@
-'use client'
+'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { superadminApi } from '../api/superadmin.api'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { superadminApi } from '../api/superadmin.api';
+import { tenantsApi } from '../tenants/api';
 
 export function useStats() {
   return useQuery({
     queryKey: ['superadmin', 'stats'],
     queryFn: superadminApi.getStats,
-  })
-}
-
-export function useTenants() {
-  return useQuery({
-    queryKey: ['superadmin', 'tenants'],
-    queryFn: superadminApi.getTenants,
-  })
+  });
 }
 
 export function useRevenue() {
   return useQuery({
-    queryKey: ['superadmin', 'revenue'],
-    queryFn: superadminApi.getRevenue,
-  })
+    queryKey: ['superadmin', 'analytics', 'mrr-history'],
+    queryFn: () => superadminApi.getMRRHistory('last_12_months'),
+  });
 }
 
 export function useActivateTenant() {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => superadminApi.activateTenant(id),
+    mutationFn: (id: string) => tenantsApi.activate(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['superadmin'] }),
-  })
+  });
 }
 
 export function useDeactivateTenant() {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => superadminApi.deactivateTenant(id),
+    mutationFn: (id: string) => tenantsApi.deactivate(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['superadmin'] }),
-  })
+  });
 }
 
 export function useExtendTrial() {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, days }: { id: string; days: number }) =>
-      superadminApi.extendTrial(id, days),
+      tenantsApi.extendTrial(id, days),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['superadmin'] }),
-  })
+  });
 }

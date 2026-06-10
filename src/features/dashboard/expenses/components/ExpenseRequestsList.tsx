@@ -5,8 +5,9 @@ import { useTranslations } from 'next-intl'
 import { DataTable, Column } from '@/shared/ui/data-table'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { Modal } from '@/shared/ui/modal'
-import { mockExpenses, mockTemplates, Expense, ExpenseStatus } from '../api/expenses.api'
 import { CheckCircle, XCircle, Clock, AlertCircle } from 'lucide-react'
+import { useExpenses, useApproveExpense, useRejectExpense } from '../hooks/useExpenses'
+import type { Expense, ExpenseStatus } from '../api/expenses.api'
 
 const statusConfig: Record<ExpenseStatus, { label: string; color: string; icon: any }> = {
   pending:  { label: 'pending',  color: 'bg-amber-500/10 text-amber-500 border-amber-500/20',  icon: Clock },
@@ -22,60 +23,50 @@ function hoursUntilExpiry(expiresAt: string): number {
 export function ExpenseRequestsList() {
   const t = useTranslations('expenses')
   const tc = useTranslations('common')
-  const [expenses, setExpenses] = useState(mockExpenses)
+  const { data: expenses = [] } = useExpenses()
+  const approveMutation = useApproveExpense()
+  const rejectMutation = useRejectExpense()
   const [rejectTarget, setRejectTarget] = useState<Expense | null>(null)
   const [rejectReason, setRejectReason] = useState('')
 
   function handleApprove(id: string) {
-    setExpenses(prev => prev.map(e =>
-      e.id === id ? { ...e, status: 'approved' as ExpenseStatus, resolved_at: new Date().toISOString() } : e
-    ))
+    approveMutation.mutate(id)
   }
 
   function handleReject() {
     if (!rejectTarget) return
-    setExpenses(prev => prev.map(e =>
-      e.id === rejectTarget.id ? { ...e, status: 'rejected' as ExpenseStatus, resolved_at: new Date().toISOString() } : e
-    ))
+    rejectMutation.mutate({ id: rejectTarget.id, reason: rejectReason })
     setRejectTarget(null)
     setRejectReason('')
   }
 
   const columns: Column<Expense>[] = [
     {
-      key: 'template_name',
+      key: 'title',
       header: t('table.type'),
-      render: (row) => (
-        <span className="font-medium text-slate-800">{row.template_name}</span>
-      ),
+      render: (row) => <span className="font-medium text-slate-800">{row.title}</span>,
     },
     {
-      key: 'requested_by',
+      key: 'requester',
       header: t('table.requestedBy'),
-      render: (row) => (
-        <span className="text-slate-600">{row.requested_by}</span>
-      ),
+      render: (row) => <span className="text-slate-600">{row.requester?.name ?? '—'}</span>,
     },
     {
       key: 'amount',
       header: t('table.amount'),
-      render: (row) => (
-        <span className="font-semibold text-slate-800">{row.amount} ر.س</span>
-      ),
+      render: (row) => <span className="font-semibold text-slate-800">{row.amount} ر.س</span>,
     },
     {
-      key: 'note',
+      key: 'notes',
       header: t('table.note'),
-      render: (row) => (
-        <span className="text-slate-500 text-xs">{row.note || '—'}</span>
-      ),
+      render: (row) => <span className="text-slate-500 text-xs">{row.notes || '—'}</span>,
     },
     {
-      key: 'status',
+      key: 'expires_at',
       header: t('table.expires'),
       render: (row) => {
         if (row.status !== 'pending') return null
-        const hours = hoursUntilExpiry(row.expires_at)
+        const hours = row.expires_at ? hoursUntilExpiry(row.expires_at) : 0
         return (
           <span className="text-xs text-amber-600">
             {t('expiresIn')} {hours} {t('hours')}
@@ -84,7 +75,7 @@ export function ExpenseRequestsList() {
       },
     },
     {
-      key: 'status_badge',
+      key: 'status',
       header: '',
       render: (row) => {
         const cfg = statusConfig[row.status]
@@ -130,15 +121,9 @@ export function ExpenseRequestsList() {
         data={expenses}
         keyExtractor={(row) => row.id}
         theme="dashboard"
-        emptyState={
-        <EmptyState
-            title={t('empty.requests')}
-            icon={Clock}
-        />
-        }
+        emptyState={<EmptyState title={t('empty.requests')} icon={Clock} />}
       />
 
-      {/* Reject Modal */}
       <Modal
         open={!!rejectTarget}
         onClose={() => { setRejectTarget(null); setRejectReason('') }}
@@ -146,12 +131,10 @@ export function ExpenseRequestsList() {
       >
         <div className="space-y-4">
           <p className="text-sm text-slate-600">
-            {rejectTarget?.template_name} — {rejectTarget?.amount} ر.س
+            {rejectTarget?.title} — {rejectTarget?.amount} ر.س
           </p>
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-slate-700">
-              {t('reject.reason')}
-            </label>
+            <label className="text-sm font-medium text-slate-700">{t('reject.reason')}</label>
             <textarea
               value={rejectReason}
               onChange={e => setRejectReason(e.target.value)}

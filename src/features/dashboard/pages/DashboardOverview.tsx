@@ -4,10 +4,24 @@ import { useTranslations } from 'next-intl';
 import { useAuthStore } from '@/core/auth/stores/auth.store';
 import { TrendingUp, ShoppingCart, Users, Clock } from 'lucide-react';
 import { StatCard, PageHeader } from '@/shared/ui';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useLocale } from 'next-intl';
 
 export function DashboardOverview() {
   const t = useTranslations('dashboard');
   const user = useAuthStore((s) => s.user);
+  const router = useRouter();
+  const locale = useLocale();
+
+  useEffect(() => {
+    if (!user) {
+      router.replace(`/${locale}/login`);
+    }
+  }, [user, router, locale]);
+
+  if (!user) return null;
+  
 
   const stats = [
     { labelKey: 'todaySales',    value: '2,480 SAR', change: 12,  icon: TrendingUp,  variant: 'info'    as const },

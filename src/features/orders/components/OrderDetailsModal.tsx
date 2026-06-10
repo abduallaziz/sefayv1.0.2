@@ -26,7 +26,7 @@ export function OrderDetailsModal({ order, onClose, onCancel }: Props) {
       <div className="bg-background rounded-xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-5 border-b border-border">
           <div>
-            <h2 className="text-lg font-bold text-foreground">{t('details')}</h2>
+            <h2 className="text-lg font-bold text-foreground">{t('details.title')}</h2>
             <p className="text-xs text-muted-foreground">#{order.id}</p>
           </div>
           <button onClick={onClose} className="p-2 rounded-lg hover:bg-muted transition-colors">
@@ -37,10 +37,10 @@ export function OrderDetailsModal({ order, onClose, onCancel }: Props) {
         <div className="p-5 space-y-5">
           <div className="flex gap-3">
             <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[order.status]}`}>
-              {t(order.status)}
+              {t(`status.${order.status}` as any)}
             </span>
             <span className="px-3 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">
-              {t(order.payment_method)}
+              {t(`payment_method.${order.payment_method}` as any)}
             </span>
           </div>
 
@@ -64,9 +64,9 @@ export function OrderDetailsModal({ order, onClose, onCancel }: Props) {
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold text-foreground mb-2">{t('items')}</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-2">{t('details.items')}</h3>
             <div className="space-y-2">
-              {order.items.map(item => (
+              {(order.items ?? []).map(item => (
                 <div key={item.id} className="flex justify-between items-center text-sm bg-muted/30 rounded-lg px-3 py-2">
                   <div>
                     <p className="font-medium text-foreground">{item.item_name}</p>
@@ -76,7 +76,7 @@ export function OrderDetailsModal({ order, onClose, onCancel }: Props) {
                   </div>
                   <div className="text-right">
                     <p className="font-medium text-foreground">{item.total_price} ر.س</p>
-                    <p className="text-xs text-muted-foreground">{item.quantity} × {item.unit_price}</p>
+                    <p className="text-xs text-muted-foreground">{item.qty} × {item.price}</p>
                   </div>
                 </div>
               ))}
@@ -85,18 +85,18 @@ export function OrderDetailsModal({ order, onClose, onCancel }: Props) {
 
           <div className="border-t border-border pt-3 space-y-1 text-sm">
             <div className="flex justify-between text-muted-foreground">
-              <span>{t('subtotal')}</span>
+              <span>{t('details.subtotal')}</span>
               <span>{order.subtotal} ر.س</span>
             </div>
-            {order.discount_amount > 0 && (
+            {order.discount > 0 && (
               <div className="flex justify-between text-green-600">
-                <span>{t('discount')}</span>
-                <span>-{order.discount_amount} ر.س</span>
+                <span>{t('details.discount')}</span>
+                <span>-{order.discount} ر.س</span>
               </div>
             )}
             <div className="flex justify-between text-muted-foreground">
-              <span>{t('tax')}</span>
-              <span>{order.tax_amount} ر.س</span>
+              <span>{t('details.tax')}</span>
+              <span>{order.tax} ر.س</span>
             </div>
             <div className="flex justify-between font-bold text-foreground text-base border-t border-border pt-2">
               <span>{t('total')}</span>
@@ -118,7 +118,7 @@ export function OrderDetailsModal({ order, onClose, onCancel }: Props) {
               onClick={() => onCancel(order)}
               className="w-full py-2.5 rounded-lg bg-red-50 text-red-600 text-sm font-medium hover:bg-red-100 transition-colors"
             >
-              {t('cancelOrder')}
+              {t('cancel.action')}
             </button>
           </div>
         )}

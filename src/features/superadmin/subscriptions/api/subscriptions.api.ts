@@ -1,34 +1,30 @@
 ﻿import { apiClient } from '@/lib/api'
-import type {
-  Plan,
-  Subscription,
-  CreatePlanDto,
-  ManualPaymentDto,
-} from '../types/subscription.types'
+import type { Plan, CreatePlanDto } from '../types/subscription.types'
 
 export const subscriptionsApi = {
-  getSubscriptions: (params?: { status?: string; search?: string }): Promise<Subscription[]> => {
-    const query = new URLSearchParams()
-    if (params?.status) query.append('status', params.status)
-    if (params?.search) query.append('search', params.search)
-    return apiClient.get(`/superadmin/subscriptions?${query.toString()}`)
-  },
-
+  // ─── Plans (endpoint: /plans — not /superadmin/plans) ────────────────────
   getPlans: (): Promise<Plan[]> =>
-    apiClient.get('/superadmin/plans'),
+    apiClient.get('/plans'),
 
   createPlan: (data: CreatePlanDto): Promise<Plan> =>
-    apiClient.post('/superadmin/plans', data),
+    apiClient.post('/plans', data),
 
   updatePlan: (id: string, data: Partial<CreatePlanDto>): Promise<Plan> =>
-    apiClient.patch(`/superadmin/plans/${id}`, data),
+    apiClient.patch(`/plans/${id}`, data),
 
-  togglePlan: (id: string, is_active: boolean): Promise<void> =>
-    apiClient.patch(`/superadmin/plans/${id}`, { is_active }),
+  togglePlan: (id: string, is_active: boolean): Promise<Plan> =>
+    apiClient.patch(`/plans/${id}`, { is_active }),
 
-  cancelSubscription: (id: string): Promise<void> =>
-    apiClient.patch(`/superadmin/subscriptions/${id}/cancel`, {}),
+  // ─── Subscriptions ────────────────────────────────────────────────────────
+  // No superadmin subscriptions list endpoint in backend — not implemented yet
+  cancelSubscription: (_id: string): Promise<void> => {
+    // Backend: DELETE /subscriptions/cancel (tenant-scoped — not superadmin)
+    // Superadmin cancel not available yet
+    return Promise.reject(new Error('cancelSubscription: no superadmin endpoint available'))
+  },
 
-  manualPayment: (data: ManualPaymentDto): Promise<void> =>
-    apiClient.post('/superadmin/subscriptions/manual-payment', data),
+  manualPayment: (_data: unknown): Promise<void> => {
+    // No manual payment endpoint in backend
+    return Promise.reject(new Error('manualPayment: no endpoint available'))
+  },
 }

@@ -5,14 +5,18 @@ import { useTranslations } from 'next-intl'
 import { DataTable, Column } from '@/shared/ui/data-table'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { Modal } from '@/shared/ui/modal'
-import { mockTemplates, ExpenseTemplate } from '../api/expenses.api'
 import { LayoutTemplate, Plus, Check, X } from 'lucide-react'
+import { useExpenseTemplates, useCreateTemplate, useUpdateTemplate } from '../hooks/useExpenses'
+import type { ExpenseTemplate } from '../api/expenses.api'
 
 export function ExpenseTemplatesList() {
   const t = useTranslations('expenses')
   const tc = useTranslations('common')
 
-  const [templates, setTemplates] = useState(mockTemplates)
+  const { data: templates = [] } = useExpenseTemplates()
+  const createMutation = useCreateTemplate()
+  const updateMutation = useUpdateTemplate()
+
   const [showModal, setShowModal] = useState(false)
   const [form, setForm] = useState({
     name: '',
@@ -23,39 +27,33 @@ export function ExpenseTemplatesList() {
 
   function handleCreate() {
     if (!form.name || !form.expiry_hours) return
-    const newTemplate: ExpenseTemplate = {
-      id: Date.now().toString(),
+    createMutation.mutate({
       name: form.name,
       default_amount: form.default_amount ? Number(form.default_amount) : null,
       requires_photo: form.requires_photo,
       expiry_hours: Number(form.expiry_hours),
       is_active: true,
-    }
-    setTemplates(prev => [...prev, newTemplate])
+    })
     setShowModal(false)
     setForm({ name: '', default_amount: '', requires_photo: false, expiry_hours: '24' })
   }
 
-  function handleToggle(id: string) {
-    setTemplates(prev => prev.map(t =>
-      t.id === id ? { ...t, is_active: !t.is_active } : t
-    ))
+  function handleToggle(row: ExpenseTemplate) {
+    updateMutation.mutate({ id: row.id, dto: { is_active: !row.is_active } })
   }
 
   const columns: Column<ExpenseTemplate>[] = [
     {
       key: 'name',
       header: t('template.name'),
-      render: (row) => (
-        <span className="font-medium text-slate-800">{row.name}</span>
-      ),
+      render: (row) => <span className="font-medium text-slate-800">{row.name}</span>,
     },
     {
       key: 'default_amount',
       header: t('template.defaultAmount'),
       render: (row) => (
         <span className="text-slate-600">
-          {row.default_amount ? `${row.default_amount} ر.س` : `— ${t('common.optional') ?? ''}`}
+          {row.default_amount ? `${row.default_amount} ر.س` : '—'}
         </span>
       ),
     },
@@ -72,9 +70,7 @@ export function ExpenseTemplatesList() {
     {
       key: 'expiry_hours',
       header: t('template.expiryHours'),
-      render: (row) => (
-        <span className="text-slate-600">{row.expiry_hours} {t('hours')}</span>
-      ),
+      render: (row) => <span className="text-slate-600">{row.expiry_hours} {t('hours')}</span>,
     },
     {
       key: 'is_active',
@@ -96,7 +92,7 @@ export function ExpenseTemplatesList() {
       align: 'right',
       render: (row) => (
         <button
-          onClick={(e) => { e.stopPropagation(); handleToggle(row.id) }}
+          onClick={(e) => { e.stopPropagation(); handleToggle(row) }}
           className={`px-3 py-1 rounded-lg text-xs font-medium border transition-colors ${
             row.is_active
               ? 'bg-slate-500/10 text-slate-500 hover:bg-slate-500/20 border-slate-500/20'
@@ -111,7 +107,6 @@ export function ExpenseTemplatesList() {
 
   return (
     <>
-      {/* Header */}
       <div className="flex items-center justify-end mb-4">
         <button
           onClick={() => setShowModal(true)}
@@ -127,32 +122,19 @@ export function ExpenseTemplatesList() {
         data={templates}
         keyExtractor={(row) => row.id}
         theme="dashboard"
-        emptyState={
-        <EmptyState
-            title={t('empty.templates')}
-            icon={LayoutTemplate}
-        />
-        }
+        emptyState={<EmptyState title={t('empty.templates')} icon={LayoutTemplate} />}
       />
 
-      {/* Create Modal */}
-      <Modal
-        open={showModal}
-        onClose={() => setShowModal(false)}
-        title={t('template.title')}
-      >
+      <Modal open={showModal} onClose={() => setShowModal(false)} title={t('template.title')}>
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-slate-700">
-              {t('template.name')}
-            </label>
+            <label className="text-sm font-medium text-slate-700">{t('template.name')}</label>
             <input
               value={form.name}
               onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
               className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
             />
           </div>
-
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-slate-700">
               {t('template.defaultAmount')}
@@ -165,11 +147,8 @@ export function ExpenseTemplatesList() {
               className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
             />
           </div>
-
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-slate-700">
-              {t('template.expiryHours')}
-            </label>
+            <label className="text-sm font-medium text-slate-700">{t('template.expiryHours')}</label>
             <input
               type="number"
               value={form.expiry_hours}
@@ -177,7 +156,6 @@ export function ExpenseTemplatesList() {
               className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
             />
           </div>
-
           <div className="flex items-center gap-3">
             <input
               id="requires_photo"
@@ -190,7 +168,6 @@ export function ExpenseTemplatesList() {
               {t('template.requiresPhoto')}
             </label>
           </div>
-
           <div className="flex justify-end gap-2 pt-2">
             <button
               onClick={() => setShowModal(false)}
@@ -200,8 +177,8 @@ export function ExpenseTemplatesList() {
             </button>
             <button
               onClick={handleCreate}
-              disabled={!form.name || !form.expiry_hours}
-              className="px-4 py-2 rounded-lg text-sm bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              disabled={!form.name || !form.expiry_hours || createMutation.isPending}
+              className="px-4 py-2 rounded-lg text-sm bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 transition-colors"
             >
               {tc('create')}
             </button>

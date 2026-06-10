@@ -2,6 +2,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
+import { AuthProvider } from '@/core/auth/auth.provider'
 
 export default async function LocaleLayout({
   children,
@@ -22,12 +23,14 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider messages={messages}>
-      <div
-        dir={isArabic ? 'rtl' : 'ltr'}
-        className={isArabic ? 'font-cairo' : 'font-inter'}
-      >
-        {children}
-      </div>
+      <AuthProvider>
+        <div
+          dir={isArabic ? 'rtl' : 'ltr'}
+          className={isArabic ? 'font-cairo' : 'font-inter'}
+        >
+          {children}
+        </div>
+      </AuthProvider>
     </NextIntlClientProvider>
   )
 }

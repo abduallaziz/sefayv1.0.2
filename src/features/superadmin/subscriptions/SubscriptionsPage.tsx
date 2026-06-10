@@ -33,7 +33,7 @@ export function SubscriptionsPage() {
   const manualPayment = useManualPayment()
 
   const tenants = subscriptions.reduce<{ id: string; name: string }[]>((acc, sub) => {
-    if (!acc.find((t) => t.id === sub.tenant_id)) acc.push({ id: sub.tenant_id, name: sub.tenant_name })
+    if (!acc.find((t) => t.id === sub.tenant_id)) acc.push({ id: sub.tenant_id, name: sub.tenant_name ?? '' })
     return acc
   }, [])
 

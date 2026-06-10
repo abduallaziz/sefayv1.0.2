@@ -21,6 +21,17 @@
     "reports": "Reports & Audit",
     "settings": "Settings"
   },
+  "dashboardNav": {
+  "overview": "Overview",
+  "pos": "POS",
+  "items": "Items",
+  "customers": "Customers",
+  "expenses": "Expenses",
+  "shifts": "Shifts",
+  "reports": "Reports",
+  "settings": "Settings",
+  "logout": "Logout"
+},
   "console": {
     "title": "Operations Console",
     "subtitle": "Sefay Platform — Real-time monitoring",
