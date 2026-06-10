@@ -3,10 +3,11 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useAuthStore } from '@/core/auth/stores/auth.store';
-import { useRouter } from 'next/navigation';
+import { useAuthStore, type UserRole } from '@/core/auth/stores/auth.store';
+import { useRouter, usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { authApi } from '@/features/auth/api/auth.api';
 
 const loginSchema = z.object({
   email: z.string().email('بريد إلكتروني غير صالح'),
@@ -17,6 +18,8 @@ type LoginForm = z.infer<typeof loginSchema>;
 
 export function LoginPage() {
   const router = useRouter();
+  const pathname = usePathname();
+  const locale = pathname.split('/')[1] || 'ar';
   const setAuth = useAuthStore((s) => s.setAuth);
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState('');
@@ -28,41 +31,37 @@ export function LoginPage() {
   const onSubmit = async (data: LoginForm) => {
     setError('');
     try {
-      // TODO: replace with real API call
-      // const res = await authApi.login(data);
-      // Temp mock for dev:
-      if (data.email === 'owner@test.com' && data.password === '123456') {
-        setAuth(
-          {
-            id: 'u1',
-            name: 'محمد أحمد',
-            email: data.email,
-            role: 'owner',
-            tenantId: 't1',
-            permissions: [
-              'invoice.create.own', 'invoice.view.all', 'invoice.cancel.branch',
-              'expense.approve', 'expense.reject', 'expense.view.all',
-              'shift.open', 'shift.close', 'shift.view.all',
-              'users.manage', 'branches.manage', 'items.manage',
-              'reports.view.all', 'settings.manage',
-            ],
-            features: ['pos', 'inventory', 'expenses', 'shifts', 'customers', 'reports'],
-          },
-          'mock-token'
-        );
-        router.replace('/dashboard');
+      const res = await authApi.login({
+        ...data,
+        device_name: 'Web Browser',
+      });
+      setAuth(
+        {
+          id: res.user.id,
+          name: res.user.name,
+          email: res.user.email,
+          role: res.user.role as UserRole,
+          tenantId: res.user.tenant_id,
+          sessionId: res.user.session_id,
+          permissions: res.user.permissions ?? [],
+          features: res.user.features ?? [],
+        },
+        res.access_token,
+        res.refresh_token,
+      );
+      if (res.user.role === 'superadmin') {
+        router.replace(`/${locale}/superadmin`);
       } else {
-        setError('البريد الإلكتروني أو كلمة المرور غير صحيحة');
+        router.replace(`/${locale}/dashboard`);
       }
     } catch {
-      setError('حدث خطأ، حاول مجدداً');
+      setError('البريد الإلكتروني أو كلمة المرور غير صحيحة');
     }
   };
 
   return (
     <div className="min-h-screen bg-[#080c12] flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
-        {/* Logo */}
         <div className="flex items-center justify-center gap-2.5 mb-8">
           <div className="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center">
             <span className="text-white font-bold">S</span>
@@ -123,10 +122,7 @@ export function LoginPage() {
               دخول
             </button>
           </form>
-
-          <p className="text-slate-600 text-xs text-center mt-4">
-            للتجربة: owner@test.com / 123456
-          </p>
+          <p className="text-slate-600 text-xs text-center mt-4">للتجربة: owner@test.com / 123456</p>
         </div>
       </div>
     </div>
