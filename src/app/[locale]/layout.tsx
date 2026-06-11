@@ -40,7 +40,7 @@ export default async function LocaleLayout({
       <AuthProvider>
         <div
           dir={isArabic ? 'rtl' : 'ltr'}
-          className={isArabic ? 'font-cairo' : 'font-inter'}
+          lang={locale}
         >
           {children}
         </div>
