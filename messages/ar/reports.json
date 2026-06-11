@@ -1,0 +1,18 @@
+{
+  "title": "التقارير",
+  "subtitle": "تحليلات الأداء والمبيعات",
+  "today": "اليوم",
+  "week": "الأسبوع",
+  "month": "الشهر",
+  "totalRevenue": "إجمالي الإيرادات",
+  "totalOrders": "إجمالي الطلبات",
+  "totalShifts": "إجمالي الورديات",
+  "totalExpenses": "إجمالي المصروفات",
+  "revenueChart": "مخطط الإيرادات",
+  "paymentMethods": "طرق الدفع",
+  "expensesByCategory": "المصروفات حسب الفئة",
+  "revenue": "الإيرادات",
+  "orders": "طلب",
+  "items": "عنصر",
+  "loading": "جاري التحميل..."
+}

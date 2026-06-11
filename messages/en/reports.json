@@ -1,0 +1,18 @@
+{
+  "title": "Reports",
+  "subtitle": "Performance and sales analytics",
+  "today": "Today",
+  "week": "Week",
+  "month": "Month",
+  "totalRevenue": "Total Revenue",
+  "totalOrders": "Total Orders",
+  "totalShifts": "Total Shifts",
+  "totalExpenses": "Total Expenses",
+  "revenueChart": "Revenue Chart",
+  "paymentMethods": "Payment Methods",
+  "expensesByCategory": "Expenses by Category",
+  "revenue": "Revenue",
+  "orders": "orders",
+  "items": "items",
+  "loading": "Loading..."
+}
