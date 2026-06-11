@@ -86,15 +86,10 @@ export function CustomersPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            {t('title')}
-          </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-            {t('subtitle')}
-          </p>
+          <h1 className="text-xl font-bold text-white">{t('title')}</h1>
+          <p className="text-sm text-slate-500 mt-0.5">{t('subtitle')}</p>
         </div>
         <button
           onClick={() => { setSelectedCustomer(null); setShowForm(true); }}
@@ -105,51 +100,43 @@ export function CustomersPage() {
         </button>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-            <Users className="w-5 h-5 text-blue-600" />
+      <div className="grid grid-cols-3 gap-4">
+        <div className="bg-[#141720] border border-[#1e2130] rounded-xl p-4 flex items-center gap-4">
+          <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+            <Users className="w-5 h-5 text-blue-400" />
           </div>
           <div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">
-              {stats?.total.toLocaleString() ?? '—'}
-            </p>
-            <p className="text-xs text-gray-400">{t('stats.total')}</p>
+            <p className="text-2xl font-bold text-white">{stats?.total ?? '—'}</p>
+            <p className="text-xs text-slate-500">{t('stats.total')}</p>
           </div>
         </div>
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-            <TrendingUp className="w-5 h-5 text-green-600" />
+        <div className="bg-[#141720] border border-[#1e2130] rounded-xl p-4 flex items-center gap-4">
+          <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+            <TrendingUp className="w-5 h-5 text-emerald-400" />
           </div>
           <div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">
-              +{stats?.new_this_month ?? 0}
-            </p>
-            <p className="text-xs text-gray-400">{t('stats.new_month')}</p>
+            <p className="text-2xl font-bold text-white">+{stats?.new_this_month ?? 0}</p>
+            <p className="text-xs text-slate-500">{t('stats.new_month')}</p>
           </div>
         </div>
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
-            <Star className="w-5 h-5 text-yellow-600 fill-yellow-500" />
+        <div className="bg-[#141720] border border-[#1e2130] rounded-xl p-4 flex items-center gap-4">
+          <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
+            <Star className="w-5 h-5 text-amber-400" />
           </div>
           <div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">
-              {totalLoyaltyPoints.toLocaleString()}
-            </p>
-            <p className="text-xs text-gray-400">{t('stats.total_points')}</p>
+            <p className="text-2xl font-bold text-white">{totalLoyaltyPoints.toLocaleString()}</p>
+            <p className="text-xs text-slate-500">{t('stats.total_points')}</p>
           </div>
         </div>
       </div>
 
-      {/* Table card */}
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700">
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="bg-[#141720] border border-[#1e2130] rounded-xl">
+        <div className="p-4 border-b border-[#1e2130]">
           <CustomerFiltersBar filters={filters} onChange={setFilters} />
         </div>
 
         {isLoading ? (
-          <div className="text-center py-16 text-gray-400">{t('loading')}</div>
+          <div className="text-center py-16 text-slate-500">{t('loading')}</div>
         ) : (
           <CustomersTable
             customers={filtered}
@@ -159,12 +146,11 @@ export function CustomersPage() {
           />
         )}
 
-        <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-800 text-xs text-gray-400">
+        <div className="px-4 py-3 border-t border-[#1e2130] text-xs text-slate-500">
           {t('count', { count: filtered.length })}
         </div>
       </div>
 
-      {/* Modals */}
       {showForm && (
         <CustomerFormModal
           customer={selectedCustomer}

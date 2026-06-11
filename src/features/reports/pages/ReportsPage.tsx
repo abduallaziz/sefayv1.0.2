@@ -39,7 +39,12 @@ export function ReportsPage() {
   const { data: revenue, isLoading: revLoading } = useRevenueReport({ period })
   const { data: shifts, isLoading: shiftsLoading } = useShiftsReport({ period })
   const { data: expenses, isLoading: expLoading } = useExpensesReport({ period })
-  const { data: payments, isLoading: payLoading } = usePaymentsReport({ period })
+
+  const summary = (revenue as any)?.summary
+  const dailyBreakdown = (revenue as any)?.daily_breakdown ?? []
+  const byPaymentMethod = (revenue as any)?.by_payment_method ?? {}
+  const byCategory = (expenses as any)?.by_category ?? []
+  const shiftsSummary = (shifts as any)?.summary
 
   return (
     <div className="space-y-6">
@@ -63,67 +68,62 @@ export function ReportsPage() {
         </div>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label={t('totalRevenue')}
-          value={revLoading ? '...' : `${revenue?.total_revenue?.toLocaleString() ?? 0} ر.س`}
+          value={revLoading ? '...' : `${summary?.total_revenue?.toLocaleString() ?? 0} ر.س`}
           icon={TrendingUp}
           color="bg-emerald-600"
         />
         <StatCard
           label={t('totalOrders')}
-          value={revLoading ? '...' : String(revenue?.total_orders ?? 0)}
+          value={revLoading ? '...' : String(summary?.total_orders ?? 0)}
           icon={CreditCard}
           color="bg-blue-600"
         />
         <StatCard
           label={t('totalShifts')}
-          value={shiftsLoading ? '...' : String(shifts?.total_shifts ?? 0)}
+          value={shiftsLoading ? '...' : String(shiftsSummary?.total_shifts ?? 0)}
           icon={Clock}
           color="bg-violet-600"
         />
         <StatCard
           label={t('totalExpenses')}
-          value={expLoading ? '...' : `${expenses?.total_expenses?.toLocaleString() ?? 0} ر.س`}
+          value={expLoading ? '...' : `${(expenses as any)?.summary?.total_expenses?.toLocaleString() ?? 0} ر.س`}
           icon={TrendingDown}
           color="bg-red-600"
         />
       </div>
 
-      {/* Revenue Chart */}
       <div className="bg-[#141720] border border-[#1e2130] rounded-xl p-5">
         <h2 className="text-sm font-semibold text-white mb-4">{t('revenueChart')}</h2>
         {revLoading ? (
-          <div className="h-[200px] flex items-center justify-center text-slate-500 text-sm">
-            {t('loading')}
-          </div>
+          <div className="h-[200px] flex items-center justify-center text-slate-500 text-sm">{t('loading')}</div>
         ) : (
           <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={revenue?.by_day ?? []}>
+            <BarChart data={dailyBreakdown}>
               <CartesianGrid strokeDasharray="3 3" stroke="#1e2130" />
               <XAxis dataKey="date" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip contentStyle={{ background: '#141720', border: '1px solid #1e2130', borderRadius: 8 }} />
-              <Bar dataKey="revenue" fill="#3b82f6" radius={[4, 4, 0, 0]} name={t('revenue')} />
+              <Bar dataKey="total" fill="#3b82f6" radius={[4, 4, 0, 0]} name={t('revenue')} />
             </BarChart>
           </ResponsiveContainer>
         )}
       </div>
 
-      {/* Payments by method */}
       <div className="bg-[#141720] border border-[#1e2130] rounded-xl p-5">
         <h2 className="text-sm font-semibold text-white mb-4">{t('paymentMethods')}</h2>
-        {payLoading ? (
+        {revLoading ? (
           <div className="h-10 bg-[#1e2130] rounded animate-pulse" />
         ) : (
           <div className="space-y-2">
-            {payments?.by_method?.map((m) => (
-              <div key={m.method} className="flex items-center justify-between py-2 border-b border-[#1e2130] last:border-0">
-                <span className="text-sm text-slate-400">{m.method}</span>
+            {Object.entries(byPaymentMethod).map(([method, data]: [string, any]) => (
+              <div key={method} className="flex items-center justify-between py-2 border-b border-[#1e2130] last:border-0">
+                <span className="text-sm text-slate-400">{method}</span>
                 <div className="flex items-center gap-4 text-xs">
-                  <span className="text-slate-500">{m.count} {t('orders')}</span>
-                  <span className="text-white font-medium">{m.total?.toLocaleString()} ر.س</span>
+                  <span className="text-slate-500">{data.count} {t('orders')}</span>
+                  <span className="text-white font-medium">{data.total?.toLocaleString()} ر.س</span>
                 </div>
               </div>
             ))}
@@ -131,14 +131,13 @@ export function ReportsPage() {
         )}
       </div>
 
-      {/* Expenses by category */}
       <div className="bg-[#141720] border border-[#1e2130] rounded-xl p-5">
         <h2 className="text-sm font-semibold text-white mb-4">{t('expensesByCategory')}</h2>
         {expLoading ? (
           <div className="h-10 bg-[#1e2130] rounded animate-pulse" />
         ) : (
           <div className="space-y-2">
-            {expenses?.by_category?.map((c) => (
+            {byCategory.map((c: any) => (
               <div key={c.category} className="flex items-center justify-between py-2 border-b border-[#1e2130] last:border-0">
                 <span className="text-sm text-slate-400">{c.category}</span>
                 <div className="flex items-center gap-4 text-xs">

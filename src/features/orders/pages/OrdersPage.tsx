@@ -45,11 +45,11 @@ export function OrdersPage() {
   }), [orders]);
 
   const statsConfig = [
-    { labelKey: 'totalInvoices', value: stats.total, color: 'text-foreground' },
-    { labelKey: 'completedCount', value: stats.completed, color: 'text-green-600' },
-    { labelKey: 'pendingCount', value: stats.pending, color: 'text-yellow-600' },
-    { labelKey: 'cancelledCount', value: stats.cancelled, color: 'text-red-500' },
-    { labelKey: 'todayRevenue', value: `${stats.revenue} ر.س`, color: 'text-primary' },
+    { labelKey: 'totalInvoices', value: stats.total, color: 'text-white' },
+    { labelKey: 'completedCount', value: stats.completed, color: 'text-emerald-400' },
+    { labelKey: 'pendingCount', value: stats.pending, color: 'text-amber-400' },
+    { labelKey: 'cancelledCount', value: stats.cancelled, color: 'text-red-400' },
+    { labelKey: 'todayRevenue', value: `${stats.revenue} ر.س`, color: 'text-blue-400' },
   ];
 
   function handleCancelConfirm(id: string, reason: string) {
@@ -65,21 +65,21 @@ export function OrdersPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <div className="p-2.5 rounded-xl bg-primary/10">
-          <FileText size={22} className="text-primary" />
+        <div className="p-2.5 rounded-xl bg-blue-500/10">
+          <FileText size={22} className="text-blue-400" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
-          <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
+          <h1 className="text-xl font-bold text-white">{t('title')}</h1>
+          <p className="text-sm text-slate-500">{t('subtitle')}</p>
         </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         {statsConfig.map(stat => (
-          <div key={stat.labelKey} className="bg-card border border-border rounded-xl p-4">
-            <p className="text-xs text-muted-foreground mb-1">{t(stat.labelKey as any)}</p>
+          <div key={stat.labelKey} className="bg-[#141720] border border-[#1e2130] rounded-xl p-4">
+            <p className="text-xs text-slate-500 mb-1">{t(stat.labelKey as any)}</p>
             <p className={`text-xl font-bold ${stat.color}`}>{stat.value}</p>
           </div>
         ))}
@@ -88,9 +88,7 @@ export function OrdersPage() {
       <OrderFilters filters={filters} onChange={setFilters} />
 
       {isLoading ? (
-        <div className="text-center py-16 text-muted-foreground">
-          {t('loading')}
-        </div>
+        <div className="text-center py-16 text-slate-500">{t('loading')}</div>
       ) : (
         <OrdersTable orders={filteredOrders} onViewOrder={(order) => setSelectedOrderId(order.id)} />
       )}

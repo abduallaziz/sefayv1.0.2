@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect } from 'react';
@@ -33,7 +32,7 @@ interface Props {
 export function ItemFormModal({ open, onClose, onSubmit, item, categories, isLoading }: Props) {
   const t = useTranslations('items');
 
-  const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       has_inventory: false,
@@ -67,39 +66,39 @@ export function ItemFormModal({ open, onClose, onSubmit, item, categories, isLoa
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-background rounded-xl shadow-xl w-full max-w-md">
-        <div className="flex items-center justify-between p-6 border-b border-border">
-          <h2 className="text-lg font-semibold">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+      <div className="bg-[#0d1117] border border-[#1e2130] rounded-xl shadow-xl w-full max-w-md">
+        <div className="flex items-center justify-between p-6 border-b border-[#1e2130]">
+          <h2 className="text-lg font-semibold text-white">
             {item ? t('editItem') : t('addItem')}
           </h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-muted">
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit(handleFormSubmit)} className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">{t('name')}</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1">{t('name')}</label>
             <input
               {...register('name')}
-              className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full px-3 py-2 text-sm bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500"
             />
             {errors.name && <p className="text-xs text-red-500 mt-1">{t('required')}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium mb-1">{t('type')}</label>
-              <select {...register('type')} className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+              <label className="block text-sm font-medium text-slate-300 mb-1">{t('type')}</label>
+              <select {...register('type')} className="w-full px-3 py-2 text-sm bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500">
                 <option value="product">{t('product')}</option>
                 <option value="service">{t('service')}</option>
                 <option value="custom">{t('custom')}</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">{t('operationType')}</label>
-              <select {...register('operation_type')} className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+              <label className="block text-sm font-medium text-slate-300 mb-1">{t('operationType')}</label>
+              <select {...register('operation_type')} className="w-full px-3 py-2 text-sm bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500">
                 <option value="sell">{t('sell')}</option>
                 <option value="book">{t('book')}</option>
                 <option value="repair">{t('repair')}</option>
@@ -110,17 +109,17 @@ export function ItemFormModal({ open, onClose, onSubmit, item, categories, isLoa
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium mb-1">{t('price')}</label>
+              <label className="block text-sm font-medium text-slate-300 mb-1">{t('price')}</label>
               <input
                 type="number"
                 step="0.01"
                 {...register('price', { valueAsNumber: true })}
-                className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-3 py-2 text-sm bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">{t('category')}</label>
-              <select {...register('category_id')} className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+              <label className="block text-sm font-medium text-slate-300 mb-1">{t('category')}</label>
+              <select {...register('category_id')} className="w-full px-3 py-2 text-sm bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500">
                 <option value="">{t('noCategory')}</option>
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
@@ -130,11 +129,11 @@ export function ItemFormModal({ open, onClose, onSubmit, item, categories, isLoa
           </div>
 
           <div className="flex gap-6">
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
+            <label className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer">
               <input type="checkbox" {...register('has_inventory')} className="w-4 h-4" />
               {t('hasInventory')}
             </label>
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
+            <label className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer">
               <input type="checkbox" {...register('has_variants')} className="w-4 h-4" />
               {t('hasVariants')}
             </label>
@@ -144,14 +143,14 @@ export function ItemFormModal({ open, onClose, onSubmit, item, categories, isLoa
             <button
               type="submit"
               disabled={isLoading}
-              className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-50"
+              className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium disabled:opacity-50"
             >
               {isLoading ? t('saving') : t('save')}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2 border border-border rounded-lg text-sm hover:bg-muted"
+              className="flex-1 py-2 border border-[#1e2130] text-slate-400 hover:text-white hover:bg-white/5 rounded-lg text-sm"
             >
               {t('cancel')}
             </button>

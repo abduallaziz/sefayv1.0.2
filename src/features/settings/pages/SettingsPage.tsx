@@ -8,11 +8,13 @@ import { Building2, CreditCard, BarChart3, Save } from 'lucide-react'
 export function SettingsPage() {
   const t = useTranslations('settings')
   const { data: profile, isLoading: profileLoading } = useProfile()
-  const { data: subscription, isLoading: subLoading } = useSubscription()
+  const { data: subscriptionData, isLoading: subLoading } = useSubscription()
   const { data: usage, isLoading: usageLoading } = useUsage()
   const { mutate: updateProfile, isPending } = useUpdateProfile()
 
   const [name, setName] = useState('')
+
+  const sub = (subscriptionData as any)?.subscription
 
   function handleSave() {
     if (name.trim()) {
@@ -79,20 +81,20 @@ export function SettingsPage() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-xs text-slate-500">{t('plan')}</p>
-              <p className="text-sm font-medium text-white mt-1">{subscription?.plan_name ?? '—'}</p>
+              <p className="text-sm font-medium text-white mt-1">{sub?.plan_name ?? '—'}</p>
             </div>
             <div>
               <p className="text-xs text-slate-500">{t('status')}</p>
-              <p className="text-sm font-medium text-emerald-400 mt-1">{subscription?.status ?? '—'}</p>
+              <p className="text-sm font-medium text-emerald-400 mt-1">{sub?.status ?? '—'}</p>
             </div>
             <div>
               <p className="text-xs text-slate-500">{t('interval')}</p>
-              <p className="text-sm font-medium text-white mt-1">{subscription?.interval ?? '—'}</p>
+              <p className="text-sm font-medium text-white mt-1">{sub?.billing_cycle ?? '—'}</p>
             </div>
             <div>
               <p className="text-xs text-slate-500">{t('endsAt')}</p>
               <p className="text-sm font-medium text-white mt-1">
-                {subscription?.ends_at ? new Date(subscription.ends_at).toLocaleDateString() : '—'}
+                {sub?.expires_at ? new Date(sub.expires_at).toLocaleDateString('ar-SA') : '—'}
               </p>
             </div>
           </div>
@@ -115,10 +117,10 @@ export function SettingsPage() {
                 <div className="flex-1 bg-[#0f1117] rounded-full h-2">
                   <div
                     className="bg-blue-500 h-2 rounded-full"
-                    style={{ width: `${Math.min(((usage?.users.current ?? 0) / (usage?.users.max ?? 1)) * 100, 100)}%` }}
+                    style={{ width: `${Math.min(((usage?.users?.current ?? 0) / (usage?.users?.max ?? 1)) * 100, 100)}%` }}
                   />
                 </div>
-                <span className="text-xs text-slate-400">{usage?.users.current ?? 0}/{usage?.users.max ?? 0}</span>
+                <span className="text-xs text-slate-400">{usage?.users?.current ?? 0}/{usage?.users?.max ?? sub?.max_users ?? 0}</span>
               </div>
             </div>
             <div>
@@ -127,10 +129,10 @@ export function SettingsPage() {
                 <div className="flex-1 bg-[#0f1117] rounded-full h-2">
                   <div
                     className="bg-violet-500 h-2 rounded-full"
-                    style={{ width: `${Math.min(((usage?.branches.current ?? 0) / (usage?.branches.max ?? 1)) * 100, 100)}%` }}
+                    style={{ width: `${Math.min(((usage?.branches?.current ?? 0) / (usage?.branches?.max ?? 1)) * 100, 100)}%` }}
                   />
                 </div>
-                <span className="text-xs text-slate-400">{usage?.branches.current ?? 0}/{usage?.branches.max ?? 0}</span>
+                <span className="text-xs text-slate-400">{usage?.branches?.current ?? 0}/{usage?.branches?.max ?? sub?.max_branches ?? 0}</span>
               </div>
             </div>
           </div>

@@ -32,13 +32,13 @@ export function OrderFilters({ filters, onChange }: Props) {
         placeholder={t('searchPlaceholder')}
         value={filters.search || ''}
         onChange={e => onChange({ ...filters, search: e.target.value })}
-        className="border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground w-48 focus:outline-none focus:ring-2 focus:ring-primary"
+        className="border border-[#1e2130] rounded-lg px-3 py-2 text-sm bg-[#141720] text-white w-48 focus:outline-none focus:border-blue-500 placeholder-slate-600"
       />
 
       <select
         value={filters.status || ''}
         onChange={e => onChange({ ...filters, status: (e.target.value as OrderStatus) || undefined })}
-        className="border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground focus:outline-none"
+        className="border border-[#1e2130] rounded-lg px-3 py-2 text-sm bg-[#141720] text-white focus:outline-none focus:border-blue-500"
       >
         {statuses.map(s => (
           <option key={s.value} value={s.value}>{t(s.labelKey as any)}</option>
@@ -48,7 +48,7 @@ export function OrderFilters({ filters, onChange }: Props) {
       <select
         value={filters.payment_method || ''}
         onChange={e => onChange({ ...filters, payment_method: (e.target.value as PaymentMethod) || undefined })}
-        className="border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground focus:outline-none"
+        className="border border-[#1e2130] rounded-lg px-3 py-2 text-sm bg-[#141720] text-white focus:outline-none focus:border-blue-500"
       >
         {methods.map(m => (
           <option key={m.value} value={m.value}>{t(m.labelKey as any)}</option>
@@ -59,13 +59,13 @@ export function OrderFilters({ filters, onChange }: Props) {
         type="date"
         value={filters.date_from || ''}
         onChange={e => onChange({ ...filters, date_from: e.target.value })}
-        className="border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground focus:outline-none"
+        className="border border-[#1e2130] rounded-lg px-3 py-2 text-sm bg-[#141720] text-white focus:outline-none focus:border-blue-500"
       />
       <input
         type="date"
         value={filters.date_to || ''}
         onChange={e => onChange({ ...filters, date_to: e.target.value })}
-        className="border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground focus:outline-none"
+        className="border border-[#1e2130] rounded-lg px-3 py-2 text-sm bg-[#141720] text-white focus:outline-none focus:border-blue-500"
       />
     </div>
   );
