@@ -38,6 +38,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
     legacyDashboard,
     legacyItems,
     legacyCustomers,
+    users,
   ] = await Promise.all([
     loadNamespace('common'),
     loadNamespace('shell'),
@@ -52,6 +53,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
     loadLegacy(`${locale}/dashboard`),
     loadLegacy(`${locale}/items`),
     loadLegacy(`${locale}/customers`),
+    loadNamespace('users'),
   ])
 
   return {
@@ -60,6 +62,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
       common,
       shell,
       superadmin,
+      users,
       dashboard: {
         ...(legacyDashboard?.dashboard ?? {}),
         ...dashboard,

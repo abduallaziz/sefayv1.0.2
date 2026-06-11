@@ -1,0 +1,13 @@
+{
+  "title": "Users",
+  "count": "{count} users",
+  "addUser": "Add User",
+  "name": "Name",
+  "email": "Email",
+  "role": "Role",
+  "status": "Status",
+  "active": "Active",
+  "inactive": "Inactive",
+  "delete": "Delete",
+  "empty": "No users found"
+}
