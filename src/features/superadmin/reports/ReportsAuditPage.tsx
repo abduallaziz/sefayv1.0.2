@@ -53,7 +53,7 @@ type Tab = 'overview' | 'revenue' | 'tenants' | 'audit'
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 export default function ReportsAuditPage() {
-  const t = useTranslations('reports')
+  const t = useTranslations('superadmin.reports')
   const [activeTab, setActiveTab] = useState<Tab>('overview')
 
   // ── Queries ──
@@ -63,14 +63,20 @@ export default function ReportsAuditPage() {
   })
 
   const mrrQuery = useQuery({
-    queryKey: ['superadmin', 'analytics', 'mrr'],
-    queryFn: () => superadminApi.getMRR(),
-  })
+  queryKey: ['superadmin', 'analytics', 'mrr'],
+  queryFn: async () => {
+    const res = await superadminApi.getMRR() as any;
+    return typeof res === 'number' ? res : res?.mrr ?? 0;
+  },
+})
 
   const arrQuery = useQuery({
-    queryKey: ['superadmin', 'analytics', 'arr'],
-    queryFn: () => superadminApi.getARR(),
-  })
+  queryKey: ['superadmin', 'analytics', 'arr'],
+  queryFn: async () => {
+    const res = await superadminApi.getARR() as any;
+    return typeof res === 'number' ? res : res?.arr ?? 0;
+  },
+})
 
   const mrrHistoryQuery = useQuery({
     queryKey: ['superadmin', 'analytics', 'mrr-history'],
