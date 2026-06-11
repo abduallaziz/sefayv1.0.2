@@ -1,0 +1,17 @@
+{
+  "title": "Settings",
+  "subtitle": "Manage your store information and subscription",
+  "profile": "Store Profile",
+  "businessName": "Business Name",
+  "businessType": "Business Type",
+  "save": "Save",
+  "saving": "Saving...",
+  "subscription": "Subscription",
+  "plan": "Plan",
+  "status": "Status",
+  "interval": "Interval",
+  "endsAt": "Ends At",
+  "usage": "Usage",
+  "users": "Users",
+  "branches": "Branches"
+}

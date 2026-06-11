@@ -77,8 +77,8 @@ export function FeatureRow({ tenantId, feature }: Props) {
         >
           <span
             className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-              isEnabled ? 'translate-x-4' : 'translate-x-0'
-            }`}
+            isEnabled ? 'ltr:translate-x-4 rtl:-translate-x-4' : 'translate-x-0'
+          }`}
           />
         </button>
         {hasOverride && (

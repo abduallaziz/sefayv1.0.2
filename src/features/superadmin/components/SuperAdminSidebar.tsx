@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/core/auth/stores/auth.store';
 import {
   LayoutDashboard, Building2, CreditCard,
-  ToggleLeft, Shield, BarChart3, LogOut,
+  ToggleLeft, Shield, BarChart3, LogOut, Settings,
 } from 'lucide-react';
 
 export function SuperAdminSidebar() {
@@ -31,6 +31,7 @@ export function SuperAdminSidebar() {
         { key: 'subscriptions', href: '/superadmin/subscriptions', label: t('subscriptions'), icon: CreditCard },
         { key: 'feature-flags', href: '/superadmin/feature-flags', label: t('featureFlags'), icon: ToggleLeft },
         { key: 'auth-control', href: '/superadmin/auth-control', label: t('authControl'), icon: Shield },
+        { key: 'settings', href: '/superadmin/settings', label: t('settings'), icon: Settings },
       ],
     },
     {

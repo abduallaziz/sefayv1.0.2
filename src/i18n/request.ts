@@ -33,6 +33,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
     pos,
     expenses,
     items,
+    settings,
     legacyRoot,
     legacyDashboard,
     legacyItems,
@@ -46,6 +47,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
     loadNamespace('pos'),
     loadNamespace('expenses'),
     loadNamespace('items'),
+    loadNamespace('settings'),
     loadLegacy(locale),
     loadLegacy(`${locale}/dashboard`),
     loadLegacy(`${locale}/items`),
@@ -55,7 +57,6 @@ export default getRequestConfig(async ({ requestLocale }) => {
   return {
     locale,
     messages: {
-      // new system first — highest priority
       common,
       shell,
       superadmin,
@@ -67,7 +68,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
       pos,
       expenses,
       items,
-      // legacy last — fallback only
+      settings,
       ...legacyRoot,
       ...legacyItems,
       ...legacyCustomers,

@@ -302,6 +302,7 @@
   "subscriptions": "Subscriptions",
   "featureFlags": "Feature Flags",
   "authControl": "Auth Control",
-  "reports": "Reports"
+  "reports": "Reports",
+  "settings": "Settings"
 }
 }

@@ -300,6 +300,8 @@
   "subscriptions": "الاشتراكات",
   "featureFlags": "المميزات",
   "authControl": "التحكم في المصادقة",
-  "reports": "التقارير"
+  "reports": "التقارير",
+  "settings": "الإعدادات"
+
 }
 }
