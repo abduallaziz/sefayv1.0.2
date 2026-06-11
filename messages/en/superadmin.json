@@ -7,6 +7,7 @@
   "overview": {
     "totalTenants": "Total Tenants",
     "monthlyRevenue": "Monthly Revenue",
+    "totalUsers": "Total Users",
     "activeTenants": "Active Tenants",
     "annualRevenue": "Annual Revenue"
   },

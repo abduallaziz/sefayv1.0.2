@@ -1,6 +1,6 @@
 'use client';
 
-import { MainLayout } from '@/shared/layout/main-layout';
+import { DashboardLayout } from '@/features/dashboard/components/DashboardLayout';
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/core/auth/stores/auth.store';
@@ -18,10 +18,13 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
     if (!hydrated) return;
     if (!isAuthenticated) {
       router.replace(`/${locale}/login`);
+    } else if (user?.role !== 'superadmin') {
+      router.replace(`/${locale}/dashboard`);
     }
-  }, [hydrated, isAuthenticated, router, locale]);
+  }, [hydrated, isAuthenticated, user, router, locale]);
 
   if (!hydrated || !isAuthenticated) return null;
+  if (user?.role !== 'superadmin') return null;
 
-  return <MainLayout>{children}</MainLayout>;
+  return <DashboardLayout>{children}</DashboardLayout>;
 }
