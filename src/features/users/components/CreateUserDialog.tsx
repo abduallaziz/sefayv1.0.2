@@ -73,6 +73,7 @@ export function CreateUserDialog({ open, onClose }: Props) {
               onChange={(e) => setForm({ ...form, password: e.target.value })}
               className="w-full bg-[#141720] border border-[#1e2130] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
             />
+              <p className="text-xs text-slate-600 mt-1">{t('passwordHint')}</p>
           </div>
           <div>
             <label className="text-xs text-slate-500 mb-1 block">{t('role')}</label>
@@ -97,7 +98,7 @@ export function CreateUserDialog({ open, onClose }: Props) {
           </button>
           <button
             onClick={handleSubmit}
-            disabled={isPending || !form.name || !form.email || !form.password}
+            disabled={isPending || !form.name || !form.email || form.password.length < 8}
             className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-lg text-sm text-white transition-colors"
           >
             {isPending ? t('creating') : t('create')}

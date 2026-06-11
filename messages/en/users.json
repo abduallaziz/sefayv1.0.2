@@ -13,5 +13,6 @@
   "password": "Password",
   "cancel": "Cancel",
   "create": "Create",
-  "creating": "Creating..."
+  "creating": "Creating...",
+  "passwordHint": "At least 8 characters"
 }
