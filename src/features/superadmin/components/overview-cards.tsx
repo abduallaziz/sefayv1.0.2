@@ -82,7 +82,7 @@ interface OverviewCardsProps {
 }
 
 export function OverviewCards({ stats, mrr = 0, arr = 0 }: OverviewCardsProps) {
-  const t = useTranslations('overview')
+const t = useTranslations('superadmin.overview')
 
   const cards = [
     {
