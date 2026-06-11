@@ -1,11 +1,11 @@
 'use client';
 
-import { DashboardLayout } from '@/features/dashboard/components/DashboardLayout';
+import { SuperAdminLayout } from '@/features/superadmin/components/SuperAdminLayout';
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/core/auth/stores/auth.store';
 
-export default function SuperAdminLayout({ children }: { children: React.ReactNode }) {
+export default function SuperAdminLayoutPage({ children }: { children: React.ReactNode }) {
   const { user, isAuthenticated } = useAuthStore();
   const router = useRouter();
   const pathname = usePathname();
@@ -26,5 +26,5 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
   if (!hydrated || !isAuthenticated) return null;
   if (user?.role !== 'superadmin') return null;
 
-  return <DashboardLayout>{children}</DashboardLayout>;
+  return <SuperAdminLayout>{children}</SuperAdminLayout>;
 }
