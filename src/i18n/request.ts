@@ -59,25 +59,25 @@ export default getRequestConfig(async ({ requestLocale }) => {
   ])
 
   return {
-    locale,
-    messages: {
-      common,
-      shell,
-      superadmin,
-      users,
-      customers,
-      dashboard: {
-        ...(legacyDashboard?.dashboard ?? {}),
-        ...dashboard,
-      },
-      orders,
-      pos,
-      expenses,
-      items,
-      settings,
-      ...legacyRoot,
-      ...legacyItems,
-      reports,
-    }
+  locale,
+  messages: {
+    common,
+    shell,
+    superadmin,
+    users,
+    dashboard: {
+      ...(legacyDashboard?.dashboard ?? {}),
+      ...dashboard,
+    },
+    orders,
+    pos,
+    expenses,
+    items,
+    settings,
+    ...legacyRoot,
+    ...legacyItems,
+    reports,
+    customers,  // بعد legacyRoot
   }
+}
 })

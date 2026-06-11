@@ -18,11 +18,25 @@ export default async function LocaleLayout({
   }
 
   const messages = await getMessages()
-
   const isArabic = locale === 'ar'
 
   return (
-    <NextIntlClientProvider messages={messages}>
+    <NextIntlClientProvider
+      messages={messages}
+      locale={locale}
+      formats={{
+        number: {
+          default: {
+            numberingSystem: 'latn',
+          },
+        },
+        dateTime: {
+          default: {
+            numberingSystem: 'latn',
+          },
+        },
+      }}
+    >
       <AuthProvider>
         <div
           dir={isArabic ? 'rtl' : 'ltr'}

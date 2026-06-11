@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useQuery } from '@tanstack/react-query';
 import { useCurrentShift } from '../hooks/useShifts';
 import { CurrentShiftBanner } from '../components/CurrentShiftBanner';
 import { ShiftsList } from '../components/ShiftsList';
@@ -9,6 +10,7 @@ import { OpenShiftModal } from '../components/OpenShiftModal';
 import { CloseShiftModal } from '../components/CloseShiftModal';
 import { ShiftSummaryModal } from '../components/ShiftSummaryModal';
 import { useAuthStore } from '@/core/auth/stores/auth.store';
+import { apiClient } from '@/lib/api';
 
 export function ShiftsPage() {
   const t = useTranslations('shifts');
@@ -19,13 +21,19 @@ export function ShiftsPage() {
   const [showClose, setShowClose] = useState(false);
   const [summaryShiftId, setSummaryShiftId] = useState<string | null>(null);
 
-  const branchId = user?.branchId ?? '';
+  const { data: branches } = useQuery({
+    queryKey: ['branches'],
+    queryFn: () => apiClient.get('/branches') as any,
+    enabled: !!user,
+  });
+
+  const branchId = user?.branchId ?? (branches as any)?.[0]?.id ?? '';
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('title')}</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{t('subtitle')}</p>
+        <h1 className="text-xl font-bold text-white">{t('title')}</h1>
+        <p className="text-sm text-slate-500 mt-0.5">{t('subtitle')}</p>
       </div>
 
       <CurrentShiftBanner
@@ -34,9 +42,9 @@ export function ShiftsPage() {
         onViewSummary={(id) => setSummaryShiftId(id)}
       />
 
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700">
-        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('history')}</h2>
+      <div className="bg-[#141720] border border-[#1e2130] rounded-xl">
+        <div className="px-4 py-3 border-b border-[#1e2130]">
+          <h2 className="text-sm font-medium text-slate-300">{t('history')}</h2>
         </div>
         <ShiftsList onViewSummary={(id) => setSummaryShiftId(id)} />
       </div>

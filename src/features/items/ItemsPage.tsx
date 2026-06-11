@@ -1,10 +1,10 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { Plus } from 'lucide-react';
-import { useItems, useCategories, useCreateItem, useUpdateItem, useDeleteItem, useCreateVariant, useDeleteVariant } from './hooks/useItems';
+import { useItems, useCategories, useCreateItem, useUpdateItem, useDeleteItem, useDeleteVariant } from './hooks/useItems';
+import { itemsApi } from './api/items.api';
 import { ItemFiltersBar } from './components/ItemFilters';
 import { ItemsTable } from './components/ItemsTable';
 import { ItemFormModal } from './components/ItemFormModal';
@@ -20,7 +20,6 @@ export function ItemsPage() {
   const createItem = useCreateItem();
   const updateItem = useUpdateItem();
   const deleteItem = useDeleteItem();
-  const createVariant = useCreateVariant();
   const deleteVariant = useDeleteVariant();
 
   const [filters, setFilters] = useState<ItemFilters>({
@@ -45,11 +44,26 @@ export function ItemsPage() {
     });
   }, [items, filters]);
 
-  const handleSubmit = (data: CreateItemDTO) => {
+  const handleSubmit = async (
+    data: CreateItemDTO,
+    variants?: { name: string; price_adjustment: number; sku: string }[]
+  ) => {
     if (selectedItem) {
-      updateItem.mutate({ id: selectedItem.id, data }, { onSuccess: () => { setFormOpen(false); setSelectedItem(null); } });
+      updateItem.mutate(
+        { id: selectedItem.id, data },
+        { onSuccess: () => { setFormOpen(false); setSelectedItem(null); } }
+      );
     } else {
-      createItem.mutate(data, { onSuccess: () => setFormOpen(false) });
+      createItem.mutate(data, {
+        onSuccess: async (newItem: any) => {
+          if (variants && variants.length > 0) {
+            await Promise.allSettled(
+              variants.map(v => itemsApi.createVariant(newItem.id, v))
+            );
+          }
+          setFormOpen(false);
+        }
+      });
     }
   };
 
@@ -59,36 +73,35 @@ export function ItemsPage() {
 
   const handleDelete = () => {
     if (!selectedItem) return;
-    deleteItem.mutate(selectedItem.id, { onSuccess: () => { setDeleteOpen(false); setSelectedItem(null); } });
+    deleteItem.mutate(selectedItem.id, {
+      onSuccess: () => { setDeleteOpen(false); setSelectedItem(null); }
+    });
   };
 
   const activeCount = items.filter(i => i.is_active).length;
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">{t('title')}</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <h1 className="text-xl font-bold text-white">{t('title')}</h1>
+          <p className="text-sm text-slate-500 mt-1">
             {items.length} {t('totalItems')} • {activeCount} {t('active')}
           </p>
         </div>
         <button
           onClick={() => { setSelectedItem(null); setFormOpen(true); }}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90"
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium"
         >
           <Plus className="w-4 h-4" />
           {t('addItem')}
         </button>
       </div>
 
-      {/* Filters */}
       <ItemFiltersBar filters={filters} onChange={setFilters} categories={categories} />
 
-      {/* Table */}
       {isLoading ? (
-        <div className="text-center py-16 text-muted-foreground">{t('loading')}</div>
+        <div className="text-center py-16 text-slate-500">{t('loading')}</div>
       ) : (
         <ItemsTable
           items={filtered}
@@ -99,7 +112,6 @@ export function ItemsPage() {
         />
       )}
 
-      {/* Modals */}
       <ItemFormModal
         open={formOpen}
         onClose={() => { setFormOpen(false); setSelectedItem(null); }}
@@ -113,7 +125,7 @@ export function ItemsPage() {
         open={variantsOpen}
         onClose={() => { setVariantsOpen(false); setSelectedItem(null); }}
         item={selectedItem}
-        onAddVariant={(itemId, data) => createVariant.mutate({ itemId, data })}
+        onAddVariant={(itemId, data) => itemsApi.createVariant(itemId, data)}
         onDeleteVariant={(itemId, variantId) => deleteVariant.mutate({ itemId, variantId })}
       />
 

@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { X, Plus, Trash2 } from 'lucide-react';
-import { Item, ItemVariant } from '../types/item.types';
+import { Item } from '../types/item.types';
+import { useItemVariants } from '../hooks/useItems';
 
 interface Props {
   open: boolean;
@@ -16,6 +17,8 @@ interface Props {
 export function VariantsModal({ open, onClose, item, onAddVariant, onDeleteVariant }: Props) {
   const t = useTranslations('items');
   const [form, setForm] = useState({ name: '', price_adjustment: 0, sku: '', stock_quantity: 0 });
+
+  const { data: variants = [], isLoading } = useItemVariants(item?.id ?? null);
 
   if (!open || !item) return null;
 
@@ -40,24 +43,27 @@ export function VariantsModal({ open, onClose, item, onAddVariant, onDeleteVaria
 
         <div className="p-6 space-y-4">
           <div className="space-y-2">
-            {(item.variants ?? []).map((v: ItemVariant) => (
-              <div key={v.id} className="flex items-center justify-between p-3 rounded-lg border border-[#1e2130] bg-[#141720]">
-                <div>
-                  <p className="font-medium text-sm text-white">{v.name}</p>
-                  <p className="text-xs text-slate-500">
-                    {v.price_adjustment > 0 ? `+${v.price_adjustment}` : v.price_adjustment} {t('currency')} • {v.sku}
-                  </p>
-                </div>
-                <button
-                  onClick={() => onDeleteVariant(item.id, v.id)}
-                  className="p-1.5 rounded-lg hover:bg-red-500/10 text-slate-500 hover:text-red-400"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            ))}
-            {(item.variants ?? []).length === 0 && (
+            {isLoading ? (
+              <div className="h-10 bg-[#1e2130] rounded animate-pulse" />
+            ) : variants.length === 0 ? (
               <p className="text-sm text-slate-500 text-center py-4">{t('noVariants')}</p>
+            ) : (
+              variants.map((v: any) => (
+                <div key={v.id} className="flex items-center justify-between p-3 rounded-lg border border-[#1e2130] bg-[#141720]">
+                  <div>
+                    <p className="font-medium text-sm text-white">{v.name}</p>
+                    <p className="text-xs text-slate-500">
+                      {v.price_adjustment > 0 ? `+${v.price_adjustment}` : v.price_adjustment} {t('currency')} • {v.sku}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => onDeleteVariant(item.id, v.id)}
+                    className="p-1.5 rounded-lg hover:bg-red-500/10 text-slate-500 hover:text-red-400"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))
             )}
           </div>
 
