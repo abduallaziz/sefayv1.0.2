@@ -58,14 +58,13 @@ export default getRequestConfig(async ({ requestLocale }) => {
     loadLegacy(`${locale}/customers`),
   ])
 
-  return {
+    return {
     locale,
     messages: {
       common,
       shell,
       superadmin,
       users,
-      reports,
       dashboard: {
         ...(legacyDashboard?.dashboard ?? {}),
         ...dashboard,
@@ -78,6 +77,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
       ...legacyRoot,
       ...legacyItems,
       ...legacyCustomers,
+      reports,  // بعد legacyRoot عشان يـ override
     }
   }
 })
