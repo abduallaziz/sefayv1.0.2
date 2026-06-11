@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -15,13 +15,18 @@ body {
   color: #f8fafc;
   font-family: 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
-  font-variant-numeric: lining-nums;
 }
 
-:lang(ar) * {
-  font-variant-numeric: lining-nums;
-  -webkit-font-feature-settings: "lnum" 1;
-  font-feature-settings: "lnum" 1;
+:lang(ar) {
+  font-family: 'Cairo', system-ui, sans-serif;
+}
+
+input[type="number"],
+input[type="tel"],
+input[type="date"],
+input[type="time"] {
+  direction: ltr;
+  text-align: right;
 }
 
 ::-webkit-scrollbar {
@@ -40,14 +45,6 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #6366f1;
-}
-
-input[type="number"],
-input[type="tel"],
-input[type="date"],
-input[type="time"] {
-  direction: ltr;
-  text-align: right;
 }
 
 ::selection {

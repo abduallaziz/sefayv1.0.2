@@ -26,13 +26,10 @@ export default async function LocaleLayout({
       locale={locale}
       formats={{
         number: {
-          default: {
-            numberingSystem: 'latn',
-          },
-        },
-        dateTime: {
-          default: {
-            numberingSystem: 'latn',
+          currency: {
+            style: 'decimal',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
           },
         },
       }}
@@ -41,6 +38,7 @@ export default async function LocaleLayout({
         <div
           dir={isArabic ? 'rtl' : 'ltr'}
           lang={locale}
+          className={isArabic ? 'font-cairo' : 'font-inter'}
         >
           {children}
         </div>
