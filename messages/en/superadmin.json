@@ -220,6 +220,7 @@
     "periodGrowth": "Period growth",
     "allTime": "All time",
     "fromOrders": "From orders",
+    "auditLogTab": "Audit Log",
     "tabs": {
       "overview": "Overview",
       "revenue": "Revenue",

@@ -105,7 +105,7 @@ export default function ReportsAuditPage() {
     { key: 'overview', label: t('overview'), icon: Activity },
     { key: 'revenue',  label: t('revenue'),  icon: DollarSign },
     { key: 'tenants',  label: t('tenants'),  icon: Users },
-    { key: 'audit',    label: t('auditLog'), icon: Shield },
+    { key: 'audit',    label: t('auditLogTab'), icon: Shield },
   ]
 
   return (

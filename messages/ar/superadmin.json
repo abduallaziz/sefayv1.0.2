@@ -220,6 +220,7 @@
     "periodGrowth": "نمو الفترة",
     "allTime": "كل الوقت",
     "fromOrders": "من الطلبات",
+    "auditLogTab": "سجل المراجعة",
     "tabs": {
       "overview": "نظرة عامة",
       "revenue": "الإيرادات"
