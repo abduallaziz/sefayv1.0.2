@@ -36,10 +36,10 @@ export default getRequestConfig(async ({ requestLocale }) => {
     settings,
     users,
     reports,
+    customers,
     legacyRoot,
     legacyDashboard,
     legacyItems,
-    legacyCustomers,
   ] = await Promise.all([
     loadNamespace('common'),
     loadNamespace('shell'),
@@ -52,19 +52,20 @@ export default getRequestConfig(async ({ requestLocale }) => {
     loadNamespace('settings'),
     loadNamespace('users'),
     loadNamespace('reports'),
+    loadNamespace('customers'),
     loadLegacy(locale),
     loadLegacy(`${locale}/dashboard`),
     loadLegacy(`${locale}/items`),
-    loadLegacy(`${locale}/customers`),
   ])
 
-    return {
+  return {
     locale,
     messages: {
       common,
       shell,
       superadmin,
       users,
+      customers,
       dashboard: {
         ...(legacyDashboard?.dashboard ?? {}),
         ...dashboard,
@@ -76,8 +77,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
       settings,
       ...legacyRoot,
       ...legacyItems,
-      ...legacyCustomers,
-      reports,  // بعد legacyRoot عشان يـ override
+      reports,
     }
   }
 })
