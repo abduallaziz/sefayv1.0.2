@@ -1,11 +1,13 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { useFeatures } from '../hooks/useFeatureFlags'
 import { FeatureCategoryBadge } from './FeatureCategoryBadge'
 
+
 export function GlobalFeaturesPanel() {
   const t = useTranslations('superadmin.featureFlags')
+  const locale = useLocale()
 
   const { data: features, isLoading } = useFeatures()
 
@@ -31,7 +33,9 @@ export function GlobalFeaturesPanel() {
             >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
-                  <span className="text-sm font-medium text-white">{feature.name}</span>
+                  <span className="text-sm font-medium text-white">
+                    {locale === 'ar' && (feature as any).name_ar ? (feature as any).name_ar : feature.name}
+                  </span>
                   <FeatureCategoryBadge category={feature.category} />
                 </div>
                 <p className="text-xs text-gray-500">{feature.description}</p>
