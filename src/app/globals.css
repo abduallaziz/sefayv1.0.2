@@ -42,6 +42,14 @@ body {
   background: #6366f1;
 }
 
+input[type="number"],
+input[type="tel"],
+input[type="date"],
+input[type="time"] {
+  direction: ltr;
+  text-align: right;
+}
+
 ::selection {
   background: #6366f1;
   color: white;
