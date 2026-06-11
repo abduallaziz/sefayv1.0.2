@@ -149,6 +149,10 @@
     "notePlaceholder": "Reason for override...",
     "globalView": "Global",
     "tenantView": "Per Tenant",
+    "overridden": "Overridden",
+    "limit": "Limit",
+    "on": "On",
+    "off": "Off",
     "category": {
     "all": "All",
     "core": "Core",

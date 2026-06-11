@@ -149,6 +149,10 @@
     "notePlaceholder": "سبب التخصيص...",
     "globalView": "عام",
     "tenantView": "لكل مستأجر",
+    "overridden": "مخصص",
+    "limit": "الحد",
+    "on": "مفعّل",
+    "off": "معطّل",
     "category": {
     "all": "الكل",
     "core": "أساسي",
