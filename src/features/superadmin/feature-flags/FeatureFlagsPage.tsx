@@ -14,7 +14,7 @@ const MOCK_TENANTS = [
 type ActiveView = 'global' | 'tenant'
 
 export function FeatureFlagsPage() {
-  const t = useTranslations('featureFlags')
+  const t = useTranslations('superadmin.featureFlags')
   const [view, setView] = useState<ActiveView>('global')
   const [selectedTenantId, setSelectedTenantId] = useState<string>(MOCK_TENANTS[0].id)
 

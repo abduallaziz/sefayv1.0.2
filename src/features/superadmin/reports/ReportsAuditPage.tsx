@@ -9,12 +9,10 @@ import {
 } from 'recharts'
 import {
   TrendingUp, TrendingDown, DollarSign, Users,
-  Download, RefreshCw, Shield, ArrowUpRight, Activity,
+  Download, Shield, ArrowUpRight, Activity,
 } from 'lucide-react'
 import AuditLogViewer from './components/AuditLogViewer'
 import { superadminApi } from '../api/superadmin.api'
-
-// ─── StatCard ─────────────────────────────────────────────────────────────────
 
 function StatCard({ label, value, sub, icon: Icon, trend, trendUp }: {
   label: string
@@ -50,33 +48,30 @@ const PLAN_COLORS = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444']
 
 type Tab = 'overview' | 'revenue' | 'tenants' | 'audit'
 
-// ─── Main ─────────────────────────────────────────────────────────────────────
-
 export default function ReportsAuditPage() {
   const t = useTranslations('superadmin.reports')
   const [activeTab, setActiveTab] = useState<Tab>('overview')
 
-  // ── Queries ──
   const statsQuery = useQuery({
     queryKey: ['superadmin', 'stats'],
     queryFn: () => superadminApi.getStats(),
   })
 
   const mrrQuery = useQuery({
-  queryKey: ['superadmin', 'analytics', 'mrr'],
-  queryFn: async () => {
-    const res = await superadminApi.getMRR() as any;
-    return typeof res === 'number' ? res : res?.mrr ?? 0;
-  },
-})
+    queryKey: ['superadmin', 'analytics', 'mrr'],
+    queryFn: async () => {
+      const res = await superadminApi.getMRR() as any
+      return typeof res === 'number' ? res : res?.mrr ?? 0
+    },
+  })
 
   const arrQuery = useQuery({
-  queryKey: ['superadmin', 'analytics', 'arr'],
-  queryFn: async () => {
-    const res = await superadminApi.getARR() as any;
-    return typeof res === 'number' ? res : res?.arr ?? 0;
-  },
-})
+    queryKey: ['superadmin', 'analytics', 'arr'],
+    queryFn: async () => {
+      const res = await superadminApi.getARR() as any
+      return typeof res === 'number' ? res : res?.arr ?? 0
+    },
+  })
 
   const mrrHistoryQuery = useQuery({
     queryKey: ['superadmin', 'analytics', 'mrr-history'],
@@ -98,14 +93,13 @@ export default function ReportsAuditPage() {
     queryFn: () => superadminApi.getRevenueByPlan(),
   })
 
-  // ── Derived values ──
-  const stats     = statsQuery.data
-  const mrr       = mrrQuery.data ?? 0
-  const arr       = arrQuery.data ?? 0
+  const stats      = statsQuery.data
+  const mrr        = mrrQuery.data ?? 0
+  const arr        = arrQuery.data ?? 0
   const mrrHistory = mrrHistoryQuery.data ?? []
-  const churn     = churnQuery.data
-  const growth    = growthQuery.data
-  const byPlan    = revenueByPlanQuery.data ?? []
+  const churn      = churnQuery.data
+  const growth     = growthQuery.data
+  const byPlan     = revenueByPlanQuery.data ?? []
 
   const tabs: { key: Tab; label: string; icon: any }[] = [
     { key: 'overview', label: t('overview'), icon: Activity },
@@ -116,7 +110,6 @@ export default function ReportsAuditPage() {
 
   return (
     <div className="min-h-screen bg-[#0f1117] text-white p-6 space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-white">{t('title')}</h1>
@@ -128,7 +121,6 @@ export default function ReportsAuditPage() {
         </button>
       </div>
 
-      {/* Tabs */}
       <div className="flex gap-1 bg-[#141720] border border-[#1e2130] rounded-xl p-1 w-fit">
         {tabs.map((tab) => (
           <button
@@ -144,39 +136,37 @@ export default function ReportsAuditPage() {
         ))}
       </div>
 
-      {/* ── Overview ── */}
       {activeTab === 'overview' && (
         <div className="space-y-6">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard
               label={t('mrr')}
               value={statsQuery.isLoading ? '...' : `$${mrr.toLocaleString()}`}
-              sub="Monthly Recurring Revenue"
+              sub={t('monthlyRecurring')}
               icon={DollarSign}
             />
             <StatCard
               label={t('arr')}
               value={statsQuery.isLoading ? '...' : `$${arr.toLocaleString()}`}
-              sub="Annual Run Rate"
+              sub={t('annualRunRate')}
               icon={TrendingUp}
             />
             <StatCard
               label={t('activeTenants')}
               value={stats ? String(stats.totalTenants) : '...'}
-              sub={`${stats?.totalUsers ?? '—'} users`}
+              sub={t('totalUsersCount', { count: stats?.totalUsers ?? '—' })}
               icon={Users}
             />
             <StatCard
               label={t('churnRate')}
               value={churn ? `${churn.churnRate}%` : '...'}
-              sub={churn ? `${churn.churned} churned` : '—'}
+              sub={churn ? t('churnedCount', { count: churn.churned }) : '—'}
               icon={Activity}
               trendUp
             />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            {/* MRR History */}
             <div className="lg:col-span-2 bg-[#141720] border border-[#1e2130] rounded-xl p-5">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-white">{t('mrrGrowth')}</h3>
@@ -197,7 +187,6 @@ export default function ReportsAuditPage() {
               )}
             </div>
 
-            {/* Revenue by Plan */}
             <div className="bg-[#141720] border border-[#1e2130] rounded-xl p-5">
               <h3 className="text-sm font-semibold text-white mb-4">{t('tenantsByPlan')}</h3>
               {revenueByPlanQuery.isLoading ? (
@@ -230,7 +219,6 @@ export default function ReportsAuditPage() {
             </div>
           </div>
 
-          {/* Churn Trend */}
           <div className="bg-[#141720] border border-[#1e2130] rounded-xl p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-semibold text-white">{t('churnTrend')}</h3>
@@ -257,14 +245,13 @@ export default function ReportsAuditPage() {
         </div>
       )}
 
-      {/* ── Revenue ── */}
       {activeTab === 'revenue' && (
         <div className="space-y-6">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard label={t('currentMrr')} value={`$${mrr.toLocaleString()}`} sub="Monthly Recurring" icon={DollarSign} />
-            <StatCard label={t('currentArr')} value={`$${arr.toLocaleString()}`} sub="Annual Run Rate"   icon={TrendingUp} />
-            <StatCard label={t('totalOrders')} value={stats ? String(stats.totalOrders) : '...'} sub="All time" icon={ArrowUpRight} />
-            <StatCard label={t('totalRevenue')} value={stats ? `$${stats.totalRevenue.toLocaleString()}` : '...'} sub="From orders" icon={DollarSign} />
+            <StatCard label={t('currentMrr')} value={`$${mrr.toLocaleString()}`} sub={t('monthlyRecurring')} icon={DollarSign} />
+            <StatCard label={t('currentArr')} value={`$${arr.toLocaleString()}`} sub={t('annualRunRate')} icon={TrendingUp} />
+            <StatCard label={t('totalOrders')} value={stats ? String(stats.totalOrders) : '...'} sub={t('allTime')} icon={ArrowUpRight} />
+            <StatCard label={t('totalRevenue')} value={stats ? `$${stats.totalRevenue.toLocaleString()}` : '...'} sub={t('fromOrders')} icon={DollarSign} />
           </div>
 
           <div className="bg-[#141720] border border-[#1e2130] rounded-xl p-5">
@@ -284,7 +271,6 @@ export default function ReportsAuditPage() {
             )}
           </div>
 
-          {/* Revenue by Plan Table */}
           <div className="bg-[#141720] border border-[#1e2130] rounded-xl p-5">
             <h3 className="text-sm font-semibold text-white mb-4">{t('revenueByPlan')}</h3>
             <div className="space-y-2">
@@ -306,40 +292,38 @@ export default function ReportsAuditPage() {
         </div>
       )}
 
-      {/* ── Tenants ── */}
       {activeTab === 'tenants' && (
         <div className="space-y-6">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard
               label={t('totalTenants')}
               value={stats ? String(stats.totalTenants) : '...'}
-              sub={`${stats?.totalUsers ?? '—'} total users`}
+              sub={t('totalUsersCount', { count: stats?.totalUsers ?? '—' })}
               icon={Users}
             />
             <StatCard
               label={t('newThisMonth')}
               value={growth ? String(growth.newTenants) : '...'}
-              sub="New tenants"
+              sub={t('newTenants')}
               icon={ArrowUpRight}
               trendUp
             />
             <StatCard
               label={t('churned')}
               value={churn ? String(churn.churned) : '...'}
-              sub="This period"
+              sub={t('thisPeriod')}
               icon={TrendingDown}
             />
             <StatCard
               label={t('growthRate')}
               value={growth ? `${growth.growthRate}%` : '...'}
-              sub="Period growth"
+              sub={t('periodGrowth')}
               icon={TrendingUp}
               trendUp={growth ? growth.growthRate > 0 : undefined}
             />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {/* New vs Churned */}
             <div className="bg-[#141720] border border-[#1e2130] rounded-xl p-5">
               <h3 className="text-sm font-semibold text-white mb-4">{t('newPerMonth')}</h3>
               {growthQuery.isLoading ? (
@@ -357,7 +341,6 @@ export default function ReportsAuditPage() {
               )}
             </div>
 
-            {/* Plan Distribution */}
             <div className="bg-[#141720] border border-[#1e2130] rounded-xl p-5">
               <h3 className="text-sm font-semibold text-white mb-4">{t('planDist')}</h3>
               {revenueByPlanQuery.isLoading ? (
@@ -386,7 +369,6 @@ export default function ReportsAuditPage() {
         </div>
       )}
 
-      {/* ── Audit ── */}
       {activeTab === 'audit' && <AuditLogViewer />}
     </div>
   )

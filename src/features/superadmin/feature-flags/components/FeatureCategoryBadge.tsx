@@ -14,7 +14,7 @@ const styles: Record<FeatureCategory, string> = {
 }
 
 export function FeatureCategoryBadge({ category }: Props) {
-  const t = useTranslations('featureFlags')
+  const t = useTranslations('superadmin.featureFlags')
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${styles[category]}`}>
       {t(`category.${category}`)}

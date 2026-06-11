@@ -5,7 +5,8 @@ import { useFeatures } from '../hooks/useFeatureFlags'
 import { FeatureCategoryBadge } from './FeatureCategoryBadge'
 
 export function GlobalFeaturesPanel() {
-  const t = useTranslations('featureFlags')
+  const t = useTranslations('superadmin.featureFlags')
+
   const { data: features, isLoading } = useFeatures()
 
   return (

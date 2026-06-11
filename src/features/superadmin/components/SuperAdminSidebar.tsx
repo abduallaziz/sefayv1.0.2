@@ -2,43 +2,44 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/core/auth/stores/auth.store';
 import {
-  LayoutDashboard, Users, Building2, CreditCard,
+  LayoutDashboard, Building2, CreditCard,
   ToggleLeft, Shield, BarChart3, LogOut,
 } from 'lucide-react';
-
-const NAV = [
-  {
-    titleKey: 'عام',
-    items: [
-      { key: 'overview', href: '/superadmin', label: 'لوحة التحكم', icon: LayoutDashboard },
-    ],
-  },
-  {
-    titleKey: 'الإدارة',
-    items: [
-      { key: 'tenants', href: '/superadmin/tenants', label: 'المستأجرون', icon: Building2 },
-      { key: 'subscriptions', href: '/superadmin/subscriptions', label: 'الاشتراكات', icon: CreditCard },
-      { key: 'feature-flags', href: '/superadmin/feature-flags', label: 'المميزات', icon: ToggleLeft },
-      { key: 'auth-control', href: '/superadmin/auth-control', label: 'التحكم في المصادقة', icon: Shield },
-    ],
-  },
-  {
-    titleKey: 'التقارير',
-    items: [
-      { key: 'reports', href: '/superadmin/reports', label: 'التقارير', icon: BarChart3 },
-    ],
-  },
-];
 
 export function SuperAdminSidebar() {
   const pathname = usePathname();
   const locale = useLocale();
+  const t = useTranslations('superadmin.sidebar');
   const user = useAuthStore((s) => s.user);
   const clearAuth = useAuthStore((s) => s.clearAuth);
+
+  const NAV = [
+    {
+      titleKey: t('general'),
+      items: [
+        { key: 'overview', href: '/superadmin', label: t('overview'), icon: LayoutDashboard },
+      ],
+    },
+    {
+      titleKey: t('management'),
+      items: [
+        { key: 'tenants', href: '/superadmin/tenants', label: t('tenants'), icon: Building2 },
+        { key: 'subscriptions', href: '/superadmin/subscriptions', label: t('subscriptions'), icon: CreditCard },
+        { key: 'feature-flags', href: '/superadmin/feature-flags', label: t('featureFlags'), icon: ToggleLeft },
+        { key: 'auth-control', href: '/superadmin/auth-control', label: t('authControl'), icon: Shield },
+      ],
+    },
+    {
+      titleKey: t('reportsSection'),
+      items: [
+        { key: 'reports', href: '/superadmin/reports', label: t('reports'), icon: BarChart3 },
+      ],
+    },
+  ];
 
   return (
     <aside className="flex flex-col w-64 h-full bg-[#0d1117] border-e border-white/[0.06]">

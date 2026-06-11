@@ -147,11 +147,13 @@
     "limitValue": "قيمة الحد",
     "unlimited": "غير محدود",
     "notePlaceholder": "سبب التخصيص...",
+    "globalView": "عام",
+    "tenantView": "لكل مستأجر",
     "category": {
-      "all": "الكل",
-      "core": "أساسي",
-      "advanced": "متقدم",
-      "premium": "مميز"
+    "all": "الكل",
+    "core": "أساسي",
+    "advanced": "متقدم",
+    "premium": "مميز"
     }
   },
   "authControl": {
@@ -209,6 +211,15 @@
     "growthRate": "معدل النمو",
     "newPerMonth": "مستأجرون جدد شهرياً",
     "planDist": "توزيع الخطط",
+    "monthlyRecurring": "الإيرادات الشهرية المتكررة",
+    "annualRunRate": "معدل الإيرادات السنوي",
+    "totalUsersCount": "{count} مستخدم",
+    "churnedCount": "{count} مغادر",
+    "newTenants": "مستأجرون جدد",
+    "thisPeriod": "هذه الفترة",
+    "periodGrowth": "نمو الفترة",
+    "allTime": "كل الوقت",
+    "fromOrders": "من الطلبات",
     "tabs": {
       "overview": "نظرة عامة",
       "revenue": "الإيرادات"
@@ -274,5 +285,16 @@
     "subtitle": "مقاييس الأداء الشهري",
     "revenue": "الإيرادات",
     "tenants": "المستأجرون"
-  }
+  },
+"sidebar": {
+  "general": "عام",
+  "management": "الإدارة",
+  "reportsSection": "التقارير",
+  "overview": "لوحة التحكم",
+  "tenants": "المستأجرون",
+  "subscriptions": "الاشتراكات",
+  "featureFlags": "المميزات",
+  "authControl": "التحكم في المصادقة",
+  "reports": "التقارير"
+}
 }

@@ -147,11 +147,13 @@
     "limitValue": "Limit Value",
     "unlimited": "Unlimited",
     "notePlaceholder": "Reason for override...",
+    "globalView": "Global",
+    "tenantView": "Per Tenant",
     "category": {
-      "all": "All",
-      "core": "Core",
-      "advanced": "Advanced",
-      "premium": "Premium"
+    "all": "All",
+    "core": "Core",
+    "advanced": "Advanced",
+    "premium": "Premium"
     }
   },
   "authControl": {
@@ -209,6 +211,15 @@
     "growthRate": "Growth Rate",
     "newPerMonth": "New Per Month",
     "planDist": "Plan Distribution",
+    "monthlyRecurring": "Monthly Recurring Revenue",
+    "annualRunRate": "Annual Run Rate",
+    "totalUsersCount": "{count} users",
+    "churnedCount": "{count} churned",
+    "newTenants": "New tenants",
+    "thisPeriod": "This period",
+    "periodGrowth": "Period growth",
+    "allTime": "All time",
+    "fromOrders": "From orders",
     "tabs": {
       "overview": "Overview",
       "revenue": "Revenue",
@@ -276,5 +287,16 @@
     "subtitle": "Monthly performance metrics",
     "revenue": "Revenue",
     "tenants": "Tenants"
-  }
+  },
+"sidebar": {
+  "general": "General",
+  "management": "Management",
+  "reportsSection": "Reports",
+  "overview": "Dashboard",
+  "tenants": "Tenants",
+  "subscriptions": "Subscriptions",
+  "featureFlags": "Feature Flags",
+  "authControl": "Auth Control",
+  "reports": "Reports"
+}
 }
