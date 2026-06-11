@@ -2,8 +2,9 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { useUsers, useDeleteUser, useChangeRole } from '../hooks/useUsers'
-import { Users, Trash2, Shield, Plus } from 'lucide-react'
+import { useUsers, useDeleteUser } from '../hooks/useUsers'
+import { CreateUserDialog } from '../components/CreateUserDialog'
+import { Trash2, Plus } from 'lucide-react'
 
 const ROLE_COLORS: Record<string, string> = {
   owner: 'bg-violet-500/10 text-violet-400 border-violet-500/20',
@@ -16,10 +17,12 @@ export function UsersPage() {
   const t = useTranslations('users')
   const { data: users, isLoading } = useUsers()
   const { mutate: deleteUser } = useDeleteUser()
-  const { mutate: changeRole } = useChangeRole()
+  const [dialogOpen, setDialogOpen] = useState(false)
 
   return (
     <div className="space-y-6">
+      <CreateUserDialog open={dialogOpen} onClose={() => setDialogOpen(false)} />
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-white">{t('title')}</h1>
@@ -27,7 +30,10 @@ export function UsersPage() {
             {t('count', { count: users?.length ?? 0 })}
           </p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm text-white transition-colors">
+        <button
+          onClick={() => setDialogOpen(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm text-white transition-colors"
+        >
           <Plus className="w-4 h-4" />
           {t('addUser')}
         </button>

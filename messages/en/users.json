@@ -9,5 +9,9 @@
   "active": "Active",
   "inactive": "Inactive",
   "delete": "Delete",
-  "empty": "No users found"
+  "empty": "No users found",
+  "password": "Password",
+  "cancel": "Cancel",
+  "create": "Create",
+  "creating": "Creating..."
 }
