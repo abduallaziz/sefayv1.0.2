@@ -14,7 +14,7 @@ interface Props {
 const CATEGORIES: FeatureCategory[] = ['core', 'advanced', 'premium']
 
 export function TenantFeaturesPanel({ tenantId, tenantName }: Props) {
-  const t = useTranslations('featureFlags')
+  const t = useTranslations('superadmin.featureFlags')
   const { data: features, isLoading } = useTenantFeatures(tenantId)
   const [activeCategory, setActiveCategory] = useState<FeatureCategory | 'all'>('all')
 
