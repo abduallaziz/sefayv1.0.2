@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://googleapis.com');
 
 @tailwind base;
 @tailwind components;
@@ -21,14 +21,36 @@ body {
   font-family: 'Cairo', system-ui, sans-serif;
 }
 
+/* --- تعديل وإصلاح الحقول لإجبار الأرقام الإنجليزية --- */
+input, select, textarea {
+  /* منع خط Cairo من تحويل الأرقام تلقائياً إلى هندية */
+  font-variant-numeric: lining-nums proportional-nums !important;
+  -webkit-font-feature-settings: "lnum" on, "pnum" on !important;
+  font-feature-settings: "lnum" on, "pnum" on !important;
+}
+
+/* إجبار الحقول الرقمية على خط Inter لمنع الأرقام العربية تماماً */
 input[type="number"],
 input[type="tel"],
 input[type="date"],
-input[type="time"] {
-  direction: ltr;
-  text-align: right;
+input[type="time"],
+input.force-en {
+  font-family: 'Inter', system-ui, sans-serif !important; 
+  direction: ltr !important;
+  text-align: right; /* للحفاظ على التنسيق العربي للموقع */
 }
 
+/* تعديل الكلاس الخاص بك لضمان حماية الأرقام داخل الحقول */
+.font-cairo input,
+.font-cairo select,
+.font-cairo textarea {
+  font-family: 'Cairo', system-ui, sans-serif;
+  font-variant-numeric: lining-nums proportional-nums;
+  -webkit-font-feature-settings: "lnum" on, "pnum" on;
+  font-feature-settings: "lnum" on, "pnum" on;
+}
+
+/* --- باقي الكود الأصلي الخاص بك دون تغيير --- */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -45,12 +67,6 @@ input[type="time"] {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #6366f1;
-}
-
-.font-cairo input,
-.font-cairo select,
-.font-cairo textarea {
-  font-family: 'Cairo', system-ui, sans-serif;
 }
 
 ::selection {
