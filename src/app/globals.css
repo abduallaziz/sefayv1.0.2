@@ -47,6 +47,12 @@ input[type="time"] {
   background: #6366f1;
 }
 
+.font-cairo input,
+.font-cairo select,
+.font-cairo textarea {
+  font-family: 'Cairo', system-ui, sans-serif;
+}
+
 ::selection {
   background: #6366f1;
   color: white;
