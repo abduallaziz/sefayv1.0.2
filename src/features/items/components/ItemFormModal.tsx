@@ -75,9 +75,13 @@ export function ItemFormModal({ open, onClose, onSubmit, item, categories, isLoa
     setVariants(variants.map((v, idx) => idx === i ? { ...v, [field]: value } : v));
 
   const handleFormSubmit = (data: any) => {
-    const validVariants = variants.filter(v => v.name.trim());
-    onSubmit(data as CreateItemDTO, validVariants.length > 0 ? validVariants : undefined);
+  const validVariants = variants.filter(v => v.name.trim());
+  const payload = {
+    ...data,
+    category_id: data.category_id || undefined,
   };
+  onSubmit(payload as CreateItemDTO, validVariants.length > 0 ? validVariants : undefined);
+};
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
