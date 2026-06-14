@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import { Cairo } from 'next/font/google'
 import './globals.css'
 import { Providers } from '@/core/providers'
+import { ForceLatinNumbers } from '@/components/ForceLatinNumbers'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 const cairo = Cairo({ subsets: ['arabic'], variable: '--font-cairo' })
@@ -20,6 +21,7 @@ export default function RootLayout({
   return (
     <html>
       <body className={`${inter.variable} ${cairo.variable}`}>
+        <ForceLatinNumbers />
         <Providers>
           {children}
         </Providers>
