@@ -39,9 +39,9 @@ export const useOpenShift = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (dto: OpenShiftDto) => shiftsApi.open(dto),
-    onSuccess: () => {
+    onSuccess: (data) => {
+      qc.setQueryData(KEYS.current, data);
       qc.invalidateQueries({ queryKey: KEYS.all });
-      qc.invalidateQueries({ queryKey: KEYS.current });
     },
   });
 };
@@ -52,6 +52,7 @@ export const useCloseShift = () => {
     mutationFn: ({ id, dto }: { id: string; dto: CloseShiftDto }) =>
       shiftsApi.close(id, dto),
     onSuccess: () => {
+      qc.setQueryData(KEYS.current, null);
       qc.invalidateQueries({ queryKey: KEYS.all });
       qc.invalidateQueries({ queryKey: KEYS.current });
     },
