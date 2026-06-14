@@ -1,9 +1,17 @@
-import { apiClient } from '@/lib/api';
+import { apiClient, ApiError } from '@/lib/api';
 import type { Shift, ShiftSummaryResponse, OpenShiftDto, CloseShiftDto } from '../types';
 
 export const shiftsApi = {
-  getCurrent: (): Promise<Shift | null> =>
-    apiClient.get<Shift | null>('/shifts/current'),
+  getCurrent: async (): Promise<Shift | null> => {
+    try {
+      return await apiClient.get<Shift>('/shifts/current');
+    } catch (e) {
+      if (e instanceof ApiError && (e.status === 404 || e.status === 204)) {
+        return null;
+      }
+      throw e;
+    }
+  },
 
   getAll: (): Promise<Shift[]> =>
     apiClient.get<Shift[]>('/shifts'),
