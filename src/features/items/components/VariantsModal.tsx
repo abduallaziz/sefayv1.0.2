@@ -16,7 +16,7 @@ interface Props {
 
 export function VariantsModal({ open, onClose, item, onAddVariant, onDeleteVariant }: Props) {
   const t = useTranslations('items');
-  const [form, setForm] = useState({ name: '', price_adjustment: 0, sku: '', stock_quantity: 0 });
+  const [form, setForm] = useState({ name: '', price_adjustment: '', sku: '', stock_quantity: '' });
 
   const { data: variants = [], isLoading } = useItemVariants(item?.id ?? null);
 
@@ -24,14 +24,19 @@ export function VariantsModal({ open, onClose, item, onAddVariant, onDeleteVaria
 
   const handleAdd = () => {
     if (!form.name.trim()) return;
-    onAddVariant(item.id, form);
-    setForm({ name: '', price_adjustment: 0, sku: '', stock_quantity: 0 });
+    onAddVariant(item.id, {
+      name: form.name,
+      price_adjustment: parseFloat(form.price_adjustment) || 0,
+      sku: form.sku,
+      stock_quantity: parseInt(form.stock_quantity) || 0,
+    });
+    setForm({ name: '', price_adjustment: '', sku: '', stock_quantity: '' });
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="bg-[#0d1117] border border-[#1e2130] rounded-xl shadow-xl w-full max-w-lg">
-        <div className="flex items-center justify-between p-6 border-b border-[#1e2130]">
+      <div className="bg-[#0d1117] border border-[#1e2130] rounded-xl shadow-xl w-full max-w-lg max-h-[85vh] flex flex-col">
+        <div className="flex items-center justify-between p-5 border-b border-[#1e2130] shrink-0">
           <div>
             <h2 className="text-lg font-semibold text-white">{t('variants')}</h2>
             <p className="text-sm text-slate-500">{item.name}</p>
@@ -41,70 +46,73 @@ export function VariantsModal({ open, onClose, item, onAddVariant, onDeleteVaria
           </button>
         </div>
 
-        <div className="p-6 space-y-4">
-          <div className="space-y-2">
-            {isLoading ? (
-              <div className="h-10 bg-[#1e2130] rounded animate-pulse" />
-            ) : variants.length === 0 ? (
-              <p className="text-sm text-slate-500 text-center py-4">{t('noVariants')}</p>
-            ) : (
-              variants.map((v: any) => (
-                <div key={v.id} className="flex items-center justify-between p-3 rounded-lg border border-[#1e2130] bg-[#141720]">
-                  <div>
-                    <p className="font-medium text-sm text-white">{v.name}</p>
-                    <p className="text-xs text-slate-500">
-                      {v.price_adjustment > 0 ? `+${v.price_adjustment}` : v.price_adjustment} {t('currency')} • {v.sku}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => onDeleteVariant(item.id, v.id)}
-                    className="p-1.5 rounded-lg hover:bg-red-500/10 text-slate-500 hover:text-red-400"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+        {/* Scrollable variants list */}
+        <div className="flex-1 overflow-y-auto p-5 space-y-2">
+          {isLoading ? (
+            <div className="h-10 bg-[#1e2130] rounded animate-pulse" />
+          ) : variants.length === 0 ? (
+            <p className="text-sm text-slate-500 text-center py-4">{t('noVariants')}</p>
+          ) : (
+            variants.map((v: any) => (
+              <div key={v.id} className="flex items-center justify-between p-3 rounded-lg border border-[#1e2130] bg-[#141720]">
+                <div>
+                  <p className="font-medium text-sm text-white">{v.name}</p>
+                  <p className="text-xs text-slate-500">
+                    {v.price_adjustment > 0 ? `+${v.price_adjustment}` : v.price_adjustment} {t('currency')}
+                    {v.sku ? ` • ${v.sku}` : ''}
+                  </p>
                 </div>
-              ))
-            )}
-          </div>
+                <button
+                  onClick={() => onDeleteVariant(item.id, v.id)}
+                  className="p-1.5 rounded-lg hover:bg-red-500/10 text-slate-500 hover:text-red-400"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            ))
+          )}
+        </div>
 
-          <div className="border-t border-[#1e2130] pt-4">
-            <p className="text-sm font-medium text-white mb-3">{t('addVariant')}</p>
-            <div className="grid grid-cols-2 gap-2">
-              <input
-                placeholder={t('variantName')}
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="px-3 py-2 text-sm bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500 placeholder-slate-600"
-              />
-              <input
-                placeholder={t('sku')}
-                value={form.sku}
-                onChange={(e) => setForm({ ...form, sku: e.target.value })}
-                className="px-3 py-2 text-sm bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500 placeholder-slate-600"
-              />
-              <input
-                type="number"
-                placeholder={t('priceAdjustment')}
-                value={form.price_adjustment}
-                onChange={(e) => setForm({ ...form, price_adjustment: Number(e.target.value) })}
-                className="px-3 py-2 text-sm bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500"
-              />
-              <input
-                type="number"
-                placeholder={t('stock')}
-                value={form.stock_quantity}
-                onChange={(e) => setForm({ ...form, stock_quantity: Number(e.target.value) })}
-                className="px-3 py-2 text-sm bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500"
-              />
-            </div>
-            <button
-              onClick={handleAdd}
-              className="mt-3 w-full flex items-center justify-center gap-2 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium"
-            >
-              <Plus className="w-4 h-4" />
-              {t('addVariant')}
-            </button>
+        {/* Add variant form - fixed at bottom */}
+        <div className="border-t border-[#1e2130] p-5 shrink-0">
+          <p className="text-sm font-medium text-white mb-3">{t('addVariant')}</p>
+          <div className="grid grid-cols-2 gap-2">
+            <input
+              placeholder={t('variantName')}
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              className="px-3 py-2 text-sm bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500 placeholder-slate-600"
+            />
+            <input
+              placeholder={t('sku')}
+              value={form.sku}
+              onChange={(e) => setForm({ ...form, sku: e.target.value })}
+              className="px-3 py-2 text-sm bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500 placeholder-slate-600"
+            />
+            <input
+              type="text"
+              inputMode="decimal"
+              placeholder={t('priceAdjustment')}
+              value={form.price_adjustment}
+              onChange={(e) => setForm({ ...form, price_adjustment: e.target.value })}
+              className="px-3 py-2 text-sm bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500 placeholder-slate-600"
+            />
+            <input
+              type="text"
+              inputMode="numeric"
+              placeholder={t('stock')}
+              value={form.stock_quantity}
+              onChange={(e) => setForm({ ...form, stock_quantity: e.target.value })}
+              className="px-3 py-2 text-sm bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500 placeholder-slate-600"
+            />
           </div>
+          <button
+            onClick={handleAdd}
+            className="mt-3 w-full flex items-center justify-center gap-2 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium"
+          >
+            <Plus className="w-4 h-4" />
+            {t('addVariant')}
+          </button>
         </div>
       </div>
     </div>
