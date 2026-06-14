@@ -16,62 +16,62 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onToggleActive
   const t = useTranslations('items');
 
   const typeColors: Record<string, string> = {
-    product: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-    service: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
-    custom: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
+    product: 'bg-blue-500/10 text-blue-400',
+    service: 'bg-violet-500/10 text-violet-400',
+    custom: 'bg-amber-500/10 text-amber-400',
   };
 
   if (items.length === 0) {
     return (
-      <div className="text-center py-16 text-muted-foreground">
+      <div className="text-center py-16 text-slate-500">
         <p className="text-lg">{t('noItems')}</p>
       </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-border">
+    <div className="overflow-x-auto rounded-xl border border-[#1e2130]">
       <table className="w-full text-sm">
-        <thead className="bg-muted/50 border-b border-border">
+        <thead className="bg-white/5 border-b border-[#1e2130]">
           <tr>
-            <th className="text-start px-4 py-3 font-medium text-muted-foreground">{t('name')}</th>
-            <th className="text-start px-4 py-3 font-medium text-muted-foreground">{t('type')}</th>
-            <th className="text-start px-4 py-3 font-medium text-muted-foreground">{t('category')}</th>
-            <th className="text-start px-4 py-3 font-medium text-muted-foreground">{t('price')}</th>
-            <th className="text-start px-4 py-3 font-medium text-muted-foreground">{t('variants')}</th>
-            <th className="text-start px-4 py-3 font-medium text-muted-foreground">{t('status')}</th>
-            <th className="text-start px-4 py-3 font-medium text-muted-foreground">{t('actions')}</th>
+            <th className="text-start px-4 py-3 font-medium text-slate-500">{t('name')}</th>
+            <th className="text-start px-4 py-3 font-medium text-slate-500">{t('type')}</th>
+            <th className="text-start px-4 py-3 font-medium text-slate-500">{t('category')}</th>
+            <th className="text-start px-4 py-3 font-medium text-slate-500">{t('price')}</th>
+            <th className="text-start px-4 py-3 font-medium text-slate-500">{t('variants')}</th>
+            <th className="text-start px-4 py-3 font-medium text-slate-500">{t('status')}</th>
+            <th className="text-start px-4 py-3 font-medium text-slate-500">{t('actions')}</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-border">
+        <tbody className="divide-y divide-[#1e2130]">
           {items.map((item) => (
-            <tr key={item.id} className="hover:bg-muted/30 transition-colors">
-              <td className="px-4 py-3 font-medium">{item.name}</td>
+            <tr key={item.id} className="hover:bg-white/[0.02] transition-colors">
+              <td className="px-4 py-3 font-medium text-white">{item.name}</td>
               <td className="px-4 py-3">
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${typeColors[item.type]}`}>
                   {t(item.type)}
                 </span>
               </td>
-              <td className="px-4 py-3 text-muted-foreground">{item.category_name ?? '—'}</td>
-              <td className="px-4 py-3 font-semibold">{item.price} {t('currency')}</td>
+              <td className="px-4 py-3 text-slate-400">{item.category_name ?? '—'}</td>
+              <td className="px-4 py-3 font-semibold text-white">{item.price.toLocaleString('en-US')} {t('currency')}</td>
               <td className="px-4 py-3">
                 {item.has_variants ? (
                   <button
                     onClick={() => onVariants(item)}
-                    className="flex items-center gap-1 text-primary hover:underline text-xs"
+                    className="flex items-center gap-1 text-blue-400 hover:text-blue-300 text-xs"
                   >
                     <Layers className="w-3 h-3" />
-                    {item.variants?.length ?? 0} {t('variants')}
+                    {(item as any).variants_count ?? 0} {t('variants')}
                   </button>
                 ) : (
-                  <span className="text-muted-foreground text-xs">—</span>
+                  <span className="text-slate-600 text-xs">—</span>
                 )}
               </td>
               <td className="px-4 py-3">
                 <button
                   onClick={() => onToggleActive(item)}
                   className={`flex items-center gap-1 text-xs font-medium ${
-                    item.is_active ? 'text-green-600' : 'text-muted-foreground'
+                    item.is_active ? 'text-emerald-400' : 'text-slate-500'
                   }`}
                 >
                   {item.is_active
@@ -84,13 +84,13 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onToggleActive
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => onEdit(item)}
-                    className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+                    className="p-1.5 rounded-lg hover:bg-white/5 text-slate-500 hover:text-white transition-colors"
                   >
                     <Edit className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => onDelete(item)}
-                    className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-muted-foreground hover:text-red-500"
+                    className="p-1.5 rounded-lg hover:bg-red-500/10 text-slate-500 hover:text-red-400 transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
