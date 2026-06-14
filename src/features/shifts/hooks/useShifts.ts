@@ -13,6 +13,8 @@ export const useCurrentShift = () =>
     queryKey: KEYS.current,
     queryFn: shiftsApi.getCurrent,
     retry: false,
+    staleTime: 0,
+    refetchOnMount: true,
   });
 
 export const useShifts = () =>
@@ -29,7 +31,10 @@ export const useOpenShift = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (dto: OpenShiftDto) => shiftsApi.open(dto),
-    onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.all }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: KEYS.all });
+      qc.invalidateQueries({ queryKey: KEYS.current });
+    },
   });
 };
 
