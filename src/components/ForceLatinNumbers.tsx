@@ -4,33 +4,35 @@ import { useEffect } from 'react';
 
 export function ForceLatinNumbers() {
   useEffect(() => {
-    const arabicMap: Record<string, string> = {
-      '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4',
-      '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9',
-      '۰': '0', '۱': '1', '۲': '2', '۳': '3', '۴': '4',
-      '۵': '5', '۶': '6', '۷': '7', '۸': '8', '۹': '9',
-    };
+    const toLatinDigits = (str: string) =>
+      str
+        .replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660))
+        .replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06F0));
 
-    const replaceArabicNumerals = (str: string) =>
-      str.replace(/[٠-٩۰-۹]/g, (d) => arabicMap[d] ?? d);
-
-    const handleInput = (e: Event) => {
-      const target = e.target as HTMLInputElement | HTMLTextAreaElement;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLInputElement;
       if (!target || !('value' in target)) return;
-      const converted = replaceArabicNumerals(target.value);
-      if (converted !== target.value) {
-        const start = (target as HTMLInputElement).selectionStart;
-        const end = (target as HTMLInputElement).selectionEnd;
-        target.value = converted;
-        try {
-          (target as HTMLInputElement).setSelectionRange(start, end);
-        } catch {}
+
+      const arabicDigits = '٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹';
+      if (arabicDigits.includes(e.key)) {
+        e.preventDefault();
+        const latinKey = toLatinDigits(e.key);
+        const start = target.selectionStart ?? 0;
+        const end = target.selectionEnd ?? 0;
+        const newValue =
+          target.value.slice(0, start) + latinKey + target.value.slice(end);
+        
+        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+          window.HTMLInputElement.prototype, 'value'
+        )?.set;
+        nativeInputValueSetter?.call(target, newValue);
         target.dispatchEvent(new Event('input', { bubbles: true }));
+        target.setSelectionRange(start + 1, start + 1);
       }
     };
 
-    document.addEventListener('input', handleInput, true);
-    return () => document.removeEventListener('input', handleInput, true);
+    document.addEventListener('keydown', handleKeyDown, true);
+    return () => document.removeEventListener('keydown', handleKeyDown, true);
   }, []);
 
   return null;

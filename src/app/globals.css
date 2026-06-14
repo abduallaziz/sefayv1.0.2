@@ -29,6 +29,11 @@ input[type="time"] {
   text-align: right;
 }
 
+input[type="number"] {
+  -webkit-appearance: textfield;
+  appearance: textfield;
+}
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
