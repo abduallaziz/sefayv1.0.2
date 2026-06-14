@@ -1,6 +1,7 @@
-// cache-bust-v2
+// cache-bust-v3
 import { getRequestConfig } from 'next-intl/server'
 import { routing } from './routing'
+
 export default getRequestConfig(async ({ requestLocale }) => {
   let locale = await requestLocale
 
@@ -37,6 +38,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
     users,
     reports,
     customers,
+    shifts,
     legacyRoot,
     legacyDashboard,
     legacyItems,
@@ -53,31 +55,33 @@ export default getRequestConfig(async ({ requestLocale }) => {
     loadNamespace('users'),
     loadNamespace('reports'),
     loadNamespace('customers'),
+    loadNamespace('shifts'),
     loadLegacy(locale),
     loadLegacy(`${locale}/dashboard`),
     loadLegacy(`${locale}/items`),
   ])
 
   return {
-  locale,
-  messages: {
-    common,
-    shell,
-    superadmin,
-    users,
-    dashboard: {
-      ...(legacyDashboard?.dashboard ?? {}),
-      ...dashboard,
-    },
-    orders,
-    pos,
-    expenses,
-    items,
-    settings,
-    ...legacyRoot,
-    ...legacyItems,
-    reports,
-    customers,  // بعد legacyRoot
+    locale,
+    messages: {
+      common,
+      shell,
+      superadmin,
+      users,
+      dashboard: {
+        ...(legacyDashboard?.dashboard ?? {}),
+        ...dashboard,
+      },
+      orders,
+      pos,
+      expenses,
+      items,
+      settings,
+      shifts,
+      ...legacyRoot,
+      ...legacyItems,
+      reports,
+      customers,
+    }
   }
-}
 })
