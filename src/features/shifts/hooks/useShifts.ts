@@ -15,10 +15,17 @@ export const useCurrentShift = () =>
     retry: false,
     staleTime: 0,
     refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    refetchInterval: 5000,
   });
 
 export const useShifts = () =>
-  useQuery({ queryKey: KEYS.all, queryFn: shiftsApi.getAll });
+  useQuery({
+    queryKey: KEYS.all,
+    queryFn: shiftsApi.getAll,
+    staleTime: 0,
+    refetchOnMount: true,
+  });
 
 export const useShiftSummary = (id: string) =>
   useQuery({
