@@ -2,16 +2,15 @@
 
 import { useState } from 'react'
 import { Cart, PaymentData, PaymentMethod } from '../types/pos.types'
-import { Button } from '@/shared/ui/button'
-import { Input } from '@/shared/ui/input'
 
 interface Props {
   cart: Cart
   onConfirm: (data: PaymentData) => void
   onClose: () => void
+  isSubmitting?: boolean
 }
 
-export function PaymentModal({ cart, onConfirm, onClose }: Props) {
+export function PaymentModal({ cart, onConfirm, onClose, isSubmitting }: Props) {
   const [method, setMethod] = useState<PaymentMethod>('cash')
   const [cashTendered, setCashTendered] = useState('')
   const [splitCash, setSplitCash] = useState('')
@@ -26,6 +25,7 @@ export function PaymentModal({ cart, onConfirm, onClose }: Props) {
     : 0
 
   const canConfirm = () => {
+    if (isSubmitting) return false
     if (method === 'cash') return parseFloat(cashTendered) >= cart.total
     if (method === 'card') return true
     if (method === 'split') {
@@ -46,6 +46,8 @@ export function PaymentModal({ cart, onConfirm, onClose }: Props) {
     onConfirm(data)
   }
 
+  const fmt = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+
   const methods: { id: PaymentMethod; label: string; icon: string }[] = [
     { id: 'cash', label: 'نقداً', icon: '💵' },
     { id: 'card', label: 'بطاقة', icon: '💳' },
@@ -54,21 +56,18 @@ export function PaymentModal({ cart, onConfirm, onClose }: Props) {
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-      <div className="bg-card rounded-2xl border border-border w-full max-w-md shadow-xl">
-        {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-border">
-          <h3 className="font-bold text-lg">إتمام الدفع</h3>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground text-xl">✕</button>
+      <div className="bg-[#0d1117] border border-[#1e2130] rounded-2xl w-full max-w-md shadow-xl">
+        <div className="flex items-center justify-between p-5 border-b border-[#1e2130]">
+          <h3 className="font-bold text-lg text-white">إتمام الدفع</h3>
+          <button onClick={onClose} className="text-slate-400 hover:text-white text-xl">✕</button>
         </div>
 
         <div className="p-5 space-y-4">
-          {/* Total */}
-          <div className="bg-muted/50 rounded-xl p-4 text-center">
-            <p className="text-sm text-muted-foreground">المبلغ المستحق</p>
-            <p className="text-3xl font-bold text-primary mt-1">{cart.total.toFixed(2)} ر.س</p>
+          <div className="bg-[#141720] rounded-xl p-4 text-center">
+            <p className="text-sm text-slate-500">المبلغ المستحق</p>
+            <p className="text-3xl font-bold text-blue-400 mt-1">{fmt(cart.total)} ر.س</p>
           </div>
 
-          {/* Payment Method */}
           <div className="grid grid-cols-3 gap-2">
             {methods.map((m) => (
               <button
@@ -76,8 +75,8 @@ export function PaymentModal({ cart, onConfirm, onClose }: Props) {
                 onClick={() => setMethod(m.id)}
                 className={`py-3 rounded-xl border text-sm font-medium transition-all flex flex-col items-center gap-1 ${
                   method === m.id
-                    ? 'border-primary bg-primary/10 text-primary'
-                    : 'border-border bg-background text-muted-foreground hover:border-primary/50'
+                    ? 'border-blue-500 bg-blue-500/10 text-blue-400'
+                    : 'border-[#1e2130] bg-[#141720] text-slate-400 hover:border-blue-500/50'
                 }`}
               >
                 <span className="text-xl">{m.icon}</span>
@@ -86,58 +85,67 @@ export function PaymentModal({ cart, onConfirm, onClose }: Props) {
             ))}
           </div>
 
-          {/* Cash Input */}
           {method === 'cash' && (
             <div className="space-y-2">
-              <label className="text-sm font-medium">المبلغ المدفوع</label>
-              <Input
-                type="number"
-                placeholder={`${cart.total.toFixed(2)}`}
+              <label className="text-sm font-medium text-slate-300">المبلغ المدفوع</label>
+              <input
+                type="text"
+                inputMode="decimal"
+                placeholder={fmt(cart.total)}
                 value={cashTendered}
                 onChange={(e) => setCashTendered(e.target.value)}
-                className="text-lg h-12 text-center font-bold"
+                className="w-full text-lg h-12 text-center font-bold bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500"
               />
               {change > 0 && (
-                <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3 text-center">
-                  <p className="text-sm text-green-700 dark:text-green-400">الباقي للعميل</p>
-                  <p className="text-xl font-bold text-green-700 dark:text-green-400">{change.toFixed(2)} ر.س</p>
+                <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3 text-center">
+                  <p className="text-sm text-emerald-400">الباقي للعميل</p>
+                  <p className="text-xl font-bold text-emerald-400">{fmt(change)} ر.س</p>
                 </div>
               )}
             </div>
           )}
 
-          {/* Split Input */}
           {method === 'split' && (
             <div className="space-y-2">
-              <label className="text-sm font-medium">المبلغ نقداً</label>
-              <Input
-                type="number"
+              <label className="text-sm font-medium text-slate-300">المبلغ نقداً</label>
+              <input
+                type="text"
+                inputMode="decimal"
                 placeholder="0.00"
                 value={splitCash}
                 onChange={(e) => setSplitCash(e.target.value)}
-                className="text-center h-12"
+                className="w-full text-center h-12 bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500"
               />
               {splitCard > 0 && (
-                <div className="flex justify-between text-sm bg-muted/50 rounded-lg p-3">
-                  <span className="text-muted-foreground">المتبقي على البطاقة</span>
-                  <span className="font-bold text-primary">{splitCard.toFixed(2)} ر.س</span>
+                <div className="flex justify-between text-sm bg-[#141720] rounded-lg p-3">
+                  <span className="text-slate-400">المتبقي على البطاقة</span>
+                  <span className="font-bold text-blue-400">{fmt(splitCard)} ر.س</span>
                 </div>
               )}
             </div>
           )}
 
           {method === 'card' && (
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-center text-sm text-blue-700 dark:text-blue-400">
+            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 text-center text-sm text-blue-400">
               وجّه العميل للطرفية وأكّد الدفع
             </div>
           )}
         </div>
 
         <div className="flex gap-3 p-5 pt-0">
-          <Button variant="outline" className="flex-1" onClick={onClose}>إلغاء</Button>
-          <Button className="flex-2 flex-grow-[2] font-bold" disabled={!canConfirm()} onClick={handleConfirm}>
-            تأكيد الدفع
-          </Button>
+          <button
+            onClick={onClose}
+            className="flex-1 py-2.5 border border-[#1e2130] text-slate-400 hover:text-white rounded-xl text-sm font-medium"
+          >
+            إلغاء
+          </button>
+          <button
+            disabled={!canConfirm()}
+            onClick={handleConfirm}
+            className="flex-[2] py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl text-sm font-bold"
+          >
+            {isSubmitting ? 'جاري الإرسال...' : 'تأكيد الدفع'}
+          </button>
         </div>
       </div>
     </div>

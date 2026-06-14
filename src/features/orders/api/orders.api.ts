@@ -23,3 +23,27 @@ export async function fetchOrderById(id: string): Promise<Order> {
 export async function cancelOrder(id: string, payload: CancelOrderPayload): Promise<void> {
   return apiClient.patch<void>(`/invoices/${id}/cancel`, payload);
 }
+
+export interface CreateOrderItem {
+  item_id: string;
+  item_name: string;
+  variant_id?: string;
+  variant_name?: string;
+  quantity: number;
+  unit_price: number;
+}
+
+export interface CreateOrderPayload {
+  branch_id: string;
+  shift_id?: string;
+  payment_method: string;
+  items: CreateOrderItem[];
+  discount_amount?: number;
+  coupon_code?: string;
+  customer_id?: string;
+  notes?: string;
+}
+
+export async function createOrder(payload: CreateOrderPayload): Promise<Order> {
+  return apiClient.post<Order>('/invoices', payload);
+}
