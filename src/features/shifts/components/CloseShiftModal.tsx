@@ -2,7 +2,7 @@
 
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
-import { useCloseShift } from '../hooks/useShifts';
+import { useCloseShift, useCurrentShift } from '../hooks/useShifts';
 import { formatCurrency } from '@/lib/format';
 import type { Shift } from '../types';
 
@@ -14,6 +14,7 @@ interface Props {
 export function CloseShiftModal({ shift, onClose }: Props) {
   const t = useTranslations('shifts');
   const mutation = useCloseShift();
+  const { refetch } = useCurrentShift();
 
   const { register, handleSubmit, formState: { errors } } = useForm({
     defaultValues: { closing_cash: '' },
@@ -21,6 +22,7 @@ export function CloseShiftModal({ shift, onClose }: Props) {
 
   const onSubmit = async (data: any) => {
     await mutation.mutateAsync({ id: shift.id, dto: { closing_cash: Number(data.closing_cash) || 0 } });
+    await refetch();
     onClose();
   };
 
