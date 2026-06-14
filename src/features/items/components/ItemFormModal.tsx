@@ -12,13 +12,11 @@ const schema = z.object({
   name: z.string().min(1),
   type: z.enum(['product', 'service', 'custom']),
   operation_type: z.enum(['sell', 'book', 'repair', 'rent']),
-  price: z.number().min(0),
+  price: z.string().transform(val => parseFloat(val) || 0),
   category_id: z.string().optional(),
   has_inventory: z.boolean(),
   has_variants: z.boolean(),
 });
-
-type FormData = z.infer<typeof schema>;
 
 interface VariantRow {
   name: string;
@@ -38,19 +36,18 @@ interface Props {
 export function ItemFormModal({ open, onClose, onSubmit, item, categories, isLoading }: Props) {
   const t = useTranslations('items');
 
-  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
       has_inventory: false,
       has_variants: false,
-      type: 'product',
-      operation_type: 'sell',
-      price: 0,
+      type: 'product' as const,
+      operation_type: 'sell' as const,
+      price: '',
     },
   });
 
   const hasVariants = watch('has_variants');
-
   const [variants, setVariants] = useState<VariantRow[]>([]);
 
   useEffect(() => {
@@ -59,32 +56,25 @@ export function ItemFormModal({ open, onClose, onSubmit, item, categories, isLoa
         name: item.name,
         type: item.type,
         operation_type: item.operation_type,
-        price: item.price,
+        price: String(item.price),
         category_id: item.category_id ?? undefined,
         has_inventory: item.has_inventory,
         has_variants: item.has_variants,
       });
     } else {
-      reset({ has_inventory: false, has_variants: false, type: 'product', operation_type: 'sell', price: 0 });
+      reset({ has_inventory: false, has_variants: false, type: 'product', operation_type: 'sell', price: '' });
       setVariants([]);
     }
   }, [item, reset]);
 
   if (!open) return null;
 
-  const addVariant = () => {
-    setVariants([...variants, { name: '', price_adjustment: 0, sku: '' }]);
-  };
-
-  const removeVariant = (i: number) => {
-    setVariants(variants.filter((_, idx) => idx !== i));
-  };
-
-  const updateVariant = (i: number, field: keyof VariantRow, value: string | number) => {
+  const addVariant = () => setVariants([...variants, { name: '', price_adjustment: 0, sku: '' }]);
+  const removeVariant = (i: number) => setVariants(variants.filter((_, idx) => idx !== i));
+  const updateVariant = (i: number, field: keyof VariantRow, value: string | number) =>
     setVariants(variants.map((v, idx) => idx === i ? { ...v, [field]: value } : v));
-  };
 
-  const handleFormSubmit = (data: FormData) => {
+  const handleFormSubmit = (data: any) => {
     const validVariants = variants.filter(v => v.name.trim());
     onSubmit(data as CreateItemDTO, validVariants.length > 0 ? validVariants : undefined);
   };
@@ -102,7 +92,6 @@ export function ItemFormModal({ open, onClose, onSubmit, item, categories, isLoa
         </div>
 
         <form onSubmit={handleSubmit(handleFormSubmit)} className="p-5 space-y-4">
-          {/* Name */}
           <div>
             <label className="block text-xs font-medium text-slate-400 mb-1">{t('name')}</label>
             <input
@@ -112,7 +101,6 @@ export function ItemFormModal({ open, onClose, onSubmit, item, categories, isLoa
             {errors.name && <p className="text-xs text-red-500 mt-1">{t('required')}</p>}
           </div>
 
-          {/* Type + Operation */}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium text-slate-400 mb-1">{t('type')}</label>
@@ -133,14 +121,14 @@ export function ItemFormModal({ open, onClose, onSubmit, item, categories, isLoa
             </div>
           </div>
 
-          {/* Price + Category */}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium text-slate-400 mb-1">{t('price')}</label>
               <input
-                type="number"
-                step="0.01"
-                {...register('price', { valueAsNumber: true })}
+                type="text"
+                inputMode="decimal"
+                placeholder="0.00"
+                {...register('price')}
                 className="w-full px-3 py-2 text-sm bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500"
               />
             </div>
@@ -155,7 +143,6 @@ export function ItemFormModal({ open, onClose, onSubmit, item, categories, isLoa
             </div>
           </div>
 
-          {/* Checkboxes */}
           <div className="flex gap-6">
             <label className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer">
               <input type="checkbox" {...register('has_inventory')} className="w-4 h-4 accent-blue-600" />
@@ -167,25 +154,18 @@ export function ItemFormModal({ open, onClose, onSubmit, item, categories, isLoa
             </label>
           </div>
 
-          {/* Variants Section */}
           {hasVariants && (
             <div className="border border-[#1e2130] rounded-lg p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-white">{t('variants')}</p>
-                <button
-                  type="button"
-                  onClick={addVariant}
-                  className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300"
-                >
+                <button type="button" onClick={addVariant} className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300">
                   <Plus className="w-3 h-3" />
                   {t('addVariant')}
                 </button>
               </div>
-
               {variants.length === 0 && (
                 <p className="text-xs text-slate-600 text-center py-2">{t('noVariants')}</p>
               )}
-
               {variants.map((v, i) => (
                 <div key={i} className="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
                   <input
@@ -195,17 +175,14 @@ export function ItemFormModal({ open, onClose, onSubmit, item, categories, isLoa
                     className="px-3 py-2 text-sm bg-[#0d1117] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500 placeholder-slate-600"
                   />
                   <input
-                    type="number"
-                    placeholder={t('priceAdjustment')}
-                    value={v.price_adjustment}
+                    type="text"
+                    inputMode="decimal"
+                    placeholder="0.00"
+                    value={v.price_adjustment || ''}
                     onChange={(e) => updateVariant(i, 'price_adjustment', Number(e.target.value))}
                     className="px-3 py-2 text-sm bg-[#0d1117] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500"
                   />
-                  <button
-                    type="button"
-                    onClick={() => removeVariant(i)}
-                    className="p-2 text-slate-600 hover:text-red-400"
-                  >
+                  <button type="button" onClick={() => removeVariant(i)} className="p-2 text-slate-600 hover:text-red-400">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
@@ -213,20 +190,11 @@ export function ItemFormModal({ open, onClose, onSubmit, item, categories, isLoa
             </div>
           )}
 
-          {/* Actions */}
           <div className="flex gap-3 pt-2">
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium disabled:opacity-50"
-            >
+            <button type="submit" disabled={isLoading} className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium disabled:opacity-50">
               {isLoading ? t('saving') : t('save')}
             </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 py-2 border border-[#1e2130] text-slate-400 hover:text-white hover:bg-white/5 rounded-lg text-sm"
-            >
+            <button type="button" onClick={onClose} className="flex-1 py-2 border border-[#1e2130] text-slate-400 hover:text-white hover:bg-white/5 rounded-lg text-sm">
               {t('cancel')}
             </button>
           </div>

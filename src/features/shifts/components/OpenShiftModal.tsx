@@ -14,12 +14,12 @@ export function OpenShiftModal({ branchId, onClose }: Props) {
   const t = useTranslations('shifts');
   const mutation = useOpenShift();
 
-  const { register, handleSubmit, formState: { errors } } = useForm<OpenShiftDto>({
-    defaultValues: { opening_cash: 0, branch_id: branchId },
+  const { register, handleSubmit, formState: { errors } } = useForm({
+    defaultValues: { opening_cash: '', branch_id: branchId },
   });
 
-  const onSubmit = async (data: OpenShiftDto) => {
-    await mutation.mutateAsync({ ...data, opening_cash: Number(data.opening_cash) });
+  const onSubmit = async (data: any) => {
+    await mutation.mutateAsync({ ...data, opening_cash: Number(data.opening_cash) || 0 });
     onClose();
   };
 
@@ -33,13 +33,14 @@ export function OpenShiftModal({ branchId, onClose }: Props) {
               {t('opening_cash')}
             </label>
             <input
-              type="number"
-              step="0.01"
-              {...register('opening_cash', { valueAsNumber: true })}
+              type="text"
+              inputMode="decimal"
+              placeholder="0.00"
+              {...register('opening_cash')}
               className="w-full px-3 py-2 rounded-lg border border-[#1e2130] bg-[#141720] text-white focus:outline-none focus:border-blue-500"
             />
             {errors.opening_cash && (
-              <p className="text-xs text-red-500 mt-1">{errors.opening_cash.message}</p>
+              <p className="text-xs text-red-500 mt-1">{String(errors.opening_cash.message)}</p>
             )}
           </div>
           <input type="hidden" {...register('branch_id')} />

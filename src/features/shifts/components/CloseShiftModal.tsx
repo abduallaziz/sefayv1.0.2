@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 import { useCloseShift } from '../hooks/useShifts';
 import { formatCurrency } from '@/lib/format';
-import type { Shift, CloseShiftDto } from '../types';
+import type { Shift } from '../types';
 
 interface Props {
   shift: Shift;
@@ -15,12 +15,12 @@ export function CloseShiftModal({ shift, onClose }: Props) {
   const t = useTranslations('shifts');
   const mutation = useCloseShift();
 
-  const { register, handleSubmit, formState: { errors } } = useForm<CloseShiftDto>({
-    defaultValues: { closing_cash: 0 },
+  const { register, handleSubmit, formState: { errors } } = useForm({
+    defaultValues: { closing_cash: '' },
   });
 
-  const onSubmit = async (data: CloseShiftDto) => {
-    await mutation.mutateAsync({ id: shift.id, dto: { closing_cash: Number(data.closing_cash) } });
+  const onSubmit = async (data: any) => {
+    await mutation.mutateAsync({ id: shift.id, dto: { closing_cash: Number(data.closing_cash) || 0 } });
     onClose();
   };
 
@@ -37,13 +37,14 @@ export function CloseShiftModal({ shift, onClose }: Props) {
               {t('closing_cash')}
             </label>
             <input
-              type="number"
-              step="0.01"
-              {...register('closing_cash', { valueAsNumber: true })}
+              type="text"
+              inputMode="decimal"
+              placeholder="0.00"
+              {...register('closing_cash')}
               className="w-full px-3 py-2 rounded-lg border border-[#1e2130] bg-[#141720] text-white focus:outline-none focus:border-blue-500"
             />
             {errors.closing_cash && (
-              <p className="text-xs text-red-500 mt-1">{errors.closing_cash.message}</p>
+              <p className="text-xs text-red-500 mt-1">{String(errors.closing_cash.message)}</p>
             )}
           </div>
           <div className="flex gap-3 pt-2">
