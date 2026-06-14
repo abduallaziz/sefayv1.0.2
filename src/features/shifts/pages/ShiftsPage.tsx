@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCurrentShift } from '../hooks/useShifts';
 import { CurrentShiftBanner } from '../components/CurrentShiftBanner';
 import { ShiftsList } from '../components/ShiftsList';
@@ -16,6 +16,7 @@ export function ShiftsPage() {
   const t = useTranslations('shifts');
   const { user } = useAuthStore();
   const { data: currentShift } = useCurrentShift();
+  const qc = useQueryClient();
 
   const [showOpen, setShowOpen] = useState(false);
   const [showClose, setShowClose] = useState(false);
@@ -28,6 +29,18 @@ export function ShiftsPage() {
   });
 
   const branchId = user?.branchId ?? (branches as any)?.[0]?.id ?? '';
+
+  const handleCloseShift = () => {
+    setShowClose(false);
+    qc.invalidateQueries({ queryKey: ['shifts'] });
+    qc.invalidateQueries({ queryKey: ['shifts', 'current'] });
+  };
+
+  const handleOpenShift = () => {
+    setShowOpen(false);
+    qc.invalidateQueries({ queryKey: ['shifts'] });
+    qc.invalidateQueries({ queryKey: ['shifts', 'current'] });
+  };
 
   return (
     <div className="space-y-6">
@@ -50,11 +63,11 @@ export function ShiftsPage() {
       </div>
 
       {showOpen && (
-        <OpenShiftModal branchId={branchId} onClose={() => setShowOpen(false)} />
+        <OpenShiftModal branchId={branchId} onClose={handleOpenShift} />
       )}
 
       {showClose && currentShift && (
-        <CloseShiftModal shift={currentShift} onClose={() => setShowClose(false)} />
+        <CloseShiftModal shift={currentShift} onClose={handleCloseShift} />
       )}
 
       {summaryShiftId && (
