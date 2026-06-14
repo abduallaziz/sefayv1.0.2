@@ -3,15 +3,16 @@ import type { Shift, ShiftSummaryResponse, OpenShiftDto, CloseShiftDto } from '.
 
 export const shiftsApi = {
   getCurrent: async (): Promise<Shift | null> => {
-    try {
-      return await apiClient.get<Shift>('/shifts/current');
-    } catch (e) {
-      if (e instanceof ApiError && (e.status === 404 || e.status === 204)) {
-        return null;
-      }
-      throw e;
+  try {
+    const data = await apiClient.get<Shift | null>('/shifts/current');
+    return data ?? null;
+  } catch (e) {
+    if (e instanceof ApiError && (e.status === 404 || e.status === 204)) {
+      return null;
     }
-  },
+    throw e;
+  }
+},
 
   getAll: (): Promise<Shift[]> =>
     apiClient.get<Shift[]>('/shifts'),

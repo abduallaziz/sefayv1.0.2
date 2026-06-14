@@ -17,6 +17,7 @@ export const useCurrentShift = () =>
     refetchOnMount: true,
     refetchOnWindowFocus: true,
     refetchInterval: 5000,
+    select: (data) => data ?? null,
   });
 
 export const useShifts = () =>
