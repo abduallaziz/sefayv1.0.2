@@ -3,20 +3,7 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { POSItem, POSVariant } from '../types/pos.types'
-import { Button } from '@/shared/ui/button'
-import { Input } from '@/shared/ui/input'
-import { Badge } from '@/shared/ui/badge'
-
-const MOCK_ITEMS: POSItem[] = [
-  { id: '1', name: 'Espresso', name_ar: 'إسبريسو', price: 12, category: 'drinks', type: 'product', has_variants: false },
-  { id: '2', name: 'Latte', name_ar: 'لاتيه', price: 18, category: 'drinks', type: 'product', has_variants: true, variants: [{ id: 'v1', name: 'صغير', price_adjustment: 0 }, { id: 'v2', name: 'وسط', price_adjustment: 4 }, { id: 'v3', name: 'كبير', price_adjustment: 8 }] },
-  { id: '3', name: 'Cappuccino', name_ar: 'كابتشينو', price: 16, category: 'drinks', type: 'product', has_variants: false },
-  { id: '4', name: 'Croissant', name_ar: 'كروسان', price: 14, category: 'food', type: 'product', has_variants: false },
-  { id: '5', name: 'Sandwich', name_ar: 'ساندويتش', price: 22, category: 'food', type: 'product', has_variants: true, variants: [{ id: 'v4', name: 'دجاج', price_adjustment: 0 }, { id: 'v5', name: 'لحم', price_adjustment: 5 }] },
-  { id: '6', name: 'Cheesecake', name_ar: 'تشيز كيك', price: 20, category: 'food', type: 'product', has_variants: false },
-  { id: '7', name: 'Haircut', name_ar: 'قص شعر', price: 50, category: 'services', type: 'service', has_variants: false },
-  { id: '8', name: 'Beard Trim', name_ar: 'تشذيب لحية', price: 30, category: 'services', type: 'service', has_variants: false },
-]
+import { useItems, useCategories } from '@/features/items/hooks/useItems'
 
 interface Props {
   onAddItem: (item: POSItem, variant?: POSVariant) => void
@@ -28,22 +15,30 @@ export function ItemGrid({ onAddItem }: Props) {
   const [activeCategory, setActiveCategory] = useState('all')
   const [variantModal, setVariantModal] = useState<POSItem | null>(null)
 
-  const CATEGORIES = [
-  { key: 'all', label: t('categories.all') },
-  { key: 'drinks', label: t('categories.drinks') },
-  { key: 'food', label: t('categories.food') },
-  { key: 'services', label: t('categories.services') },
-  { key: 'other', label: t('categories.other') },
-]
+  const { data: rawItems = [], isLoading } = useItems()
+  const { data: categories = [] } = useCategories()
 
-  const filtered = MOCK_ITEMS.filter((item) => {
+  const items: POSItem[] = rawItems
+    .filter(i => i.is_active)
+    .map(i => ({
+      id: i.id,
+      name: i.name,
+      name_ar: i.name,
+      price: i.price,
+      category: i.category_id ?? 'other',
+      type: i.type,
+      has_variants: i.has_variants,
+      variants: [],
+    }))
+
+  const filtered = items.filter((item) => {
     const matchCat = activeCategory === 'all' || item.category === activeCategory
     const matchSearch = item.name_ar.includes(search) || item.name.toLowerCase().includes(search.toLowerCase())
     return matchCat && matchSearch
   })
 
   const handleItemClick = (item: POSItem) => {
-    if (item.has_variants && item.variants?.length) {
+    if (item.has_variants) {
       setVariantModal(item)
     } else {
       onAddItem(item)
@@ -52,83 +47,97 @@ export function ItemGrid({ onAddItem }: Props) {
 
   return (
     <div className="flex flex-col h-full gap-3">
-      {/* Search */}
-      <Input
+      <input
         placeholder={t('search')}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="w-full"
+        className="w-full px-3 py-2 text-sm bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500 placeholder-slate-600"
       />
 
-      {/* Categories */}
       <div className="flex gap-2 flex-wrap">
-        {CATEGORIES.map((cat) => (
+        <button
+          onClick={() => setActiveCategory('all')}
+          className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+            activeCategory === 'all' ? 'bg-blue-600 text-white' : 'bg-[#141720] text-slate-400 hover:text-white'
+          }`}
+        >
+          {t('categories.all')}
+        </button>
+        {categories.map((cat) => (
           <button
-            key={cat.key}
-            onClick={() => setActiveCategory(cat.key)}
+            key={cat.id}
+            onClick={() => setActiveCategory(cat.id)}
             className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-              activeCategory === cat.key
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              activeCategory === cat.id ? 'bg-blue-600 text-white' : 'bg-[#141720] text-slate-400 hover:text-white'
             }`}
           >
-            {cat.label}
+            {cat.name}
           </button>
         ))}
       </div>
 
-      {/* Items Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto flex-1 pb-2 pr-1">
-        {filtered.length === 0 && (
-          <p className="col-span-3 text-center text-muted-foreground text-sm py-8">{t('noItems')}</p>
-        )}
-        {filtered.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => handleItemClick(item)}
-            className="relative bg-card border border-border rounded-xl p-3 text-right hover:border-primary hover:shadow-sm transition-all group active:scale-95"
-          >
-            {item.type === 'service' && (
-              <Badge variant="muted" className="absolute top-2 left-2 text-xs">{t('service')}</Badge>
-            )}
-            {item.has_variants && (
-              <Badge variant="default" className="absolute top-2 right-2 text-xs">{t('multiple')}</Badge>
-            )}
-            <div className="mt-4">
-              <p className="font-medium text-sm text-foreground truncate">{item.name_ar}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{item.name}</p>
-              <p className="text-primary font-bold text-base mt-2">{item.price} ر.س</p>
-            </div>
-          </button>
-        ))}
-      </div>
+      {isLoading ? (
+        <div className="flex-1 flex items-center justify-center text-slate-500 text-sm">{t('loading')}</div>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto flex-1 pb-2">
+          {filtered.length === 0 && (
+            <p className="col-span-3 text-center text-slate-500 text-sm py-8">{t('noItems')}</p>
+          )}
+          {filtered.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => handleItemClick(item)}
+              className="relative bg-[#141720] border border-[#1e2130] rounded-xl p-3 text-right hover:border-blue-500 hover:shadow-sm transition-all active:scale-95"
+            >
+              {item.type === 'service' && (
+                <span className="absolute top-2 left-2 text-xs bg-slate-500/10 text-slate-400 px-1.5 py-0.5 rounded">{t('service')}</span>
+              )}
+              {item.has_variants && (
+                <span className="absolute top-2 right-2 text-xs bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded">{t('multiple')}</span>
+              )}
+              <div className="mt-4">
+                <p className="font-medium text-sm text-white truncate">{item.name_ar}</p>
+                <p className="text-blue-400 font-bold text-base mt-2">{item.price.toLocaleString('en-US')} ر.س</p>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
 
-      {/* Variant Modal */}
       {variantModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-card rounded-2xl p-5 w-full max-w-sm border border-border">
-            <h3 className="font-semibold text-lg mb-1">{variantModal.name_ar}</h3>
-            <p className="text-sm text-muted-foreground mb-4">{t('variant.title')}</p>
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+          <div className="bg-[#0d1117] border border-[#1e2130] rounded-2xl p-5 w-full max-w-sm">
+            <h3 className="font-semibold text-lg text-white mb-1">{variantModal.name_ar}</h3>
+            <p className="text-sm text-slate-500 mb-4">{t('variant.title')}</p>
             <div className="grid grid-cols-1 gap-2">
               {variantModal.variants?.map((v) => (
                 <button
                   key={v.id}
-                  onClick={() => {
-                    onAddItem(variantModal, v)
-                    setVariantModal(null)
-                  }}
-                  className="flex justify-between items-center p-3 rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-all"
+                  onClick={() => { onAddItem(variantModal, v); setVariantModal(null); }}
+                  className="flex justify-between items-center p-3 rounded-xl border border-[#1e2130] hover:border-blue-500 hover:bg-blue-500/5 transition-all"
                 >
-                  <span className="font-medium">{v.name}</span>
-                  <span className="text-primary font-bold">
-                    {variantModal.price + v.price_adjustment} ر.س
+                  <span className="font-medium text-white">{v.name}</span>
+                  <span className="text-blue-400 font-bold">
+                    {(variantModal.price + v.price_adjustment).toLocaleString('en-US')} ر.س
                   </span>
                 </button>
               ))}
+              {(!variantModal.variants || variantModal.variants.length === 0) && (
+                <button
+                  onClick={() => { onAddItem(variantModal); setVariantModal(null); }}
+                  className="flex justify-between items-center p-3 rounded-xl border border-[#1e2130] hover:border-blue-500 hover:bg-blue-500/5 transition-all"
+                >
+                  <span className="font-medium text-white">{variantModal.name_ar}</span>
+                  <span className="text-blue-400 font-bold">{variantModal.price.toLocaleString('en-US')} ر.س</span>
+                </button>
+              )}
             </div>
-            <Button variant="ghost" className="w-full mt-3" onClick={() => setVariantModal(null)}>
+            <button
+              className="w-full mt-3 py-2 border border-[#1e2130] text-slate-400 hover:text-white rounded-lg text-sm"
+              onClick={() => setVariantModal(null)}
+            >
               {t('variant.cancel')}
-            </Button>
+            </button>
           </div>
         </div>
       )}
