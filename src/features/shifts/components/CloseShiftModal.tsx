@@ -3,6 +3,7 @@
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 import { useCloseShift } from '../hooks/useShifts';
+import { formatCurrency } from '@/lib/format';
 import type { Shift, CloseShiftDto } from '../types';
 
 interface Props {
@@ -24,24 +25,22 @@ export function CloseShiftModal({ shift, onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl w-full max-w-sm mx-4 p-6">
-        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
-          {t('close_shift')}
-        </h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-          {t('opening_was')}: <span className="font-medium">{shift.opening_cash} ر.س</span>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+      <div className="bg-[#0d1117] border border-[#1e2130] rounded-xl shadow-xl w-full max-w-sm mx-4 p-6">
+        <h2 className="text-lg font-bold text-white mb-1">{t('close_shift')}</h2>
+        <p className="text-sm text-slate-500 mb-4">
+          {t('opening_was')}: <span className="font-medium text-white">{formatCurrency(shift.opening_cash)}</span>
         </p>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-slate-300 mb-1">
               {t('closing_cash')}
             </label>
             <input
               type="number"
               step="0.01"
               {...register('closing_cash', { valueAsNumber: true })}
-              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 rounded-lg border border-[#1e2130] bg-[#141720] text-white focus:outline-none focus:border-blue-500"
             />
             {errors.closing_cash && (
               <p className="text-xs text-red-500 mt-1">{errors.closing_cash.message}</p>
@@ -51,7 +50,7 @@ export function CloseShiftModal({ shift, onClose }: Props) {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              className="flex-1 px-4 py-2 rounded-lg border border-[#1e2130] text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
             >
               {t('cancel')}
             </button>
