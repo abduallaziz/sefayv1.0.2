@@ -38,10 +38,11 @@ export interface ExpenseTemplate {
 }
 
 export interface CreateExpenseDto {
+  branch_id: string;
+  template_id?: string;
   amount: number;
-  description?: string;
-  category_id?: string;
-  branch_id?: string;
+  note?: string;
+  photo_url?: string;
 }
 
 export interface ExpenseStatsResult {
