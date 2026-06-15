@@ -54,23 +54,6 @@ export function OrderFilters({ filters, onChange }: Props) {
           <option key={m.value} value={m.value}>{t(m.labelKey as any)}</option>
         ))}
       </select>
-
-      <input
-        type="text"
-        dir="ltr"
-        placeholder="YYYY-MM-DD"
-        value={filters.date_from || ''}
-        onChange={e => onChange({ ...filters, date_from: e.target.value })}
-        className="border border-[#1e2130] rounded-lg px-3 py-2 text-sm bg-[#141720] text-white w-36 focus:outline-none focus:border-blue-500 placeholder-slate-600"
-      />
-      <input
-        type="text"
-        dir="ltr"
-        placeholder="YYYY-MM-DD"
-        value={filters.date_to || ''}
-        onChange={e => onChange({ ...filters, date_to: e.target.value })}
-        className="border border-[#1e2130] rounded-lg px-3 py-2 text-sm bg-[#141720] text-white w-36 focus:outline-none focus:border-blue-500 placeholder-slate-600"
-      />
     </div>
   );
 }
