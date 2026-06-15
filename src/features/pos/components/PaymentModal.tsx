@@ -12,7 +12,7 @@ interface Props {
 
 export function PaymentModal({ cart, onConfirm, onClose, isSubmitting }: Props) {
   const [method, setMethod] = useState<PaymentMethod>('cash')
-  const [cashTendered, setCashTendered] = useState('')
+  const [cashTendered, setCashTendered] = useState(cart.total.toFixed(2))
   const [splitCash, setSplitCash] = useState('')
 
   const change =
