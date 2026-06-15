@@ -6,6 +6,9 @@ type RequestOptions = {
   headers?: Record<string, string>;
 };
 
+// Mutex للـ refresh — يمنع concurrent refresh calls
+let refreshPromise: Promise<boolean> | null = null;
+
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { method = 'GET', body, headers = {} } = options;
 
@@ -24,7 +27,12 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   });
 
   if (res.status === 401) {
-    const refreshed = await tryRefresh();
+    if (!refreshPromise) {
+      refreshPromise = tryRefresh().finally(() => {
+        refreshPromise = null;
+      });
+    }
+    const refreshed = await refreshPromise;
     if (!refreshed) {
       const { useAuthStore } = await import('@/core/auth/stores/auth.store');
       useAuthStore.getState().clearAuth();
