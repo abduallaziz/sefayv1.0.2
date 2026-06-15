@@ -37,6 +37,9 @@ export interface CreateOrderPayload {
   branch_id: string;
   shift_id?: string;
   payment_method: string;
+  cash_tendered?: number;
+  cash_amount?: number;
+  card_amount?: number;
   items: CreateOrderItem[];
   discount_amount?: number;
   coupon_code?: string;

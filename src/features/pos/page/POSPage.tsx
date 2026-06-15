@@ -25,13 +25,13 @@ export function POSPage() {
     enabled: !!user,
   })
 
-  const branchId = user?.branchId ?? (branches as any)?.[0]?.id ?? ''
-
   const { data: currentShift } = useQuery({
     queryKey: ['shifts', 'current'],
     queryFn: () => apiClient.get('/shifts/current') as any,
     enabled: !!user,
   })
+
+  const branchId = user?.branchId ?? (branches as any)?.[0]?.id ?? ''
 
   const handleConfirmPayment = async (data: PaymentData) => {
     if (isSubmitting) return
@@ -42,6 +42,9 @@ export function POSPage() {
         branch_id: branchId,
         shift_id: currentShift?.id,
         payment_method: data.method,
+        cash_tendered: data.method === 'cash' ? data.cash_tendered : undefined,
+        cash_amount: data.method === 'split' ? data.split_cash : undefined,
+        card_amount: data.method === 'split' ? data.split_card : undefined,
         items: cart.items.map(item => ({
           item_id: item.item_id,
           item_name: item.name,
