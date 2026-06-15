@@ -1,3 +1,4 @@
+ 
 'use client'
 
 import { useState } from 'react'
@@ -10,19 +11,17 @@ import { useAuthStore } from '@/core/auth/stores/auth.store'
 import type { Expense, ExpenseStatus } from '../api/expenses.api'
 import { formatCurrency } from '@/lib/format'
 
-const statusConfig: Record<ExpenseStatus, { label: string; color: string; icon: any }> = {
-  pending:  { label: 'pending',  color: 'bg-amber-500/10 text-amber-400 border-amber-500/20',  icon: Clock },
-  approved: { label: 'approved', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', icon: CheckCircle },
-  rejected: { label: 'rejected', color: 'bg-red-500/10 text-red-400 border-red-500/20', icon: XCircle },
-  expired:  { label: 'expired',  color: 'bg-slate-500/10 text-slate-400 border-slate-500/20', icon: AlertCircle },
+const statusConfig: Record<ExpenseStatus, { color: string; icon: any }> = {
+  pending:  { color: 'bg-amber-500/10 text-amber-400 border-amber-500/20',    icon: Clock },
+  approved: { color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', icon: CheckCircle },
+  rejected: { color: 'bg-red-500/10 text-red-400 border-red-500/20',          icon: XCircle },
+  expired:  { color: 'bg-slate-500/10 text-slate-400 border-slate-500/20',    icon: AlertCircle },
 }
 
-function getExpenseTitle(row: Expense): string {
+function getTitle(row: Expense): string {
   if (row.template?.name) return row.template.name
   if (row.title && row.title.length > 2) return row.title
-  const note = row.notes?.split('|')[0]?.trim()
-  if (note && note.length > 2) return note
-  return '—'
+  return row.notes?.split('|')[0]?.trim() || '—'
 }
 
 export function ExpenseRequestsList() {
@@ -42,21 +41,10 @@ export function ExpenseRequestsList() {
 
   const branchId = user?.branchId ?? (branches as any)?.[0]?.id ?? ''
 
-  const [rejectTarget, setRejectTarget] = useState<Expense | null>(null)
-  const [rejectReason, setRejectReason] = useState('')
   const [showAdd, setShowAdd] = useState(false)
   const [addForm, setAddForm] = useState({ amount: '', template_id: '', note: '' })
-
-  function handleApprove(id: string) {
-    approveMutation.mutate(id)
-  }
-
-  function handleReject() {
-    if (!rejectTarget) return
-    rejectMutation.mutate({ id: rejectTarget.id, reason: rejectReason })
-    setRejectTarget(null)
-    setRejectReason('')
-  }
+  const [rejectTarget, setRejectTarget] = useState<Expense | null>(null)
+  const [rejectReason, setRejectReason] = useState('')
 
   function handleCreate() {
     if (!addForm.amount || !branchId) return
@@ -73,12 +61,22 @@ export function ExpenseRequestsList() {
     })
   }
 
+  function handleReject() {
+    if (!rejectTarget) return
+    rejectMutation.mutate({ id: rejectTarget.id, reason: rejectReason }, {
+      onSuccess: () => {
+        setRejectTarget(null)
+        setRejectReason('')
+      }
+    })
+  }
+
   return (
     <>
-      <div className="flex items-center justify-end mb-4">
+      <div className="flex justify-end mb-4">
         <button
           onClick={() => setShowAdd(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium"
         >
           <Plus className="w-4 h-4" />
           {t('actions.newRequest')}
@@ -113,10 +111,12 @@ export function ExpenseRequestsList() {
                 const Icon = cfg.icon
                 return (
                   <tr key={row.id} className="border-b border-[#1e2130] last:border-0 hover:bg-white/[0.02]">
-                    <td className="px-4 py-3 text-white font-medium">{getExpenseTitle(row)}</td>
+                    <td className="px-4 py-3 text-white font-medium">{getTitle(row)}</td>
                     <td className="px-4 py-3 text-slate-400">{row.requester?.name ?? '—'}</td>
                     <td className="px-4 py-3 text-white font-semibold">{formatCurrency(row.amount)}</td>
-                    <td className="px-4 py-3 text-slate-500 text-xs max-w-[150px] truncate">{row.notes?.split('|')[0]?.trim() ?? '—'}</td>
+                    <td className="px-4 py-3 text-slate-500 text-xs max-w-[150px] truncate">
+                      {row.notes?.split('|')[0]?.trim() || '—'}
+                    </td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-xs font-medium ${cfg.color}`}>
                         <Icon className="w-3 h-3" />
@@ -127,7 +127,7 @@ export function ExpenseRequestsList() {
                       {row.status === 'pending' && (
                         <div className="flex items-center gap-2 justify-end">
                           <button
-                            onClick={() => handleApprove(row.id)}
+                            onClick={() => approveMutation.mutate(row.id)}
                             className="px-3 py-1 rounded-lg text-xs font-medium bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20"
                           >
                             {t('actions.approve')}
@@ -149,7 +149,7 @@ export function ExpenseRequestsList() {
         </div>
       )}
 
-      {/* Add Expense Modal */}
+      {/* Add Modal */}
       {showAdd && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
           <div className="bg-[#0d1117] border border-[#1e2130] rounded-xl w-full max-w-md p-6 space-y-4">
@@ -157,22 +157,20 @@ export function ExpenseRequestsList() {
             <div>
               <label className="text-xs text-slate-400 mb-1 block">{t('table.amount')}</label>
               <input
-                type="text"
-                inputMode="decimal"
-                placeholder="0.00"
+                type="text" inputMode="decimal" placeholder="0.00"
                 value={addForm.amount}
                 onChange={e => setAddForm(p => ({ ...p, amount: e.target.value }))}
                 className="w-full px-3 py-2 text-sm bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500"
               />
             </div>
             <div>
-              <label className="text-xs text-slate-400 mb-1 block">{t('template.name')}</label>
+              <label className="text-xs text-slate-400 mb-1 block">{t('tabs.templates')}</label>
               <select
                 value={addForm.template_id}
                 onChange={e => setAddForm(p => ({ ...p, template_id: e.target.value }))}
                 className="w-full px-3 py-2 text-sm bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500"
               >
-                <option value="">— بدون قالب —</option>
+                <option value="">— {t('empty.templates')} —</option>
                 {templates.map(tmpl => (
                   <option key={tmpl.id} value={tmpl.id}>{tmpl.name}</option>
                 ))}
@@ -187,11 +185,8 @@ export function ExpenseRequestsList() {
                 className="w-full px-3 py-2 text-sm bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500 resize-none"
               />
             </div>
-            <div className="flex gap-3 pt-2">
-              <button
-                onClick={() => setShowAdd(false)}
-                className="flex-1 py-2 border border-[#1e2130] text-slate-400 hover:text-white rounded-lg text-sm"
-              >
+            <div className="flex gap-3">
+              <button onClick={() => setShowAdd(false)} className="flex-1 py-2 border border-[#1e2130] text-slate-400 hover:text-white rounded-lg text-sm">
                 إلغاء
               </button>
               <button
@@ -199,7 +194,7 @@ export function ExpenseRequestsList() {
                 disabled={!addForm.amount || createMutation.isPending}
                 className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg text-sm font-medium"
               >
-                {createMutation.isPending ? 'جاري الإضافة...' : 'إضافة'}
+                {createMutation.isPending ? '...' : 'إضافة'}
               </button>
             </div>
           </div>
@@ -211,7 +206,7 @@ export function ExpenseRequestsList() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
           <div className="bg-[#0d1117] border border-[#1e2130] rounded-xl w-full max-w-md p-6 space-y-4">
             <h2 className="text-base font-semibold text-white">{t('reject.title')}</h2>
-            <p className="text-sm text-slate-400">{getExpenseTitle(rejectTarget)} — {formatCurrency(rejectTarget.amount)}</p>
+            <p className="text-sm text-slate-400">{getTitle(rejectTarget)} — {formatCurrency(rejectTarget.amount)}</p>
             <div>
               <label className="text-xs text-slate-400 mb-1 block">{t('reject.reason')}</label>
               <textarea
@@ -223,16 +218,10 @@ export function ExpenseRequestsList() {
               />
             </div>
             <div className="flex gap-3">
-              <button
-                onClick={() => { setRejectTarget(null); setRejectReason('') }}
-                className="flex-1 py-2 border border-[#1e2130] text-slate-400 hover:text-white rounded-lg text-sm"
-              >
+              <button onClick={() => { setRejectTarget(null); setRejectReason('') }} className="flex-1 py-2 border border-[#1e2130] text-slate-400 hover:text-white rounded-lg text-sm">
                 إلغاء
               </button>
-              <button
-                onClick={handleReject}
-                className="flex-1 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium"
-              >
+              <button onClick={handleReject} className="flex-1 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium">
                 {t('reject.submit')}
               </button>
             </div>

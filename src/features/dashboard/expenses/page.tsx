@@ -2,60 +2,40 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { PageHeader } from '@/shared/ui/page-header';
-import { StatCard } from '@/shared/ui/stat-card';
-import { Tabs, TabsList, TabsTrigger } from '@/shared/ui/tabs';
-import { Clock, CheckCircle, DollarSign, XCircle } from 'lucide-react';
-import { useExpenseStats } from './hooks/useExpenses';
 import { ExpenseRequestsList } from './components/ExpenseRequestsList';
 import { ExpenseTemplatesList } from './components/ExpenseTemplatesList';
 
 export default function ExpensesPage() {
   const t = useTranslations('expenses');
   const [tab, setTab] = useState<'requests' | 'templates'>('requests');
-  const { data: stats } = useExpenseStats();
 
   return (
     <div className="space-y-6">
-      <PageHeader title={t('title')} description={t('subtitle')} />
-
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          title={t('stats.pending')}
-          value={stats?.pending_count ?? 0}
-          icon={Clock}
-          variant="warning"
-          theme="dashboard"
-        />
-        <StatCard
-          title={t('stats.approvedToday')}
-          value={stats?.approved_count ?? 0}
-          icon={CheckCircle}
-          variant="success"
-          theme="dashboard"
-        />
-        <StatCard
-          title={t('stats.totalToday')}
-          value={stats ? `${stats.total_amount} ر.س` : '—'}
-          icon={DollarSign}
-          variant="default"
-          theme="dashboard"
-        />
-        <StatCard
-          title={t('stats.expired')}
-          value={stats?.rejected_count ?? 0}
-          icon={XCircle}
-          variant="danger"
-          theme="dashboard"
-        />
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-white">{t('title')}</h1>
+          <p className="text-sm text-slate-500 mt-1">{t('subtitle')}</p>
+        </div>
       </div>
 
-      <Tabs value={tab} onValueChange={(v) => setTab(v as 'requests' | 'templates')}>
-        <TabsList>
-          <TabsTrigger value="requests">{t('tabs.requests')}</TabsTrigger>
-          <TabsTrigger value="templates">{t('tabs.templates')}</TabsTrigger>
-        </TabsList>
-      </Tabs>
+      <div className="flex gap-1 bg-[#141720] border border-[#1e2130] rounded-xl p-1 w-fit">
+        <button
+          onClick={() => setTab('requests')}
+          className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
+            tab === 'requests' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          {t('tabs.requests')}
+        </button>
+        <button
+          onClick={() => setTab('templates')}
+          className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
+            tab === 'templates' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          {t('tabs.templates')}
+        </button>
+      </div>
 
       {tab === 'requests' && <ExpenseRequestsList />}
       {tab === 'templates' && <ExpenseTemplatesList />}
