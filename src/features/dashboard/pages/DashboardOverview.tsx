@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api';
+import { formatCurrency } from '@/lib/format';
 
 export function DashboardOverview() {
   const t = useTranslations('dashboard');
@@ -25,18 +26,24 @@ export function DashboardOverview() {
     queryKey: ['dashboard', 'revenue'],
     queryFn: () => apiClient.get('/reports/revenue?period=today') as any,
     enabled: !!user,
+    refetchInterval: 30000,
+    staleTime: 0,
   });
 
   const { data: customersData } = useQuery({
     queryKey: ['dashboard', 'customers-stats'],
     queryFn: () => apiClient.get('/customers/stats') as any,
     enabled: !!user,
+    refetchInterval: 30000,
+    staleTime: 0,
   });
 
   const { data: currentShift } = useQuery({
     queryKey: ['dashboard', 'current-shift'],
     queryFn: () => apiClient.get('/shifts/current') as any,
     enabled: !!user,
+    refetchInterval: 10000,
+    staleTime: 0,
   });
 
   if (!user) return null;
@@ -55,7 +62,7 @@ export function DashboardOverview() {
     : '—';
 
   const stats = [
-    { labelKey: 'todaySales', value: `${todayRevenue.toLocaleString()} ر.س`, icon: TrendingUp, color: 'bg-emerald-500/10 text-emerald-400' },
+    { labelKey: 'todaySales', value: formatCurrency(todayRevenue), icon: TrendingUp, color: 'bg-emerald-500/10 text-emerald-400' },
     { labelKey: 'invoices', value: String(todayOrders), icon: ShoppingCart, color: 'bg-blue-500/10 text-blue-400' },
     { labelKey: 'customers', value: String(totalCustomers), icon: Users, color: 'bg-violet-500/10 text-violet-400' },
     { labelKey: 'shiftDuration', value: shiftDuration, icon: Clock, color: 'bg-amber-500/10 text-amber-400' },
