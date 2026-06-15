@@ -58,8 +58,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
       <div
         className={cn(
-          'fixed inset-y-0 start-0 z-30 lg:relative lg:translate-x-0 transition-transform duration-200',
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+          'fixed inset-y-0 end-auto start-0 z-30 lg:relative lg:!translate-x-0 transition-transform duration-200',
+          sidebarOpen ? 'translate-x-0' : 'rtl:translate-x-full ltr:-translate-x-full lg:translate-x-0'
         )}
       >
         <DashboardSidebar />
