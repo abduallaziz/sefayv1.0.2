@@ -1,5 +1,6 @@
 {
   "title": "نقطة البيع",
+  "currency": "⃁",
   "search": "بحث عن منتج...",
   "allCategories": "الكل",
   "currentOrder": "الطلب الحالي",
@@ -37,8 +38,7 @@
     "splitCard": "المتبقي على البطاقة",
     "cardInstruction": "وجّه العميل للطرفية وأكّد الدفع",
     "confirm": "تأكيد الدفع",
-    "cancel": "إلغاء",
-    "currency": "⃁"
+    "cancel": "إلغاء"
   },
   "receipt": {
     "success": "تم الدفع بنجاح",

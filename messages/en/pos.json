@@ -1,5 +1,6 @@
 {
   "title": "Point of Sale",
+  "currency": "⃁",
   "search": "Search items...",
   "allCategories": "All",
   "currentOrder": "Current Order",
@@ -37,8 +38,7 @@
     "splitCard": "Remaining on Card",
     "cardInstruction": "Direct customer to terminal and confirm payment",
     "confirm": "Confirm Payment",
-    "cancel": "Cancel",
-    "currency": "⃁"
+    "cancel": "Cancel"
   },
   "receipt": {
     "success": "Payment Successful",
