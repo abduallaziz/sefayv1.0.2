@@ -13,14 +13,14 @@ import { authApi } from '@/features/auth/api/auth.api';
 export function LoginPage() {
   const router = useRouter();
   const locale = useLocale();
-  const t = useTranslations('common.auth');
+  const t = useTranslations('common');
   const setAuth = useAuthStore((s) => s.setAuth);
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState('');
 
   const loginSchema = z.object({
-    email: z.string().email(t('emailInvalid')),
-    password: z.string().min(6, t('passwordShort')),
+    email: z.string().email(t('auth.emailInvalid')),
+    password: z.string().min(6, t('auth.passwordShort')),
   });
 
   type LoginForm = z.infer<typeof loginSchema>;
@@ -56,7 +56,7 @@ export function LoginPage() {
         router.replace(`/${locale}/dashboard`);
       }
     } catch {
-      setError(t('invalidCredentials'));
+      setError(t('auth.invalidCredentials'));
     }
   };
 
@@ -71,31 +71,31 @@ export function LoginPage() {
         </div>
 
         <div className="bg-[#0d1117] border border-white/[0.06] rounded-2xl p-6">
-          <h1 className="text-white text-lg font-semibold mb-1">{t('title')}</h1>
-          <p className="text-slate-500 text-sm mb-6">{t('subtitle')}</p>
+          <h1 className="text-white text-lg font-semibold mb-1">{t('auth.title')}</h1>
+          <p className="text-slate-500 text-sm mb-6">{t('auth.subtitle')}</p>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
-              <label className="text-slate-400 text-sm mb-1.5 block">{t('email')}</label>
+              <label className="text-slate-400 text-sm mb-1.5 block">{t('auth.email')}</label>
               <input
                 {...register('email')}
                 type="email"
                 dir="ltr"
                 className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-blue-500/60 transition-colors"
-                placeholder={t('emailPlaceholder')}
+                placeholder={t('auth.emailPlaceholder')}
               />
               {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
             </div>
 
             <div>
-              <label className="text-slate-400 text-sm mb-1.5 block">{t('password')}</label>
+              <label className="text-slate-400 text-sm mb-1.5 block">{t('auth.password')}</label>
               <div className="relative">
                 <input
                   {...register('password')}
                   type={showPass ? 'text' : 'password'}
                   dir="ltr"
                   className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2.5 pe-10 text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-blue-500/60 transition-colors"
-                  placeholder={t('passwordPlaceholder')}
+                  placeholder={t('auth.passwordPlaceholder')}
                 />
                 <button
                   type="button"
@@ -120,7 +120,7 @@ export function LoginPage() {
               className="w-full bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white rounded-lg py-2.5 text-sm font-medium transition-colors flex items-center justify-center gap-2"
             >
               {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
-              {t('submit')}
+              {t('auth.submit')}
             </button>
           </form>
         </div>

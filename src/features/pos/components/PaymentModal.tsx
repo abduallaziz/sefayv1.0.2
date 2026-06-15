@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Cart, PaymentData, PaymentMethod } from '../types/pos.types'
 
 interface Props {
@@ -11,9 +12,12 @@ interface Props {
 }
 
 export function PaymentModal({ cart, onConfirm, onClose, isSubmitting }: Props) {
+  const t = useTranslations('pos')
   const [method, setMethod] = useState<PaymentMethod>('cash')
   const [cashTendered, setCashTendered] = useState(cart.total.toFixed(2))
   const [splitCash, setSplitCash] = useState('')
+
+  const fmt = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
   const change =
     method === 'cash' && parseFloat(cashTendered) >= cart.total
@@ -46,26 +50,24 @@ export function PaymentModal({ cart, onConfirm, onClose, isSubmitting }: Props) 
     onConfirm(data)
   }
 
-  const fmt = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-
-  const methods: { id: PaymentMethod; label: string; icon: string }[] = [
-    { id: 'cash', label: 'نقداً', icon: '💵' },
-    { id: 'card', label: 'بطاقة', icon: '💳' },
-    { id: 'split', label: 'مختلط', icon: '⚡' },
+  const methods: { id: PaymentMethod; labelKey: string; icon: string }[] = [
+    { id: 'cash', labelKey: 'payment.cash', icon: '💵' },
+    { id: 'card', labelKey: 'payment.card', icon: '💳' },
+    { id: 'split', labelKey: 'payment.split', icon: '⚡' },
   ]
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
       <div className="bg-[#0d1117] border border-[#1e2130] rounded-2xl w-full max-w-md shadow-xl">
         <div className="flex items-center justify-between p-5 border-b border-[#1e2130]">
-          <h3 className="font-bold text-lg text-white">إتمام الدفع</h3>
+          <h3 className="font-bold text-lg text-white">{t('payment.title')}</h3>
           <button onClick={onClose} className="text-slate-400 hover:text-white text-xl">✕</button>
         </div>
 
         <div className="p-5 space-y-4">
           <div className="bg-[#141720] rounded-xl p-4 text-center">
-            <p className="text-sm text-slate-500">المبلغ المستحق</p>
-            <p className="text-3xl font-bold text-blue-400 mt-1">{fmt(cart.total)} ر.س</p>
+            <p className="text-sm text-slate-500">{t('payment.due')}</p>
+            <p className="text-3xl font-bold text-blue-400 mt-1">{fmt(cart.total)}</p>
           </div>
 
           <div className="grid grid-cols-3 gap-2">
@@ -80,14 +82,14 @@ export function PaymentModal({ cart, onConfirm, onClose, isSubmitting }: Props) 
                 }`}
               >
                 <span className="text-xl">{m.icon}</span>
-                {m.label}
+                {t(m.labelKey as any)}
               </button>
             ))}
           </div>
 
           {method === 'cash' && (
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-300">المبلغ المدفوع</label>
+              <label className="text-sm font-medium text-slate-300">{t('payment.tendered')}</label>
               <input
                 type="text"
                 inputMode="decimal"
@@ -98,8 +100,8 @@ export function PaymentModal({ cart, onConfirm, onClose, isSubmitting }: Props) 
               />
               {change > 0 && (
                 <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3 text-center">
-                  <p className="text-sm text-emerald-400">الباقي للعميل</p>
-                  <p className="text-xl font-bold text-emerald-400">{fmt(change)} ر.س</p>
+                  <p className="text-sm text-emerald-400">{t('payment.change')}</p>
+                  <p className="text-xl font-bold text-emerald-400">{fmt(change)}</p>
                 </div>
               )}
             </div>
@@ -107,7 +109,7 @@ export function PaymentModal({ cart, onConfirm, onClose, isSubmitting }: Props) 
 
           {method === 'split' && (
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-300">المبلغ نقداً</label>
+              <label className="text-sm font-medium text-slate-300">{t('payment.splitCash')}</label>
               <input
                 type="text"
                 inputMode="decimal"
@@ -118,8 +120,8 @@ export function PaymentModal({ cart, onConfirm, onClose, isSubmitting }: Props) 
               />
               {splitCard > 0 && (
                 <div className="flex justify-between text-sm bg-[#141720] rounded-lg p-3">
-                  <span className="text-slate-400">المتبقي على البطاقة</span>
-                  <span className="font-bold text-blue-400">{fmt(splitCard)} ر.س</span>
+                  <span className="text-slate-400">{t('payment.splitCard')}</span>
+                  <span className="font-bold text-blue-400">{fmt(splitCard)}</span>
                 </div>
               )}
             </div>
@@ -127,7 +129,7 @@ export function PaymentModal({ cart, onConfirm, onClose, isSubmitting }: Props) 
 
           {method === 'card' && (
             <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 text-center text-sm text-blue-400">
-              وجّه العميل للطرفية وأكّد الدفع
+              {t('payment.cardInstruction')}
             </div>
           )}
         </div>
@@ -137,14 +139,14 @@ export function PaymentModal({ cart, onConfirm, onClose, isSubmitting }: Props) 
             onClick={onClose}
             className="flex-1 py-2.5 border border-[#1e2130] text-slate-400 hover:text-white rounded-xl text-sm font-medium"
           >
-            إلغاء
+            {t('payment.cancel')}
           </button>
           <button
             disabled={!canConfirm()}
             onClick={handleConfirm}
             className="flex-[2] py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl text-sm font-bold"
           >
-            {isSubmitting ? 'جاري الإرسال...' : 'تأكيد الدفع'}
+            {isSubmitting ? t('common.processing') : t('payment.confirm')}
           </button>
         </div>
       </div>
