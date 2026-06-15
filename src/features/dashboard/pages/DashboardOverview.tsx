@@ -2,6 +2,7 @@
 
 import { useTranslations, useLocale } from 'next-intl';
 import { useAuthStore } from '@/core/auth/stores/auth.store';
+import { useTenantStore } from '@/core/tenant/stores/tenant.store';
 import {
   TrendingUp, ShoppingCart, Users, Clock,
   CreditCard, Wallet, BarChart3, AlertCircle,
@@ -58,6 +59,7 @@ function PaymentBar({ label, value, total, color }: { label: string; value: numb
 export function DashboardOverview() {
   const t = useTranslations('dashboard');
   const user = useAuthStore((s) => s.user);
+  const currency = useTenantStore((s) => s.currency_symbol);
   const router = useRouter();
   const locale = useLocale();
 
@@ -130,7 +132,6 @@ export function DashboardOverview() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div>
         <h1 className="text-xl font-bold text-white">
           {t('welcome')}، {user?.name ?? '...'} 👋
@@ -138,7 +139,6 @@ export function DashboardOverview() {
         <p className="text-sm text-slate-500 mt-0.5">{t('quickStats')}</p>
       </div>
 
-      {/* Error */}
       {revError && (
         <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-red-400 text-sm">
           <AlertCircle className="w-4 h-4 flex-shrink-0" />
@@ -146,18 +146,17 @@ export function DashboardOverview() {
         </div>
       )}
 
-      {/* Stats Grid */}
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 lg:gap-4">
         <StatCard
           label={t('todaySales')}
-          value={totalRevenue.toLocaleString('en-US')}
+          value={`${totalRevenue.toLocaleString('en-US')} ${currency}`}
           icon={TrendingUp}
           iconClass="bg-emerald-500/10 text-emerald-400"
         />
         <StatCard
           label={t('invoices')}
           value={totalOrders.toLocaleString('en-US')}
-          sub={avgOrder > 0 ? `${t('avgOrder')}: ${avgOrder.toLocaleString('en-US')}` : undefined}
+          sub={avgOrder > 0 ? `${t('avgOrder')}: ${avgOrder.toLocaleString('en-US')} ${currency}` : undefined}
           icon={ShoppingCart}
           iconClass="bg-blue-500/10 text-blue-400"
         />
@@ -169,16 +168,13 @@ export function DashboardOverview() {
         />
         <StatCard
           label={t('totalExpenses')}
-          value={totalExpenses.toLocaleString('en-US')}
+          value={`${totalExpenses.toLocaleString('en-US')} ${currency}`}
           icon={Wallet}
           iconClass="bg-rose-500/10 text-rose-400"
         />
       </div>
 
-      {/* Second Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-4">
-
-        {/* Payment Methods */}
         <div className="bg-[#141720] border border-[#1e2130] rounded-xl p-5 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-medium text-white">{t('salesByPayment')}</h2>
@@ -195,7 +191,6 @@ export function DashboardOverview() {
           )}
         </div>
 
-        {/* Shift Status */}
         <div className="bg-[#141720] border border-[#1e2130] rounded-xl p-5 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-medium text-white">{t('shiftDuration')}</h2>

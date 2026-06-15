@@ -6,6 +6,8 @@ export interface TenantProfile {
   business_type: string
   status: string
   created_at: string
+  currency_code: string
+  currency_symbol: string
 }
 
 export interface TenantSubscription {
@@ -23,6 +25,8 @@ export interface TenantUsage {
 export interface UpdateProfileDto {
   name?: string
   business_type?: string
+  currency_code?: string
+  currency_symbol?: string
 }
 
 export const settingsApi = {

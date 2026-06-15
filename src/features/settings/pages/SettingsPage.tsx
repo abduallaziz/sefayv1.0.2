@@ -3,7 +3,19 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useProfile, useSubscription, useUsage, useUpdateProfile } from '../hooks/useSettings'
-import { Building2, CreditCard, BarChart3, Save } from 'lucide-react'
+import { useTenantStore } from '@/core/tenant/stores/tenant.store'
+import { Building2, CreditCard, BarChart3, Save, Coins } from 'lucide-react'
+
+const CURRENCIES = [
+  { code: 'SAR', symbol: '⃁', label: 'ريال سعودي' },
+  { code: 'USD', symbol: '$', label: 'دولار أمريكي' },
+  { code: 'EUR', symbol: '€', label: 'يورو' },
+  { code: 'AED', symbol: 'د.إ', label: 'درهم إماراتي' },
+  { code: 'KWD', symbol: 'د.ك', label: 'دينار كويتي' },
+  { code: 'BHD', symbol: 'د.ب', label: 'دينار بحريني' },
+  { code: 'QAR', symbol: 'ر.ق', label: 'ريال قطري' },
+  { code: 'OMR', symbol: 'ر.ع', label: 'ريال عماني' },
+]
 
 export function SettingsPage() {
   const t = useTranslations('settings')
@@ -12,13 +24,23 @@ export function SettingsPage() {
   const { data: usage, isLoading: usageLoading } = useUsage()
   const { mutate: updateProfile, isPending } = useUpdateProfile()
 
+  const { currency_code, currency_symbol, setCurrency } = useTenantStore()
   const [name, setName] = useState('')
+  const [selectedCurrency, setSelectedCurrency] = useState(currency_code)
 
   const sub = (subscriptionData as any)?.subscription
 
   function handleSave() {
-    if (name.trim()) {
-      updateProfile({ name: name.trim() })
+    const updates: any = {}
+    if (name.trim()) updates.name = name.trim()
+    const cur = CURRENCIES.find(c => c.code === selectedCurrency)
+    if (cur && cur.code !== currency_code) {
+      updates.currency_code = cur.code
+      updates.currency_symbol = cur.symbol
+      setCurrency(cur.code, cur.symbol)
+    }
+    if (Object.keys(updates).length > 0) {
+      updateProfile(updates)
     }
   }
 
@@ -59,7 +81,7 @@ export function SettingsPage() {
             </div>
             <button
               onClick={handleSave}
-              disabled={isPending || !name.trim()}
+              disabled={isPending}
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-lg text-sm text-white transition-colors"
             >
               <Save className="w-4 h-4" />
@@ -67,6 +89,38 @@ export function SettingsPage() {
             </button>
           </div>
         )}
+      </div>
+
+      {/* Currency */}
+      <div className="bg-[#141720] border border-[#1e2130] rounded-xl p-5 space-y-4">
+        <div className="flex items-center gap-2 mb-2">
+          <Coins className="w-4 h-4 text-slate-400" />
+          <h2 className="text-sm font-semibold text-white">العملة</h2>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {CURRENCIES.map((cur) => (
+            <button
+              key={cur.code}
+              onClick={() => setSelectedCurrency(cur.code)}
+              className={`flex flex-col items-center gap-1 p-3 rounded-xl border text-sm transition-all ${
+                selectedCurrency === cur.code
+                  ? 'border-blue-500 bg-blue-500/10 text-blue-400'
+                  : 'border-[#1e2130] text-slate-400 hover:border-blue-500/50'
+              }`}
+            >
+              <span className="text-lg font-bold">{cur.symbol}</span>
+              <span className="text-xs">{cur.code}</span>
+            </button>
+          ))}
+        </div>
+        <button
+          onClick={handleSave}
+          disabled={isPending || selectedCurrency === currency_code}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-lg text-sm text-white transition-colors"
+        >
+          <Save className="w-4 h-4" />
+          {isPending ? t('saving') : t('save')}
+        </button>
       </div>
 
       {/* Subscription */}

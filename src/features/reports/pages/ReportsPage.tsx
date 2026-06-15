@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { useRevenueReport, useShiftsReport, useExpensesReport, usePaymentsReport } from '../hooks/useReports'
+import { useTenantStore } from '@/core/tenant/stores/tenant.store'
+import { useRevenueReport, useShiftsReport, useExpensesReport } from '../hooks/useReports'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { TrendingUp, Clock, TrendingDown, CreditCard } from 'lucide-react'
 import type { ReportPeriod } from '../api/reports.api'
@@ -34,6 +35,7 @@ function StatCard({ label, value, icon: Icon, color }: {
 
 export function ReportsPage() {
   const t = useTranslations('reports')
+  const currency = useTenantStore((s) => s.currency_symbol)
   const [period, setPeriod] = useState<ReportPeriod>('month')
 
   const { data: revenue, isLoading: revLoading } = useRevenueReport({ period })
@@ -48,7 +50,7 @@ export function ReportsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-xl font-bold text-white">{t('title')}</h1>
           <p className="text-sm text-slate-500 mt-1">{t('subtitle')}</p>
@@ -71,7 +73,7 @@ export function ReportsPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label={t('totalRevenue')}
-          value={revLoading ? '...' : (summary?.total_revenue ?? 0).toLocaleString('en-US')}
+          value={revLoading ? '...' : `${(summary?.total_revenue ?? 0).toLocaleString('en-US')} ${currency}`}
           icon={TrendingUp}
           color="bg-emerald-600"
         />
@@ -89,7 +91,7 @@ export function ReportsPage() {
         />
         <StatCard
           label={t('totalExpenses')}
-          value={expLoading ? '...' : ((expenses as any)?.summary?.total_expenses ?? 0).toLocaleString('en-US')}
+          value={expLoading ? '...' : `${((expenses as any)?.summary?.total_expenses ?? 0).toLocaleString('en-US')} ${currency}`}
           icon={TrendingDown}
           color="bg-red-600"
         />
@@ -123,7 +125,7 @@ export function ReportsPage() {
                 <span className="text-sm text-slate-400">{method}</span>
                 <div className="flex items-center gap-4 text-xs">
                   <span className="text-slate-500">{data.count} {t('orders')}</span>
-                  <span className="text-white font-medium">{data.total?.toLocaleString('en-US')}</span>
+                  <span className="text-white font-medium">{data.total?.toLocaleString('en-US')} {currency}</span>
                 </div>
               </div>
             ))}
@@ -142,7 +144,7 @@ export function ReportsPage() {
                 <span className="text-sm text-slate-400">{c.category}</span>
                 <div className="flex items-center gap-4 text-xs">
                   <span className="text-slate-500">{c.count} {t('items')}</span>
-                  <span className="text-white font-medium">{c.total?.toLocaleString('en-US')}</span>
+                  <span className="text-white font-medium">{c.total?.toLocaleString('en-US')} {currency}</span>
                 </div>
               </div>
             ))}

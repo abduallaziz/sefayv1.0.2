@@ -1,11 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DashboardSidebar } from './DashboardSidebar';
 import { DashboardHeader } from './DashboardHeader';
 import { useTenantAuth } from '@/core/auth/hooks/useTenantAuth';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
+import { settingsApi } from '@/features/settings/api/settings.api';
+import { useTenantStore } from '@/core/tenant/stores/tenant.store';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -15,6 +17,16 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { isLoading, isAuthenticated } = useTenantAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const t = useTranslations('common');
+  const setCurrency = useTenantStore((s) => s.setCurrency);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    settingsApi.getProfile().then((profile) => {
+      if (profile.currency_code && profile.currency_symbol) {
+        setCurrency(profile.currency_code, profile.currency_symbol);
+      }
+    }).catch(() => {});
+  }, [isAuthenticated, setCurrency]);
 
   if (isLoading) {
     return (
