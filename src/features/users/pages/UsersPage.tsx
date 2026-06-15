@@ -48,54 +48,54 @@ export function UsersPage() {
       ) : (
         <div className="bg-[#141720] border border-[#1e2130] rounded-xl overflow-hidden">
           <table className="w-full">
-            <thead>
-              <tr className="border-b border-[#1e2130]">
-                <th className="text-right px-4 py-3 text-xs font-medium text-slate-500 uppercase">{t('name')}</th>
-                <th className="text-right px-4 py-3 text-xs font-medium text-slate-500 uppercase">{t('email')}</th>
-                <th className="text-right px-4 py-3 text-xs font-medium text-slate-500 uppercase">{t('role')}</th>
-                <th className="text-right px-4 py-3 text-xs font-medium text-slate-500 uppercase">{t('status')}</th>
-                <th className="px-4 py-3" />
-              </tr>
-            </thead>
-            <tbody>
-              {users?.map((user) => (
-                <tr key={user.id} className="border-b border-[#1e2130] last:border-0 hover:bg-white/[0.02]">
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
-                        <span className="text-blue-400 text-xs font-medium">
-                          {user.name?.[0]?.toUpperCase()}
-                        </span>
-                      </div>
-                      <span className="text-sm text-white">{user.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-sm text-slate-400">{user.email}</td>
-                  <td className="px-4 py-3">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${ROLE_COLORS[user.role] ?? 'bg-slate-500/10 text-slate-400 border-slate-500/20'}`}>
-                      {user.role}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${user.is_active ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
-                      {user.is_active ? t('active') : t('inactive')}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2 justify-end">
-                      <button
-                        onClick={() => deleteUser(user.id)}
-                        className="p-1.5 text-slate-600 hover:text-red-400 transition-colors"
-                        title={t('delete')}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
+              <thead>
+                <tr className="border-b border-[#1e2130]">
+                  <th className="text-start px-4 py-3 text-xs font-medium text-slate-500 uppercase">{t('name')}</th>
+                  <th className="hidden sm:table-cell text-start px-4 py-3 text-xs font-medium text-slate-500 uppercase">{t('email')}</th>
+                  <th className="text-start px-4 py-3 text-xs font-medium text-slate-500 uppercase">{t('role')}</th>
+                  <th className="hidden sm:table-cell text-start px-4 py-3 text-xs font-medium text-slate-500 uppercase">{t('status')}</th>
+                  <th className="px-4 py-3" />
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {users?.map((user) => (
+                  <tr key={user.id} className="border-b border-[#1e2130] last:border-0 hover:bg-white/[0.02]">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                          <span className="text-blue-400 text-xs font-medium">
+                            {user.name?.[0]?.toUpperCase()}
+                          </span>
+                        </div>
+                        <span className="text-sm text-white truncate">{user.name}</span>
+                      </div>
+                    </td>
+                    <td className="hidden sm:table-cell px-4 py-3 text-sm text-slate-400">{user.email}</td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${ROLE_COLORS[user.role] ?? 'bg-slate-500/10 text-slate-400 border-slate-500/20'}`}>
+                        {user.role}
+                      </span>
+                    </td>
+                    <td className="hidden sm:table-cell px-4 py-3">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${user.is_active ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
+                        {user.is_active ? t('active') : t('inactive')}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2 justify-end">
+                        <button
+                          onClick={() => deleteUser(user.id)}
+                          className="p-1.5 text-slate-600 hover:text-red-400 transition-colors"
+                          title={t('delete')}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           {users?.length === 0 && (
             <div className="py-12 text-center text-slate-500 text-sm">{t('empty')}</div>
           )}

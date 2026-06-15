@@ -22,5 +22,17 @@
   "create": "إنشاء",
   "saving": "جاري الحفظ...",
   "processing": "جاري المعالجة...",
-  "optional": "اختياري"
+  "optional": "اختياري",
+  "auth": {
+    "title": "تسجيل الدخول",
+    "subtitle": "أدخل بياناتك للمتابعة",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "submit": "دخول",
+    "emailPlaceholder": "example@company.com",
+    "passwordPlaceholder": "••••••••",
+    "emailInvalid": "بريد إلكتروني غير صالح",
+    "passwordShort": "كلمة المرور قصيرة جداً",
+    "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة"
+  }
 }

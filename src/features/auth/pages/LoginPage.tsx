@@ -4,25 +4,26 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuthStore, type UserRole } from '@/core/auth/stores/auth.store';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { useLocale, useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { authApi } from '@/features/auth/api/auth.api';
 
-const loginSchema = z.object({
-  email: z.string().email('بريد إلكتروني غير صالح'),
-  password: z.string().min(6, 'كلمة المرور قصيرة جداً'),
-});
-
-type LoginForm = z.infer<typeof loginSchema>;
-
 export function LoginPage() {
   const router = useRouter();
-  const pathname = usePathname();
-  const locale = pathname.split('/')[1] || 'ar';
+  const locale = useLocale();
+  const t = useTranslations('common.auth');
   const setAuth = useAuthStore((s) => s.setAuth);
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState('');
+
+  const loginSchema = z.object({
+    email: z.string().email(t('emailInvalid')),
+    password: z.string().min(6, t('passwordShort')),
+  });
+
+  type LoginForm = z.infer<typeof loginSchema>;
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -55,7 +56,7 @@ export function LoginPage() {
         router.replace(`/${locale}/dashboard`);
       }
     } catch {
-      setError('البريد الإلكتروني أو كلمة المرور غير صحيحة');
+      setError(t('invalidCredentials'));
     }
   };
 
@@ -70,31 +71,31 @@ export function LoginPage() {
         </div>
 
         <div className="bg-[#0d1117] border border-white/[0.06] rounded-2xl p-6">
-          <h1 className="text-white text-lg font-semibold mb-1">تسجيل الدخول</h1>
-          <p className="text-slate-500 text-sm mb-6">أدخل بياناتك للمتابعة</p>
+          <h1 className="text-white text-lg font-semibold mb-1">{t('title')}</h1>
+          <p className="text-slate-500 text-sm mb-6">{t('subtitle')}</p>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
-              <label className="text-slate-400 text-sm mb-1.5 block">البريد الإلكتروني</label>
+              <label className="text-slate-400 text-sm mb-1.5 block">{t('email')}</label>
               <input
                 {...register('email')}
                 type="email"
                 dir="ltr"
                 className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-blue-500/60 transition-colors"
-                placeholder="example@company.com"
+                placeholder={t('emailPlaceholder')}
               />
               {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
             </div>
 
             <div>
-              <label className="text-slate-400 text-sm mb-1.5 block">كلمة المرور</label>
+              <label className="text-slate-400 text-sm mb-1.5 block">{t('password')}</label>
               <div className="relative">
                 <input
                   {...register('password')}
                   type={showPass ? 'text' : 'password'}
                   dir="ltr"
                   className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2.5 pe-10 text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-blue-500/60 transition-colors"
-                  placeholder="••••••••"
+                  placeholder={t('passwordPlaceholder')}
                 />
                 <button
                   type="button"
@@ -119,10 +120,9 @@ export function LoginPage() {
               className="w-full bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white rounded-lg py-2.5 text-sm font-medium transition-colors flex items-center justify-center gap-2"
             >
               {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
-              دخول
+              {t('submit')}
             </button>
           </form>
-          <p className="text-slate-600 text-xs text-center mt-4">للتجربة: owner@test.com / 123456</p>
         </div>
       </div>
     </div>

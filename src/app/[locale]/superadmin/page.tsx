@@ -67,7 +67,7 @@ export default function SuperAdminPage() {
         arr={arr}
       />
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <AiInsights />
         <RevenueChart data={revenueData ?? []} />
       </div>

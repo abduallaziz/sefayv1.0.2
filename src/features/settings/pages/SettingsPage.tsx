@@ -94,7 +94,7 @@ export function SettingsPage() {
             <div>
               <p className="text-xs text-slate-500">{t('endsAt')}</p>
               <p className="text-sm font-medium text-white mt-1">
-                {sub?.expires_at ? new Date(sub.expires_at).toLocaleDateString('ar-SA') : '—'}
+                {sub?.expires_at ? new Date(sub.expires_at).toLocaleDateString('en-US') : '—'}
               </p>
             </div>
           </div>

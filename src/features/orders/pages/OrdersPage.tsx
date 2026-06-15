@@ -49,7 +49,7 @@ export function OrdersPage() {
     { labelKey: 'completedCount', value: stats.completed, color: 'text-emerald-400' },
     { labelKey: 'pendingCount', value: stats.pending, color: 'text-amber-400' },
     { labelKey: 'cancelledCount', value: stats.cancelled, color: 'text-red-400' },
-    { labelKey: 'todayRevenue', value: `${stats.revenue} ر.س`, color: 'text-blue-400' },
+    { labelKey: 'todayRevenue', value: stats.revenue.toLocaleString('en-US'), color: 'text-blue-400' },
   ];
 
   function handleCancelConfirm(id: string, reason: string) {
@@ -76,7 +76,7 @@ export function OrdersPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         {statsConfig.map(stat => (
           <div key={stat.labelKey} className="bg-[#141720] border border-[#1e2130] rounded-xl p-4">
             <p className="text-xs text-slate-500 mb-1">{t(stat.labelKey as any)}</p>

@@ -71,7 +71,7 @@ export function ReportsPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label={t('totalRevenue')}
-          value={revLoading ? '...' : `${summary?.total_revenue?.toLocaleString() ?? 0} ر.س`}
+          value={revLoading ? '...' : (summary?.total_revenue ?? 0).toLocaleString('en-US')}
           icon={TrendingUp}
           color="bg-emerald-600"
         />
@@ -89,7 +89,7 @@ export function ReportsPage() {
         />
         <StatCard
           label={t('totalExpenses')}
-          value={expLoading ? '...' : `${(expenses as any)?.summary?.total_expenses?.toLocaleString() ?? 0} ر.س`}
+          value={expLoading ? '...' : ((expenses as any)?.summary?.total_expenses ?? 0).toLocaleString('en-US')}
           icon={TrendingDown}
           color="bg-red-600"
         />
@@ -123,7 +123,7 @@ export function ReportsPage() {
                 <span className="text-sm text-slate-400">{method}</span>
                 <div className="flex items-center gap-4 text-xs">
                   <span className="text-slate-500">{data.count} {t('orders')}</span>
-                  <span className="text-white font-medium">{data.total?.toLocaleString()} ر.س</span>
+                  <span className="text-white font-medium">{data.total?.toLocaleString('en-US')}</span>
                 </div>
               </div>
             ))}
@@ -142,7 +142,7 @@ export function ReportsPage() {
                 <span className="text-sm text-slate-400">{c.category}</span>
                 <div className="flex items-center gap-4 text-xs">
                   <span className="text-slate-500">{c.count} {t('items')}</span>
-                  <span className="text-white font-medium">{c.total?.toLocaleString()} ر.س</span>
+                  <span className="text-white font-medium">{c.total?.toLocaleString('en-US')}</span>
                 </div>
               </div>
             ))}

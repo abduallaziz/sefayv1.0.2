@@ -22,5 +22,17 @@
   "create": "Create",
   "saving": "Saving...",
   "processing": "Processing...",
-  "optional": "Optional"
+  "optional": "Optional",
+  "auth": {
+    "title": "Sign In",
+    "subtitle": "Enter your credentials to continue",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Sign In",
+    "emailPlaceholder": "example@company.com",
+    "passwordPlaceholder": "••••••••",
+    "emailInvalid": "Invalid email address",
+    "passwordShort": "Password is too short",
+    "invalidCredentials": "Invalid email or password"
+  }
 }
