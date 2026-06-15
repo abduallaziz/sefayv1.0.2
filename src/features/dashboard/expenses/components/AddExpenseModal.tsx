@@ -5,7 +5,6 @@ import { useCreateExpense, useExpenseCategories } from '../hooks/useExpenses'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { useQuery } from '@tanstack/react-query'
 import { apiClient } from '@/lib/api'
-import type { ExpenseType, RecurrenceType } from '../api/expenses.api'
 
 interface Props {
   onClose: () => void
@@ -28,9 +27,6 @@ export function AddExpenseModal({ onClose }: Props) {
     category_id: '',
     amount: '',
     description: '',
-    type: 'one_time' as ExpenseType,
-    recurrence: '' as RecurrenceType | '',
-    photo_url: '',
   })
 
   function handleSubmit() {
@@ -40,18 +36,15 @@ export function AddExpenseModal({ onClose }: Props) {
       category_id: form.category_id,
       amount: parseFloat(form.amount),
       description: form.description || undefined,
-      type: form.type,
-      recurrence: form.type === 'recurring' && form.recurrence ? form.recurrence as RecurrenceType : undefined,
-      photo_url: form.photo_url || undefined,
+      type: 'one_time',
     }, { onSuccess: onClose })
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="bg-[#0d1117] border border-[#1e2130] rounded-xl w-full max-w-md p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+      <div className="bg-[#0d1117] border border-[#1e2130] rounded-xl w-full max-w-md p-6 space-y-4">
         <h2 className="text-base font-semibold text-white">إضافة مصروف</h2>
 
-        {/* Category */}
         <div>
           <label className="text-xs text-slate-400 mb-1 block">الفئة <span className="text-red-400">*</span></label>
           <select
@@ -66,7 +59,6 @@ export function AddExpenseModal({ onClose }: Props) {
           </select>
         </div>
 
-        {/* Amount */}
         <div>
           <label className="text-xs text-slate-400 mb-1 block">المبلغ <span className="text-red-400">*</span></label>
           <input
@@ -77,7 +69,6 @@ export function AddExpenseModal({ onClose }: Props) {
           />
         </div>
 
-        {/* Description */}
         <div>
           <label className="text-xs text-slate-400 mb-1 block">الوصف (اختياري)</label>
           <input
@@ -88,54 +79,6 @@ export function AddExpenseModal({ onClose }: Props) {
           />
         </div>
 
-        {/* Type */}
-        <div>
-          <label className="text-xs text-slate-400 mb-1 block">النوع <span className="text-red-400">*</span></label>
-          <div className="grid grid-cols-2 gap-2">
-            {(['one_time', 'recurring'] as ExpenseType[]).map(t => (
-              <button
-                key={t}
-                onClick={() => setForm(p => ({ ...p, type: t, recurrence: '' }))}
-                className={`py-2 rounded-lg text-sm border transition-all ${
-                  form.type === t
-                    ? 'border-blue-500 bg-blue-500/10 text-blue-400'
-                    : 'border-[#1e2130] text-slate-400 hover:text-white'
-                }`}
-              >
-                {t === 'one_time' ? 'مرة واحدة' : 'متكرر'}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Recurrence */}
-        {form.type === 'recurring' && (
-          <div>
-            <label className="text-xs text-slate-400 mb-1 block">التكرار <span className="text-red-400">*</span></label>
-            <div className="grid grid-cols-2 gap-2">
-              {([
-                { value: 'daily', label: 'يومي' },
-                { value: 'weekly', label: 'أسبوعي' },
-                { value: 'monthly', label: 'شهري' },
-                { value: 'yearly', label: 'سنوي' },
-              ] as const).map(r => (
-                <button
-                  key={r.value}
-                  onClick={() => setForm(p => ({ ...p, recurrence: r.value }))}
-                  className={`py-2 rounded-lg text-sm border transition-all ${
-                    form.recurrence === r.value
-                      ? 'border-blue-500 bg-blue-500/10 text-blue-400'
-                      : 'border-[#1e2130] text-slate-400 hover:text-white'
-                  }`}
-                >
-                  {r.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Created By */}
         <div>
           <label className="text-xs text-slate-400 mb-1 block">أضيف بواسطة</label>
           <div className="px-3 py-2 text-sm bg-[#0d1117] border border-[#1e2130] text-slate-500 rounded-lg">
@@ -149,7 +92,7 @@ export function AddExpenseModal({ onClose }: Props) {
           </button>
           <button
             onClick={handleSubmit}
-            disabled={!form.category_id || !form.amount || (form.type === 'recurring' && !form.recurrence) || mutation.isPending}
+            disabled={!form.category_id || !form.amount || mutation.isPending}
             className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg text-sm font-medium"
           >
             {mutation.isPending ? '...' : 'إضافة'}

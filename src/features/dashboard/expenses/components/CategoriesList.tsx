@@ -1,15 +1,30 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, Trash2 } from 'lucide-react'
+import { Plus, Trash2, Pencil, Check, X } from 'lucide-react'
 import { useExpenseCategories, useDeleteCategory, useUpdateCategory } from '../hooks/useExpenses'
 import { AddCategoryModal } from './AddCategoryModal'
+import type { ExpenseCategory } from '../api/expenses.api'
 
 export function CategoriesList() {
   const { data: categories = [], isLoading } = useExpenseCategories()
   const deleteMutation = useDeleteCategory()
   const updateMutation = useUpdateCategory()
   const [showAdd, setShowAdd] = useState(false)
+  const [editId, setEditId] = useState<string | null>(null)
+  const [editName, setEditName] = useState('')
+
+  function startEdit(cat: ExpenseCategory) {
+    setEditId(cat.id)
+    setEditName(cat.name)
+  }
+
+  function saveEdit(id: string) {
+    if (!editName.trim()) return
+    updateMutation.mutate({ id, dto: { name: editName.trim() } }, {
+      onSuccess: () => setEditId(null)
+    })
+  }
 
   return (
     <>
@@ -44,7 +59,19 @@ export function CategoriesList() {
             <tbody>
               {categories.map((cat) => (
                 <tr key={cat.id} className="border-b border-[#1e2130] last:border-0 hover:bg-white/[0.02]">
-                  <td className="px-4 py-3 text-white font-medium">{cat.name}</td>
+                  <td className="px-4 py-3">
+                    {editId === cat.id ? (
+                      <input
+                        value={editName}
+                        onChange={e => setEditName(e.target.value)}
+                        onKeyDown={e => e.key === 'Enter' && saveEdit(cat.id)}
+                        autoFocus
+                        className="px-2 py-1 text-sm bg-[#0d1117] border border-blue-500 text-white rounded-lg focus:outline-none w-40"
+                      />
+                    ) : (
+                      <span className="text-white font-medium">{cat.name}</span>
+                    )}
+                  </td>
                   <td className="px-4 py-3 text-center">
                     <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium border ${
                       cat.is_active
@@ -56,18 +83,43 @@ export function CategoriesList() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2 justify-end">
-                      <button
-                        onClick={() => updateMutation.mutate({ id: cat.id, dto: { is_active: !cat.is_active } })}
-                        className="px-3 py-1 rounded-lg text-xs border border-[#1e2130] text-slate-400 hover:text-white hover:bg-white/5"
-                      >
-                        {cat.is_active ? 'تعطيل' : 'تفعيل'}
-                      </button>
-                      <button
-                        onClick={() => deleteMutation.mutate(cat.id)}
-                        className="p-1.5 rounded-lg hover:bg-red-500/10 text-slate-500 hover:text-red-400"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      {editId === cat.id ? (
+                        <>
+                          <button
+                            onClick={() => saveEdit(cat.id)}
+                            className="p-1.5 rounded-lg hover:bg-emerald-500/10 text-slate-500 hover:text-emerald-400"
+                          >
+                            <Check className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => setEditId(null)}
+                            className="p-1.5 rounded-lg hover:bg-slate-500/10 text-slate-500 hover:text-white"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => startEdit(cat)}
+                            className="p-1.5 rounded-lg hover:bg-white/5 text-slate-500 hover:text-white"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => updateMutation.mutate({ id: cat.id, dto: { is_active: !cat.is_active } })}
+                            className="px-3 py-1 rounded-lg text-xs border border-[#1e2130] text-slate-400 hover:text-white hover:bg-white/5"
+                          >
+                            {cat.is_active ? 'تعطيل' : 'تفعيل'}
+                          </button>
+                          <button
+                            onClick={() => deleteMutation.mutate(cat.id)}
+                            className="p-1.5 rounded-lg hover:bg-red-500/10 text-slate-500 hover:text-red-400"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>
