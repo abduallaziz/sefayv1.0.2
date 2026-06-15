@@ -73,15 +73,15 @@ export default getRequestConfig(async ({ requestLocale }) => {
       ...dashboard,
     },
     orders,
-    pos,
     items,
     settings,
     shifts,
-    ...legacyRoot,
-    ...legacyItems,
     reports,
     customers,
-    expenses,  // بعد legacyRoot
+    expenses,
+    pos,        // بعد legacyRoot عشان ما يتغطى
+    ...legacyRoot,
+    ...legacyItems,
   }
 }
 })
