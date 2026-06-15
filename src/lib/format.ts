@@ -4,8 +4,8 @@ export const formatNumber = (value: number, decimals = 2): string =>
     maximumFractionDigits: decimals,
   });
 
-export const formatCurrency = (value: number): string =>
-  `${formatNumber(value)} ر.س`;
+export const formatCurrency = (value: number, currency = '⃁'): string =>
+  `${formatNumber(value)} ${currency}`;
 
 export const formatDate = (date: string): string =>
   new Date(date).toLocaleDateString('en-US', {

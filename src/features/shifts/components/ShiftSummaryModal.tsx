@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useShiftSummary } from '../hooks/useShifts';
+import { useTenantStore } from '@/core/tenant/stores/tenant.store';
 import { TrendingUp, TrendingDown, DollarSign, FileText, X } from 'lucide-react';
 import { formatCurrency } from '@/lib/format';
 
@@ -12,6 +13,7 @@ interface Props {
 
 export function ShiftSummaryModal({ shiftId, onClose }: Props) {
   const t = useTranslations('shifts');
+  const currency = useTenantStore((s) => s.currency_symbol);
   const { data, isLoading } = useShiftSummary(shiftId);
   const summary = data?.summary;
 
@@ -30,20 +32,20 @@ export function ShiftSummaryModal({ shiftId, onClose }: Props) {
         ) : summary ? (
           <div className="space-y-1">
             <Row icon={FileText} label={t('total_invoices')} value={String(summary.totalInvoices)} />
-            <Row icon={TrendingUp} label={t('total_sales')} value={formatCurrency(summary.totalRevenue)} color="green" />
-            <Row icon={DollarSign} label={t('cash_sales')} value={formatCurrency(summary.totalCash)} />
-            <Row icon={DollarSign} label={t('card_sales')} value={formatCurrency(summary.totalCard)} />
-            <Row icon={TrendingDown} label={t('total_expenses')} value={formatCurrency(summary.totalExpenses)} color="red" />
+            <Row icon={TrendingUp} label={t('total_sales')} value={formatCurrency(summary.totalRevenue, currency)} color="green" />
+            <Row icon={DollarSign} label={t('cash_sales')} value={formatCurrency(summary.totalCash, currency)} />
+            <Row icon={DollarSign} label={t('card_sales')} value={formatCurrency(summary.totalCard, currency)} />
+            <Row icon={TrendingDown} label={t('total_expenses')} value={formatCurrency(summary.totalExpenses, currency)} color="red" />
 
             <div className="border-t border-[#1e2130] pt-3 mt-3 space-y-1">
-              <Row icon={DollarSign} label={t('opening_cash')} value={formatCurrency(summary.openingCash)} />
-              <Row icon={DollarSign} label={t('closing_cash')} value={formatCurrency(summary.closingCash ?? 0)} />
-              <Row icon={DollarSign} label={t('expected_cash')} value={formatCurrency(summary.expectedCash)} />
+              <Row icon={DollarSign} label={t('opening_cash')} value={formatCurrency(summary.openingCash, currency)} />
+              <Row icon={DollarSign} label={t('closing_cash')} value={formatCurrency(summary.closingCash ?? 0, currency)} />
+              <Row icon={DollarSign} label={t('expected_cash')} value={formatCurrency(summary.expectedCash, currency)} />
               {summary.discrepancy !== null && (
                 <Row
                   icon={DollarSign}
                   label={t('discrepancy')}
-                  value={formatCurrency(Math.abs(summary.discrepancy))}
+                  value={formatCurrency(Math.abs(summary.discrepancy), currency)}
                   color={summary.discrepancy === 0 ? 'green' : 'red'}
                   prefix={summary.discrepancy > 0 ? '+' : summary.discrepancy < 0 ? '-' : ''}
                 />
