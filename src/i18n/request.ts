@@ -79,9 +79,9 @@ export default getRequestConfig(async ({ requestLocale }) => {
     reports,
     customers,
     expenses,
-    pos,        // بعد legacyRoot عشان ما يتغطى
     ...legacyRoot,
     ...legacyItems,
+    pos,        // آخر شيء — لا يتغطى
   }
 }
 })
