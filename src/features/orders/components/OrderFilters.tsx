@@ -57,12 +57,14 @@ export function OrderFilters({ filters, onChange }: Props) {
 
       <input
         type="date"
+        dir="ltr"
         value={filters.date_from || ''}
         onChange={e => onChange({ ...filters, date_from: e.target.value })}
         className="border border-[#1e2130] rounded-lg px-3 py-2 text-sm bg-[#141720] text-white focus:outline-none focus:border-blue-500"
       />
       <input
         type="date"
+        dir="ltr"
         value={filters.date_to || ''}
         onChange={e => onChange({ ...filters, date_to: e.target.value })}
         className="border border-[#1e2130] rounded-lg px-3 py-2 text-sm bg-[#141720] text-white focus:outline-none focus:border-blue-500"
