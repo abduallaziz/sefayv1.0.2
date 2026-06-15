@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
+import { useTenantStore } from '@/core/tenant/stores/tenant.store'
 import { POSItem, POSVariant } from '../types/pos.types'
 import { useItems, useCategories, useItemVariants } from '@/features/items/hooks/useItems'
 
@@ -16,7 +17,7 @@ function VariantModal({ item, onAddItem, onClose, t }: {
   t: any
 }) {
   const { data: variants = [], isLoading } = useItemVariants(item.id)
-  const currency = t('currency')
+  const currency = useTenantStore((s) => s.currency_symbol)
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
@@ -69,7 +70,7 @@ function VariantModal({ item, onAddItem, onClose, t }: {
 
 export function ItemGrid({ onAddItem }: Props) {
   const t = useTranslations('pos')
-  const currency = t('currency')
+  const currency = useTenantStore((s) => s.currency_symbol)
   const [search, setSearch] = useState('')
   const [activeCategory, setActiveCategory] = useState('all')
   const [variantModal, setVariantModal] = useState<POSItem | null>(null)

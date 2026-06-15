@@ -36,17 +36,24 @@ export function SettingsPage() {
   }
 
   function handleSaveCurrency() {
-    const cur = CURRENCIES.find(c => c.code === selectedCurrency)
-    if (!cur) return
-    updateProfile(
-      { currency_code: cur.code, currency_symbol: cur.symbol },
-      {
-        onSuccess: () => {
-          setCurrency(cur.code, cur.symbol)
-        }
+  const cur = CURRENCIES.find(c => c.code === selectedCurrency)
+  console.log('saving currency:', cur)
+  if (!cur) return
+  updateProfile(
+    { currency_code: cur.code, currency_symbol: cur.symbol },
+    {
+      onSuccess: (data) => {
+        console.log('success:', data)
+        setCurrency(cur.code, cur.symbol)
+      },
+      onError: (err) => {
+        console.log('error:', err)
       }
-    )
-  }
+    }
+  )
+}
+
+console.log('currency_code:', currency_code, 'selected:', selectedCurrency)
 
   return (
     <div className="space-y-6 max-w-3xl">

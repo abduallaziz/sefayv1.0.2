@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useShifts } from '../hooks/useShifts';
+import { useTenantStore } from '@/core/tenant/stores/tenant.store';
 import { formatCurrency, formatDateTime } from '@/lib/format';
 import type { Shift } from '../types';
 
@@ -46,13 +47,14 @@ export function ShiftsList({ onViewSummary }: Props) {
 
 function ShiftRow({ shift, onViewSummary }: { shift: Shift; onViewSummary: (id: string) => void }) {
   const t = useTranslations('shifts');
+  const currency = useTenantStore((s) => s.currency_symbol);
 
   return (
     <tr className="border-b border-[#1e2130] last:border-0 hover:bg-white/[0.02] transition-colors">
       <td className="py-3 px-4 text-white">{shift.cashier_name ?? shift.cashier_id}</td>
       <td className="py-3 px-4 text-slate-400">{formatDateTime(shift.opened_at)}</td>
       <td className="py-3 px-4 text-slate-400">{shift.closed_at ? formatDateTime(shift.closed_at) : '—'}</td>
-      <td className="py-3 px-4 text-slate-400">{formatCurrency(shift.opening_cash)}</td>
+      <td className="py-3 px-4 text-slate-400">{formatCurrency(shift.opening_cash, currency)}</td>
       <td className="py-3 px-4">
         <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
           shift.status === 'open'

@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { useTenantStore } from '@/core/tenant/stores/tenant.store';
 import { Edit, Trash2, Layers, ToggleLeft, ToggleRight } from 'lucide-react';
 import { Item } from '../types/item.types';
 
@@ -14,6 +15,7 @@ interface Props {
 
 export function ItemsTable({ items, onEdit, onDelete, onVariants, onToggleActive }: Props) {
   const t = useTranslations('items');
+  const currency = useTenantStore((s) => s.currency_symbol);
 
   const typeColors: Record<string, string> = {
     product: 'bg-blue-500/10 text-blue-400',
@@ -53,7 +55,7 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onToggleActive
                 </span>
               </td>
               <td className="px-4 py-3 text-slate-400">{item.category_name ?? '—'}</td>
-              <td className="px-4 py-3 font-semibold text-white">{item.price.toLocaleString('en-US')} {t('currency')}</td>
+              <td className="px-4 py-3 font-semibold text-white">{item.price.toLocaleString('en-US')} {currency}</td>
               <td className="px-4 py-3">
                 {item.has_variants ? (
                   <button

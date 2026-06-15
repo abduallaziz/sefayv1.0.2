@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
+import { useTenantStore } from '@/core/tenant/stores/tenant.store'
 import { Cart } from '../types/pos.types'
 
 interface Props {
@@ -17,7 +18,7 @@ const fmt = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2,
 
 export function CartPanel({ cart, onUpdateQty, onRemoveItem, onApplyDiscount, onCheckout, onClear }: Props) {
   const t = useTranslations('pos')
-  const currency = t('currency')
+  const currency = useTenantStore((s) => s.currency_symbol)
   const [showDiscount, setShowDiscount] = useState(false)
   const [discountInput, setDiscountInput] = useState('')
   const [discountType, setDiscountType] = useState<'percentage' | 'fixed'>('percentage')

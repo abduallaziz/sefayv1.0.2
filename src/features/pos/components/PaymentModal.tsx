@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
+import { useTenantStore } from '@/core/tenant/stores/tenant.store'
 import { Cart, PaymentData, PaymentMethod } from '../types/pos.types'
 
 interface Props {
@@ -13,7 +14,7 @@ interface Props {
 
 export function PaymentModal({ cart, onConfirm, onClose, isSubmitting }: Props) {
   const t = useTranslations('pos')
-  const currency = t('currency')
+  const currency = useTenantStore((s) => s.currency_symbol)
   const [method, setMethod] = useState<PaymentMethod>('cash')
   const [cashTendered, setCashTendered] = useState(cart.total.toFixed(2))
   const [splitCash, setSplitCash] = useState('')

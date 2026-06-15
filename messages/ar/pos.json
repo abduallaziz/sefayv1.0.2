@@ -1,11 +1,11 @@
 {
   "title": "نقطة البيع",
-  "currency": "⃁",
   "search": "بحث عن منتج...",
   "allCategories": "الكل",
   "currentOrder": "الطلب الحالي",
   "clearAll": "مسح الكل",
   "noItems": "لا توجد منتجات",
+  "loading": "جاري التحميل...",
   "subtotal": "المجموع الجزئي",
   "discount": "الخصم",
   "tax": "ضريبة القيمة المضافة",

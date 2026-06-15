@@ -1,11 +1,11 @@
 {
   "title": "Point of Sale",
-  "currency": "⃁",
   "search": "Search items...",
   "allCategories": "All",
   "currentOrder": "Current Order",
   "clearAll": "Clear All",
   "noItems": "No items",
+  "loading": "Loading...",
   "subtotal": "Subtotal",
   "discount": "Discount",
   "tax": "VAT",
