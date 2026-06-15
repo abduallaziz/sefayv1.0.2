@@ -82,7 +82,9 @@ export function ExpensesList() {
                 const Icon = cfg.icon
                 return (
                   <tr key={row.id} className="border-b border-[#1e2130] last:border-0 hover:bg-white/[0.02]">
-                    <td className="px-4 py-3 text-white font-medium">{row.category?.name ?? '—'}</td>
+                    <td className="px-4 py-3 text-white font-medium">
+                      {((row as any).category?.name) ?? (row.title || row.notes?.split('|')[0]?.trim() || '—')}
+                    </td>
                     <td className="px-4 py-3 text-white font-semibold">{formatCurrency(row.amount)}</td>
                     <td className="px-4 py-3 text-slate-400 text-xs">
                       {typeLabel[row.type]}
