@@ -18,15 +18,19 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const t = useTranslations('common');
   const setCurrency = useTenantStore((s) => s.setCurrency);
+  const [profileLoaded, setProfileLoaded] = useState(false);
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || profileLoaded) return;
     settingsApi.getProfile().then((profile) => {
       if (profile.currency_code && profile.currency_symbol) {
         setCurrency(profile.currency_code, profile.currency_symbol);
       }
-    }).catch(() => {});
-  }, [isAuthenticated, setCurrency]);
+      setProfileLoaded(true);
+    }).catch(() => {
+      setProfileLoaded(true);
+    });
+  }, [isAuthenticated]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (isLoading) {
     return (

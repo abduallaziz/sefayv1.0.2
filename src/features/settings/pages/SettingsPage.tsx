@@ -24,24 +24,28 @@ export function SettingsPage() {
   const { data: usage, isLoading: usageLoading } = useUsage()
   const { mutate: updateProfile, isPending } = useUpdateProfile()
 
-  const { currency_code, currency_symbol, setCurrency } = useTenantStore()
+  const { currency_code, setCurrency } = useTenantStore()
   const [name, setName] = useState('')
   const [selectedCurrency, setSelectedCurrency] = useState(currency_code)
 
   const sub = (subscriptionData as any)?.subscription
 
-  function handleSave() {
-    const updates: any = {}
-    if (name.trim()) updates.name = name.trim()
+  function handleSaveName() {
+    if (!name.trim()) return
+    updateProfile({ name: name.trim() })
+  }
+
+  function handleSaveCurrency() {
     const cur = CURRENCIES.find(c => c.code === selectedCurrency)
-    if (cur && cur.code !== currency_code) {
-      updates.currency_code = cur.code
-      updates.currency_symbol = cur.symbol
-      setCurrency(cur.code, cur.symbol)
-    }
-    if (Object.keys(updates).length > 0) {
-      updateProfile(updates)
-    }
+    if (!cur) return
+    updateProfile(
+      { currency_code: cur.code, currency_symbol: cur.symbol },
+      {
+        onSuccess: () => {
+          setCurrency(cur.code, cur.symbol)
+        }
+      }
+    )
   }
 
   return (
@@ -80,8 +84,8 @@ export function SettingsPage() {
               />
             </div>
             <button
-              onClick={handleSave}
-              disabled={isPending}
+              onClick={handleSaveName}
+              disabled={isPending || !name.trim()}
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-lg text-sm text-white transition-colors"
             >
               <Save className="w-4 h-4" />
@@ -114,7 +118,7 @@ export function SettingsPage() {
           ))}
         </div>
         <button
-          onClick={handleSave}
+          onClick={handleSaveCurrency}
           disabled={isPending || selectedCurrency === currency_code}
           className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-lg text-sm text-white transition-colors"
         >
