@@ -1,26 +1,29 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { expensesApi, CreateExpenseDto, ExpenseTemplate } from '../api/expenses.api';
+import { expensesApi, CreateExpenseDto, CreateCategoryDto } from '../api/expenses.api';
 
 const KEYS = {
   all: ['expenses'] as const,
-  templates: ['expenses', 'templates'] as const,
   stats: ['expenses', 'stats'] as const,
+  categories: ['expense-categories'] as const,
 };
 
 export const useExpenses = () =>
-  useQuery({ queryKey: KEYS.all, queryFn: expensesApi.getAll });
-
-export const useExpenseTemplates = () =>
-  useQuery({ queryKey: KEYS.templates, queryFn: expensesApi.getTemplates });
+  useQuery({ queryKey: KEYS.all, queryFn: expensesApi.getAll, staleTime: 0 });
 
 export const useExpenseStats = () =>
   useQuery({ queryKey: KEYS.stats, queryFn: expensesApi.getStats });
+
+export const useExpenseCategories = () =>
+  useQuery({ queryKey: KEYS.categories, queryFn: expensesApi.getCategories });
 
 export const useCreateExpense = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (dto: CreateExpenseDto) => expensesApi.create(dto),
-    onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.all }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: KEYS.all });
+      qc.invalidateQueries({ queryKey: KEYS.stats });
+    },
   });
 };
 
@@ -28,7 +31,10 @@ export const useApproveExpense = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => expensesApi.approve(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.all }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: KEYS.all });
+      qc.invalidateQueries({ queryKey: KEYS.stats });
+    },
   });
 };
 
@@ -37,32 +43,34 @@ export const useRejectExpense = () => {
   return useMutation({
     mutationFn: ({ id, reason }: { id: string; reason?: string }) =>
       expensesApi.reject(id, reason),
-    onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.all }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: KEYS.all });
+      qc.invalidateQueries({ queryKey: KEYS.stats });
+    },
   });
 };
 
-export const useCreateTemplate = () => {
+export const useCreateCategory = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (dto: Omit<ExpenseTemplate, 'id' | 'tenant_id' | 'deleted_at' | 'created_at' | 'updated_at'>) =>
-      expensesApi.createTemplate(dto),
-    onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.templates }),
+    mutationFn: (dto: CreateCategoryDto) => expensesApi.createCategory(dto),
+    onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.categories }),
   });
 };
 
-export const useUpdateTemplate = () => {
+export const useUpdateCategory = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, dto }: { id: string; dto: Partial<Omit<ExpenseTemplate, 'id' | 'tenant_id' | 'deleted_at' | 'created_at' | 'updated_at'>> }) =>
-      expensesApi.updateTemplate(id, dto),
-    onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.templates }),
+    mutationFn: ({ id, dto }: { id: string; dto: Partial<CreateCategoryDto & { is_active: boolean }> }) =>
+      expensesApi.updateCategory(id, dto),
+    onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.categories }),
   });
 };
 
-export const useDeleteTemplate = () => {
+export const useDeleteCategory = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => expensesApi.deleteTemplate(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.templates }),
+    mutationFn: (id: string) => expensesApi.deleteCategory(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.categories }),
   });
 };
