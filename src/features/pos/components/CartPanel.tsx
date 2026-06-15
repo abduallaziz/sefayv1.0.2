@@ -17,6 +17,7 @@ const fmt = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2,
 
 export function CartPanel({ cart, onUpdateQty, onRemoveItem, onApplyDiscount, onCheckout, onClear }: Props) {
   const t = useTranslations('pos')
+  const currency = t('currency')
   const [showDiscount, setShowDiscount] = useState(false)
   const [discountInput, setDiscountInput] = useState('')
   const [discountType, setDiscountType] = useState<'percentage' | 'fixed'>('percentage')
@@ -55,7 +56,7 @@ export function CartPanel({ cart, onUpdateQty, onRemoveItem, onApplyDiscount, on
                 {item.variant_name && (
                   <p className="text-xs text-slate-500">{item.variant_name}</p>
                 )}
-                <p className="text-xs text-blue-400 mt-0.5">{fmt(item.unit_price)}</p>
+                <p className="text-xs text-blue-400 mt-0.5">{fmt(item.unit_price)} {currency}</p>
               </div>
               <div className="flex items-center gap-1">
                 <button
@@ -73,7 +74,7 @@ export function CartPanel({ cart, onUpdateQty, onRemoveItem, onApplyDiscount, on
                 </button>
               </div>
               <div className="text-end">
-                <p className="text-sm font-bold text-white">{fmt(item.total_price)}</p>
+                <p className="text-sm font-bold text-white">{fmt(item.total_price)} {currency}</p>
                 <button onClick={() => onRemoveItem(item.id)} className="text-xs text-red-400 hover:text-red-300">×</button>
               </div>
             </div>
@@ -87,7 +88,7 @@ export function CartPanel({ cart, onUpdateQty, onRemoveItem, onApplyDiscount, on
           className="text-sm text-blue-400 hover:text-blue-300"
         >
           {cart.discount_amount > 0
-            ? `✓ ${t('discountApplied')}: −${fmt(cart.discount_amount)}`
+            ? `✓ ${t('discountApplied')}: −${fmt(cart.discount_amount)} ${currency}`
             : t('addDiscount')}
         </button>
 
@@ -133,21 +134,21 @@ export function CartPanel({ cart, onUpdateQty, onRemoveItem, onApplyDiscount, on
       <div className="space-y-1.5 text-sm border-t border-[#1e2130] pt-3 mb-3">
         <div className="flex justify-between text-slate-400">
           <span>{t('subtotal')}</span>
-          <span>{fmt(cart.subtotal)}</span>
+          <span>{fmt(cart.subtotal)} {currency}</span>
         </div>
         {cart.discount_amount > 0 && (
           <div className="flex justify-between text-emerald-400">
             <span>{t('discount')}</span>
-            <span>−{fmt(cart.discount_amount)}</span>
+            <span>−{fmt(cart.discount_amount)} {currency}</span>
           </div>
         )}
         <div className="flex justify-between text-slate-400">
           <span>{t('tax')}</span>
-          <span>{fmt(cart.tax_amount)}</span>
+          <span>{fmt(cart.tax_amount)} {currency}</span>
         </div>
         <div className="flex justify-between font-bold text-base pt-1 border-t border-[#1e2130]">
           <span className="text-white">{t('total')}</span>
-          <span className="text-blue-400">{fmt(cart.total)}</span>
+          <span className="text-blue-400">{fmt(cart.total)} {currency}</span>
         </div>
       </div>
 
@@ -156,7 +157,7 @@ export function CartPanel({ cart, onUpdateQty, onRemoveItem, onApplyDiscount, on
         disabled={cart.items.length === 0}
         onClick={onCheckout}
       >
-        {t('checkout')} — {fmt(cart.total)}
+        {t('checkout')} — {fmt(cart.total)} {currency}
       </button>
     </div>
   )

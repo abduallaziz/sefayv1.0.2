@@ -13,6 +13,7 @@ interface Props {
 
 export function PaymentModal({ cart, onConfirm, onClose, isSubmitting }: Props) {
   const t = useTranslations('pos')
+  const currency = t('currency')
   const [method, setMethod] = useState<PaymentMethod>('cash')
   const [cashTendered, setCashTendered] = useState(cart.total.toFixed(2))
   const [splitCash, setSplitCash] = useState('')
@@ -67,7 +68,7 @@ export function PaymentModal({ cart, onConfirm, onClose, isSubmitting }: Props) 
         <div className="p-5 space-y-4">
           <div className="bg-[#141720] rounded-xl p-4 text-center">
             <p className="text-sm text-slate-500">{t('payment.due')}</p>
-            <p className="text-3xl font-bold text-blue-400 mt-1">{fmt(cart.total)}</p>
+            <p className="text-3xl font-bold text-blue-400 mt-1">{fmt(cart.total)} {currency}</p>
           </div>
 
           <div className="grid grid-cols-3 gap-2">
@@ -101,7 +102,7 @@ export function PaymentModal({ cart, onConfirm, onClose, isSubmitting }: Props) 
               {change > 0 && (
                 <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3 text-center">
                   <p className="text-sm text-emerald-400">{t('payment.change')}</p>
-                  <p className="text-xl font-bold text-emerald-400">{fmt(change)}</p>
+                  <p className="text-xl font-bold text-emerald-400">{fmt(change)} {currency}</p>
                 </div>
               )}
             </div>
@@ -121,7 +122,7 @@ export function PaymentModal({ cart, onConfirm, onClose, isSubmitting }: Props) 
               {splitCard > 0 && (
                 <div className="flex justify-between text-sm bg-[#141720] rounded-lg p-3">
                   <span className="text-slate-400">{t('payment.splitCard')}</span>
-                  <span className="font-bold text-blue-400">{fmt(splitCard)}</span>
+                  <span className="font-bold text-blue-400">{fmt(splitCard)} {currency}</span>
                 </div>
               )}
             </div>

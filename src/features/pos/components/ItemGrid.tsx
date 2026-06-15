@@ -16,6 +16,7 @@ function VariantModal({ item, onAddItem, onClose, t }: {
   t: any
 }) {
   const { data: variants = [], isLoading } = useItemVariants(item.id)
+  const currency = t('currency')
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
@@ -31,7 +32,7 @@ function VariantModal({ item, onAddItem, onClose, t }: {
               className="flex justify-between items-center p-3 rounded-xl border border-[#1e2130] hover:border-blue-500 hover:bg-blue-500/5 transition-all"
             >
               <span className="font-medium text-white">{item.name_ar}</span>
-              <span className="text-blue-400 font-bold">{item.price.toLocaleString('en-US')} ر.س</span>
+              <span className="text-blue-400 font-bold">{item.price.toLocaleString('en-US')} {currency}</span>
             </button>
           ) : (
             variants.map((v: any) => (
@@ -49,7 +50,7 @@ function VariantModal({ item, onAddItem, onClose, t }: {
               >
                 <span className="font-medium text-white">{v.name}</span>
                 <span className="text-blue-400 font-bold">
-                  {(item.price + (v.price_adjustment ?? 0)).toLocaleString('en-US')} ر.س
+                  {(item.price + (v.price_adjustment ?? 0)).toLocaleString('en-US')} {currency}
                 </span>
               </button>
             ))
@@ -68,6 +69,7 @@ function VariantModal({ item, onAddItem, onClose, t }: {
 
 export function ItemGrid({ onAddItem }: Props) {
   const t = useTranslations('pos')
+  const currency = t('currency')
   const [search, setSearch] = useState('')
   const [activeCategory, setActiveCategory] = useState('all')
   const [variantModal, setVariantModal] = useState<POSItem | null>(null)
@@ -154,7 +156,7 @@ export function ItemGrid({ onAddItem }: Props) {
               )}
               <div className="mt-4">
                 <p className="font-medium text-sm text-white truncate">{item.name_ar}</p>
-                <p className="text-blue-400 font-bold text-base mt-2">{item.price.toLocaleString('en-US')} ر.س</p>
+                <p className="text-blue-400 font-bold text-base mt-2">{item.price.toLocaleString('en-US')} {currency}</p>
               </div>
             </button>
           ))}
