@@ -61,27 +61,30 @@ export default getRequestConfig(async ({ requestLocale }) => {
     loadLegacy(`${locale}/items`),
   ])
 
+  // استخرج legacyRoot بدون المفاتيح اللي عندنا namespaces مخصصة لها
+  const { shifts: _s, expenses: _e, customers: _c, ...legacyRootClean } = legacyRoot
+
   return {
-  locale,
-  messages: {
-    common,
-    shell,
-    superadmin,
-    users,
-    dashboard: {
-      ...(legacyDashboard?.dashboard ?? {}),
-      ...dashboard,
-    },
-    orders,
-    items,
-    settings,
-    shifts,
-    reports,
-    customers,
-    expenses,
-    ...legacyRoot,
-    ...legacyItems,
-    pos,        // آخر شيء — لا يتغطى
+    locale,
+    messages: {
+      ...legacyRootClean,
+      ...legacyItems,
+      common,
+      shell,
+      superadmin,
+      users,
+      dashboard: {
+        ...(legacyDashboard?.dashboard ?? {}),
+        ...dashboard,
+      },
+      orders,
+      items,
+      settings,
+      shifts,
+      reports,
+      customers,
+      expenses,
+      pos,
+    }
   }
-}
 })
