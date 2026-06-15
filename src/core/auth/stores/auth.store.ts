@@ -52,9 +52,9 @@ export const useAuthStore = create<AuthState>()(
       name: 'sefay-auth',
       partialize: (state) => ({
         user: state.user,
+        accessToken: state.accessToken,
         refreshToken: state.refreshToken,
         isAuthenticated: state.isAuthenticated,
-        // accessToken لا يُحفظ — يتجدد عبر refresh
       }),
     }
   )
