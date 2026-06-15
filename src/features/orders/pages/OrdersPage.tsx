@@ -9,9 +9,13 @@ import { OrderDetailsModal } from '../components/OrderDetailsModal';
 import { CancelOrderModal } from '../components/CancelOrderModal';
 import { useTranslations } from 'next-intl';
 import { FileText } from 'lucide-react';
+import { useTenantStore } from '@/core/tenant/stores/tenant.store';
+
+
 
 export function OrdersPage() {
   const t = useTranslations('orders');
+  const currency = useTenantStore((s) => s.currency_symbol);
   const [filters, setFilters] = useState<IOrderFilters>({});
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [cancelTarget, setCancelTarget] = useState<Order | null>(null);
@@ -49,7 +53,7 @@ export function OrdersPage() {
     { labelKey: 'completedCount', value: stats.completed, color: 'text-emerald-400' },
     { labelKey: 'pendingCount', value: stats.pending, color: 'text-amber-400' },
     { labelKey: 'cancelledCount', value: stats.cancelled, color: 'text-red-400' },
-    { labelKey: 'todayRevenue', value: stats.revenue.toLocaleString('en-US'), color: 'text-blue-400' },
+    { labelKey: 'todayRevenue', value: `${stats.revenue.toLocaleString('en-US')} ${currency}`, color: 'text-blue-400' },
   ];
 
   function handleCancelConfirm(id: string, reason: string) {
