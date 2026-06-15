@@ -17,6 +17,14 @@ const statusConfig: Record<ExpenseStatus, { label: string; color: string; icon: 
   expired:  { label: 'expired',  color: 'bg-slate-500/10 text-slate-400 border-slate-500/20', icon: AlertCircle },
 }
 
+function getExpenseTitle(row: Expense): string {
+  if (row.template?.name) return row.template.name
+  if (row.title && row.title.length > 2) return row.title
+  const note = row.notes?.split('|')[0]?.trim()
+  if (note && note.length > 2) return note
+  return '—'
+}
+
 export function ExpenseRequestsList() {
   const t = useTranslations('expenses')
   const { user } = useAuthStore()
@@ -105,10 +113,10 @@ export function ExpenseRequestsList() {
                 const Icon = cfg.icon
                 return (
                   <tr key={row.id} className="border-b border-[#1e2130] last:border-0 hover:bg-white/[0.02]">
-                    <td className="px-4 py-3 text-white font-medium">{row.template?.name ?? row.title ?? '—'}</td>
+                    <td className="px-4 py-3 text-white font-medium">{getExpenseTitle(row)}</td>
                     <td className="px-4 py-3 text-slate-400">{row.requester?.name ?? '—'}</td>
                     <td className="px-4 py-3 text-white font-semibold">{formatCurrency(row.amount)}</td>
-                    <td className="px-4 py-3 text-slate-500 text-xs">{row.notes ?? '—'}</td>
+                    <td className="px-4 py-3 text-slate-500 text-xs max-w-[150px] truncate">{row.notes?.split('|')[0]?.trim() ?? '—'}</td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-xs font-medium ${cfg.color}`}>
                         <Icon className="w-3 h-3" />
@@ -146,7 +154,6 @@ export function ExpenseRequestsList() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
           <div className="bg-[#0d1117] border border-[#1e2130] rounded-xl w-full max-w-md p-6 space-y-4">
             <h2 className="text-base font-semibold text-white">{t('actions.newRequest')}</h2>
-
             <div>
               <label className="text-xs text-slate-400 mb-1 block">{t('table.amount')}</label>
               <input
@@ -158,7 +165,6 @@ export function ExpenseRequestsList() {
                 className="w-full px-3 py-2 text-sm bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500"
               />
             </div>
-
             <div>
               <label className="text-xs text-slate-400 mb-1 block">{t('template.name')}</label>
               <select
@@ -167,12 +173,11 @@ export function ExpenseRequestsList() {
                 className="w-full px-3 py-2 text-sm bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500"
               >
                 <option value="">— بدون قالب —</option>
-                {templates.map(t => (
-                  <option key={t.id} value={t.id}>{t.name}</option>
+                {templates.map(tmpl => (
+                  <option key={tmpl.id} value={tmpl.id}>{tmpl.name}</option>
                 ))}
               </select>
             </div>
-
             <div>
               <label className="text-xs text-slate-400 mb-1 block">{t('table.note')}</label>
               <textarea
@@ -182,7 +187,6 @@ export function ExpenseRequestsList() {
                 className="w-full px-3 py-2 text-sm bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500 resize-none"
               />
             </div>
-
             <div className="flex gap-3 pt-2">
               <button
                 onClick={() => setShowAdd(false)}
@@ -207,7 +211,7 @@ export function ExpenseRequestsList() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
           <div className="bg-[#0d1117] border border-[#1e2130] rounded-xl w-full max-w-md p-6 space-y-4">
             <h2 className="text-base font-semibold text-white">{t('reject.title')}</h2>
-            <p className="text-sm text-slate-400">{rejectTarget.title} — {formatCurrency(rejectTarget.amount)}</p>
+            <p className="text-sm text-slate-400">{getExpenseTitle(rejectTarget)} — {formatCurrency(rejectTarget.amount)}</p>
             <div>
               <label className="text-xs text-slate-400 mb-1 block">{t('reject.reason')}</label>
               <textarea
