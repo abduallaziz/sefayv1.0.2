@@ -5,18 +5,10 @@ import { useCreateExpense, useExpenseCategories } from '../hooks/useExpenses'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { useQuery } from '@tanstack/react-query'
 import { apiClient } from '@/lib/api'
-import type { RecurrenceType } from '../api/expenses.api'
 
 interface Props {
   onClose: () => void
 }
-
-const RECURRENCE_OPTIONS: { value: RecurrenceType | ''; label: string }[] = [
-  { value: '', label: 'مرة واحدة' },
-  { value: 'daily', label: 'يومي' },
-  { value: 'weekly', label: 'أسبوعي' },
-  { value: 'monthly', label: 'شهري' },
-]
 
 export function AddExpenseModal({ onClose }: Props) {
   const { user } = useAuthStore()
@@ -31,12 +23,7 @@ export function AddExpenseModal({ onClose }: Props) {
 
   const branchId = user?.branchId ?? (branches as any)?.[0]?.id ?? ''
 
-  const [form, setForm] = useState({
-    category_id: '',
-    amount: '',
-    description: '',
-    recurrence: '' as RecurrenceType | '',
-  })
+  const [form, setForm] = useState({ category_id: '', amount: '', description: '' })
 
   function handleSubmit() {
     if (!form.category_id || !form.amount || !branchId) return
@@ -45,8 +32,7 @@ export function AddExpenseModal({ onClose }: Props) {
       category_id: form.category_id,
       amount: parseFloat(form.amount),
       description: form.description || undefined,
-      type: form.recurrence ? 'recurring' : 'one_time',
-      recurrence: form.recurrence || undefined,
+      type: 'one_time',
     }, { onSuccess: onClose })
   }
 
@@ -90,19 +76,6 @@ export function AddExpenseModal({ onClose }: Props) {
             placeholder="سبب المصروف..."
             className={inputClass}
           />
-        </div>
-
-        <div>
-          <label className={labelClass}>التكرار</label>
-          <select
-            value={form.recurrence}
-            onChange={e => setForm(p => ({ ...p, recurrence: e.target.value as RecurrenceType | '' }))}
-            className={inputClass}
-          >
-            {RECURRENCE_OPTIONS.map(o => (
-              <option key={o.value} value={o.value}>{o.label}</option>
-            ))}
-          </select>
         </div>
 
         <div>
