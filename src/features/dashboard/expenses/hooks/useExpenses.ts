@@ -131,3 +131,12 @@ export const useDeleteExpenseTemplate = () => {
     onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.templates }),
   });
 };
+
+export const useCreateExpenseTemplate = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (dto: { name: string; default_amount?: number | null; expiry_hours?: number; requires_photo?: boolean }) =>
+      expensesApi.createTemplate(dto),
+    onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.templates }),
+  });
+};

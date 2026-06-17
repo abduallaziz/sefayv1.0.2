@@ -114,4 +114,7 @@ export const expensesApi = {
 
   deleteTemplate: (id: string): Promise<void> =>
   apiClient.delete<void>(`/expense-templates/${id}`),
+
+  createTemplate: (dto: { name: string; default_amount?: number | null; expiry_hours?: number; requires_photo?: boolean }): Promise<ExpenseTemplate> =>
+  apiClient.post<ExpenseTemplate>('/expense-templates', dto),
 };
