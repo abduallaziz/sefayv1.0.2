@@ -610,7 +610,81 @@
     "noData": "Unable to load data"
   },
   "comingSoon": {
-  "title": "Coming Soon",
-  "subtitle": "This feature will be available soon"
+    "title": "Coming Soon",
+    "subtitle": "This feature will be available soon"
+  },
+  "orders": {
+    "title": "Orders",
+    "subtitle": "Invoice and sales history",
+    "loading": "Loading...",
+    "searchPlaceholder": "Search by invoice ID or cashier...",
+    "dateFrom": "From Date",
+    "dateTo": "To Date",
+    "totalInvoices": "Total Invoices",
+    "completedCount": "Completed",
+    "pendingCount": "Pending",
+    "cancelledCount": "Cancelled",
+    "todayRevenue": "Revenue",
+    "status": {
+      "all": "All Status",
+      "completed": "Completed",
+      "pending": "Pending",
+      "cancelled": "Cancelled",
+      "refunded": "Refunded"
+    },
+    "payment_method": {
+      "all": "All Methods",
+      "cash": "Cash",
+      "card": "Card",
+      "split": "Split",
+      "wallet": "Wallet"
+    },
+    "table": {
+      "id": "Invoice ID",
+      "date": "Date",
+      "cashier": "Cashier",
+      "customer": "Customer",
+      "total": "Total",
+      "payment": "Payment Method",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "cancel": {
+      "title": "Cancel Invoice",
+      "reason": "Reason",
+      "reasonPlaceholder": "Reason for cancellation (optional)...",
+      "confirm": "Confirm Cancel",
+      "cancelling": "Cancelling..."
+    },
+    "details": {
+      "title": "Invoice Details",
+      "items": "Items",
+      "subtotal": "Subtotal",
+      "discount": "Discount",
+      "tax": "Tax",
+      "total": "Total",
+      "cancelOrder": "Cancel Invoice",
+      "close": "Close"
+    },
+    "noOrders": "No orders found"
+  },
+  "datePicker": {
+  "placeholder": "Select date range",
+  "selectEnd": "Select end date",
+  "clear": "Clear range",
+  "from": "From",
+  "to": "To",
+  "selectFrom": "Select start date",
+  "selectTo": "Select end date",
+  "presets": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "last7": "Last 7 days",
+    "last30": "Last 30 days",
+    "thisMonth": "This month",
+    "lastMonth": "Last month",
+    "last3months": "Last 3 months",
+    "thisYear": "This year"
+  }
 }
 }

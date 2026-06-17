@@ -2,6 +2,7 @@
 
 import { OrderFilters as IOrderFilters, OrderStatus, PaymentMethod } from '../types/order.types';
 import { useTranslations } from 'next-intl';
+import { DateRangePicker } from '@/shared/ui/date-range-picker';
 
 interface Props {
   filters: IOrderFilters;
@@ -25,20 +26,23 @@ export function OrderFilters({ filters, onChange }: Props) {
     { value: 'split', labelKey: 'payment_method.split' },
   ];
 
+  const inputClass =
+    'border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-slate-50 dark:bg-gray-950 text-slate-800 dark:text-white focus:outline-none focus:border-[#0C447C] dark:focus:border-blue-500';
+
   return (
-    <div className="flex flex-wrap gap-3 mb-4">
+    <div className="flex flex-wrap items-center gap-3 mb-4">
       <input
         type="text"
         placeholder={t('searchPlaceholder')}
         value={filters.search || ''}
         onChange={e => onChange({ ...filters, search: e.target.value })}
-        className="border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-slate-50 dark:bg-gray-950 text-slate-800 dark:text-white w-48 focus:outline-none focus:border-[#0C447C] dark:focus:border-blue-500 placeholder-slate-400 dark:placeholder-slate-600"
+        className={`${inputClass} w-48 placeholder-slate-400 dark:placeholder-slate-600`}
       />
 
       <select
         value={filters.status || ''}
         onChange={e => onChange({ ...filters, status: (e.target.value as OrderStatus) || undefined })}
-        className="border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-slate-50 dark:bg-gray-950 text-slate-800 dark:text-white focus:outline-none focus:border-[#0C447C] dark:focus:border-blue-500"
+        className={inputClass}
       >
         {statuses.map(s => (
           <option key={s.value} value={s.value}>{t(s.labelKey as any)}</option>
@@ -48,12 +52,17 @@ export function OrderFilters({ filters, onChange }: Props) {
       <select
         value={filters.payment_method || ''}
         onChange={e => onChange({ ...filters, payment_method: (e.target.value as PaymentMethod) || undefined })}
-        className="border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-slate-50 dark:bg-gray-950 text-slate-800 dark:text-white focus:outline-none focus:border-[#0C447C] dark:focus:border-blue-500"
+        className={inputClass}
       >
         {methods.map(m => (
           <option key={m.value} value={m.value}>{t(m.labelKey as any)}</option>
         ))}
       </select>
+
+      <DateRangePicker
+        value={{ from: filters.date_from, to: filters.date_to }}
+        onChange={range => onChange({ ...filters, date_from: range.from, date_to: range.to })}
+      />
     </div>
   );
 }
