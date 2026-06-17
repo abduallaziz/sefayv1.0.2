@@ -1,10 +1,10 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { useTranslations } from 'next-intl'
-import { useProfile, useSubscription, useUsage, useUpdateProfile } from '../hooks/useSettings'
-import { useTenantStore } from '@/core/tenant/stores/tenant.store'
-import { Building2, CreditCard, BarChart3, Save, Coins } from 'lucide-react'
+import { useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { useProfile, useSubscription, useUsage, useUpdateProfile } from '../hooks/useSettings';
+import { useTenantStore } from '@/core/tenant/stores/tenant.store';
+import { Building2, CreditCard, BarChart3, Save, Coins } from 'lucide-react';
 
 const CURRENCIES = [
   { code: 'SAR', symbol: '⃁', label: 'ريال سعودي' },
@@ -15,61 +15,52 @@ const CURRENCIES = [
   { code: 'BHD', symbol: 'د.ب', label: 'دينار بحريني' },
   { code: 'QAR', symbol: 'ر.ق', label: 'ريال قطري' },
   { code: 'OMR', symbol: 'ر.ع', label: 'ريال عماني' },
-]
+];
 
 export function SettingsPage() {
-  const t = useTranslations('settings')
-  const { data: profile, isLoading: profileLoading } = useProfile()
-  const { data: subscriptionData, isLoading: subLoading } = useSubscription()
-  const { data: usage, isLoading: usageLoading } = useUsage()
-  const { mutate: updateProfile, isPending } = useUpdateProfile()
+  const t = useTranslations('settings');
+  const { data: profile, isLoading: profileLoading } = useProfile();
+  const { data: subscriptionData, isLoading: subLoading } = useSubscription();
+  const { data: usage, isLoading: usageLoading } = useUsage();
+  const { mutate: updateProfile, isPending } = useUpdateProfile();
 
-  const { currency_code, setCurrency } = useTenantStore()
-  const [name, setName] = useState('')
-  const [selectedCurrency, setSelectedCurrency] = useState(currency_code)
+  const { currency_code, setCurrency } = useTenantStore();
+  const [name, setName] = useState('');
+  const [selectedCurrency, setSelectedCurrency] = useState(currency_code);
 
-  const sub = (subscriptionData as any)?.subscription
+  const sub = (subscriptionData as any)?.subscription;
 
   function handleSaveName() {
-    if (!name.trim()) return
-    updateProfile({ name: name.trim() })
+    if (!name.trim()) return;
+    updateProfile({ name: name.trim() });
   }
 
   function handleSaveCurrency() {
-  const cur = CURRENCIES.find(c => c.code === selectedCurrency)
-  console.log('saving currency:', cur)
-  if (!cur) return
-  updateProfile(
-    { currency_code: cur.code, currency_symbol: cur.symbol },
-    {
-      onSuccess: (data) => {
-        console.log('success:', data)
-        setCurrency(cur.code, cur.symbol)
-      },
-      onError: (err) => {
-        console.log('error:', err)
+    const cur = CURRENCIES.find(c => c.code === selectedCurrency);
+    if (!cur) return;
+    updateProfile(
+      { currency_code: cur.code, currency_symbol: cur.symbol },
+      {
+        onSuccess: () => setCurrency(cur.code, cur.symbol),
       }
-    }
-  )
-}
-
-console.log('currency_code:', currency_code, 'selected:', selectedCurrency)
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
-        <h1 className="text-xl font-bold text-white">{t('title')}</h1>
+        <h1 className="text-xl font-bold text-slate-800 dark:text-white">{t('title')}</h1>
         <p className="text-sm text-slate-500 mt-1">{t('subtitle')}</p>
       </div>
 
       {/* Profile */}
-      <div className="bg-[#141720] border border-[#1e2130] rounded-xl p-5 space-y-4">
+      <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-5 space-y-4">
         <div className="flex items-center gap-2 mb-2">
           <Building2 className="w-4 h-4 text-slate-400" />
-          <h2 className="text-sm font-semibold text-white">{t('profile')}</h2>
+          <h2 className="text-sm font-semibold text-slate-700 dark:text-white">{t('profile')}</h2>
         </div>
         {profileLoading ? (
-          <div className="h-10 bg-[#1e2130] rounded-lg animate-pulse" />
+          <div className="h-10 bg-slate-100 dark:bg-gray-800 rounded-lg animate-pulse" />
         ) : (
           <div className="space-y-3">
             <div>
@@ -78,7 +69,7 @@ console.log('currency_code:', currency_code, 'selected:', selectedCurrency)
                 type="text"
                 defaultValue={profile?.name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full bg-[#0f1117] border border-[#1e2130] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
+                className="w-full bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-[#0C447C] dark:focus:border-blue-500"
               />
             </div>
             <div>
@@ -87,13 +78,13 @@ console.log('currency_code:', currency_code, 'selected:', selectedCurrency)
                 type="text"
                 value={profile?.business_type ?? '—'}
                 disabled
-                className="w-full bg-[#0f1117] border border-[#1e2130] rounded-lg px-3 py-2 text-sm text-slate-500"
+                className="w-full bg-slate-100 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-400"
               />
             </div>
             <button
               onClick={handleSaveName}
               disabled={isPending || !name.trim()}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-lg text-sm text-white transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 rounded-lg text-sm text-white transition-colors"
             >
               <Save className="w-4 h-4" />
               {isPending ? t('saving') : t('save')}
@@ -103,10 +94,10 @@ console.log('currency_code:', currency_code, 'selected:', selectedCurrency)
       </div>
 
       {/* Currency */}
-      <div className="bg-[#141720] border border-[#1e2130] rounded-xl p-5 space-y-4">
+      <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-5 space-y-4">
         <div className="flex items-center gap-2 mb-2">
           <Coins className="w-4 h-4 text-slate-400" />
-          <h2 className="text-sm font-semibold text-white">العملة</h2>
+          <h2 className="text-sm font-semibold text-slate-700 dark:text-white">العملة</h2>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {CURRENCIES.map((cur) => (
@@ -115,8 +106,8 @@ console.log('currency_code:', currency_code, 'selected:', selectedCurrency)
               onClick={() => setSelectedCurrency(cur.code)}
               className={`flex flex-col items-center gap-1 p-3 rounded-xl border text-sm transition-all ${
                 selectedCurrency === cur.code
-                  ? 'border-blue-500 bg-blue-500/10 text-blue-400'
-                  : 'border-[#1e2130] text-slate-400 hover:border-blue-500/50'
+                  ? 'border-[#0C447C] bg-[#E8F1FB] dark:bg-[#0C447C]/20 text-[#0C447C] dark:text-[#B5D4F4]'
+                  : 'border-slate-200 dark:border-gray-700 text-slate-500 dark:text-slate-400 hover:border-[#0C447C]/50'
               }`}
             >
               <span className="text-lg font-bold">{cur.symbol}</span>
@@ -127,7 +118,7 @@ console.log('currency_code:', currency_code, 'selected:', selectedCurrency)
         <button
           onClick={handleSaveCurrency}
           disabled={isPending || selectedCurrency === currency_code}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-lg text-sm text-white transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 rounded-lg text-sm text-white transition-colors"
         >
           <Save className="w-4 h-4" />
           {isPending ? t('saving') : t('save')}
@@ -135,30 +126,30 @@ console.log('currency_code:', currency_code, 'selected:', selectedCurrency)
       </div>
 
       {/* Subscription */}
-      <div className="bg-[#141720] border border-[#1e2130] rounded-xl p-5 space-y-3">
+      <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-5 space-y-3">
         <div className="flex items-center gap-2 mb-2">
           <CreditCard className="w-4 h-4 text-slate-400" />
-          <h2 className="text-sm font-semibold text-white">{t('subscription')}</h2>
+          <h2 className="text-sm font-semibold text-slate-700 dark:text-white">{t('subscription')}</h2>
         </div>
         {subLoading ? (
-          <div className="h-10 bg-[#1e2130] rounded-lg animate-pulse" />
+          <div className="h-10 bg-slate-100 dark:bg-gray-800 rounded-lg animate-pulse" />
         ) : (
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-xs text-slate-500">{t('plan')}</p>
-              <p className="text-sm font-medium text-white mt-1">{sub?.plan_name ?? '—'}</p>
+              <p className="text-sm font-medium text-slate-800 dark:text-white mt-1">{sub?.plan_name ?? '—'}</p>
             </div>
             <div>
               <p className="text-xs text-slate-500">{t('status')}</p>
-              <p className="text-sm font-medium text-emerald-400 mt-1">{sub?.status ?? '—'}</p>
+              <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400 mt-1">{sub?.status ?? '—'}</p>
             </div>
             <div>
               <p className="text-xs text-slate-500">{t('interval')}</p>
-              <p className="text-sm font-medium text-white mt-1">{sub?.billing_cycle ?? '—'}</p>
+              <p className="text-sm font-medium text-slate-800 dark:text-white mt-1">{sub?.billing_cycle ?? '—'}</p>
             </div>
             <div>
               <p className="text-xs text-slate-500">{t('endsAt')}</p>
-              <p className="text-sm font-medium text-white mt-1">
+              <p className="text-sm font-medium text-slate-800 dark:text-white mt-1">
                 {sub?.expires_at ? new Date(sub.expires_at).toLocaleDateString('en-US') : '—'}
               </p>
             </div>
@@ -167,21 +158,21 @@ console.log('currency_code:', currency_code, 'selected:', selectedCurrency)
       </div>
 
       {/* Usage */}
-      <div className="bg-[#141720] border border-[#1e2130] rounded-xl p-5 space-y-3">
+      <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-5 space-y-3">
         <div className="flex items-center gap-2 mb-2">
           <BarChart3 className="w-4 h-4 text-slate-400" />
-          <h2 className="text-sm font-semibold text-white">{t('usage')}</h2>
+          <h2 className="text-sm font-semibold text-slate-700 dark:text-white">{t('usage')}</h2>
         </div>
         {usageLoading ? (
-          <div className="h-10 bg-[#1e2130] rounded-lg animate-pulse" />
+          <div className="h-10 bg-slate-100 dark:bg-gray-800 rounded-lg animate-pulse" />
         ) : (
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-xs text-slate-500 mb-2">{t('users')}</p>
               <div className="flex items-center gap-2">
-                <div className="flex-1 bg-[#0f1117] rounded-full h-2">
+                <div className="flex-1 bg-slate-100 dark:bg-gray-800 rounded-full h-2">
                   <div
-                    className="bg-blue-500 h-2 rounded-full"
+                    className="bg-[#0C447C] h-2 rounded-full"
                     style={{ width: `${Math.min(((usage?.users?.current ?? 0) / (usage?.users?.max ?? 1)) * 100, 100)}%` }}
                   />
                 </div>
@@ -191,7 +182,7 @@ console.log('currency_code:', currency_code, 'selected:', selectedCurrency)
             <div>
               <p className="text-xs text-slate-500 mb-2">{t('branches')}</p>
               <div className="flex items-center gap-2">
-                <div className="flex-1 bg-[#0f1117] rounded-full h-2">
+                <div className="flex-1 bg-slate-100 dark:bg-gray-800 rounded-full h-2">
                   <div
                     className="bg-violet-500 h-2 rounded-full"
                     style={{ width: `${Math.min(((usage?.branches?.current ?? 0) / (usage?.branches?.max ?? 1)) * 100, 100)}%` }}
@@ -204,5 +195,5 @@ console.log('currency_code:', currency_code, 'selected:', selectedCurrency)
         )}
       </div>
     </div>
-  )
+  );
 }

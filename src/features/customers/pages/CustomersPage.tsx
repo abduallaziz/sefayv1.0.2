@@ -45,7 +45,6 @@ export function CustomersPage() {
   const filtered = useMemo(() => {
     if (!customers) return [];
     let list = [...customers];
-
     if (filters.search) {
       const q = filters.search.toLowerCase();
       list = list.filter(
@@ -55,7 +54,6 @@ export function CustomersPage() {
           c.email?.toLowerCase().includes(q),
       );
     }
-
     list.sort((a, b) => {
       const key = filters.sortBy as keyof Customer;
       const aVal = a[key] ?? 0;
@@ -63,7 +61,6 @@ export function CustomersPage() {
       if (filters.sortOrder === 'asc') return aVal > bVal ? 1 : -1;
       return aVal < bVal ? 1 : -1;
     });
-
     return list;
   }, [customers, filters]);
 
@@ -88,12 +85,12 @@ export function CustomersPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-white">{t('title')}</h1>
+          <h1 className="text-xl font-bold text-slate-800 dark:text-white">{t('title')}</h1>
           <p className="text-sm text-slate-500 mt-0.5">{t('subtitle')}</p>
         </div>
         <button
           onClick={() => { setSelectedCustomer(null); setShowForm(true); }}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] text-white rounded-lg text-sm font-medium transition-colors"
         >
           <Plus className="w-4 h-4" />
           {t('add_customer')}
@@ -101,40 +98,39 @@ export function CustomersPage() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-[#141720] border border-[#1e2130] rounded-xl p-4 flex items-center gap-4">
+        <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-4 flex items-center gap-4">
           <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-            <Users className="w-5 h-5 text-blue-400" />
+            <Users className="w-5 h-5 text-blue-500 dark:text-blue-400" />
           </div>
           <div>
-            <p className="text-2xl font-bold text-white">{stats?.total ?? '—'}</p>
+            <p className="text-2xl font-bold text-slate-800 dark:text-white">{stats?.total ?? '—'}</p>
             <p className="text-xs text-slate-500">{t('stats.total')}</p>
           </div>
         </div>
-        <div className="bg-[#141720] border border-[#1e2130] rounded-xl p-4 flex items-center gap-4">
+        <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-4 flex items-center gap-4">
           <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-            <TrendingUp className="w-5 h-5 text-emerald-400" />
+            <TrendingUp className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />
           </div>
           <div>
-            <p className="text-2xl font-bold text-white">+{stats?.new_this_month ?? 0}</p>
+            <p className="text-2xl font-bold text-slate-800 dark:text-white">+{stats?.new_this_month ?? 0}</p>
             <p className="text-xs text-slate-500">{t('stats.new_month')}</p>
           </div>
         </div>
-        <div className="bg-[#141720] border border-[#1e2130] rounded-xl p-4 flex items-center gap-4">
+        <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-4 flex items-center gap-4">
           <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
-            <Star className="w-5 h-5 text-amber-400" />
+            <Star className="w-5 h-5 text-amber-500 dark:text-amber-400" />
           </div>
           <div>
-            <p className="text-2xl font-bold text-white">{totalLoyaltyPoints.toLocaleString()}</p>
+            <p className="text-2xl font-bold text-slate-800 dark:text-white">{totalLoyaltyPoints.toLocaleString()}</p>
             <p className="text-xs text-slate-500">{t('stats.total_points')}</p>
           </div>
         </div>
       </div>
 
-      <div className="bg-[#141720] border border-[#1e2130] rounded-xl">
-        <div className="p-4 border-b border-[#1e2130]">
+      <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl">
+        <div className="p-4 border-b border-slate-200 dark:border-gray-800">
           <CustomerFiltersBar filters={filters} onChange={setFilters} />
         </div>
-
         {isLoading ? (
           <div className="text-center py-16 text-slate-500">{t('loading')}</div>
         ) : (
@@ -145,8 +141,7 @@ export function CustomersPage() {
             onDelete={(c) => { setSelectedCustomer(c); setShowDelete(true); }}
           />
         )}
-
-        <div className="px-4 py-3 border-t border-[#1e2130] text-xs text-slate-500">
+        <div className="px-4 py-3 border-t border-slate-200 dark:border-gray-800 text-xs text-slate-500">
           {t('count', { count: filtered.length })}
         </div>
       </div>
@@ -159,7 +154,6 @@ export function CustomersPage() {
           isLoading={createMutation.isPending || updateMutation.isPending}
         />
       )}
-
       {showDetails && selectedCustomer && (
         <CustomerDetailsModal
           customer={selectedCustomer}
@@ -167,7 +161,6 @@ export function CustomersPage() {
           onEdit={() => { setShowDetails(false); setShowForm(true); }}
         />
       )}
-
       {showDelete && selectedCustomer && (
         <DeleteCustomerModal
           customer={selectedCustomer}

@@ -21,14 +21,14 @@ function StatCard({ label, value, icon: Icon, color }: {
   color: string
 }) {
   return (
-    <div className="bg-[#141720] border border-[#1e2130] rounded-xl p-5">
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-xs text-slate-500 uppercase tracking-wider">{label}</span>
+        <span className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">{label}</span>
         <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${color}`}>
           <Icon className="w-4 h-4 text-white" />
         </div>
       </div>
-      <p className="text-2xl font-bold text-white">{value}</p>
+      <p className="text-2xl font-bold text-gray-900 dark:text-white">{value}</p>
     </div>
   )
 }
@@ -52,16 +52,18 @@ export function ReportsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-xl font-bold text-white">{t('title')}</h1>
-          <p className="text-sm text-slate-500 mt-1">{t('subtitle')}</p>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t('title')}</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t('subtitle')}</p>
         </div>
-        <div className="flex gap-1 bg-[#141720] border border-[#1e2130] rounded-xl p-1">
+        <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-1">
           {PERIODS.map((p) => (
             <button
               key={p.key}
               onClick={() => setPeriod(p.key)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                period === p.key ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
+                period === p.key
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
               }`}
             >
               {t(p.labelKey)}
@@ -97,35 +99,42 @@ export function ReportsPage() {
         />
       </div>
 
-      <div className="bg-[#141720] border border-[#1e2130] rounded-xl p-5">
-        <h2 className="text-sm font-semibold text-white mb-4">{t('revenueChart')}</h2>
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
+        <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">{t('revenueChart')}</h2>
         {revLoading ? (
-          <div className="h-[200px] flex items-center justify-center text-slate-500 text-sm">{t('loading')}</div>
+          <div className="h-[200px] flex items-center justify-center text-gray-500 dark:text-gray-400 text-sm">{t('loading')}</div>
         ) : (
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={dailyBreakdown}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e2130" />
-              <XAxis dataKey="date" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={{ background: '#141720', border: '1px solid #1e2130', borderRadius: 8 }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:[stroke:#374151]" />
+              <XAxis dataKey="date" tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <Tooltip
+                contentStyle={{
+                  background: 'var(--tooltip-bg, #ffffff)',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: 8,
+                  color: '#111827',
+                }}
+              />
               <Bar dataKey="total" fill="#3b82f6" radius={[4, 4, 0, 0]} name={t('revenue')} />
             </BarChart>
           </ResponsiveContainer>
         )}
       </div>
 
-      <div className="bg-[#141720] border border-[#1e2130] rounded-xl p-5">
-        <h2 className="text-sm font-semibold text-white mb-4">{t('paymentMethods')}</h2>
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
+        <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">{t('paymentMethods')}</h2>
         {revLoading ? (
-          <div className="h-10 bg-[#1e2130] rounded animate-pulse" />
+          <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
         ) : (
           <div className="space-y-2">
             {Object.entries(byPaymentMethod).map(([method, data]: [string, any]) => (
-              <div key={method} className="flex items-center justify-between py-2 border-b border-[#1e2130] last:border-0">
-                <span className="text-sm text-slate-400">{method}</span>
+              <div key={method} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
+                <span className="text-sm text-gray-600 dark:text-gray-400">{method}</span>
                 <div className="flex items-center gap-4 text-xs">
-                  <span className="text-slate-500">{data.count} {t('orders')}</span>
-                  <span className="text-white font-medium">{data.total?.toLocaleString('en-US')} {currency}</span>
+                  <span className="text-gray-500 dark:text-gray-500">{data.count} {t('orders')}</span>
+                  <span className="text-gray-900 dark:text-white font-medium">{data.total?.toLocaleString('en-US')} {currency}</span>
                 </div>
               </div>
             ))}
@@ -133,18 +142,18 @@ export function ReportsPage() {
         )}
       </div>
 
-      <div className="bg-[#141720] border border-[#1e2130] rounded-xl p-5">
-        <h2 className="text-sm font-semibold text-white mb-4">{t('expensesByCategory')}</h2>
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
+        <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">{t('expensesByCategory')}</h2>
         {expLoading ? (
-          <div className="h-10 bg-[#1e2130] rounded animate-pulse" />
+          <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
         ) : (
           <div className="space-y-2">
             {byCategory.map((c: any) => (
-              <div key={c.category} className="flex items-center justify-between py-2 border-b border-[#1e2130] last:border-0">
-                <span className="text-sm text-slate-400">{c.category}</span>
+              <div key={c.category} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
+                <span className="text-sm text-gray-600 dark:text-gray-400">{c.category}</span>
                 <div className="flex items-center gap-4 text-xs">
-                  <span className="text-slate-500">{c.count} {t('items')}</span>
-                  <span className="text-white font-medium">{c.total?.toLocaleString('en-US')} {currency}</span>
+                  <span className="text-gray-500 dark:text-gray-500">{c.count} {t('items')}</span>
+                  <span className="text-gray-900 dark:text-white font-medium">{c.total?.toLocaleString('en-US')} {currency}</span>
                 </div>
               </div>
             ))}

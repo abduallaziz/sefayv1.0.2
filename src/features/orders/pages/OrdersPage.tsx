@@ -11,8 +11,6 @@ import { useTranslations } from 'next-intl';
 import { FileText } from 'lucide-react';
 import { useTenantStore } from '@/core/tenant/stores/tenant.store';
 
-
-
 export function OrdersPage() {
   const t = useTranslations('orders');
   const currency = useTenantStore((s) => s.currency_symbol);
@@ -49,11 +47,11 @@ export function OrdersPage() {
   }), [orders]);
 
   const statsConfig = [
-    { labelKey: 'totalInvoices', value: stats.total, color: 'text-white' },
-    { labelKey: 'completedCount', value: stats.completed, color: 'text-emerald-400' },
-    { labelKey: 'pendingCount', value: stats.pending, color: 'text-amber-400' },
-    { labelKey: 'cancelledCount', value: stats.cancelled, color: 'text-red-400' },
-    { labelKey: 'todayRevenue', value: `${stats.revenue.toLocaleString('en-US')} ${currency}`, color: 'text-blue-400' },
+    { labelKey: 'totalInvoices', value: stats.total, color: 'text-slate-800 dark:text-white' },
+    { labelKey: 'completedCount', value: stats.completed, color: 'text-emerald-600 dark:text-emerald-400' },
+    { labelKey: 'pendingCount', value: stats.pending, color: 'text-amber-600 dark:text-amber-400' },
+    { labelKey: 'cancelledCount', value: stats.cancelled, color: 'text-red-600 dark:text-red-400' },
+    { labelKey: 'todayRevenue', value: `${stats.revenue.toLocaleString('en-US')} ${currency}`, color: 'text-[#0C447C] dark:text-blue-400' },
   ];
 
   function handleCancelConfirm(id: string, reason: string) {
@@ -71,18 +69,18 @@ export function OrdersPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <div className="p-2.5 rounded-xl bg-blue-500/10">
-          <FileText size={22} className="text-blue-400" />
+        <div className="p-2.5 rounded-xl bg-[#E8F1FB] dark:bg-blue-500/10">
+          <FileText size={22} className="text-[#0C447C] dark:text-blue-400" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-white">{t('title')}</h1>
+          <h1 className="text-xl font-bold text-slate-800 dark:text-white">{t('title')}</h1>
           <p className="text-sm text-slate-500">{t('subtitle')}</p>
         </div>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         {statsConfig.map(stat => (
-          <div key={stat.labelKey} className="bg-[#141720] border border-[#1e2130] rounded-xl p-4">
+          <div key={stat.labelKey} className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-4">
             <p className="text-xs text-slate-500 mb-1">{t(stat.labelKey as any)}</p>
             <p className={`text-xl font-bold ${stat.color}`}>{stat.value}</p>
           </div>

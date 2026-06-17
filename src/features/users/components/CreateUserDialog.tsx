@@ -38,49 +38,49 @@ export function CreateUserDialog({ open, onClose }: Props) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-      <div className="relative bg-[#0d1117] border border-[#1e2130] rounded-xl p-6 w-full max-w-md mx-4 space-y-4">
+      <div className="relative bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6 w-full max-w-md mx-4 space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold text-white">{t('addUser')}</h2>
-          <button onClick={onClose} className="text-slate-500 hover:text-white">
+          <h2 className="text-base font-semibold text-gray-900 dark:text-white">{t('addUser')}</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <div className="space-y-3">
           <div>
-            <label className="text-xs text-slate-500 mb-1 block">{t('name')}</label>
+            <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">{t('name')}</label>
             <input
               type="text"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full bg-[#141720] border border-[#1e2130] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
+              className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-blue-500"
             />
           </div>
           <div>
-            <label className="text-xs text-slate-500 mb-1 block">{t('email')}</label>
+            <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">{t('email')}</label>
             <input
               type="email"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
-              className="w-full bg-[#141720] border border-[#1e2130] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
+              className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-blue-500"
             />
           </div>
           <div>
-            <label className="text-xs text-slate-500 mb-1 block">{t('password')}</label>
+            <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">{t('password')}</label>
             <input
               type="password"
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
-              className="w-full bg-[#141720] border border-[#1e2130] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
+              className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-blue-500"
             />
-              <p className="text-xs text-slate-600 mt-1">{t('passwordHint')}</p>
+            <p className="text-xs text-gray-400 dark:text-gray-600 mt-1">{t('passwordHint')}</p>
           </div>
           <div>
-            <label className="text-xs text-slate-500 mb-1 block">{t('role')}</label>
+            <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">{t('role')}</label>
             <select
               value={form.role}
               onChange={(e) => setForm({ ...form, role: e.target.value })}
-              className="w-full bg-[#141720] border border-[#1e2130] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
+              className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-blue-500"
             >
               {ROLES.map((r) => (
                 <option key={r} value={r}>{r}</option>
@@ -92,7 +92,7 @@ export function CreateUserDialog({ open, onClose }: Props) {
         <div className="flex gap-2 pt-2">
           <button
             onClick={onClose}
-            className="flex-1 px-4 py-2 border border-[#1e2130] rounded-lg text-sm text-slate-400 hover:text-white transition-colors"
+            className="flex-1 px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
           >
             {t('cancel')}
           </button>

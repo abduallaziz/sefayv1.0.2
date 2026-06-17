@@ -36,7 +36,6 @@ export function POSPage() {
   const handleConfirmPayment = async (data: PaymentData) => {
     if (isSubmitting) return
     setIsSubmitting(true)
-
     try {
       const order = await createOrder({
         branch_id: branchId,
@@ -56,7 +55,6 @@ export function POSPage() {
         discount_amount: cart.discount_amount > 0 ? cart.discount_amount : undefined,
         coupon_code: cart.coupon_code,
       })
-
       setShowPayment(false)
       setReceipt({
         payment: data,
@@ -80,7 +78,7 @@ export function POSPage() {
         <ItemGrid onAddItem={addItem} />
       </div>
 
-      <div className="w-80 shrink-0 bg-[#141720] border border-[#1e2130] rounded-xl p-4 flex flex-col overflow-hidden">
+      <div className="w-80 shrink-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 flex flex-col overflow-hidden">
         <CartPanel
           cart={cart}
           onUpdateQty={updateQty}

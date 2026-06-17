@@ -57,9 +57,7 @@ export function ItemsPage() {
       createItem.mutate(data, {
         onSuccess: async (newItem: any) => {
           if (variants && variants.length > 0) {
-            await Promise.allSettled(
-              variants.map(v => itemsApi.createVariant(newItem.id, v))
-            );
+            await Promise.allSettled(variants.map(v => itemsApi.createVariant(newItem.id, v)));
           }
           setFormOpen(false);
         }
@@ -84,14 +82,14 @@ export function ItemsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-white">{t('title')}</h1>
+          <h1 className="text-xl font-bold text-slate-800 dark:text-white">{t('title')}</h1>
           <p className="text-sm text-slate-500 mt-1">
             {items.length} {t('totalItems')} • {activeCount} {t('active')}
           </p>
         </div>
         <button
           onClick={() => { setSelectedItem(null); setFormOpen(true); }}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium"
+          className="flex items-center gap-2 px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] text-white rounded-lg text-sm font-medium transition-colors"
         >
           <Plus className="w-4 h-4" />
           {t('addItem')}
@@ -120,7 +118,6 @@ export function ItemsPage() {
         categories={categories}
         isLoading={createItem.isPending || updateItem.isPending}
       />
-
       <VariantsModal
         open={variantsOpen}
         onClose={() => { setVariantsOpen(false); setSelectedItem(null); }}
@@ -128,7 +125,6 @@ export function ItemsPage() {
         onAddVariant={(itemId, data) => itemsApi.createVariant(itemId, data)}
         onDeleteVariant={(itemId, variantId) => deleteVariant.mutate({ itemId, variantId })}
       />
-
       <DeleteItemModal
         open={deleteOpen}
         onClose={() => { setDeleteOpen(false); setSelectedItem(null); }}

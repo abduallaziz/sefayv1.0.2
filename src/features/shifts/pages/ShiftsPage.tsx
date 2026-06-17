@@ -45,7 +45,7 @@ export function ShiftsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-bold text-white">{t('title')}</h1>
+        <h1 className="text-xl font-bold text-slate-800 dark:text-white">{t('title')}</h1>
         <p className="text-sm text-slate-500 mt-0.5">{t('subtitle')}</p>
       </div>
 
@@ -55,24 +55,16 @@ export function ShiftsPage() {
         onViewSummary={(id) => setSummaryShiftId(id)}
       />
 
-      <div className="bg-[#141720] border border-[#1e2130] rounded-xl">
-        <div className="px-4 py-3 border-b border-[#1e2130]">
-          <h2 className="text-sm font-medium text-slate-300">{t('history')}</h2>
+      <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl">
+        <div className="px-4 py-3 border-b border-slate-200 dark:border-gray-800">
+          <h2 className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('history')}</h2>
         </div>
         <ShiftsList onViewSummary={(id) => setSummaryShiftId(id)} />
       </div>
 
-      {showOpen && (
-        <OpenShiftModal branchId={branchId} onClose={handleOpenShift} />
-      )}
-
-      {showClose && currentShift && (
-        <CloseShiftModal shift={currentShift} onClose={handleCloseShift} />
-      )}
-
-      {summaryShiftId && (
-        <ShiftSummaryModal shiftId={summaryShiftId} onClose={() => setSummaryShiftId(null)} />
-      )}
+      {showOpen && <OpenShiftModal branchId={branchId} onClose={handleOpenShift} />}
+      {showClose && currentShift && <CloseShiftModal shift={currentShift} onClose={handleCloseShift} />}
+      {summaryShiftId && <ShiftSummaryModal shiftId={summaryShiftId} onClose={() => setSummaryShiftId(null)} />}
     </div>
   );
 }

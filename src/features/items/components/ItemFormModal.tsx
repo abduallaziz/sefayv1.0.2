@@ -33,6 +33,9 @@ interface Props {
   isLoading?: boolean;
 }
 
+const inputClass = "w-full px-3 py-2 text-sm bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 text-slate-800 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C] dark:focus:border-blue-500";
+const labelClass = "block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1";
+
 export function ItemFormModal({ open, onClose, onSubmit, item, categories, isLoading }: Props) {
   const t = useTranslations('items');
 
@@ -75,48 +78,42 @@ export function ItemFormModal({ open, onClose, onSubmit, item, categories, isLoa
     setVariants(variants.map((v, idx) => idx === i ? { ...v, [field]: value } : v));
 
   const handleFormSubmit = (data: any) => {
-  const validVariants = variants.filter(v => v.name.trim());
-  const payload = {
-    ...data,
-    category_id: data.category_id || undefined,
+    const validVariants = variants.filter(v => v.name.trim());
+    onSubmit({ ...data, category_id: data.category_id || undefined } as CreateItemDTO,
+      validVariants.length > 0 ? validVariants : undefined);
   };
-  onSubmit(payload as CreateItemDTO, validVariants.length > 0 ? validVariants : undefined);
-};
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="bg-[#0d1117] border border-[#1e2130] rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-5 border-b border-[#1e2130] sticky top-0 bg-[#0d1117] z-10">
-          <h2 className="text-base font-semibold text-white">
+      <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-gray-800 sticky top-0 bg-white dark:bg-gray-900 z-10">
+          <h2 className="text-base font-semibold text-slate-800 dark:text-white">
             {item ? t('editItem') : t('addItem')}
           </h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white">
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-800 text-slate-400 hover:text-slate-600 dark:hover:text-white">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit(handleFormSubmit)} className="p-5 space-y-4">
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1">{t('name')}</label>
-            <input
-              {...register('name')}
-              className="w-full px-3 py-2 text-sm bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500"
-            />
+            <label className={labelClass}>{t('name')}</label>
+            <input {...register('name')} className={inputClass} />
             {errors.name && <p className="text-xs text-red-500 mt-1">{t('required')}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">{t('type')}</label>
-              <select {...register('type')} className="w-full px-3 py-2 text-sm bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500">
+              <label className={labelClass}>{t('type')}</label>
+              <select {...register('type')} className={inputClass}>
                 <option value="product">{t('product')}</option>
                 <option value="service">{t('service')}</option>
                 <option value="custom">{t('custom')}</option>
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">{t('operationType')}</label>
-              <select {...register('operation_type')} className="w-full px-3 py-2 text-sm bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500">
+              <label className={labelClass}>{t('operationType')}</label>
+              <select {...register('operation_type')} className={inputClass}>
                 <option value="sell">{t('sell')}</option>
                 <option value="book">{t('book')}</option>
                 <option value="repair">{t('repair')}</option>
@@ -127,18 +124,12 @@ export function ItemFormModal({ open, onClose, onSubmit, item, categories, isLoa
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">{t('price')}</label>
-              <input
-                type="text"
-                inputMode="decimal"
-                placeholder="0.00"
-                {...register('price')}
-                className="w-full px-3 py-2 text-sm bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500"
-              />
+              <label className={labelClass}>{t('price')}</label>
+              <input type="text" inputMode="decimal" placeholder="0.00" {...register('price')} className={inputClass} />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">{t('category')}</label>
-              <select {...register('category_id')} className="w-full px-3 py-2 text-sm bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500">
+              <label className={labelClass}>{t('category')}</label>
+              <select {...register('category_id')} className={inputClass}>
                 <option value="">{t('noCategory')}</option>
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
@@ -148,27 +139,27 @@ export function ItemFormModal({ open, onClose, onSubmit, item, categories, isLoa
           </div>
 
           <div className="flex gap-6">
-            <label className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer">
-              <input type="checkbox" {...register('has_inventory')} className="w-4 h-4 accent-blue-600" />
+            <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300 cursor-pointer">
+              <input type="checkbox" {...register('has_inventory')} className="w-4 h-4 accent-[#0C447C]" />
               {t('hasInventory')}
             </label>
-            <label className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer">
-              <input type="checkbox" {...register('has_variants')} className="w-4 h-4 accent-blue-600" />
+            <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300 cursor-pointer">
+              <input type="checkbox" {...register('has_variants')} className="w-4 h-4 accent-[#0C447C]" />
               {t('hasVariants')}
             </label>
           </div>
 
           {hasVariants && (
-            <div className="border border-[#1e2130] rounded-lg p-4 space-y-3">
+            <div className="border border-slate-200 dark:border-gray-700 rounded-lg p-4 space-y-3">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-white">{t('variants')}</p>
-                <button type="button" onClick={addVariant} className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300">
+                <p className="text-sm font-medium text-slate-800 dark:text-white">{t('variants')}</p>
+                <button type="button" onClick={addVariant} className="flex items-center gap-1 text-xs text-[#0C447C] dark:text-blue-400 hover:underline">
                   <Plus className="w-3 h-3" />
                   {t('addVariant')}
                 </button>
               </div>
               {variants.length === 0 && (
-                <p className="text-xs text-slate-600 text-center py-2">{t('noVariants')}</p>
+                <p className="text-xs text-slate-400 text-center py-2">{t('noVariants')}</p>
               )}
               {variants.map((v, i) => (
                 <div key={i} className="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
@@ -176,17 +167,15 @@ export function ItemFormModal({ open, onClose, onSubmit, item, categories, isLoa
                     placeholder={t('variantName')}
                     value={v.name}
                     onChange={(e) => updateVariant(i, 'name', e.target.value)}
-                    className="px-3 py-2 text-sm bg-[#0d1117] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500 placeholder-slate-600"
+                    className={inputClass}
                   />
                   <input
-                    type="text"
-                    inputMode="decimal"
-                    placeholder="0.00"
+                    type="text" inputMode="decimal" placeholder="0.00"
                     value={v.price_adjustment || ''}
                     onChange={(e) => updateVariant(i, 'price_adjustment', Number(e.target.value))}
-                    className="px-3 py-2 text-sm bg-[#0d1117] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500"
+                    className={inputClass}
                   />
-                  <button type="button" onClick={() => removeVariant(i)} className="p-2 text-slate-600 hover:text-red-400">
+                  <button type="button" onClick={() => removeVariant(i)} className="p-2 text-slate-400 hover:text-red-500">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
@@ -195,10 +184,10 @@ export function ItemFormModal({ open, onClose, onSubmit, item, categories, isLoa
           )}
 
           <div className="flex gap-3 pt-2">
-            <button type="submit" disabled={isLoading} className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium disabled:opacity-50">
+            <button type="submit" disabled={isLoading} className="flex-1 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] text-white rounded-lg text-sm font-medium disabled:opacity-50">
               {isLoading ? t('saving') : t('save')}
             </button>
-            <button type="button" onClick={onClose} className="flex-1 py-2 border border-[#1e2130] text-slate-400 hover:text-white hover:bg-white/5 rounded-lg text-sm">
+            <button type="button" onClick={onClose} className="flex-1 py-2 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-800 rounded-lg text-sm">
               {t('cancel')}
             </button>
           </div>

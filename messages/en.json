@@ -10,7 +10,11 @@
     "actions": "Actions",
     "status": "Active",
     "all": "All",
-    "export": "Export"
+    "export": "Export",
+    "active": "Active",
+    "inactive": "Inactive",
+    "optional": "Optional",
+    "create": "Create"
   },
   "nav": {
     "overview": "Overview",
@@ -22,16 +26,83 @@
     "settings": "Settings"
   },
   "dashboardNav": {
-  "overview": "Overview",
-  "pos": "POS",
-  "items": "Items",
-  "customers": "Customers",
-  "expenses": "Expenses",
-  "shifts": "Shifts",
-  "reports": "Reports",
-  "settings": "Settings",
-  "logout": "Logout"
-},
+    "overview": "Overview",
+    "pos": "POS",
+    "items": "Items",
+    "customers": "Customers",
+    "expenses": "Expenses",
+    "shifts": "Shifts",
+    "reports": "Reports",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "shell": {
+    "nav": {
+      "overview": "Overview",
+      "pos": "Point of Sale",
+      "invoices": "Invoices",
+      "returns": "Returns",
+      "discounts": "Offers & Discounts",
+      "coupons": "Coupons",
+      "giftCards": "Gift Cards",
+      "loyalty": "Loyalty Program",
+      "products": "Products",
+      "inventory": "Inventory",
+      "stockCount": "Stock Count",
+      "suppliers": "Suppliers",
+      "purchaseOrders": "Purchase Orders",
+      "tables": "Tables",
+      "reservations": "Reservations",
+      "waitlist": "Waitlist",
+      "kds": "Kitchen Display",
+      "customerList": "Customer List",
+      "purchaseHistory": "Purchase History",
+      "loyaltyPoints": "Loyalty Points",
+      "expenses": "Expenses",
+      "chartOfAccounts": "Chart of Accounts",
+      "ledger": "Ledger",
+      "reconciliation": "Reconciliation",
+      "vat": "Tax / VAT",
+      "zatca": "ZATCA",
+      "financialReports": "Financial Reports",
+      "fiscalYear": "Fiscal Year",
+      "employees": "Employees",
+      "attendance": "Attendance",
+      "shifts": "Shifts",
+      "commissions": "Commissions",
+      "salesReports": "Sales Reports",
+      "inventoryReports": "Inventory Reports",
+      "employeeReports": "Employee Reports",
+      "customerReports": "Customer Reports",
+      "taxReports": "Tax Reports",
+      "exportReports": "Export Excel/PDF",
+      "branches": "Branches & Regions",
+      "users": "Users & Permissions",
+      "settings": "Settings",
+      "integrations": "Integrations",
+      "eFattura": "E-Invoicing",
+      "backup": "Backup",
+      "activityLog": "Activity Log",
+      "support": "Support",
+      "customers": "Customers",
+      "items": "Items",
+      "reports": "Reports",
+      "mainBranch": "Main Branch",
+      "general": "General",
+      "sales": "Sales",
+      "inventory_section": "Inventory",
+      "operations_section": "Operations",
+      "customers_section": "Customers",
+      "finance_section": "Finance & Accounting",
+      "hr_section": "Human Resources",
+      "reports_section": "Reports",
+      "admin_section": "Administration",
+      "notifications": "Notifications",
+      "subscription": "Subscription",
+      "platformSubtitle": "POS Platform",
+      "logout": "Logout"
+    }
+  },
   "console": {
     "title": "Operations Console",
     "subtitle": "Sefay Platform — Real-time monitoring",
@@ -420,5 +491,126 @@
     "subtitle": "Monthly performance metrics",
     "revenue": "Revenue",
     "tenants": "Tenants"
-  }
+  },
+  "shifts": {
+    "title": "Shifts",
+    "subtitle": "Manage work shifts",
+    "open_shift": "Open Shift",
+    "close_shift": "Close Shift",
+    "opening_cash": "Opening Cash",
+    "closing_cash": "Closing Cash",
+    "opening_was": "Opening cash was",
+    "opened_at": "Opened at",
+    "closed_at": "Closed at",
+    "no_open_shift": "No open shift",
+    "shift_open": "Shift Open",
+    "summary": "Summary",
+    "history": "History",
+    "no_shifts": "No shifts found",
+    "loading": "Loading...",
+    "cancel": "Cancel",
+    "open": "Open",
+    "close": "Close",
+    "opening": "Opening...",
+    "closing": "Closing...",
+    "cashier": "Cashier",
+    "status": "Status",
+    "status_open": "Open",
+    "status_closed": "Closed",
+    "total_invoices": "Total Invoices",
+    "total_sales": "Total Sales",
+    "cash_sales": "Cash Sales",
+    "card_sales": "Card Sales",
+    "total_expenses": "Total Expenses",
+    "expected_cash": "Expected Cash",
+    "discrepancy": "Discrepancy"
+  },
+  "expenses": {
+    "title": "Expenses",
+    "subtitle": "Manage expense requests and templates",
+    "loading": "Loading...",
+    "hours": "hours",
+    "expiresIn": "Expires in",
+    "tabs": {
+      "requests": "Requests",
+      "templates": "Templates"
+    },
+    "stats": {
+      "pending": "Pending",
+      "approvedToday": "Approved Today",
+      "totalToday": "Total Today",
+      "expired": "Expired"
+    },
+    "status": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "expired": "Expired"
+    },
+    "table": {
+      "type": "Type",
+      "requestedBy": "Requested By",
+      "amount": "Amount",
+      "note": "Note",
+      "expires": "Expires",
+      "actions": "Actions"
+    },
+    "actions": {
+      "approve": "Approve",
+      "reject": "Reject",
+      "newTemplate": "New Template"
+    },
+    "reject": {
+      "title": "Reject Request",
+      "reason": "Reason",
+      "reasonPlaceholder": "Reason for rejection...",
+      "submit": "Reject"
+    },
+    "empty": {
+      "requests": "No requests found",
+      "templates": "No templates found"
+    },
+    "template": {
+      "title": "New Template",
+      "name": "Name",
+      "defaultAmount": "Default Amount",
+      "requiresPhoto": "Requires Photo",
+      "expiryHours": "Expiry Hours"
+    }
+  },
+  "customers": {
+    "title": "Customers",
+    "subtitle": "Manage customer base",
+    "add_customer": "Add Customer",
+    "loading": "Loading...",
+    "count": "{count} customers",
+    "stats": {
+      "total": "Total Customers",
+      "new_month": "New This Month",
+      "total_points": "Total Points"
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome",
+    "quickStats": "Here's your business overview for today",
+    "search": "Search...",
+    "todaySales": "Today's Sales",
+    "invoices": "Invoices",
+    "customers": "Customers",
+    "totalExpenses": "Total Expenses",
+    "avgOrder": "Avg Order",
+    "salesByPayment": "Sales by Payment",
+    "cash": "Cash",
+    "card": "Card",
+    "other": "Other",
+    "shiftDuration": "Current Shift",
+    "openShift": "Open",
+    "shiftOpenedAt": "Opened at",
+    "noShift": "No open shift",
+    "noData": "Unable to load data"
+  },
+  "comingSoon": {
+  "title": "Coming Soon",
+  "subtitle": "This feature will be available soon"
+}
 }

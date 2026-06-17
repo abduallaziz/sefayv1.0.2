@@ -1,4 +1,3 @@
-// cache-bust-v3
 import { getRequestConfig } from 'next-intl/server'
 import { routing } from './routing'
 
@@ -9,29 +8,21 @@ export default getRequestConfig(async ({ requestLocale }) => {
     locale = routing.defaultLocale
   }
 
-  const loadNamespace = async (ns: string) => {
+  const loadFile = async (path: string) => {
     try {
-      return (await import(`../../messages/${locale}/${ns}.json`)).default
-    } catch {
-      return {}
-    }
-  }
-
-  const loadLegacy = async (file: string) => {
-    try {
-      return (await import(`../../messages/${file}.json`)).default
+      return (await import(`../../messages/${path}`)).default
     } catch {
       return {}
     }
   }
 
   const [
+    root,
     common,
     shell,
-    superadmin,
     dashboard,
-    orders,
     pos,
+    orders,
     expenses,
     items,
     settings,
@@ -39,52 +30,44 @@ export default getRequestConfig(async ({ requestLocale }) => {
     reports,
     customers,
     shifts,
-    legacyRoot,
-    legacyDashboard,
-    legacyItems,
+    superadmin,
+    subscriptions,
   ] = await Promise.all([
-    loadNamespace('common'),
-    loadNamespace('shell'),
-    loadNamespace('superadmin'),
-    loadNamespace('dashboard'),
-    loadNamespace('orders'),
-    loadNamespace('pos'),
-    loadNamespace('expenses'),
-    loadNamespace('items'),
-    loadNamespace('settings'),
-    loadNamespace('users'),
-    loadNamespace('reports'),
-    loadNamespace('customers'),
-    loadNamespace('shifts'),
-    loadLegacy(locale),
-    loadLegacy(`${locale}/dashboard`),
-    loadLegacy(`${locale}/items`),
+    loadFile(`${locale}.json`),
+    loadFile(`${locale}/common.json`),
+    loadFile(`${locale}/shell.json`),
+    loadFile(`${locale}/dashboard.json`),
+    loadFile(`${locale}/pos.json`),
+    loadFile(`${locale}/orders.json`),
+    loadFile(`${locale}/expenses.json`),
+    loadFile(`${locale}/items.json`),
+    loadFile(`${locale}/settings.json`),
+    loadFile(`${locale}/users.json`),
+    loadFile(`${locale}/reports.json`),
+    loadFile(`${locale}/customers.json`),
+    loadFile(`${locale}/shifts.json`),
+    loadFile(`${locale}/superadmin.json`),
+    loadFile(`${locale}/subscriptions.json`),
   ])
-
-  // استخرج legacyRoot بدون المفاتيح اللي عندنا namespaces مخصصة لها
-  const { shifts: _s, expenses: _e, customers: _c, ...legacyRootClean } = legacyRoot
 
   return {
     locale,
     messages: {
-      ...legacyRootClean,
-      ...legacyItems,
-      common,
-      shell,
-      superadmin,
-      users,
-      dashboard: {
-        ...(legacyDashboard?.dashboard ?? {}),
-        ...dashboard,
-      },
-      orders,
-      items,
-      settings,
-      shifts,
-      reports,
-      customers,
-      expenses,
+      ...root,
+      common: { ...root.common, ...common },
+      shell: { ...shell, ...root.shell },
+      dashboard: { ...root.dashboard, ...dashboard },
       pos,
+      orders,
+      expenses: { ...root.expenses, ...expenses },
+      items: { ...root.items, ...items },
+      settings,
+      users,
+      reports: { ...root.reports, ...reports },
+      customers: { ...root.customers, ...customers },
+      shifts: { ...root.shifts, ...shifts },
+      superadmin,
+      subscriptions,
     }
   }
 })
