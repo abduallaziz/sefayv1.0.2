@@ -25,6 +25,7 @@ export interface ExpenseTemplate {
   next_run_at: string | null;
   created_at: string;
   updated_at: string;
+  is_pre_approved: boolean;
 }
 
 export interface Expense {
@@ -71,6 +72,7 @@ export interface UpdateExpenseTemplateDto {
   recurrence_type?: RecurrenceScheduleType;
   recurrence_day?: number | null;
   next_run_at?: string | null;
+  is_pre_approved?: boolean;
 }
 
 export const expensesApi = {
@@ -109,4 +111,7 @@ export const expensesApi = {
 
   updateTemplate: (id: string, dto: UpdateExpenseTemplateDto): Promise<ExpenseTemplate> =>
     apiClient.patch<ExpenseTemplate>(`/expense-templates/${id}`, dto),
+
+  deleteTemplate: (id: string): Promise<void> =>
+  apiClient.delete<void>(`/expense-templates/${id}`),
 };

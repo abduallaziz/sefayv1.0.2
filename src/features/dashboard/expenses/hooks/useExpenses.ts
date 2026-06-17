@@ -123,3 +123,11 @@ export const useUpdateExpenseTemplate = () => {
     onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.templates }),
   });
 };
+
+export const useDeleteExpenseTemplate = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => expensesApi.deleteTemplate(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.templates }),
+  });
+};
