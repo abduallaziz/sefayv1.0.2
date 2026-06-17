@@ -50,6 +50,17 @@ export const useRejectExpense = () => {
   });
 };
 
+export const useCancelExpense = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => expensesApi.cancel(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: KEYS.all });
+      qc.invalidateQueries({ queryKey: KEYS.stats });
+    },
+  });
+};
+
 export const useCreateCategory = () => {
   const qc = useQueryClient();
   return useMutation({

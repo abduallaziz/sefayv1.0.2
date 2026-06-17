@@ -545,7 +545,8 @@
       "pending": "Pending",
       "approved": "Approved",
       "rejected": "Rejected",
-      "expired": "Expired"
+      "expired": "Expired",
+      "cancelled": "Cancelled"
     },
     "table": {
       "type": "Type",
@@ -558,6 +559,10 @@
     "actions": {
       "approve": "Approve",
       "reject": "Reject",
+      "cancel": "Cancel",
+      "back": "Back",
+      "newRequest": "New Request",
+      "new": "New",
       "newTemplate": "New Template"
     },
     "reject": {
@@ -565,6 +570,11 @@
       "reason": "Reason",
       "reasonPlaceholder": "Reason for rejection...",
       "submit": "Reject"
+    },
+    "cancel": {
+      "title": "Cancel Request",
+      "confirm": "Are you sure you want to cancel this expense request?",
+      "submit": "Cancel Request"
     },
     "empty": {
       "requests": "No requests found",

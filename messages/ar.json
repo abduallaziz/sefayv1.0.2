@@ -545,7 +545,8 @@
       "pending": "قيد الانتظار",
       "approved": "معتمد",
       "rejected": "مرفوض",
-      "expired": "منتهي"
+      "expired": "منتهي",
+      "cancelled": "ملغي"
     },
     "table": {
       "type": "النوع",
@@ -558,6 +559,10 @@
     "actions": {
       "approve": "قبول",
       "reject": "رفض",
+      "cancel": "إلغاء",
+      "back": "رجوع",
+      "newRequest": "طلب جديد",
+      "new": "جديد",
       "newTemplate": "قالب جديد"
     },
     "reject": {
@@ -565,6 +570,11 @@
       "reason": "السبب",
       "reasonPlaceholder": "سبب الرفض...",
       "submit": "رفض"
+    },
+    "cancel": {
+      "title": "إلغاء الطلب",
+      "confirm": "هل أنت متأكد من إلغاء طلب المصروف؟",
+      "submit": "إلغاء الطلب"
     },
     "empty": {
       "requests": "لا توجد طلبات",

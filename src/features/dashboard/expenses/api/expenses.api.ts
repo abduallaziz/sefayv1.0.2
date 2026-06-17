@@ -1,6 +1,6 @@
 import { apiClient } from '@/lib/api';
 
-export type ExpenseStatus = 'pending' | 'approved' | 'rejected' | 'expired';
+export type ExpenseStatus = 'pending' | 'approved' | 'rejected' | 'expired' | 'cancelled';
 export type ExpenseType = 'one_time' | 'recurring';
 export type RecurrenceType = 'daily' | 'weekly' | 'monthly' | 'yearly';
 
@@ -61,6 +61,9 @@ export const expensesApi = {
 
   reject: (id: string, reason?: string): Promise<Expense> =>
     apiClient.patch<Expense>(`/expenses/${id}/reject`, { reason }),
+
+  cancel: (id: string): Promise<Expense> =>
+    apiClient.patch<Expense>(`/expenses/${id}/cancel`, {}),
 
   getCategories: (): Promise<ExpenseCategory[]> =>
     apiClient.get<ExpenseCategory[]>('/expense-categories'),
