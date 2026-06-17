@@ -83,46 +83,46 @@ export function CustomersPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold text-slate-800 dark:text-white">{t('title')}</h1>
           <p className="text-sm text-slate-500 mt-0.5">{t('subtitle')}</p>
         </div>
         <button
           onClick={() => { setSelectedCustomer(null); setShowForm(true); }}
-          className="flex items-center gap-2 px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] text-white rounded-lg text-sm font-medium transition-colors"
+          className="flex items-center gap-2 px-3 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] text-white rounded-lg text-sm font-medium transition-colors shrink-0"
         >
           <Plus className="w-4 h-4" />
-          {t('add_customer')}
+          <span className="hidden sm:inline">{t('add_customer')}</span>
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-4 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-            <Users className="w-5 h-5 text-blue-500 dark:text-blue-400" />
+      <div className="grid grid-cols-3 gap-3">
+        <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-3 sm:p-4 flex items-center gap-3">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
+            <Users className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500 dark:text-blue-400" />
           </div>
-          <div>
-            <p className="text-2xl font-bold text-slate-800 dark:text-white">{stats?.total ?? '—'}</p>
-            <p className="text-xs text-slate-500">{t('stats.total')}</p>
-          </div>
-        </div>
-        <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-4 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-            <TrendingUp className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-slate-800 dark:text-white">+{stats?.new_this_month ?? 0}</p>
-            <p className="text-xs text-slate-500">{t('stats.new_month')}</p>
+          <div className="min-w-0">
+            <p className="text-lg sm:text-2xl font-bold text-slate-800 dark:text-white tabular-nums">{stats?.total ?? '—'}</p>
+            <p className="text-xs text-slate-500 truncate">{t('stats.total')}</p>
           </div>
         </div>
-        <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-4 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
-            <Star className="w-5 h-5 text-amber-500 dark:text-amber-400" />
+        <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-3 sm:p-4 flex items-center gap-3">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center shrink-0">
+            <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500 dark:text-emerald-400" />
           </div>
-          <div>
-            <p className="text-2xl font-bold text-slate-800 dark:text-white">{totalLoyaltyPoints.toLocaleString()}</p>
-            <p className="text-xs text-slate-500">{t('stats.total_points')}</p>
+          <div className="min-w-0">
+            <p className="text-lg sm:text-2xl font-bold text-slate-800 dark:text-white tabular-nums">+{stats?.new_this_month ?? 0}</p>
+            <p className="text-xs text-slate-500 truncate">{t('stats.new_month')}</p>
+          </div>
+        </div>
+        <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-3 sm:p-4 flex items-center gap-3">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0">
+            <Star className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500 dark:text-amber-400" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-lg sm:text-2xl font-bold text-slate-800 dark:text-white tabular-nums">{totalLoyaltyPoints.toLocaleString('en-US')}</p>
+            <p className="text-xs text-slate-500 truncate">{t('stats.total_points')}</p>
           </div>
         </div>
       </div>

@@ -23,7 +23,7 @@ export function UsersPage() {
     <div className="space-y-6">
       <CreateUserDialog open={dialogOpen} onClose={() => setDialogOpen(false)} />
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t('title')}</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -32,10 +32,10 @@ export function UsersPage() {
         </div>
         <button
           onClick={() => setDialogOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm text-white transition-colors"
+          className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm text-white transition-colors shrink-0"
         >
           <Plus className="w-4 h-4" />
-          {t('addUser')}
+          <span className="hidden sm:inline">{t('addUser')}</span>
         </button>
       </div>
 
@@ -47,42 +47,42 @@ export function UsersPage() {
         </div>
       ) : (
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-100 dark:border-gray-700">
-                <th className="text-start px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">{t('name')}</th>
-                <th className="hidden sm:table-cell text-start px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">{t('email')}</th>
-                <th className="text-start px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">{t('role')}</th>
-                <th className="hidden sm:table-cell text-start px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">{t('status')}</th>
-                <th className="px-4 py-3" />
-              </tr>
-            </thead>
-            <tbody>
-              {users?.map((user) => (
-                <tr key={user.id} className="border-b border-gray-100 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                        <span className="text-blue-600 dark:text-blue-400 text-xs font-medium">
-                          {user.name?.[0]?.toUpperCase()}
-                        </span>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[320px]">
+              <thead>
+                <tr className="border-b border-gray-100 dark:border-gray-700">
+                  <th className="text-start px-3 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">{t('name')}</th>
+                  <th className="hidden sm:table-cell text-start px-3 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">{t('email')}</th>
+                  <th className="text-start px-3 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase w-24">{t('role')}</th>
+                  <th className="hidden sm:table-cell text-start px-3 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase w-20">{t('status')}</th>
+                  <th className="px-3 py-3 w-10" />
+                </tr>
+              </thead>
+              <tbody>
+                {users?.map((user) => (
+                  <tr key={user.id} className="border-b border-gray-100 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <td className="px-3 py-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                          <span className="text-blue-600 dark:text-blue-400 text-xs font-medium">
+                            {user.name?.[0]?.toUpperCase()}
+                          </span>
+                        </div>
+                        <span className="text-sm text-gray-900 dark:text-white truncate max-w-[100px]">{user.name}</span>
                       </div>
-                      <span className="text-sm text-gray-900 dark:text-white truncate">{user.name}</span>
-                    </div>
-                  </td>
-                  <td className="hidden sm:table-cell px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{user.email}</td>
-                  <td className="px-4 py-3">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${ROLE_COLORS[user.role] ?? 'bg-gray-500/10 text-gray-600 dark:text-gray-400 border-gray-500/20'}`}>
-                      {user.role}
-                    </span>
-                  </td>
-                  <td className="hidden sm:table-cell px-4 py-3">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${user.is_active ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-red-500/10 text-red-600 dark:text-red-400'}`}>
-                      {user.is_active ? t('active') : t('inactive')}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2 justify-end">
+                    </td>
+                    <td className="hidden sm:table-cell px-3 py-3 text-sm text-gray-500 dark:text-gray-400 max-w-[150px] truncate">{user.email}</td>
+                    <td className="px-3 py-3 w-24">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${ROLE_COLORS[user.role] ?? 'bg-gray-500/10 text-gray-600 dark:text-gray-400 border-gray-500/20'}`}>
+                        {user.role}
+                      </span>
+                    </td>
+                    <td className="hidden sm:table-cell px-3 py-3 w-20">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${user.is_active ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-red-500/10 text-red-600 dark:text-red-400'}`}>
+                        {user.is_active ? t('active') : t('inactive')}
+                      </span>
+                    </td>
+                    <td className="px-3 py-3 w-10">
                       <button
                         onClick={() => deleteUser(user.id)}
                         className="p-1.5 text-gray-400 dark:text-gray-600 hover:text-red-500 dark:hover:text-red-400 transition-colors"
@@ -90,12 +90,12 @@ export function UsersPage() {
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
           {users?.length === 0 && (
             <div className="py-12 text-center text-gray-500 dark:text-gray-400 text-sm">{t('empty')}</div>
           )}

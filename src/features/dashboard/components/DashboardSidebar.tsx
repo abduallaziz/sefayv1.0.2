@@ -10,7 +10,7 @@ import { useAuthStore } from '@/core/auth/stores/auth.store';
 import { Building2, ChevronDown, ChevronRight, LogOut } from 'lucide-react';
 import { useState } from 'react';
 
-function NavItemComponent({ item }: { item: NavItem }) {
+function NavItemComponent({ item, onClose }: { item: NavItem; onClose?: () => void }) {
   const t = useTranslations('shell.nav');
   const pathname = usePathname();
   const locale = useLocale();
@@ -29,6 +29,7 @@ function NavItemComponent({ item }: { item: NavItem }) {
   return (
     <Link
       href={fullHref}
+      onClick={onClose}
       className={cn(
         'flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all duration-150',
         isActive
@@ -47,7 +48,7 @@ function NavItemComponent({ item }: { item: NavItem }) {
   );
 }
 
-function NavSection({ section }: { section: (typeof NAV_CONFIG)[0] }) {
+function NavSection({ section, onClose }: { section: (typeof NAV_CONFIG)[0]; onClose?: () => void }) {
   const t = useTranslations('shell.nav');
   const [open, setOpen] = useState(true);
 
@@ -70,7 +71,7 @@ function NavSection({ section }: { section: (typeof NAV_CONFIG)[0] }) {
       {open && (
         <div className="space-y-0.5">
           {section.items.map((item) => (
-            <NavItemComponent key={item.key} item={item} />
+            <NavItemComponent key={item.key} item={item} onClose={onClose} />
           ))}
         </div>
       )}
@@ -78,14 +79,18 @@ function NavSection({ section }: { section: (typeof NAV_CONFIG)[0] }) {
   );
 }
 
-export function DashboardSidebar() {
+interface DashboardSidebarProps {
+  onClose?: () => void;
+}
+
+export function DashboardSidebar({ onClose }: DashboardSidebarProps) {
   const t = useTranslations('shell.nav');
   const user = useAuthStore((s) => s.user);
   const clearAuth = useAuthStore((s) => s.clearAuth);
   const [branchOpen, setBranchOpen] = useState(false);
 
   return (
-    <aside className="flex flex-col w-72 sm:w-64 h-full bg-white dark:bg-gray-900 border-e border-slate-200 dark:border-gray-800">
+    <aside className="flex flex-col w-64 h-full bg-white dark:bg-gray-900 border-e border-slate-200 dark:border-gray-800">
       {/* Logo */}
       <div className="px-5 py-4 border-b border-slate-100 dark:border-gray-800">
         <div className="flex items-center gap-2.5">
@@ -119,14 +124,14 @@ export function DashboardSidebar() {
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
         {NAV_CONFIG.map((section) => (
-          <NavSection key={section.titleKey} section={section} />
+          <NavSection key={section.titleKey} section={section} onClose={onClose} />
         ))}
       </nav>
 
       {/* Bottom Items */}
       <div className="px-3 py-2 border-t border-slate-100 dark:border-gray-800 space-y-0.5">
         {NAV_BOTTOM.map((item) => (
-          <NavItemComponent key={item.key} item={item} />
+          <NavItemComponent key={item.key} item={item} onClose={onClose} />
         ))}
       </div>
 

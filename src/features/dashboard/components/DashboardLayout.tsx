@@ -5,7 +5,7 @@ import { DashboardSidebar } from './DashboardSidebar';
 import { DashboardHeader } from './DashboardHeader';
 import { ThemeProvider } from '@/core/theme/components/ThemeProvider';
 import { useTenantAuth } from '@/core/auth/hooks/useTenantAuth';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { settingsApi } from '@/features/settings/api/settings.api';
 import { useTenantStore } from '@/core/tenant/stores/tenant.store';
@@ -18,6 +18,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { isLoading, isAuthenticated } = useTenantAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const t = useTranslations('common');
+  const locale = useLocale();
+  const isRTL = locale === 'ar';
   const setCurrency = useTenantStore((s) => s.setCurrency);
   const [profileLoaded, setProfileLoaded] = useState(false);
 
@@ -48,6 +50,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   if (!isAuthenticated) return null;
 
+  const sidebarTranslate = sidebarOpen
+    ? 'translate-x-0'
+    : isRTL
+      ? 'translate-x-full lg:translate-x-0'
+      : '-translate-x-full lg:translate-x-0';
+
   return (
     <ThemeProvider>
       <div className="h-screen bg-slate-50 dark:bg-gray-950 flex overflow-hidden">
@@ -60,11 +68,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
         <div
           className={cn(
-            'fixed inset-y-0 start-0 z-30 lg:relative lg:!translate-x-0 transition-transform duration-200',
-            sidebarOpen ? 'translate-x-0' : 'rtl:translate-x-full ltr:-translate-x-full lg:translate-x-0'
+            'fixed inset-y-0 z-30 lg:relative lg:translate-x-0 transition-transform duration-200',
+            isRTL ? 'right-0' : 'left-0',
+            sidebarTranslate
           )}
         >
-          <DashboardSidebar />
+          <DashboardSidebar onClose={() => setSidebarOpen(false)} />
         </div>
 
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">

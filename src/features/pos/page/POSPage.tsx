@@ -11,13 +11,17 @@ import { PaymentData } from '../types/pos.types'
 import { createOrder } from '@/features/orders/api/orders.api'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { apiClient } from '@/lib/api'
+import { useTranslations } from 'next-intl'
+import { ShoppingCart, Grid } from 'lucide-react'
 
 export function POSPage() {
   const { cart, addItem, removeItem, updateQty, applyDiscount, clearCart } = useCart()
   const { user } = useAuthStore()
+  const t = useTranslations('pos')
   const [showPayment, setShowPayment] = useState(false)
   const [receipt, setReceipt] = useState<{ payment: PaymentData; invoiceNumber: string } | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [mobileTab, setMobileTab] = useState<'items' | 'cart'>('items')
 
   const { data: branches } = useQuery({
     queryKey: ['branches'],
@@ -73,20 +77,61 @@ export function POSPage() {
   }
 
   return (
-    <div className="flex h-full gap-4 p-4 overflow-hidden">
-      <div className="flex-1 min-w-0 overflow-hidden flex flex-col">
-        <ItemGrid onAddItem={addItem} />
+    <div className="flex flex-col h-full overflow-hidden">
+
+      {/* Mobile Tabs */}
+      <div className="flex lg:hidden border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shrink-0">
+        <button
+          onClick={() => setMobileTab('items')}
+          className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors ${
+            mobileTab === 'items'
+              ? 'text-blue-600 border-b-2 border-blue-600'
+              : 'text-gray-500 dark:text-gray-400'
+          }`}
+        >
+          <Grid className="w-4 h-4" />
+          {t('items')}
+        </button>
+        <button
+          onClick={() => setMobileTab('cart')}
+          className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors ${
+            mobileTab === 'cart'
+              ? 'text-blue-600 border-b-2 border-blue-600'
+              : 'text-gray-500 dark:text-gray-400'
+          }`}
+        >
+          <ShoppingCart className="w-4 h-4" />
+          {t('currentOrder')}
+          {cart.items.length > 0 && (
+            <span className="bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              {cart.items.length}
+            </span>
+          )}
+        </button>
       </div>
 
-      <div className="w-80 shrink-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 flex flex-col overflow-hidden">
-        <CartPanel
-          cart={cart}
-          onUpdateQty={updateQty}
-          onRemoveItem={removeItem}
-          onApplyDiscount={applyDiscount}
-          onCheckout={() => setShowPayment(true)}
-          onClear={clearCart}
-        />
+      {/* Desktop: side by side — Mobile: tabs */}
+      <div className="flex flex-1 gap-4 p-4 overflow-hidden">
+
+        {/* Items Grid */}
+        <div className={`flex-1 min-w-0 overflow-hidden flex flex-col ${mobileTab === 'cart' ? 'hidden lg:flex' : 'flex'}`}>
+          <ItemGrid onAddItem={(item, variant) => {
+            addItem(item, variant)
+            // على الجوال: بعد إضافة item انتقل للـ cart
+          }} />
+        </div>
+
+        {/* Cart Panel */}
+        <div className={`lg:w-80 lg:shrink-0 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 flex flex-col overflow-hidden ${mobileTab === 'items' ? 'hidden lg:flex' : 'flex'}`}>
+          <CartPanel
+            cart={cart}
+            onUpdateQty={updateQty}
+            onRemoveItem={removeItem}
+            onApplyDiscount={applyDiscount}
+            onCheckout={() => setShowPayment(true)}
+            onClear={clearCart}
+          />
+        </div>
       </div>
 
       {showPayment && (

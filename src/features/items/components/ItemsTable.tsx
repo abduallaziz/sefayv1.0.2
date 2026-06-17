@@ -33,32 +33,36 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onToggleActive
 
   return (
     <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-gray-800">
-      <table className="w-full text-sm">
+      <table className="w-full text-sm min-w-[420px]">
         <thead className="bg-slate-50 dark:bg-gray-800/50 border-b border-slate-200 dark:border-gray-800">
           <tr>
-            <th className="text-start px-4 py-3 font-medium text-slate-500">{t('name')}</th>
-            <th className="text-start px-4 py-3 font-medium text-slate-500">{t('type')}</th>
-            <th className="text-start px-4 py-3 font-medium text-slate-500">{t('category')}</th>
-            <th className="text-start px-4 py-3 font-medium text-slate-500">{t('price')}</th>
-            <th className="text-start px-4 py-3 font-medium text-slate-500">{t('variants')}</th>
-            <th className="text-start px-4 py-3 font-medium text-slate-500">{t('status')}</th>
-            <th className="text-start px-4 py-3 font-medium text-slate-500">{t('actions')}</th>
+            <th className="text-start px-3 py-3 font-medium text-slate-500">{t('name')}</th>
+            <th className="hidden sm:table-cell text-start px-3 py-3 font-medium text-slate-500">{t('type')}</th>
+            <th className="hidden md:table-cell text-start px-3 py-3 font-medium text-slate-500">{t('category')}</th>
+            <th className="text-start px-3 py-3 font-medium text-slate-500 w-24">{t('price')}</th>
+            <th className="hidden sm:table-cell text-start px-3 py-3 font-medium text-slate-500">{t('variants')}</th>
+            <th className="text-start px-3 py-3 font-medium text-slate-500 w-20">{t('status')}</th>
+            <th className="px-3 py-3 w-16" />
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100 dark:divide-gray-800">
           {items.map((item) => (
             <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-gray-800/30 transition-colors">
-              <td className="px-4 py-3 font-medium text-slate-800 dark:text-white">{item.name}</td>
-              <td className="px-4 py-3">
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${typeColors[item.type]}`}>
+              <td className="px-3 py-3 font-medium text-slate-800 dark:text-white max-w-[120px] truncate">
+                {item.name}
+              </td>
+              <td className="hidden sm:table-cell px-3 py-3">
+                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${typeColors[item.type]}`}>
                   {t(item.type)}
                 </span>
               </td>
-              <td className="px-4 py-3 text-slate-500">{item.category_name ?? '—'}</td>
-              <td className="px-4 py-3 font-semibold text-slate-800 dark:text-white">
+              <td className="hidden md:table-cell px-3 py-3 text-slate-500 max-w-[100px] truncate">
+                {item.category_name ?? '—'}
+              </td>
+              <td className="px-3 py-3 font-semibold text-slate-800 dark:text-white w-24 tabular-nums">
                 {item.price.toLocaleString('en-US')} {currency}
               </td>
-              <td className="px-4 py-3">
+              <td className="hidden sm:table-cell px-3 py-3">
                 {item.has_variants ? (
                   <button
                     onClick={() => onVariants(item)}
@@ -71,7 +75,7 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onToggleActive
                   <span className="text-slate-400 text-xs">—</span>
                 )}
               </td>
-              <td className="px-4 py-3">
+              <td className="px-3 py-3 w-20">
                 <button
                   onClick={() => onToggleActive(item)}
                   className={`flex items-center gap-1 text-xs font-medium ${
@@ -79,24 +83,24 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onToggleActive
                   }`}
                 >
                   {item.is_active
-                    ? <><ToggleRight className="w-4 h-4" />{t('active')}</>
-                    : <><ToggleLeft className="w-4 h-4" />{t('inactive')}</>
+                    ? <><ToggleRight className="w-4 h-4" /><span className="hidden sm:inline">{t('active')}</span></>
+                    : <><ToggleLeft className="w-4 h-4" /><span className="hidden sm:inline">{t('inactive')}</span></>
                   }
                 </button>
               </td>
-              <td className="px-4 py-3">
-                <div className="flex items-center gap-2">
+              <td className="px-3 py-3 w-16">
+                <div className="flex items-center gap-1">
                   <button
                     onClick={() => onEdit(item)}
                     className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-700 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors"
                   >
-                    <Edit className="w-4 h-4" />
+                    <Edit className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={() => onDelete(item)}
                     className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </td>
