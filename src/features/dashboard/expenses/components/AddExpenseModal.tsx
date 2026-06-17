@@ -5,10 +5,18 @@ import { useCreateExpense, useExpenseCategories } from '../hooks/useExpenses'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { useQuery } from '@tanstack/react-query'
 import { apiClient } from '@/lib/api'
+import type { RecurrenceType } from '../api/expenses.api'
 
 interface Props {
   onClose: () => void
 }
+
+const RECURRENCE_OPTIONS: { value: RecurrenceType | ''; label: string }[] = [
+  { value: '', label: 'مرة واحدة' },
+  { value: 'daily', label: 'يومي' },
+  { value: 'weekly', label: 'أسبوعي' },
+  { value: 'monthly', label: 'شهري' },
+]
 
 export function AddExpenseModal({ onClose }: Props) {
   const { user } = useAuthStore()
@@ -23,7 +31,12 @@ export function AddExpenseModal({ onClose }: Props) {
 
   const branchId = user?.branchId ?? (branches as any)?.[0]?.id ?? ''
 
-  const [form, setForm] = useState({ category_id: '', amount: '', description: '' })
+  const [form, setForm] = useState({
+    category_id: '',
+    amount: '',
+    description: '',
+    recurrence: '' as RecurrenceType | '',
+  })
 
   function handleSubmit() {
     if (!form.category_id || !form.amount || !branchId) return
@@ -32,12 +45,13 @@ export function AddExpenseModal({ onClose }: Props) {
       category_id: form.category_id,
       amount: parseFloat(form.amount),
       description: form.description || undefined,
-      type: 'one_time',
+      type: form.recurrence ? 'recurring' : 'one_time',
+      recurrence: form.recurrence || undefined,
     }, { onSuccess: onClose })
   }
 
-  const inputClass = "w-full px-3 py-2 text-sm bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 text-slate-800 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C] dark:focus:border-blue-500";
-  const labelClass = "text-xs text-slate-500 mb-1 block";
+  const inputClass = "w-full px-3 py-2 text-sm bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 text-slate-800 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C] dark:focus:border-blue-500"
+  const labelClass = "text-xs text-slate-500 mb-1 block"
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
@@ -76,6 +90,19 @@ export function AddExpenseModal({ onClose }: Props) {
             placeholder="سبب المصروف..."
             className={inputClass}
           />
+        </div>
+
+        <div>
+          <label className={labelClass}>التكرار</label>
+          <select
+            value={form.recurrence}
+            onChange={e => setForm(p => ({ ...p, recurrence: e.target.value as RecurrenceType | '' }))}
+            className={inputClass}
+          >
+            {RECURRENCE_OPTIONS.map(o => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
         </div>
 
         <div>

@@ -1,10 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { expensesApi, CreateExpenseDto, CreateCategoryDto } from '../api/expenses.api';
+import { expensesApi, CreateExpenseDto, CreateCategoryDto, UpdateExpenseTemplateDto } from '../api/expenses.api';
 
 const KEYS = {
   all: ['expenses'] as const,
   stats: ['expenses', 'stats'] as const,
   categories: ['expense-categories'] as const,
+  templates: ['expense-templates'] as const,
 };
 
 export const useExpenses = () =>
@@ -14,9 +15,17 @@ export const useExpenseStats = () =>
   useQuery({ queryKey: KEYS.stats, queryFn: expensesApi.getStats });
 
 export const useExpenseCategories = () =>
-  useQuery({ 
-    queryKey: KEYS.categories, 
+  useQuery({
+    queryKey: KEYS.categories,
     queryFn: expensesApi.getCategories,
+    staleTime: 0,
+    refetchOnMount: true,
+  });
+
+export const useExpenseTemplates = () =>
+  useQuery({
+    queryKey: KEYS.templates,
+    queryFn: expensesApi.getTemplates,
     staleTime: 0,
     refetchOnMount: true,
   });
@@ -103,5 +112,14 @@ export const useDeleteCategory = () => {
     onSettled: () => {
       qc.invalidateQueries({ queryKey: KEYS.categories });
     },
+  });
+};
+
+export const useUpdateExpenseTemplate = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, dto }: { id: string; dto: UpdateExpenseTemplateDto }) =>
+      expensesApi.updateTemplate(id, dto),
+    onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.templates }),
   });
 };

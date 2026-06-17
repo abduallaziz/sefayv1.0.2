@@ -4,13 +4,14 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { ExpensesList } from './components/ExpensesList';
 import { CategoriesList } from './components/CategoriesList';
+import { TemplatesList } from './components/TemplatesList';
 import { useExpenseStats } from './hooks/useExpenses';
 import { formatCurrency } from '@/lib/format';
 import { CheckCircle, Clock, DollarSign, XCircle } from 'lucide-react';
 
 export default function ExpensesPage() {
   const t = useTranslations('expenses');
-  const [tab, setTab] = useState<'requests' | 'categories'>('requests');
+  const [tab, setTab] = useState<'requests' | 'categories' | 'templates'>('requests');
   const { data: stats } = useExpenseStats();
 
   return (
@@ -80,10 +81,21 @@ export default function ExpensesPage() {
         >
           {t('tabs.templates')}
         </button>
+        <button
+          onClick={() => setTab('templates')}
+          className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
+            tab === 'templates'
+              ? 'bg-[#0C447C] text-white'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
+          }`}
+        >
+          {t('tabs.recurring')}
+        </button>
       </div>
 
       {tab === 'requests' && <ExpensesList />}
       {tab === 'categories' && <CategoriesList />}
+      {tab === 'templates' && <TemplatesList />}
     </div>
   );
 }

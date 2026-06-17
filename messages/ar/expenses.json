@@ -3,7 +3,8 @@
   "subtitle": "إدارة طلبات المصروفات والقوالب",
   "tabs": {
     "requests": "الطلبات",
-    "templates": "القوالب"
+    "templates": "القوالب",
+    "recurring": "المتكررة"
   },
   "stats": {
     "pending": "طلبات معلقة",

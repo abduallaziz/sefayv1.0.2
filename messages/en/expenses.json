@@ -3,7 +3,8 @@
   "subtitle": "Manage expense requests and templates",
   "tabs": {
     "requests": "Requests",
-    "templates": "Templates"
+    "templates": "Templates",
+    "recurring": "Recurring"
   },
   "stats": {
     "pending": "Pending Requests",

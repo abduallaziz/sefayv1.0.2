@@ -3,12 +3,28 @@ import { apiClient } from '@/lib/api';
 export type ExpenseStatus = 'pending' | 'approved' | 'rejected' | 'expired' | 'cancelled';
 export type ExpenseType = 'one_time' | 'recurring';
 export type RecurrenceType = 'daily' | 'weekly' | 'monthly' | 'yearly';
+export type RecurrenceScheduleType = 'none' | 'daily' | 'weekly' | 'monthly';
 
 export interface ExpenseCategory {
   id: string;
   name: string;
   is_active: boolean;
   created_at: string;
+}
+
+export interface ExpenseTemplate {
+  id: string;
+  tenant_id: string;
+  name: string;
+  default_amount: number | null;
+  requires_photo: boolean;
+  expiry_hours: number;
+  is_active: boolean;
+  recurrence_type: RecurrenceScheduleType;
+  recurrence_day: number | null;
+  next_run_at: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Expense {
@@ -46,6 +62,17 @@ export interface CreateCategoryDto {
   name: string;
 }
 
+export interface UpdateExpenseTemplateDto {
+  name?: string;
+  default_amount?: number | null;
+  requires_photo?: boolean;
+  expiry_hours?: number;
+  is_active?: boolean;
+  recurrence_type?: RecurrenceScheduleType;
+  recurrence_day?: number | null;
+  next_run_at?: string | null;
+}
+
 export const expensesApi = {
   getAll: (): Promise<Expense[]> =>
     apiClient.get<Expense[]>('/expenses'),
@@ -76,4 +103,10 @@ export const expensesApi = {
 
   deleteCategory: (id: string): Promise<void> =>
     apiClient.delete<void>(`/expense-categories/${id}`),
+
+  getTemplates: (): Promise<ExpenseTemplate[]> =>
+    apiClient.get<ExpenseTemplate[]>('/expense-templates'),
+
+  updateTemplate: (id: string, dto: UpdateExpenseTemplateDto): Promise<ExpenseTemplate> =>
+    apiClient.patch<ExpenseTemplate>(`/expense-templates/${id}`, dto),
 };
