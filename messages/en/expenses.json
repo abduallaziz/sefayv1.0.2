@@ -16,7 +16,8 @@
     "approved": "Approved",
     "rejected": "Rejected",
     "expired": "Expired",
-    "cancelled": "Cancelled"
+    "cancelled": "Cancelled",
+    "reverse": "Reverse Approval"
   },
   "actions": {
     "newRequest": "New Request",

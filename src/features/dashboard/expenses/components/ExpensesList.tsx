@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, CheckCircle, XCircle, Clock, AlertCircle, Ban } from 'lucide-react'
+import { Plus, CheckCircle, XCircle, Clock, AlertCircle, Ban, RotateCcw } from 'lucide-react'
 import { useExpenses, useApproveExpense, useRejectExpense, useCancelExpense } from '../hooks/useExpenses'
 import { AddExpenseModal } from './AddExpenseModal'
 import { formatCurrency } from '@/lib/format'
@@ -42,6 +42,8 @@ export function ExpensesList() {
       onSuccess: () => setCancelTarget(null)
     })
   }
+
+  const isReversal = rejectTarget?.status === 'approved'
 
   return (
     <>
@@ -127,6 +129,17 @@ export function ExpensesList() {
                             </button>
                           </div>
                         )}
+                        {row.status === 'approved' && (
+                          <div className="flex items-center gap-1 justify-end">
+                            <button
+                              onClick={() => setRejectTarget(row)}
+                              className="px-2 py-1 rounded-lg text-xs font-medium bg-orange-500/10 text-orange-600 dark:text-orange-400 hover:bg-orange-500/20 border border-orange-500/20"
+                              title={t('actions.reverse')}
+                            >
+                              <RotateCcw className="w-3 h-3" />
+                            </button>
+                          </div>
+                        )}
                       </td>
                     </tr>
                   )
@@ -139,11 +152,13 @@ export function ExpensesList() {
 
       {showAdd && <AddExpenseModal onClose={() => setShowAdd(false)} />}
 
-      {/* Reject Modal */}
+      {/* Reject / Reverse Modal */}
       {rejectTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
           <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl w-full max-w-md p-6 space-y-4">
-            <h2 className="text-base font-semibold text-slate-800 dark:text-white">{t('reject.title')}</h2>
+            <h2 className="text-base font-semibold text-slate-800 dark:text-white">
+              {isReversal ? t('actions.reverse') : t('reject.title')}
+            </h2>
             <p className="text-sm text-slate-500">{rejectTarget.category?.name ?? '—'} — {formatCurrency(rejectTarget.amount, currency)}</p>
             <div>
               <label className="text-xs text-slate-500 mb-1 block">{t('reject.reason')}</label>
@@ -160,14 +175,14 @@ export function ExpensesList() {
                 onClick={() => { setRejectTarget(null); setRejectReason('') }}
                 className="flex-1 py-2 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-800 rounded-lg text-sm transition-colors"
               >
-                {t('actions.cancel')}
+                {t('actions.back')}
               </button>
               <button
                 onClick={handleReject}
                 disabled={rejectMutation.isPending}
-                className="flex-1 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors"
+                className={`flex-1 py-2 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors ${isReversal ? 'bg-orange-600 hover:bg-orange-700' : 'bg-red-600 hover:bg-red-700'}`}
               >
-                {rejectMutation.isPending ? '...' : t('reject.submit')}
+                {rejectMutation.isPending ? '...' : isReversal ? t('actions.reverse') : t('reject.submit')}
               </button>
             </div>
           </div>

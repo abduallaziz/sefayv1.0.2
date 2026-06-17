@@ -16,7 +16,8 @@
     "approved": "موافق",
     "rejected": "مرفوض",
     "expired": "منتهي",
-    "cancelled": "ملغي"
+    "cancelled": "ملغي",
+    "reverse": "تراجع عن الموافقة"
   },
   "actions": {
     "newRequest": "طلب جديد",
