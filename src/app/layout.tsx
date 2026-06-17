@@ -4,6 +4,7 @@ import { Cairo } from 'next/font/google'
 import './globals.css'
 import { Providers } from '@/core/providers'
 import { ForceLatinNumbers } from '@/components/ForceLatinNumbers'
+import '@emran-alhaddad/saudi-riyal-font/index.css'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 const cairo = Cairo({ subsets: ['arabic'], variable: '--font-cairo' })
