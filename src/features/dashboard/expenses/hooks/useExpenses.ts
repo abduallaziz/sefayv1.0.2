@@ -14,7 +14,12 @@ export const useExpenseStats = () =>
   useQuery({ queryKey: KEYS.stats, queryFn: expensesApi.getStats });
 
 export const useExpenseCategories = () =>
-  useQuery({ queryKey: KEYS.categories, queryFn: expensesApi.getCategories });
+  useQuery({ 
+    queryKey: KEYS.categories, 
+    queryFn: expensesApi.getCategories,
+    staleTime: 0,
+    refetchOnMount: true,
+  });
 
 export const useCreateExpense = () => {
   const qc = useQueryClient();
@@ -82,6 +87,21 @@ export const useDeleteCategory = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => expensesApi.deleteCategory(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.categories }),
+    onMutate: async (id) => {
+      await qc.cancelQueries({ queryKey: KEYS.categories });
+      const previous = qc.getQueryData(KEYS.categories);
+      qc.setQueryData(KEYS.categories, (old: any[]) =>
+        (old ?? []).filter((cat) => cat.id !== id)
+      );
+      return { previous };
+    },
+    onError: (_err, _id, context) => {
+      if (context?.previous) {
+        qc.setQueryData(KEYS.categories, context.previous);
+      }
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: KEYS.categories });
+    },
   });
 };
