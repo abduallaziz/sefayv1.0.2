@@ -23,6 +23,11 @@ export const useTenantStore = create<TenantState>()(
     }),
     {
       name: 'sefay-tenant',
+      onRehydrateStorage: () => (state) => {
+        if (state && state.currency_symbol) {
+          state.currency_symbol = resolveSymbol(state.currency_symbol)
+        }
+      },
     }
   )
 );
