@@ -57,7 +57,7 @@ function TemplateRow({ template }: { template: ExpenseTemplate }) {
       id: template.id,
       dto: {
         name: editName.trim(),
-        default_amount: editAmount ? parseFloat(editAmount) : null,
+        default_amount: editAmount !== '' ? Number(editAmount) : null,
       },
     }, { onSuccess: () => setEditMode(false) })
   }
