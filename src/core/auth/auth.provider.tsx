@@ -7,7 +7,7 @@ interface AuthProviderProps {
   children: React.ReactNode;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1';
+const API_BASE = '/api/v1';
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const { setAuth, clearAuth, setLoading } = useAuthStore();

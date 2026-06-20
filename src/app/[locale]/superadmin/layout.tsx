@@ -6,24 +6,25 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/core/auth/stores/auth.store';
 
 export default function SuperAdminLayoutPage({ children }: { children: React.ReactNode }) {
-  const { user, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuthStore();
   const router = useRouter();
   const pathname = usePathname();
   const locale = pathname.split('/')[1] || 'ar';
   const [hydrated, setHydrated] = useState(false);
+  const isLoading = !hydrated || authLoading;
 
   useEffect(() => setHydrated(true), []);
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (isLoading) return;
     if (!isAuthenticated) {
       router.replace(`/${locale}/login`);
     } else if (user?.role !== 'superadmin') {
       router.replace(`/${locale}/dashboard`);
     }
-  }, [hydrated, isAuthenticated, user, router, locale]);
+  }, [isLoading, isAuthenticated, user, router, locale]);
 
-  if (!hydrated || !isAuthenticated) return null;
+  if (isLoading || !isAuthenticated) return null;
   if (user?.role !== 'superadmin') return null;
 
   return <SuperAdminLayout>{children}</SuperAdminLayout>;

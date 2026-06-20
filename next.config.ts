@@ -3,9 +3,19 @@ import createNextIntlPlugin from 'next-intl/plugin'
 
 const withNextIntl = createNextIntlPlugin()
 
+const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1'
+
 const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/api/v1/:path*',
+        destination: `${API_ORIGIN}/:path*`,
+      },
+    ]
   },
   experimental: {
     optimizePackageImports: [
