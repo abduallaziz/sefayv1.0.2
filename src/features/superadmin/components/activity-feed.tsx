@@ -139,6 +139,7 @@ export function ActivityFeed() {
             <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
           </span>
           <h3 className="text-sm font-semibold text-white">{t('title')}</h3>
+          <span className="text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded px-1.5 py-0.5">Demo</span>
           <span className="text-xs text-white/25 font-mono">{events.length} {t('eventsCount')}</span>
         </div>
         <button

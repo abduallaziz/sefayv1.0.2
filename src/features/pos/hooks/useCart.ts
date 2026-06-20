@@ -1,9 +1,7 @@
 import { useState, useCallback } from 'react'
 import { Cart, CartItem, POSItem, POSVariant } from '../types/pos.types'
 
-const TAX_RATE = 0.15
-
-function calcCart(items: CartItem[], discountType: Cart['discount_type'], discountValue: number): Cart {
+function calcCart(items: CartItem[], discountType: Cart['discount_type'], discountValue: number, taxRate: number): Cart {
   const subtotal = items.reduce((sum, i) => sum + i.total_price, 0)
 
   let discount_amount = 0
@@ -14,7 +12,7 @@ function calcCart(items: CartItem[], discountType: Cart['discount_type'], discou
   }
 
   const taxable = subtotal - discount_amount
-  const tax_amount = Math.round(taxable * TAX_RATE * 100) / 100
+  const tax_amount = Math.round(taxable * taxRate * 100) / 100
   const total = Math.round((taxable + tax_amount) * 100) / 100
 
   return {
@@ -24,18 +22,18 @@ function calcCart(items: CartItem[], discountType: Cart['discount_type'], discou
     discount_type: discountType,
     discount_value: discountValue,
     tax_amount,
-    tax_rate: TAX_RATE,
+    tax_rate: taxRate,
     total,
   }
 }
 
-export function useCart() {
+export function useCart(taxRate: number = 0) {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [discountType, setDiscountType] = useState<Cart['discount_type']>(null)
   const [discountValue, setDiscountValue] = useState(0)
   const [couponCode, setCouponCode] = useState<string | undefined>()
 
-  const cart = calcCart(cartItems, discountType, discountValue)
+  const cart = calcCart(cartItems, discountType, discountValue, taxRate)
 
   const addItem = useCallback((item: POSItem, variant?: POSVariant) => {
     const cartId = variant ? `${item.id}_${variant.id}` : item.id

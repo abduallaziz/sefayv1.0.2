@@ -14,7 +14,7 @@ interface DashboardHeaderProps {
 export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
   const user = useAuthStore((s) => s.user);
   const { theme, toggle } = useThemeStore();
-  const [notifCount] = useState(3);
+  const [notifCount] = useState(0);
   const pathname = usePathname();
   const router = useRouter();
   const currentLocale = useLocale();

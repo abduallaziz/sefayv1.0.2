@@ -1,11 +1,13 @@
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
+import { useLocale } from 'next-intl';
 import { authApi, LoginDto } from '../api/auth.api';
-import { useAuthStore } from '@/core/auth/stores/auth.store';
+import { useAuthStore, type UserRole } from '@/core/auth/stores/auth.store';
 
 export function useLogin() {
   const { setAuth } = useAuthStore();
   const router = useRouter();
+  const locale = useLocale();
 
   return useMutation({
     mutationFn: (dto: LoginDto) => authApi.login(dto),
@@ -15,18 +17,17 @@ export function useLogin() {
           id: data.user.id,
           email: data.user.email,
           name: data.user.name,
-          role: data.user.role as never,
+          role: data.user.role as UserRole,
           tenantId: data.user.tenant_id,
           sessionId: data.user.session_id,
           permissions: data.user.permissions ?? [],
           features: data.user.features ?? [],
         },
         data.access_token,
-        data.refresh_token,
       );
 
       const isSuperAdmin = data.user.role === 'superadmin';
-      router.push(isSuperAdmin ? '/en/superadmin' : '/en/dashboard');
+      router.push(isSuperAdmin ? `/${locale}/superadmin` : `/${locale}/dashboard`);
     },
   });
 }
@@ -34,12 +35,13 @@ export function useLogin() {
 export function useLogout() {
   const { clearAuth } = useAuthStore();
   const router = useRouter();
+  const locale = useLocale();
 
   return useMutation({
     mutationFn: () => authApi.logout(),
     onSettled: () => {
       clearAuth();
-      router.push('/en/login');
+      router.push(`/${locale}/login`);
     },
   });
 }

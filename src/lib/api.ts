@@ -6,7 +6,6 @@ type RequestOptions = {
   headers?: Record<string, string>;
 };
 
-// Mutex للـ refresh — يمنع concurrent refresh calls
 let refreshPromise: Promise<boolean> | null = null;
 
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
@@ -54,19 +53,17 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 async function tryRefresh(): Promise<boolean> {
   try {
     const { useAuthStore } = await import('@/core/auth/stores/auth.store');
-    const { refreshToken, setTokens } = useAuthStore.getState();
-    if (!refreshToken) return false;
+    const { setAccessToken } = useAuthStore.getState();
 
     const res = await fetch(`${API_BASE}/auth/refresh`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refresh_token: refreshToken }),
+      credentials: 'include',
     });
 
     if (!res.ok) return false;
 
     const data = await res.json();
-    setTokens(data.access_token, data.refresh_token);
+    setAccessToken(data.access_token);
     return true;
   } catch {
     return false;

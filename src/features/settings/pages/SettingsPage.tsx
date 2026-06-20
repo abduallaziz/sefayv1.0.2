@@ -150,7 +150,7 @@ export function SettingsPage() {
             <div>
               <p className="text-xs text-slate-500">{t('endsAt')}</p>
               <p className="text-sm font-medium text-slate-800 dark:text-white mt-1">
-                {sub?.expires_at ? new Date(sub.expires_at).toLocaleDateString('en-US') : '—'}
+                {sub?.current_period_end ? new Date(sub.current_period_end).toLocaleDateString('en-US') : '—'}
               </p>
             </div>
           </div>
@@ -173,10 +173,10 @@ export function SettingsPage() {
                 <div className="flex-1 bg-slate-100 dark:bg-gray-800 rounded-full h-2">
                   <div
                     className="bg-[#0C447C] h-2 rounded-full"
-                    style={{ width: `${Math.min(((usage?.users?.current ?? 0) / (usage?.users?.max ?? 1)) * 100, 100)}%` }}
+                    style={{ width: `${Math.min(((usage?.users?.used ?? 0) / (usage?.users?.limit ?? 1)) * 100, 100)}%` }}
                   />
                 </div>
-                <span className="text-xs text-slate-400">{usage?.users?.current ?? 0}/{usage?.users?.max ?? sub?.max_users ?? 0}</span>
+                <span className="text-xs text-slate-400">{usage?.users?.used ?? 0}/{usage?.users?.limit ?? sub?.max_users ?? 0}</span>
               </div>
             </div>
             <div>
@@ -185,10 +185,10 @@ export function SettingsPage() {
                 <div className="flex-1 bg-slate-100 dark:bg-gray-800 rounded-full h-2">
                   <div
                     className="bg-violet-500 h-2 rounded-full"
-                    style={{ width: `${Math.min(((usage?.branches?.current ?? 0) / (usage?.branches?.max ?? 1)) * 100, 100)}%` }}
+                    style={{ width: `${Math.min(((usage?.branches?.used ?? 0) / (usage?.branches?.limit ?? 1)) * 100, 100)}%` }}
                   />
                 </div>
-                <span className="text-xs text-slate-400">{usage?.branches?.current ?? 0}/{usage?.branches?.max ?? sub?.max_branches ?? 0}</span>
+                <span className="text-xs text-slate-400">{usage?.branches?.used ?? 0}/{usage?.branches?.limit ?? sub?.max_branches ?? 0}</span>
               </div>
             </div>
           </div>

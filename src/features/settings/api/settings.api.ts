@@ -13,13 +13,16 @@ export interface TenantProfile {
 export interface TenantSubscription {
   plan_name: string
   status: string
-  ends_at: string | null
-  interval: string
+  current_period_end: string | null
+  billing_cycle: string
+  max_users: number
+  max_branches: number
 }
 
 export interface TenantUsage {
-  users: { current: number; max: number }
-  branches: { current: number; max: number }
+  users: { used: number; limit: number | null }
+  branches: { used: number; limit: number | null }
+  invoices_this_month: { used: number; limit: number | null }
 }
 
 export interface UpdateProfileDto {
@@ -27,6 +30,7 @@ export interface UpdateProfileDto {
   business_type?: string
   currency_code?: string
   currency_symbol?: string
+  tax_rate?: number
 }
 
 export const settingsApi = {
@@ -36,7 +40,7 @@ export const settingsApi = {
   updateProfile: (data: UpdateProfileDto): Promise<TenantProfile> =>
     apiClient.patch('/tenant/profile', data),
 
-  getSubscription: (): Promise<TenantSubscription> =>
+  getSubscription: (): Promise<{ tenant_status: string; trial_ends_at: string | null; subscription: TenantSubscription | null }> =>
     apiClient.get('/tenant/subscription'),
 
   getUsage: (): Promise<TenantUsage> =>

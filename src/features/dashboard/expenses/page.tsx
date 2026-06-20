@@ -79,7 +79,7 @@ export default function ExpensesPage() {
               : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
           }`}
         >
-          {t('tabs.templates')}
+          {t('tabs.categories')}
         </button>
         <button
           onClick={() => setTab('templates')}
@@ -89,7 +89,7 @@ export default function ExpensesPage() {
               : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
           }`}
         >
-          {t('tabs.recurring')}
+          {t('tabs.templates')}
         </button>
       </div>
 

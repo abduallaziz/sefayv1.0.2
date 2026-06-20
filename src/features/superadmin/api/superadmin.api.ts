@@ -11,11 +11,11 @@ import type {
 } from '../types'
 
 export type AnalyticsPeriod =
-  | 'last_30_days'
-  | 'last_90_days'
-  | 'last_6_months'
-  | 'last_12_months'
-  | 'year_to_date'
+  | '30d'
+  | '90d'
+  | '6m'
+  | '12m'
+  | 'ytd'
 
 export interface AuditLogsParams {
   page?: number
@@ -28,7 +28,7 @@ export interface AuditLogsParams {
 }
 
 export const superadminApi = {
-  // ─── Stats (from /superadmin/stats) ───────────────────────────────────────
+  // ─── Stats ────────────────────────────────────────────────────────────────
   getStats: (): Promise<GlobalStats> =>
     apiClient.get('/superadmin/stats'),
 

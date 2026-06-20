@@ -48,7 +48,6 @@ export function LoginPage() {
           features: res.user.features ?? [],
         },
         res.access_token,
-        res.refresh_token,
       );
       if (res.user.role === 'superadmin') {
         router.replace(`/${locale}/superadmin`);

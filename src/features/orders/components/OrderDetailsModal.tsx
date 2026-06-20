@@ -78,7 +78,7 @@ export function OrderDetailsModal({ order, onClose, onCancel }: Props) {
                   </div>
                   <div className="text-end">
                     <p className="font-medium text-slate-800 dark:text-white">{item.total_price} {currency}</p>
-                    <p className="text-xs text-slate-400">{item.qty} × {item.price}</p>
+                    <p className="text-xs text-slate-400">{item.quantity} × {item.unit_price}</p>
                   </div>
                 </div>
               ))}
@@ -90,10 +90,10 @@ export function OrderDetailsModal({ order, onClose, onCancel }: Props) {
               <span>{t('details.subtotal')}</span>
               <span>{order.subtotal} {currency}</span>
             </div>
-            {order.discount > 0 && (
+            {order.discount_amount > 0 && (
               <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
                 <span>{t('details.discount')}</span>
-                <span>-{order.discount} {currency}</span>
+                <span>-{order.discount_amount} {currency}</span>
               </div>
             )}
             <div className="flex justify-between text-slate-500">

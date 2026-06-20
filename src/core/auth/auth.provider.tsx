@@ -1,31 +1,24 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useAuthStore } from './stores/auth.store';
+import { useAuthStore, type UserRole } from './stores/auth.store';
 
 interface AuthProviderProps {
   children: React.ReactNode;
 }
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1';
+
 export function AuthProvider({ children }: AuthProviderProps) {
-  const { refreshToken, setTokens, setAuth, clearAuth, setLoading } = useAuthStore();
+  const { setAuth, clearAuth, setLoading } = useAuthStore();
 
   useEffect(() => {
     const tryAutoRefresh = async () => {
-      if (!refreshToken) {
-        setLoading(false);
-        return;
-      }
-
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1'}/auth/refresh`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ refresh_token: refreshToken }),
-          },
-        );
+        const res = await fetch(`${API_BASE}/auth/refresh`, {
+          method: 'POST',
+          credentials: 'include',
+        });
 
         if (!res.ok) {
           clearAuth();
@@ -33,12 +26,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
 
         const data = await res.json();
-        setTokens(data.access_token, data.refresh_token);
 
-        const meRes = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1'}/auth/me`,
-          { headers: { Authorization: `Bearer ${data.access_token}` } },
-        );
+        const meRes = await fetch(`${API_BASE}/auth/me`, {
+          headers: { Authorization: `Bearer ${data.access_token}` },
+          credentials: 'include',
+        });
 
         if (meRes.ok) {
           const user = await meRes.json();
@@ -47,14 +39,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
               id: user.id,
               email: user.email,
               name: user.name,
-              role: user.role,
+              role: user.role as UserRole,
               tenantId: user.tenant_id,
               sessionId: user.session_id,
               permissions: user.permissions ?? [],
               features: user.features ?? [],
             },
             data.access_token,
-            data.refresh_token,
           );
         } else {
           clearAuth();

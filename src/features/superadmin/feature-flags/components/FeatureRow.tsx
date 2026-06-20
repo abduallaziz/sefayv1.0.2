@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl'
 import { useLocale } from 'next-intl'
 import { FeatureCategoryBadge } from './FeatureCategoryBadge'
 import { OverrideLimitDialog } from './OverrideLimitDialog'
-import { useUpsertOverride, useResetOverride } from '../hooks/useFeatureFlags'
+import { useUpsertOverride } from '../hooks/useFeatureFlags'
 import type { FeatureWithOverride } from '../types/feature-flags.types'
 
 interface Props {
@@ -17,7 +17,6 @@ export function FeatureRow({ tenantId, feature }: Props) {
   const locale = useLocale()
   const [limitOpen, setLimitOpen] = useState(false)
   const { mutate: upsert, isPending: upserting } = useUpsertOverride()
-  const { mutate: reset, isPending: resetting } = useResetOverride()
 
   const hasOverride = !!feature.tenant_override
   const isEnabled = feature.effective_enabled
@@ -30,10 +29,6 @@ export function FeatureRow({ tenantId, feature }: Props) {
       is_enabled: !isEnabled,
       limit_value: feature.effective_limit,
     })
-  }
-
-  function handleReset() {
-    reset({ tenantId, featureKey: feature.key })
   }
 
   return (
@@ -81,16 +76,6 @@ export function FeatureRow({ tenantId, feature }: Props) {
           }`}
           />
         </button>
-        {hasOverride && (
-          <button
-            onClick={handleReset}
-            disabled={resetting}
-            title={t('resetOverride')}
-            className="text-xs text-gray-500 hover:text-red-400 transition-colors disabled:opacity-50"
-          >
-            ↺
-          </button>
-        )}
       </div>
       <OverrideLimitDialog
         tenantId={tenantId}

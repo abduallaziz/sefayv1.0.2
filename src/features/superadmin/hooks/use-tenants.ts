@@ -14,7 +14,7 @@ export function useStats() {
 export function useRevenue() {
   return useQuery({
     queryKey: ['superadmin', 'analytics', 'mrr-history'],
-    queryFn: () => superadminApi.getMRRHistory('last_12_months'),
+    queryFn: () => superadminApi.getMRRHistory('12m'),
   });
 }
 

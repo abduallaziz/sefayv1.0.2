@@ -8,7 +8,6 @@ export interface LoginDto {
 
 export interface LoginResponse {
   access_token: string;
-  refresh_token: string;
   user: {
     id: string;
     email: string;
@@ -41,10 +40,4 @@ export const authApi = {
 
   me: () =>
     apiClient.get<MeResponse>('/auth/me'),
-
-  refresh: (refreshToken: string) =>
-    apiClient.post<{ access_token: string; refresh_token: string }>(
-      '/auth/refresh',
-      { refresh_token: refreshToken },
-    ),
 };

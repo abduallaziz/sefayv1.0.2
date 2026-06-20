@@ -152,6 +152,7 @@ export function AiInsights() {
           </div>
           <div>
             <h3 className="text-sm font-semibold text-white">{t('title')}</h3>
+            <span className="text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded px-1.5 py-0.5">Demo</span>
             <p className="text-[10px] text-white/25">{t('updated')}</p>
           </div>
           {critical > 0 && (

@@ -28,7 +28,4 @@ export const customersApi = {
 
   delete: (id: string): Promise<void> =>
     apiClient.delete(`/customers/${id}`),
-
-  adjustPoints: (id: string, points: number, reason: string): Promise<Customer> =>
-    apiClient.patch(`/customers/${id}/points`, { points, reason }),
 };

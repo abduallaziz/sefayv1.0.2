@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 
 export type UserRole = 'owner' | 'manager' | 'cashier' | 'worker' | 'superadmin';
 
@@ -18,44 +17,29 @@ export interface AuthUser {
 interface AuthState {
   user: AuthUser | null;
   accessToken: string | null;
-  refreshToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
 
-  setAuth: (user: AuthUser, accessToken: string, refreshToken: string) => void;
-  setTokens: (accessToken: string, refreshToken: string) => void;
+  setAuth: (user: AuthUser, accessToken: string) => void;
+  setAccessToken: (accessToken: string) => void;
   clearAuth: () => void;
   setLoading: (v: boolean) => void;
 }
 
-export const useAuthStore = create<AuthState>()(
-  persist(
-    (set) => ({
-      user: null,
-      accessToken: null,
-      refreshToken: null,
-      isAuthenticated: false,
-      isLoading: false,
+export const useAuthStore = create<AuthState>()((set) => ({
+  user: null,
+  accessToken: null,
+  isAuthenticated: false,
+  isLoading: false,
 
-      setAuth: (user, accessToken, refreshToken) =>
-        set({ user, accessToken, refreshToken, isAuthenticated: true }),
+  setAuth: (user, accessToken) =>
+    set({ user, accessToken, isAuthenticated: true }),
 
-      setTokens: (accessToken, refreshToken) =>
-        set({ accessToken, refreshToken }),
+  setAccessToken: (accessToken) =>
+    set({ accessToken }),
 
-      clearAuth: () =>
-        set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false }),
+  clearAuth: () =>
+    set({ user: null, accessToken: null, isAuthenticated: false }),
 
-      setLoading: (isLoading) => set({ isLoading }),
-    }),
-    {
-      name: 'sefay-auth',
-      partialize: (state) => ({
-        user: state.user,
-        accessToken: state.accessToken,
-        refreshToken: state.refreshToken,
-        isAuthenticated: state.isAuthenticated,
-      }),
-    }
-  )
-);
+  setLoading: (isLoading) => set({ isLoading }),
+}));

@@ -8,7 +8,7 @@ import { apiClient } from '@/lib/api'
 
 interface Props {
   onClose: () => void
-}
+}ش
 
 export function AddExpenseModal({ onClose }: Props) {
   const { user } = useAuthStore()

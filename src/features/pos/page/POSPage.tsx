@@ -15,11 +15,10 @@ import { useTranslations } from 'next-intl'
 import { ShoppingCart, Grid } from 'lucide-react'
 
 export function POSPage() {
-  const { cart, addItem, removeItem, updateQty, applyDiscount, clearCart } = useCart()
   const { user } = useAuthStore()
   const t = useTranslations('pos')
   const [showPayment, setShowPayment] = useState(false)
-  const [receipt, setReceipt] = useState<{ payment: PaymentData; invoiceNumber: string } | null>(null)
+  const [receipt, setReceipt] = useState<{ payment: PaymentData; invoiceNumber: string; taxRate: number } | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [mobileTab, setMobileTab] = useState<'items' | 'cart'>('items')
 
@@ -34,6 +33,16 @@ export function POSPage() {
     queryFn: () => apiClient.get('/shifts/current') as any,
     enabled: !!user,
   })
+
+  const { data: tenantProfile } = useQuery({
+    queryKey: ['tenant', 'profile'],
+    queryFn: () => apiClient.get<{ tax_rate?: number }>('/tenant/profile'),
+    enabled: !!user,
+  })
+
+  const taxRate = (tenantProfile as any)?.tax_rate ?? 0.15
+
+  const { cart, addItem, removeItem, updateQty, applyDiscount, clearCart } = useCart(taxRate)
 
   const branchId = user?.branchId ?? (branches as any)?.[0]?.id ?? ''
 
@@ -56,13 +65,18 @@ export function POSPage() {
           quantity: item.quantity,
           unit_price: item.unit_price,
         })),
-        discount_amount: cart.discount_amount > 0 ? cart.discount_amount : undefined,
-        coupon_code: cart.coupon_code,
+        discount: cart.discount_type
+          ? {
+              type: cart.discount_type,
+              value: cart.discount_value,
+            }
+          : undefined,
       })
       setShowPayment(false)
       setReceipt({
         payment: data,
         invoiceNumber: order.id.slice(-6).toUpperCase(),
+        taxRate: (order as any).tax_rate ?? taxRate,
       })
     } catch (error) {
       console.error('Failed to create order:', error)
@@ -117,7 +131,6 @@ export function POSPage() {
         <div className={`flex-1 min-w-0 overflow-hidden flex flex-col ${mobileTab === 'cart' ? 'hidden lg:flex' : 'flex'}`}>
           <ItemGrid onAddItem={(item, variant) => {
             addItem(item, variant)
-            // على الجوال: بعد إضافة item انتقل للـ cart
           }} />
         </div>
 
@@ -148,6 +161,7 @@ export function POSPage() {
           cart={cart}
           payment={receipt.payment}
           invoiceNumber={receipt.invoiceNumber}
+          taxRate={receipt.taxRate}
           onClose={() => setReceipt(null)}
           onNewOrder={handleNewOrder}
         />

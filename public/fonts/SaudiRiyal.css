@@ -1,0 +1,41 @@
+@font-face {
+  font-family: "saudi_riyal";
+  src: url("/fonts/saudi_riyal_regular.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "saudi_riyal_bold";
+  src: url("/fonts/saudi_riyal_bold.woff2") format("woff2");
+  font-weight: bold;
+  font-style: normal;
+}
+
+.icon-saudi_riyal::before {
+  content: "\e900";
+  font-family: "saudi_riyal" !important;
+  font-size: inherit;
+  color: inherit;
+}
+
+.icon-saudi_riyal_bold::before {
+  content: "\e900";
+  font-family: "saudi_riyal_bold" !important;
+  font-size: inherit;
+  color: inherit;
+}
+
+.icon-saudi_riyal_new::after {
+  content: "\20c1";
+  font-family: "saudi_riyal" !important;
+  font-size: inherit;
+  color: inherit;
+}
+
+.icon-saudi_riyal_bold_new::after {
+  content: "\20c1";
+  font-family: "saudi_riyal_bold" !important;
+  font-size: inherit;
+  color: inherit;
+}

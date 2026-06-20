@@ -6,13 +6,15 @@ interface Props {
   cart: Cart
   payment: PaymentData
   invoiceNumber: string
+  taxRate: number
   onClose: () => void
   onNewOrder: () => void
 }
 
-export function ReceiptModal({ cart, payment, invoiceNumber, onClose, onNewOrder }: Props) {
+export function ReceiptModal({ cart, payment, invoiceNumber, taxRate, onClose, onNewOrder }: Props) {
   const now = new Date().toLocaleString('en-US')
   const fmt = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  const taxPct = `${(taxRate * 100).toLocaleString('en-US', { maximumFractionDigits: 2 })}%`
 
   const paymentLabel = {
     cash: 'نقداً',
@@ -59,7 +61,7 @@ export function ReceiptModal({ cart, payment, invoiceNumber, onClose, onNewOrder
               </div>
             )}
             <div className="flex justify-between text-slate-400">
-              <span>الضريبة 15%</span><span>{fmt(cart.tax_amount)}</span>
+              <span>الضريبة {taxPct}</span><span>{fmt(cart.tax_amount)}</span>
             </div>
             <div className="flex justify-between font-bold text-base border-t border-[#1e2130] pt-2">
               <span className="text-white">الإجمالي</span>

@@ -33,6 +33,12 @@ export interface CreateOrderItem {
   unit_price: number;
 }
 
+export interface CreateOrderDiscount {
+  type: 'percentage' | 'fixed';
+  value: number;
+  max_allowed?: number;
+}
+
 export interface CreateOrderPayload {
   branch_id: string;
   shift_id?: string;
@@ -41,10 +47,10 @@ export interface CreateOrderPayload {
   cash_amount?: number;
   card_amount?: number;
   items: CreateOrderItem[];
-  discount_amount?: number;
-  coupon_code?: string;
+  discount?: CreateOrderDiscount;
   customer_id?: string;
   notes?: string;
+  tax_rate?: number;
 }
 
 export async function createOrder(payload: CreateOrderPayload): Promise<Order> {

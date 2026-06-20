@@ -28,16 +28,3 @@ export function useUpsertOverride() {
     },
   })
 }
-
-export function useResetOverride() {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: ({ tenantId, featureKey }: { tenantId: string; featureKey: string }) =>
-      featureFlagsApi.resetOverride(tenantId, featureKey),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ['tenant-features', variables.tenantId],
-      })
-    },
-  })
-}

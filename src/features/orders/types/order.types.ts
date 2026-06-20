@@ -7,8 +7,8 @@ export interface OrderItem {
   item_name: string;
   variant_id?: string | null;
   variant_name?: string | null;
-  qty: number;
-  price: number;
+  quantity: number;
+  unit_price: number;
   total_price: number;
 }
 
@@ -23,7 +23,7 @@ export interface Order {
   shift_id?: string | null;
   status: OrderStatus;
   subtotal: number;
-  discount: number;
+  discount_amount: number;
   tax: number;
   total: number;
   payment_method: PaymentMethod;
