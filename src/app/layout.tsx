@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 const cairo = Cairo({ subsets: ['arabic'], variable: '--font-cairo' })
 
 export const metadata: Metadata = {
-  title: 'Sefay — Enterprise SaaS',
+  title: 'Sefay - Enterprise SaaS',
   description: 'Universal Business Operating System',
 }
 
