@@ -10,26 +10,51 @@ export interface ReportQuery {
 }
 
 export interface RevenueReport {
-  total_revenue: number
-  total_orders: number
-  average_order: number
-  by_day: { date: string; revenue: number; orders: number }[]
+  period: { from: string; to: string }
+  summary: {
+    total_revenue: number
+    total_orders: number
+    total_discount: number
+    total_tax: number
+    avg_order_value: number
+  }
+  by_payment_method: Record<string, { count: number; total: number }>
+  daily_breakdown: { date: string; total: number }[]
 }
 
 export interface ShiftsReport {
-  total_shifts: number
-  total_hours: number
-  by_shift: { id: string; opened_at: string; closed_at: string; total_sales: number }[]
+  period: { from: string; to: string }
+  summary: {
+    total_shifts: number
+    closed_shifts: number
+    open_shifts: number
+    total_discrepancy: number
+    avg_discrepancy: number
+  }
+  shifts: { id: string; opened_at: string; closed_at: string }[]
 }
 
 export interface ExpensesReport {
-  total_expenses: number
-  by_category: { category: string; total: number; count: number }[]
+  period: { from: string; to: string }
+  summary: {
+    total_requests: number
+    approved_count: number
+    rejected_count: number
+    pending_count: number
+    total_approved_amount: number
+  }
+  expenses: { id: string; amount: number; status: string }[]
 }
 
 export interface PaymentsReport {
-  total: number
-  by_method: { method: string; total: number; count: number }[]
+  period: { from: string; to: string }
+  summary: {
+    total_orders: number
+    grand_total: number
+    cash: { count: number; total: number }
+    card: { count: number; total: number }
+    split: { count: number; total: number }
+  }
 }
 
 export const reportsApi = {

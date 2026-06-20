@@ -152,10 +152,10 @@ export function DashboardOverview() {
 
   if (!user) return null;
 
-  const totalRevenue = revenue?.total_revenue ?? 0;
-  const totalOrders = revenue?.total_orders ?? 0;
-  const avgOrder = revenue?.average_order ?? 0;
-  const totalExpenses = expenses?.total_expenses ?? 0;
+  const totalRevenue = revenue?.summary?.total_revenue ?? 0;
+  const totalOrders = revenue?.summary?.total_orders ?? 0;
+  const avgOrder = revenue?.summary?.avg_order_value ?? 0;
+  const totalExpenses = expenses?.summary?.total_approved_amount ?? 0;
   const totalCustomers = customerStats?.total ?? 0;
 
   const shiftDuration = shift?.opened_at
@@ -167,10 +167,9 @@ export function DashboardOverview() {
       })()
     : '—';
 
-  const paymentTotal = payments?.total ?? 0;
-  const paymentMethods = payments?.by_method ?? [];
-  const cash = paymentMethods.find((p: { method: string }) => p.method === 'cash')?.total ?? 0;
-  const card = paymentMethods.find((p: { method: string }) => p.method === 'card')?.total ?? 0;
+  const paymentTotal = payments?.summary?.grand_total ?? 0;
+  const cash = payments?.summary?.cash?.total ?? 0;
+  const card = payments?.summary?.card?.total ?? 0;
   const other = paymentTotal - cash - card;
 
   return (
