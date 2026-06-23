@@ -76,17 +76,24 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
 }
 
 /* ── Input field ─────────────────────────────────────────── */
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, errorText, children }: { label: string; errorText?: string; children: React.ReactNode }) {
   return (
     <div className="space-y-[7px]">
-      <label className="block text-[13px] font-semibold text-[#54657C]">{label}</label>
+      <label className="block text-[13px] font-semibold text-[#54657C]">
+        {label} <span className="text-[#A32D2D]">*</span>
+      </label>
       {children}
+      {errorText && <p className="text-[12px] text-[#A32D2D] font-medium">{errorText}</p>}
     </div>
   )
 }
 
 const inputCls =
   "w-full px-3 py-3 rounded-[11px] border border-[#E4EAF2] text-sm font-[inherit] text-[#0A1628] bg-[#F5F8FC] outline-none transition-all focus:border-[#0C447C] focus:bg-white focus:shadow-[0_0_0_3.5px_rgba(12,68,124,.11)]"
+
+function fieldCls(invalid: boolean) {
+  return cn(inputCls, invalid && 'border-[#A32D2D] bg-[#FCEBEB] focus:border-[#A32D2D]')
+}
 
 function StepIcon({ icon }: { icon: React.ReactNode }) {
   return (
@@ -100,36 +107,40 @@ function StepIcon({ icon }: { icon: React.ReactNode }) {
 }
 
 /* ── Step 1 — Business Info ──────────────────────────────── */
-function Step1({ data, onChange }: { data: FormData; onChange: (k: keyof FormData, v: string) => void }) {
+function Step1({ data, onChange, showErrors }: { data: FormData; onChange: (k: keyof FormData, v: string) => void; showErrors: boolean }) {
   const t = useTranslations('onboarding.info')
+  const tc = useTranslations('onboarding')
   const [showPassword, setShowPassword] = useState(false)
+
+  const err = (v: string) => showErrors && !v.trim() ? tc('fieldRequired') : undefined
+
   return (
     <div className="space-y-4">
       <div className="text-center mb-7">
         <StepIcon icon={<Building2 className="w-7 h-7 text-white" strokeWidth={2} />} />
         <h2 className="text-[21px] font-bold text-[#0A1628]">{t('title')}</h2>
       </div>
-      <Field label={t('businessName')}>
-        <input type="text" className={inputCls} placeholder={t('businessNamePlaceholder')}
+      <Field label={t('businessName')} errorText={err(data.businessName)}>
+        <input type="text" className={fieldCls(!!err(data.businessName))} placeholder={t('businessNamePlaceholder')}
           value={data.businessName} onChange={(e) => onChange('businessName', e.target.value)} />
       </Field>
-      <Field label={t('ownerName')}>
-        <input type="text" className={inputCls} placeholder={t('ownerNamePlaceholder')}
+      <Field label={t('ownerName')} errorText={err(data.ownerName)}>
+        <input type="text" className={fieldCls(!!err(data.ownerName))} placeholder={t('ownerNamePlaceholder')}
           value={data.ownerName} onChange={(e) => onChange('ownerName', e.target.value)} />
       </Field>
-      <Field label={t('phone')}>
-        <input type="tel" className={inputCls} placeholder={t('phonePlaceholder')}
+      <Field label={t('phone')} errorText={err(data.phone)}>
+        <input type="tel" className={fieldCls(!!err(data.phone))} placeholder={t('phonePlaceholder')}
           value={data.phone} onChange={(e) => onChange('phone', e.target.value)} />
       </Field>
-      <Field label={t('email')}>
-        <input type="email" className={inputCls} placeholder={t('emailPlaceholder')}
+      <Field label={t('email')} errorText={err(data.email)}>
+        <input type="email" className={fieldCls(!!err(data.email))} placeholder={t('emailPlaceholder')}
           value={data.email} onChange={(e) => onChange('email', e.target.value)} />
       </Field>
-      <Field label={t('password')}>
+      <Field label={t('password')} errorText={err(data.password)}>
         <div className="relative">
           <input
             type={showPassword ? 'text' : 'password'}
-            className={inputCls}
+            className={fieldCls(!!err(data.password))}
             style={{ paddingInlineEnd: 42 }}
             placeholder={t('passwordPlaceholder')}
             value={data.password}
@@ -149,9 +160,11 @@ function Step1({ data, onChange }: { data: FormData; onChange: (k: keyof FormDat
 }
 
 /* ── Step 2 — Activity ───────────────────────────────────── */
-function Step2({ data, onChange }: { data: FormData; onChange: (k: keyof FormData, v: string) => void }) {
+function Step2({ data, onChange, showErrors }: { data: FormData; onChange: (k: keyof FormData, v: string) => void; showErrors: boolean }) {
   const t = useTranslations('onboarding.activity')
+  const tc = useTranslations('onboarding')
   const [open, setOpen] = useState<string | null>(ACTIVITY_SECTIONS[0].key)
+  const invalid = showErrors && !data.activity
 
   return (
     <div className="space-y-3">
@@ -161,7 +174,11 @@ function Step2({ data, onChange }: { data: FormData; onChange: (k: keyof FormDat
         <p className="text-[14px] text-[#8C9CB2] mt-1">{t('subtitle')}</p>
       </div>
 
-      <div className="space-y-2 max-h-[400px] overflow-y-auto pe-1">
+      {invalid && (
+        <p className="text-[13px] text-[#A32D2D] font-medium text-center">{tc('activityRequired')}</p>
+      )}
+
+      <div className={cn('space-y-2 max-h-[400px] overflow-y-auto pe-1 rounded-[15px]', invalid && 'ring-2 ring-[#A32D2D]/40 p-2')}>
         {ACTIVITY_SECTIONS.map((section) => (
           <div key={section.key} className="border border-[#E4EAF2] rounded-[13px] overflow-hidden">
             {/* Section header */}
@@ -208,12 +225,16 @@ function Step2({ data, onChange }: { data: FormData; onChange: (k: keyof FormDat
 }
 
 /* ── Step 3 — Settings ───────────────────────────────────── */
-function Step3({ data, onChange, onToggleVat }: {
+function Step3({ data, onChange, onToggleVat, showErrors }: {
   data: FormData
   onChange: (k: keyof FormData, v: string) => void
   onToggleVat: () => void
+  showErrors: boolean
 }) {
   const t = useTranslations('onboarding.settings')
+  const tc = useTranslations('onboarding')
+  const err = (v: string) => showErrors && !v.trim() ? tc('fieldRequired') : undefined
+
   return (
     <div className="space-y-4">
       <div className="text-center mb-7">
@@ -221,13 +242,13 @@ function Step3({ data, onChange, onToggleVat }: {
         <h2 className="text-[21px] font-bold text-[#0A1628]">{t('title')}</h2>
       </div>
 
-      <Field label={t('branchName')}>
-        <input type="text" className={inputCls} placeholder={t('branchNamePlaceholder')}
+      <Field label={t('branchName')} errorText={err(data.branchName)}>
+        <input type="text" className={fieldCls(!!err(data.branchName))} placeholder={t('branchNamePlaceholder')}
           value={data.branchName} onChange={(e) => onChange('branchName', e.target.value)} />
       </Field>
 
-      <Field label={t('city')}>
-        <input type="text" className={inputCls} placeholder={t('cityPlaceholder')}
+      <Field label={t('city')} errorText={err(data.city)}>
+        <input type="text" className={fieldCls(!!err(data.city))} placeholder={t('cityPlaceholder')}
           value={data.city} onChange={(e) => onChange('city', e.target.value)} />
       </Field>
 
@@ -331,6 +352,7 @@ export function OnboardingWizard() {
   })
 
   const TOTAL = 4
+  const [showErrors, setShowErrors] = useState(false)
 
   function onChange(key: keyof FormData, value: string) {
     setData((prev) => ({ ...prev, [key]: value }))
@@ -340,8 +362,27 @@ export function OnboardingWizard() {
     setData((prev) => ({ ...prev, vatEnabled: !prev.vatEnabled }))
   }
 
+  function isStepValid(s: number): boolean {
+    switch (s) {
+      case 0:
+        return !!(data.businessName.trim() && data.ownerName.trim() && data.phone.trim() && data.email.trim() && data.password.trim())
+      case 1:
+        return !!data.activity
+      case 2:
+        return !!(data.branchName.trim() && data.city.trim())
+      default:
+        return true
+    }
+  }
+
   function next() {
+    if (!isStepValid(step)) {
+      setShowErrors(true)
+      return
+    }
+
     if (step < TOTAL - 1) {
+      setShowErrors(false)
       setStep(step + 1)
       return
     }
@@ -363,7 +404,13 @@ export function OnboardingWizard() {
   }
 
   function back() {
+    setShowErrors(false)
     if (step > 0) setStep(step - 1)
+  }
+
+  function editStep(s: number) {
+    setShowErrors(false)
+    setStep(s)
   }
 
   const errorMessage = register.error
@@ -435,10 +482,10 @@ export function OnboardingWizard() {
 
               {/* Step content */}
               <div key={step} style={{ animation: 'fadeUp .35s cubic-bezier(.4,0,.2,1) backwards' }}>
-                {step === 0 && <Step1 data={data} onChange={onChange} />}
-                {step === 1 && <Step2 data={data} onChange={onChange} />}
-                {step === 2 && <Step3 data={data} onChange={onChange} onToggleVat={onToggleVat} />}
-                {step === 3 && <Step4 data={data} onEdit={setStep} />}
+                {step === 0 && <Step1 data={data} onChange={onChange} showErrors={showErrors} />}
+                {step === 1 && <Step2 data={data} onChange={onChange} showErrors={showErrors} />}
+                {step === 2 && <Step3 data={data} onChange={onChange} onToggleVat={onToggleVat} showErrors={showErrors} />}
+                {step === 3 && <Step4 data={data} onEdit={editStep} />}
               </div>
 
               {/* Error */}

@@ -933,6 +933,8 @@
     "creating": "Creating your account...",
     "errorEmailTaken": "This email is already registered",
     "errorGeneric": "Something went wrong creating your account, please try again",
+    "fieldRequired": "This field is required",
+    "activityRequired": "Please select an activity type to continue",
     "stepOf": "Step {current} of {total}",
     "info": {
       "title": "Tell us about your business",
