@@ -135,8 +135,8 @@ export function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPass(!showPass)}
-                  className="absolute end-3 top-1/2 -translate-y-1/2 transition-colors"
-                  style={{ color: '#8C9CB2', border: 'none', background: 'none', cursor: 'pointer' }}
+                  className="absolute top-1/2 -translate-y-1/2 transition-colors"
+                  style={{ color: '#8C9CB2', border: 'none', background: 'none', cursor: 'pointer', right: 12 }}
                 >
                   {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
