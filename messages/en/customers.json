@@ -3,7 +3,7 @@
   "subtitle": "Manage your customers and their order history",
   "add_customer": "Add Customer",
   "loading": "Loading...",
-  "currency": "SAR",
+  "currency": "⃁",
   "search_placeholder": "Search by name, phone, or email...",
   "count": "{count} customers",
   "stats": {
