@@ -940,7 +940,9 @@
       "phone": "Phone",
       "phonePlaceholder": "05xxxxxxxx",
       "email": "Email",
-      "emailPlaceholder": "example@email.com"
+      "emailPlaceholder": "example@email.com",
+      "password": "Password",
+      "passwordPlaceholder": "At least 8 characters"
     },
     "activity": {
       "title": "Choose your activity type",

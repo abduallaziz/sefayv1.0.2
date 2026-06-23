@@ -3,7 +3,7 @@
 import { useTranslations, useLocale } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { Check, ChevronRight, ChevronLeft, Building2, Tag, Settings, Sparkles } from 'lucide-react'
+import { Check, ChevronRight, ChevronLeft, Building2, Tag, Settings, Sparkles, Eye, EyeOff } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 /* ── Types ───────────────────────────────────────────────── */
@@ -12,6 +12,7 @@ interface FormData {
   ownerName: string
   phone: string
   email: string
+  password: string
   activity: string
   branchName: string
   city: string
@@ -100,6 +101,7 @@ function StepIcon({ icon }: { icon: React.ReactNode }) {
 /* ── Step 1 — Business Info ──────────────────────────────── */
 function Step1({ data, onChange }: { data: FormData; onChange: (k: keyof FormData, v: string) => void }) {
   const t = useTranslations('onboarding.info')
+  const [showPassword, setShowPassword] = useState(false)
   return (
     <div className="space-y-4">
       <div className="text-center mb-7">
@@ -121,6 +123,25 @@ function Step1({ data, onChange }: { data: FormData; onChange: (k: keyof FormDat
       <Field label={t('email')}>
         <input type="email" className={inputCls} placeholder={t('emailPlaceholder')}
           value={data.email} onChange={(e) => onChange('email', e.target.value)} />
+      </Field>
+      <Field label={t('password')}>
+        <div className="relative">
+          <input
+            type={showPassword ? 'text' : 'password'}
+            className={inputCls}
+            style={{ paddingInlineEnd: 42 }}
+            placeholder={t('passwordPlaceholder')}
+            value={data.password}
+            onChange={(e) => onChange('password', e.target.value)}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            style={{ position: 'absolute', insetInlineEnd: 13, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#8C9CB2', display: 'flex', alignItems: 'center' }}
+          >
+            {showPassword ? <EyeOff size={17} strokeWidth={2} /> : <Eye size={17} strokeWidth={2} />}
+          </button>
+        </div>
       </Field>
     </div>
   )
@@ -300,6 +321,7 @@ export function OnboardingWizard() {
     ownerName: '',
     phone: '',
     email: '',
+    password: '',
     activity: '',
     branchName: '',
     city: '',
