@@ -2,11 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Google Fonts ─────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
-
-/* ─── SAR Symbol Font ───────────────────────────────────── */
-@import url('/fonts/SaudiRiyal.css');
 
 /* ─── CSS Variables — Light Mode ───────────────────────── */
 :root {
