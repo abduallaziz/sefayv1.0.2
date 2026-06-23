@@ -57,6 +57,27 @@ export interface PaymentsReport {
   }
 }
 
+export interface TopItemsReport {
+  items: { name: string; quantity: number; total: number; pct: number }[]
+}
+
+export interface RecentActivityReport {
+  activity: {
+    type: 'order' | 'refund' | 'alert'
+    title: string
+    sub: string
+    amount: number | null
+    time: string
+  }[]
+}
+
+export interface SparklinesReport {
+  sales: number[]
+  orders: number[]
+  customers: number[]
+  expenses: number[]
+}
+
 export const reportsApi = {
   getRevenue: (query?: ReportQuery): Promise<RevenueReport> => {
     const params = new URLSearchParams()
@@ -87,4 +108,17 @@ export const reportsApi = {
     const qs = params.toString()
     return apiClient.get(`/reports/payments${qs ? `?${qs}` : ''}`)
   },
+
+  getTopItems: (query?: ReportQuery): Promise<TopItemsReport> => {
+    const params = new URLSearchParams()
+    if (query?.period) params.set('period', query.period)
+    const qs = params.toString()
+    return apiClient.get(`/reports/top-items${qs ? `?${qs}` : ''}`)
+  },
+
+  getRecentActivity: (): Promise<RecentActivityReport> =>
+    apiClient.get('/reports/recent-activity'),
+
+  getSparklines: (): Promise<SparklinesReport> =>
+    apiClient.get('/reports/sparklines'),
 }
