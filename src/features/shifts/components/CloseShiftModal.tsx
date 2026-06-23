@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useCloseShift } from '../hooks/useShifts';
 import { formatCurrency } from '@/lib/format';
+import { useTenantStore } from '@/core/tenant/stores/tenant.store';
 import type { Shift } from '../types';
 
 interface Props {
@@ -14,6 +15,7 @@ interface Props {
 
 export function CloseShiftModal({ shift, onClose }: Props) {
   const t = useTranslations('shifts');
+  const currency = useTenantStore((s) => s.currency_symbol);
   const mutation = useCloseShift();
   const router = useRouter();
 
@@ -35,7 +37,7 @@ export function CloseShiftModal({ shift, onClose }: Props) {
       <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl shadow-xl w-full max-w-sm mx-4 p-6">
         <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-1">{t('close_shift')}</h2>
         <p className="text-sm text-slate-500 mb-4">
-          {t('opening_was')}: <span className="font-medium text-slate-800 dark:text-white">{formatCurrency(shift.opening_cash)}</span>
+          {t('opening_was')}: <span className="font-medium text-slate-800 dark:text-white">{formatCurrency(shift.opening_cash, currency)}</span>
         </p>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>

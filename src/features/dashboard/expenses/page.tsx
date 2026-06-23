@@ -7,10 +7,12 @@ import { CategoriesList } from './components/CategoriesList';
 import { TemplatesList } from './components/TemplatesList';
 import { useExpenseStats } from './hooks/useExpenses';
 import { formatCurrency } from '@/lib/format';
+import { useTenantStore } from '@/core/tenant/stores/tenant.store';
 import { CheckCircle, Clock, DollarSign, XCircle } from 'lucide-react';
 
 export default function ExpensesPage() {
   const t = useTranslations('expenses');
+  const currency = useTenantStore((s) => s.currency_symbol);
   const [tab, setTab] = useState<'requests' | 'categories' | 'templates'>('requests');
   const { data: stats } = useExpenseStats();
 
@@ -47,7 +49,7 @@ export default function ExpensesPage() {
               <DollarSign className="w-3.5 h-3.5 text-[#0C447C] dark:text-blue-400" />
             </div>
           </div>
-          <p className="text-xl font-bold text-slate-800 dark:text-white">{formatCurrency(stats?.total_amount ?? 0)}</p>
+          <p className="text-xl font-bold text-slate-800 dark:text-white">{formatCurrency(stats?.total_amount ?? 0, currency)}</p>
         </div>
         <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-4">
           <div className="flex items-center justify-between mb-2">
