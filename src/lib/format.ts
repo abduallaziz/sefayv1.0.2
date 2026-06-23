@@ -4,7 +4,7 @@ export const formatNumber = (value: number, decimals = 2): string =>
     maximumFractionDigits: decimals,
   })
 
-export const formatCurrency = (value: number, currency = '\uFDFC'): string =>
+export const formatCurrency = (value: number, currency = '\u20C1'): string =>
   `${formatNumber(value)} ${currency}`
 
 export const formatDate = (date: string): string =>

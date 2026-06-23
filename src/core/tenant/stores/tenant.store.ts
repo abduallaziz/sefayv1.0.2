@@ -1,12 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-const SAUDI_RIYAL_DISPLAY = '\uFDFC'
-
-
-function resolveSymbol(symbol: string): string {
-  return symbol === '⃁' || symbol === '\u20C1' ? SAUDI_RIYAL_DISPLAY : symbol
-}
+const SAUDI_RIYAL_DISPLAY = '⃁';
 
 interface TenantState {
   currency_code: string;
@@ -20,13 +15,16 @@ export const useTenantStore = create<TenantState>()(
       currency_code: 'SAR',
       currency_symbol: SAUDI_RIYAL_DISPLAY,
       setCurrency: (currency_code, currency_symbol) =>
-        set({ currency_code, currency_symbol: resolveSymbol(currency_symbol) }),
+        set({
+          currency_code,
+          currency_symbol: currency_code === 'SAR' ? SAUDI_RIYAL_DISPLAY : currency_symbol,
+        }),
     }),
     {
       name: 'sefay-tenant',
       onRehydrateStorage: () => (state) => {
-        if (state && state.currency_symbol) {
-          state.currency_symbol = resolveSymbol(state.currency_symbol)
+        if (state && state.currency_code === 'SAR') {
+          state.currency_symbol = SAUDI_RIYAL_DISPLAY;
         }
       },
     }
