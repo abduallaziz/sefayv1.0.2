@@ -78,6 +78,8 @@ function AuthModal({ onClose, initialStep, locale }: { onClose: () => void; init
   const t = useTranslations('landing.auth')
   const router = useRouter()
   const [step, setStep] = useState<ModalStep>(initialStep)
+  const [showLoginPass, setShowLoginPass] = useState(false)
+  const [showSignupPass, setShowSignupPass] = useState(false)
 
   const GoogleIcon = () => (
     <svg viewBox="0 0 24 24" style={{ width: 18, height: 18 }}>
@@ -154,8 +156,17 @@ function AuthModal({ onClose, initialStep, locale }: { onClose: () => void; init
               <div className="mb-4">
                 <label className={labelCls}>{t('password')}</label>
                 <div className="relative">
-                  <IC style={{ position: 'absolute', insetInlineEnd: 13, top: '50%', transform: 'translateY(-50%)', width: 18, height: 18, color: '#B4C0CF' }}><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></IC>
-                  <input type="password" placeholder="••••••••" className={inputCls} style={{ paddingInlineEnd: 42 }} />
+                  <input type={showLoginPass ? 'text' : 'password'} placeholder="••••••••" className={inputCls} style={{ paddingInlineEnd: 42 }} />
+                  <button
+                    type="button"
+                    onClick={() => setShowLoginPass(!showLoginPass)}
+                    style={{ position: 'absolute', insetInlineEnd: 13, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#8C9CB2', display: 'flex', alignItems: 'center' }}
+                  >
+                    {showLoginPass
+                      ? <IC style={{ width: 17, height: 17 }}><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></IC>
+                      : <IC style={{ width: 17, height: 17 }}><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></IC>
+                    }
+                  </button>
                 </div>
               </div>
               <div className="flex items-center justify-between mb-[22px] text-[13px]">
@@ -166,7 +177,7 @@ function AuthModal({ onClose, initialStep, locale }: { onClose: () => void; init
                 <button onClick={() => setStep('forgot')} className="text-[#0C447C] font-semibold hover:underline cursor-pointer bg-none border-none text-[13px]">{t('forgot')}</button>
               </div>
               <button
-                onClick={() => { router.push(`/${locale}/login`); onClose() }}
+                onClick={() => { router.push(`/${locale}/login`); onClose(); }}
                 className="w-full py-[13px] rounded-[12px] text-[15px] font-bold text-white border-none cursor-pointer mb-[18px] transition-all hover:-translate-y-px"
                 style={{ background: 'linear-gradient(135deg,#0C447C,#1565C0)', boxShadow: '0 6px 18px rgba(12,68,124,.3)', fontFamily: 'inherit' }}
               >
@@ -211,12 +222,21 @@ function AuthModal({ onClose, initialStep, locale }: { onClose: () => void; init
               <div className="mb-4">
                 <label className={labelCls}>{t('password')}</label>
                 <div className="relative">
-                  <IC style={{ position: 'absolute', insetInlineEnd: 13, top: '50%', transform: 'translateY(-50%)', width: 18, height: 18, color: '#B4C0CF' }}><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></IC>
-                  <input type="password" placeholder="••••••••" className={inputCls} style={{ paddingInlineEnd: 42 }} />
+                  <input type={showSignupPass ? 'text' : 'password'} placeholder="••••••••" className={inputCls} style={{ paddingInlineEnd: 42 }} />
+                  <button
+                    type="button"
+                    onClick={() => setShowSignupPass(!showSignupPass)}
+                    style={{ position: 'absolute', insetInlineEnd: 13, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#8C9CB2', display: 'flex', alignItems: 'center' }}
+                  >
+                    {showSignupPass
+                      ? <IC style={{ width: 17, height: 17 }}><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></IC>
+                      : <IC style={{ width: 17, height: 17 }}><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></IC>
+                    }
+                  </button>
                 </div>
               </div>
               <button
-                onClick={() => { router.push(`/${locale}/login`); onClose() }}
+                onClick={() => { router.push(`/${locale}/onboarding`); onClose(); }}
                 className="w-full py-[13px] rounded-[12px] text-[15px] font-bold text-white border-none cursor-pointer mb-[14px] transition-all hover:-translate-y-px"
                 style={{ background: 'linear-gradient(135deg,#0C447C,#1565C0)', boxShadow: '0 6px 18px rgba(12,68,124,.3)', fontFamily: 'inherit' }}
               >

@@ -13,29 +13,29 @@ import {
 export function SuperAdminSidebar() {
   const pathname = usePathname();
   const locale = useLocale();
-  const t = useTranslations('superadmin.sidebar');
+  const t = useTranslations('nav');
   const user = useAuthStore((s) => s.user);
   const clearAuth = useAuthStore((s) => s.clearAuth);
 
   const NAV = [
     {
-      titleKey: t('general'),
+      title: locale === 'ar' ? 'عام' : 'General',
       items: [
         { key: 'overview', href: '/superadmin', label: t('overview'), icon: LayoutDashboard },
       ],
     },
     {
-      titleKey: t('management'),
+      title: locale === 'ar' ? 'الإدارة' : 'Management',
       items: [
-        { key: 'tenants', href: '/superadmin/tenants', label: t('tenants'), icon: Building2 },
-        { key: 'subscriptions', href: '/superadmin/subscriptions', label: t('subscriptions'), icon: CreditCard },
-        { key: 'feature-flags', href: '/superadmin/feature-flags', label: t('featureFlags'), icon: ToggleLeft },
-        { key: 'auth-control', href: '/superadmin/auth-control', label: t('authControl'), icon: Shield },
-        { key: 'settings', href: '/superadmin/settings', label: t('settings'), icon: Settings },
+        { key: 'tenants',       href: '/superadmin/tenants',       label: t('tenants'),       icon: Building2  },
+        { key: 'subscriptions', href: '/superadmin/subscriptions', label: t('subscriptions'), icon: CreditCard  },
+        { key: 'feature-flags', href: '/superadmin/feature-flags', label: t('featureFlags'),  icon: ToggleLeft  },
+        { key: 'auth-control',  href: '/superadmin/auth-control',  label: t('authControl'),   icon: Shield      },
+        { key: 'settings',      href: '/superadmin/settings',      label: t('settings'),      icon: Settings    },
       ],
     },
     {
-      titleKey: t('reportsSection'),
+      title: locale === 'ar' ? 'التقارير' : 'Reports',
       items: [
         { key: 'reports', href: '/superadmin/reports', label: t('reports'), icon: BarChart3 },
       ],
@@ -58,9 +58,9 @@ export function SuperAdminSidebar() {
 
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
         {NAV.map((section) => (
-          <div key={section.titleKey}>
+          <div key={section.title}>
             <p className="px-3 mb-1 text-xs font-medium text-slate-600 uppercase tracking-wider">
-              {section.titleKey}
+              {section.title}
             </p>
             <div className="space-y-0.5">
               {section.items.map((item) => {
