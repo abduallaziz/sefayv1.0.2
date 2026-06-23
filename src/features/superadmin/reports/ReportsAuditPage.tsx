@@ -75,17 +75,17 @@ export default function ReportsAuditPage() {
 
   const mrrHistoryQuery = useQuery({
     queryKey: ['superadmin', 'analytics', 'mrr-history'],
-    queryFn: () => superadminApi.getMRRHistory('last_12_months'),
+    queryFn: () => superadminApi.getMRRHistory('12m'),
   })
 
   const churnQuery = useQuery({
     queryKey: ['superadmin', 'analytics', 'churn'],
-    queryFn: () => superadminApi.getChurnRate('last_12_months'),
+    queryFn: () => superadminApi.getChurnRate('12m'),
   })
 
   const growthQuery = useQuery({
     queryKey: ['superadmin', 'analytics', 'growth'],
-    queryFn: () => superadminApi.getGrowthRate('last_12_months'),
+    queryFn: () => superadminApi.getGrowthRate('12m'),
   })
 
   const revenueByPlanQuery = useQuery({

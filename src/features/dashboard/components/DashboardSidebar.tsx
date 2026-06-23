@@ -16,7 +16,9 @@ import {
   X,
 } from 'lucide-react'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
+import { useBusinessType } from '@/shared/hooks/useBusinessType'
 import { cn } from '@/lib/utils'
+import type { NavKey } from '@/shared/config/business-type.config'
 
 interface SidebarProps {
   open: boolean
@@ -24,23 +26,23 @@ interface SidebarProps {
 }
 
 interface NavItem {
-  key: string
+  key: NavKey
   href: string
   icon: React.ElementType
   roles?: string[]
 }
 
-const NAV_ITEMS: NavItem[] = [
-  { key: 'dashboard',  href: '/dashboard',           icon: LayoutDashboard },
-  { key: 'pos',        href: '/dashboard/pos',        icon: ShoppingCart },
-  { key: 'orders',     href: '/dashboard/orders',     icon: Receipt },
-  { key: 'items',      href: '/dashboard/items',      icon: Package },
-  { key: 'customers',  href: '/dashboard/customers',  icon: Users },
-  { key: 'expenses',   href: '/dashboard/expenses',   icon: Receipt,  roles: ['owner', 'manager'] },
-  { key: 'shifts',     href: '/dashboard/shifts',     icon: Clock },
-  { key: 'reports',    href: '/dashboard/reports',    icon: BarChart3, roles: ['owner', 'manager'] },
-  { key: 'users',      href: '/dashboard/users',      icon: UserCog,   roles: ['owner', 'manager'] },
-  { key: 'settings',   href: '/dashboard/settings',   icon: Settings,  roles: ['owner'] },
+const ALL_NAV_ITEMS: NavItem[] = [
+  { key: 'dashboard', href: '/dashboard',          icon: LayoutDashboard },
+  { key: 'pos',       href: '/dashboard/pos',       icon: ShoppingCart },
+  { key: 'orders',    href: '/dashboard/orders',    icon: Receipt },
+  { key: 'items',     href: '/dashboard/items',     icon: Package },
+  { key: 'customers', href: '/dashboard/customers', icon: Users },
+  { key: 'expenses',  href: '/dashboard/expenses',  icon: Receipt,   roles: ['owner', 'manager'] },
+  { key: 'shifts',    href: '/dashboard/shifts',    icon: Clock },
+  { key: 'reports',   href: '/dashboard/reports',   icon: BarChart3, roles: ['owner', 'manager'] },
+  { key: 'users',     href: '/dashboard/users',     icon: UserCog,   roles: ['owner', 'manager'] },
+  { key: 'settings',  href: '/dashboard/settings',  icon: Settings,  roles: ['owner'] },
 ]
 
 export function DashboardSidebar({ open, onClose }: SidebarProps) {
@@ -48,12 +50,15 @@ export function DashboardSidebar({ open, onClose }: SidebarProps) {
   const locale = useLocale()
   const pathname = usePathname()
   const { user } = useAuthStore()
+  const { config } = useBusinessType()
 
   const userRole = user?.role ?? 'cashier'
 
-  const visibleItems = NAV_ITEMS.filter(
-    (item) => !item.roles || item.roles.includes(userRole)
-  )
+  const visibleItems = ALL_NAV_ITEMS.filter((item) => {
+    const inBusinessType = config.sidebar.includes(item.key)
+    const hasRole = !item.roles || item.roles.includes(userRole)
+    return inBusinessType && hasRole
+  })
 
   const isActive = (href: string) => {
     if (href === '/dashboard') return pathname === `/${locale}/dashboard`
@@ -77,7 +82,6 @@ export function DashboardSidebar({ open, onClose }: SidebarProps) {
           'fixed top-header bottom-0 z-sidebar w-sidebar flex flex-col',
           'transition-transform duration-300 ease-in-out',
           'lg:translate-x-0',
-          // RTL: slide from right; LTR: slide from left
           locale === 'ar'
             ? open ? 'translate-x-0 end-0' : 'translate-x-full end-0'
             : open ? 'translate-x-0 start-0' : '-translate-x-full start-0'
@@ -126,7 +130,6 @@ export function DashboardSidebar({ open, onClose }: SidebarProps) {
                 />
                 <span>{t(item.key)}</span>
 
-                {/* Active indicator */}
                 {active && (
                   <span
                     className="ms-auto w-1.5 h-1.5 rounded-full bg-white/70"

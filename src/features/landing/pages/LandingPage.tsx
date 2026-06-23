@@ -1,16 +1,11 @@
 'use client'
 
-import Link from 'next/link'
 import { useLocale, useTranslations } from 'next-intl'
 import { useState, useEffect, useRef } from 'react'
-import {
-  ShoppingCart, BarChart3, Users, Shield, Zap, Globe,
-  Check, Star, ArrowRight, Menu, X,
-  Utensils, ShoppingBag, Scissors, Heart, Smartphone, Home,
-} from 'lucide-react'
+import { useRouter, usePathname } from 'next/navigation'
 
-/* ── Scroll reveal ───────────────────────────────────────── */
-function useScrollReveal() {
+/* ─── Scroll Reveal ─────────────────────────────────────── */
+function useReveal() {
   const ref = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
   useEffect(() => {
@@ -26,403 +21,609 @@ function useScrollReveal() {
   return { ref, visible }
 }
 
-function Reveal({ children, className = '', delay = 0 }: {
-  children: React.ReactNode; className?: string; delay?: number
+function Reveal({ children, className = '', delay = 0, style }: {
+  children: React.ReactNode; className?: string; delay?: number; style?: React.CSSProperties
 }) {
-  const { ref, visible } = useScrollReveal()
+  const { ref, visible } = useReveal()
   return (
     <div ref={ref} className={className} style={{
       opacity: visible ? 1 : 0,
-      transform: visible ? 'translateY(0)' : 'translateY(20px)',
-      transition: `opacity 0.5s ease ${delay}ms, transform 0.5s ease ${delay}ms`,
+      transform: visible ? 'translateY(0)' : 'translateY(22px)',
+      transition: `opacity 0.6s cubic-bezier(.4,0,.2,1) ${delay}ms, transform 0.6s cubic-bezier(.4,0,.2,1) ${delay}ms`,
+      ...style,
     }}>
       {children}
     </div>
   )
 }
 
-/* ── Auth Modal ──────────────────────────────────────────── */
-function AuthModal({ mode, locale, onClose, onSwitch }: {
-  mode: 'login' | 'register'
-  locale: string
-  onClose: () => void
-  onSwitch: () => void
-}) {
+/* ─── SVG Icons ─────────────────────────────────────────── */
+const IC = ({ d, children, ...p }: { d?: string; children?: React.ReactNode; [k: string]: unknown }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ width: '1em', height: '1em', display: 'block', flexShrink: 0 }} {...p}>
+    {d ? <path d={d} /> : children}
+  </svg>
+)
+
+/* ─── Lang Switcher ─────────────────────────────────────── */
+function LangSwitcher() {
+  const locale = useLocale()
+  const router = useRouter()
+  const pathname = usePathname()
+  const toggle = () => {
+    const next = locale === 'ar' ? 'en' : 'ar'
+    router.push(pathname.replace(`/${locale}`, `/${next}`))
+  }
+  return (
+    <button
+      onClick={toggle}
+      className="flex items-center gap-[6px] px-3 py-2 rounded-[9px] text-[13px] font-semibold cursor-pointer border transition-all"
+      style={{ color: 'rgba(255,255,255,.9)', background: 'rgba(255,255,255,.1)', borderColor: 'rgba(255,255,255,.25)', backdropFilter: 'blur(10px)', fontFamily: 'inherit' }}
+      onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,.45)'; e.currentTarget.style.background = 'rgba(255,255,255,.2)' }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,.25)'; e.currentTarget.style.background = 'rgba(255,255,255,.1)' }}
+    >
+      <IC style={{ width: 15, height: 15 }}>
+        <circle cx="12" cy="12" r="10" />
+        <line x1="2" y1="12" x2="22" y2="12" />
+        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+      </IC>
+      {locale === 'ar' ? 'EN' : 'عربي'}
+    </button>
+  )
+}
+
+/* ─── Auth Modal ─────────────────────────────────────────── */
+type ModalStep = 'login' | 'signup' | 'forgot'
+
+function AuthModal({ onClose, initialStep, locale }: { onClose: () => void; initialStep: ModalStep; locale: string }) {
   const t = useTranslations('landing.auth')
-  const isLogin = mode === 'login'
+  const router = useRouter()
+  const [step, setStep] = useState<ModalStep>(initialStep)
+
+  const GoogleIcon = () => (
+    <svg viewBox="0 0 24 24" style={{ width: 18, height: 18 }}>
+      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+    </svg>
+  )
+
+  const AppleIcon = () => (
+    <svg viewBox="0 0 24 24" style={{ width: 18, height: 18, fill: 'currentColor', stroke: 'none' }}>
+      <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
+    </svg>
+  )
+
+  const inputCls = "w-full px-3 py-3 rounded-[11px] border border-[#E4EAF2] text-sm font-[inherit] text-[#0A1628] bg-[#F5F8FC] outline-none transition-all focus:border-[#0C447C] focus:bg-white focus:shadow-[0_0_0_3.5px_rgba(12,68,124,.11)]"
+  const labelCls = "block text-[13px] font-semibold text-[#54657C] mb-[7px]"
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: 'rgba(8,47,92,0.65)', backdropFilter: 'blur(8px)' }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-5"
+      style={{ background: 'rgba(10,22,40,.5)', backdropFilter: 'blur(8px)', animation: 'fadeIn .2s' }}
       onClick={onClose}
     >
+      <style>{`
+        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+        @keyframes modalIn{from{opacity:0;transform:translateY(26px) scale(.96)}to{opacity:1;transform:none}}
+      `}</style>
       <div
-        className="w-full max-w-md rounded-md bg-white shadow-xl overflow-hidden"
-        style={{ animation: 'scaleIn 0.2s ease both' }}
-        onClick={(e) => e.stopPropagation()}
+        className="w-full bg-white rounded-[24px] relative overflow-y-auto"
+        style={{ maxWidth: 440, maxHeight: '92vh', animation: 'modalIn .3s cubic-bezier(.4,0,.2,1)', boxShadow: '0 8px 16px rgba(10,22,40,.05),0 20px 48px rgba(10,22,40,.12)' }}
+        onClick={e => e.stopPropagation()}
       >
-        {/* Header */}
-        <div
-          className="px-6 py-5 flex items-center justify-between text-white"
-          style={{ background: 'linear-gradient(135deg, #082F5C 0%, #0C447C 50%, #1761B8 100%)' }}
+        {/* Close */}
+        <button
+          onClick={onClose}
+          className="absolute top-[18px] start-[18px] w-[34px] h-[34px] rounded-[10px] bg-[#F5F8FC] border-none flex items-center justify-center text-[#54657C] hover:bg-[#EEF3F9] hover:text-[#0A1628] transition-colors z-10 cursor-pointer"
         >
-          <div>
-            <p className="text-white/50 text-xs mb-0.5">Sefay</p>
-            <h2 className="text-lg font-bold">{isLogin ? t('loginTitle') : t('registerTitle')}</h2>
-          </div>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-sm text-white/70 hover:text-white hover:bg-white/10 transition-colors"
-          >
-            <X size={18} strokeWidth={2} />
-          </button>
-        </div>
+          <IC style={{ width: 18, height: 18 }}><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></IC>
+        </button>
 
-        {/* Body */}
-        <div className="p-6 space-y-4">
-          {!isLogin && (
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('businessName')}</label>
-              <input
-                type="text"
-                placeholder={t('businessPlaceholder')}
-                className="w-full px-3 py-2.5 rounded-sm border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-brand-primary transition-colors"
-              />
+        <div className="px-8 py-9 pt-12">
+          {/* Logo */}
+          <div className="flex items-center justify-center gap-[9px] mb-2">
+            <div className="w-[34px] h-[34px] rounded-[10px] flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#0C447C,#2671C4)' }}>
+              <svg viewBox="0 0 24 24" style={{ width: 19, height: 19, fill: '#fff', stroke: 'none' }}><path d="M12 2L21 7V17L12 22L3 17V7L12 2Z" /></svg>
             </div>
+            <span className="text-[19px] font-bold text-[#0C447C]">Sefay</span>
+          </div>
+
+          {/* LOGIN */}
+          {step === 'login' && (
+            <>
+              <h2 className="text-[22px] font-bold text-center text-[#0A1628] mb-[6px]">{t('loginTitle')}</h2>
+              <p className="text-[14px] text-[#8C9CB2] text-center mb-[26px]">{t('loginSub')}</p>
+              <div className="flex gap-[10px] mb-[18px]">
+                {[{ Icon: GoogleIcon, label: 'Google' }, { Icon: AppleIcon, label: 'Apple' }].map(({ Icon, label }) => (
+                  <button key={label} className="flex-1 flex items-center justify-center gap-2 py-[11px] border border-[#E4EAF2] rounded-[11px] bg-white text-[13px] font-semibold text-[#54657C] hover:border-[#8C9CB2] hover:bg-[#F5F8FC] transition-all cursor-pointer">
+                    <Icon />{label}
+                  </button>
+                ))}
+              </div>
+              <div className="flex items-center gap-[14px] my-[18px] text-[#B4C0CF] text-[13px]">
+                <div className="flex-1 h-px bg-[#E4EAF2]" />{t('or')}<div className="flex-1 h-px bg-[#E4EAF2]" />
+              </div>
+              <div className="mb-4">
+                <label className={labelCls}>{t('email')}</label>
+                <div className="relative">
+                  <IC style={{ position: 'absolute', insetInlineEnd: 13, top: '50%', transform: 'translateY(-50%)', width: 18, height: 18, color: '#B4C0CF' }}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></IC>
+                  <input type="email" placeholder="name@example.com" className={inputCls} style={{ paddingInlineEnd: 42 }} />
+                </div>
+              </div>
+              <div className="mb-4">
+                <label className={labelCls}>{t('password')}</label>
+                <div className="relative">
+                  <IC style={{ position: 'absolute', insetInlineEnd: 13, top: '50%', transform: 'translateY(-50%)', width: 18, height: 18, color: '#B4C0CF' }}><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></IC>
+                  <input type="password" placeholder="••••••••" className={inputCls} style={{ paddingInlineEnd: 42 }} />
+                </div>
+              </div>
+              <div className="flex items-center justify-between mb-[22px] text-[13px]">
+                <label className="flex items-center gap-[7px] text-[#54657C] cursor-pointer">
+                  <input type="checkbox" style={{ width: 16, height: 16, accentColor: '#0C447C' }} />
+                  {t('rememberMe')}
+                </label>
+                <button onClick={() => setStep('forgot')} className="text-[#0C447C] font-semibold hover:underline cursor-pointer bg-none border-none text-[13px]">{t('forgot')}</button>
+              </div>
+              <button
+                onClick={() => { router.push(`/${locale}/login`); onClose() }}
+                className="w-full py-[13px] rounded-[12px] text-[15px] font-bold text-white border-none cursor-pointer mb-[18px] transition-all hover:-translate-y-px"
+                style={{ background: 'linear-gradient(135deg,#0C447C,#1565C0)', boxShadow: '0 6px 18px rgba(12,68,124,.3)', fontFamily: 'inherit' }}
+              >
+                {t('loginBtn')}
+              </button>
+              <p className="text-center text-[14px] text-[#54657C]">
+                {t('noAccount')}{' '}
+                <button onClick={() => setStep('signup')} className="text-[#0C447C] font-semibold hover:underline cursor-pointer bg-none border-none text-[14px]">{t('createOne')}</button>
+              </p>
+            </>
           )}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('email')}</label>
-            <input
-              type="email"
-              placeholder="example@email.com"
-              className="w-full px-3 py-2.5 rounded-sm border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-brand-primary transition-colors"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('password')}</label>
-            <input
-              type="password"
-              placeholder="••••••••"
-              className="w-full px-3 py-2.5 rounded-sm border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-brand-primary transition-colors"
-            />
-          </div>
 
-          <Link
-            href={`/${locale}/login`}
-            className="block w-full py-2.5 rounded-sm text-white text-sm font-semibold text-center hover:opacity-90 transition-opacity"
-            style={{ background: 'linear-gradient(135deg, #082F5C 0%, #0C447C 100%)' }}
-            onClick={onClose}
-          >
-            {isLogin ? t('loginBtn') : t('registerBtn')}
-          </Link>
+          {/* SIGNUP */}
+          {step === 'signup' && (
+            <>
+              <h2 className="text-[22px] font-bold text-center text-[#0A1628] mb-[6px]">{t('registerTitle')}</h2>
+              <p className="text-[14px] text-[#8C9CB2] text-center mb-[26px]">{t('registerSub')}</p>
+              <div className="flex gap-[10px] mb-[18px]">
+                {[{ Icon: GoogleIcon, label: 'Google' }, { Icon: AppleIcon, label: 'Apple' }].map(({ Icon, label }) => (
+                  <button key={label} className="flex-1 flex items-center justify-center gap-2 py-[11px] border border-[#E4EAF2] rounded-[11px] bg-white text-[13px] font-semibold text-[#54657C] hover:border-[#8C9CB2] hover:bg-[#F5F8FC] transition-all cursor-pointer">
+                    <Icon />{label}
+                  </button>
+                ))}
+              </div>
+              <div className="flex items-center gap-[14px] my-[18px] text-[#B4C0CF] text-[13px]">
+                <div className="flex-1 h-px bg-[#E4EAF2]" />{t('or')}<div className="flex-1 h-px bg-[#E4EAF2]" />
+              </div>
+              <div className="mb-4">
+                <label className={labelCls}>{t('businessName')}</label>
+                <div className="relative">
+                  <IC style={{ position: 'absolute', insetInlineEnd: 13, top: '50%', transform: 'translateY(-50%)', width: 18, height: 18, color: '#B4C0CF' }}><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4" /></IC>
+                  <input type="text" placeholder={t('businessPlaceholder')} className={inputCls} style={{ paddingInlineEnd: 42 }} />
+                </div>
+              </div>
+              <div className="mb-4">
+                <label className={labelCls}>{t('email')}</label>
+                <div className="relative">
+                  <IC style={{ position: 'absolute', insetInlineEnd: 13, top: '50%', transform: 'translateY(-50%)', width: 18, height: 18, color: '#B4C0CF' }}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></IC>
+                  <input type="email" placeholder="name@example.com" className={inputCls} style={{ paddingInlineEnd: 42 }} />
+                </div>
+              </div>
+              <div className="mb-4">
+                <label className={labelCls}>{t('password')}</label>
+                <div className="relative">
+                  <IC style={{ position: 'absolute', insetInlineEnd: 13, top: '50%', transform: 'translateY(-50%)', width: 18, height: 18, color: '#B4C0CF' }}><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></IC>
+                  <input type="password" placeholder="••••••••" className={inputCls} style={{ paddingInlineEnd: 42 }} />
+                </div>
+              </div>
+              <button
+                onClick={() => { router.push(`/${locale}/login`); onClose() }}
+                className="w-full py-[13px] rounded-[12px] text-[15px] font-bold text-white border-none cursor-pointer mb-[14px] transition-all hover:-translate-y-px"
+                style={{ background: 'linear-gradient(135deg,#0C447C,#1565C0)', boxShadow: '0 6px 18px rgba(12,68,124,.3)', fontFamily: 'inherit' }}
+              >
+                {t('registerBtn')}
+              </button>
+              <div className="flex items-center justify-center gap-2 text-[12.5px] text-[#0C447C] bg-[#EAF2FB] rounded-[11px] px-[14px] py-[11px] mb-[18px]">
+                <IC style={{ width: 16, height: 16, flexShrink: 0 }}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></IC>
+                {t('nextStep')}
+              </div>
+              <p className="text-center text-[14px] text-[#54657C]">
+                {t('hasAccount')}{' '}
+                <button onClick={() => setStep('login')} className="text-[#0C447C] font-semibold hover:underline cursor-pointer bg-none border-none text-[14px]">{t('loginLink')}</button>
+              </p>
+            </>
+          )}
 
-          <p className="text-center text-sm text-slate-500">
-            {isLogin ? t('noAccount') : t('hasAccount')}{' '}
-            <button onClick={onSwitch} className="text-brand-primary font-medium hover:underline">
-              {isLogin ? t('createOne') : t('loginLink')}
-            </button>
-          </p>
+          {/* FORGOT */}
+          {step === 'forgot' && (
+            <>
+              <h2 className="text-[22px] font-bold text-center text-[#0A1628] mb-[6px]">{t('forgotTitle')}</h2>
+              <p className="text-[14px] text-[#8C9CB2] text-center mb-[26px]">{t('forgotSub')}</p>
+              <div className="mb-4">
+                <label className={labelCls}>{t('email')}</label>
+                <div className="relative">
+                  <IC style={{ position: 'absolute', insetInlineEnd: 13, top: '50%', transform: 'translateY(-50%)', width: 18, height: 18, color: '#B4C0CF' }}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></IC>
+                  <input type="email" placeholder="name@example.com" className={inputCls} style={{ paddingInlineEnd: 42 }} />
+                </div>
+              </div>
+              <button
+                className="w-full py-[13px] rounded-[12px] text-[15px] font-bold text-white border-none cursor-pointer mb-[18px] transition-all hover:-translate-y-px"
+                style={{ background: 'linear-gradient(135deg,#0C447C,#1565C0)', boxShadow: '0 6px 18px rgba(12,68,124,.3)', fontFamily: 'inherit' }}
+              >
+                {t('forgotBtn')}
+              </button>
+              <p className="text-center">
+                <button onClick={() => setStep('login')} className="text-[#0C447C] font-semibold hover:underline cursor-pointer bg-none border-none text-[14px]">← {t('backToLogin')}</button>
+              </p>
+            </>
+          )}
         </div>
       </div>
     </div>
   )
 }
 
-/* ── LandingPage ─────────────────────────────────────────── */
+/* ─── LandingPage ───────────────────────────────────────── */
 export function LandingPage() {
   const locale = useLocale()
   const t = useTranslations('landing')
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [modal, setModal] = useState<'login' | 'register' | null>(null)
+  const router = useRouter()
+  const pathname = usePathname()
+  const [modal, setModal] = useState<ModalStep | null>(null)
   const [scrolled, setScrolled] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 40)
+    const fn = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', fn)
     return () => window.removeEventListener('scroll', fn)
   }, [])
 
+  const goSection = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    setMobileOpen(false)
+  }
+
+  const toggleLang = () => {
+    const next = locale === 'ar' ? 'en' : 'ar'
+    router.push(pathname.replace(`/${locale}`, `/${next}`))
+    setMobileOpen(false)
+  }
+
+  /* ── Data ── */
   const FEATURES = [
-    { icon: ShoppingCart, label: t('features.pos'),       desc: t('features.posDesc') },
-    { icon: BarChart3,    label: t('features.reports'),   desc: t('features.reportsDesc') },
-    { icon: Users,        label: t('features.customers'), desc: t('features.customersDesc') },
-    { icon: Shield,       label: t('features.zatca'),     desc: t('features.zatcaDesc') },
-    { icon: Zap,          label: t('features.shifts'),    desc: t('features.shiftsDesc') },
-    { icon: Globe,        label: t('features.branches'),  desc: t('features.branchesDesc') },
-  ]
-
-  const SECTORS = [
-    { icon: Utensils,    label: t('sectors.restaurants') },
-    { icon: ShoppingBag, label: t('sectors.retail') },
-    { icon: Scissors,    label: t('sectors.salons') },
-    { icon: Heart,       label: t('sectors.health') },
-    { icon: Smartphone,  label: t('sectors.electronics') },
-    { icon: Home,        label: t('sectors.furniture') },
-  ]
-
-  const PLANS = [
     {
-      name: t('pricing.basic'), price: 99, featured: false,
-      features: [t('pricing.basicF1'), t('pricing.basicF2'), t('pricing.basicF3'), t('pricing.basicF4')],
+      icon: <IC style={{ width: 25, height: 25, color: '#fff', strokeWidth: 2.1 }}><rect x="2" y="4" width="20" height="16" rx="2" /><path d="M2 9h20M6 14h4" /></IC>,
+      grad: 'linear-gradient(135deg,#1565C0,#0C447C)',
+      label: t('features.pos'), desc: t('features.posDesc'),
     },
     {
-      name: t('pricing.pro'), price: 199, featured: true,
-      features: [t('pricing.proF1'), t('pricing.proF2'), t('pricing.proF3'), t('pricing.proF4'), t('pricing.proF5'), t('pricing.proF6')],
+      icon: <IC style={{ width: 25, height: 25, color: '#fff', strokeWidth: 2.1 }}><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></IC>,
+      grad: 'linear-gradient(135deg,#10B981,#059669)',
+      label: t('features.inventory'), desc: t('features.inventoryDesc'),
     },
     {
-      name: t('pricing.enterprise'), price: 399, featured: false,
-      features: [t('pricing.entF1'), t('pricing.entF2'), t('pricing.entF3'), t('pricing.entF4'), t('pricing.entF5'), t('pricing.entF6')],
+      icon: <IC style={{ width: 25, height: 25, color: '#fff', strokeWidth: 2.1 }}><line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" /></IC>,
+      grad: 'linear-gradient(135deg,#8B5CF6,#6D28D9)',
+      label: t('features.reports'), desc: t('features.reportsDesc'),
+    },
+    {
+      icon: <IC style={{ width: 25, height: 25, color: '#fff', strokeWidth: 2.1 }}><rect x="4" y="2" width="16" height="20" rx="2" /><line x1="8" y1="6" x2="16" y2="6" /><line x1="8" y1="10" x2="10" y2="10" /><line x1="14" y1="10" x2="16" y2="10" /></IC>,
+      grad: 'linear-gradient(135deg,#F59E0B,#D97706)',
+      label: t('features.invoices'), desc: t('features.invoicesDesc'),
+    },
+    {
+      icon: <IC style={{ width: 25, height: 25, color: '#fff', strokeWidth: 2.1 }}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></IC>,
+      grad: 'linear-gradient(135deg,#EC4899,#DB2777)',
+      label: t('features.loyalty'), desc: t('features.loyaltyDesc'),
+    },
+    {
+      icon: <IC style={{ width: 25, height: 25, color: '#fff', strokeWidth: 2.1 }}><path d="M22 12h-4l-3 9L9 3l-3 9H2" /></IC>,
+      grad: 'linear-gradient(135deg,#06B6D4,#0891B2)',
+      label: t('features.offline'), desc: t('features.offlineDesc'),
     },
   ]
 
-  const STATS = [
-    { value: '+500',     label: t('stats.businesses') },
-    { value: '99.9%',   label: t('stats.uptime') },
-    { value: '+50,000', label: t('stats.invoices') },
-    { value: '6',       label: t('stats.sectors') },
+  const BUSINESS = [
+    {
+      icon: <IC style={{ width: 27, height: 27, color: '#fff' }}><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7" /></IC>,
+      grad: 'linear-gradient(135deg,#F59E0B,#D97706)',
+      label: t('business.restaurants'), sub: t('business.restaurantsSub'),
+    },
+    {
+      icon: <IC style={{ width: 27, height: 27, color: '#fff' }}><path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 1v3M10 1v3M14 1v3" /></IC>,
+      grad: 'linear-gradient(135deg,#8B5CF6,#6D28D9)',
+      label: t('business.cafes'), sub: t('business.cafesSub'),
+    },
+    {
+      icon: <IC style={{ width: 27, height: 27, color: '#fff' }}><circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" /></IC>,
+      grad: 'linear-gradient(135deg,#10B981,#059669)',
+      label: t('business.groceries'), sub: t('business.groceriesSub'),
+    },
+    {
+      icon: <IC style={{ width: 27, height: 27, color: '#fff' }}><path d="M19 5h-2V3H7v2H5a2 2 0 0 0-2 2v1a4 4 0 0 0 4 4M19 5a2 2 0 0 1 2 2v1a4 4 0 0 1-4 4M12 12v4M8 21h8M12 16v5" /></IC>,
+      grad: 'linear-gradient(135deg,#EF4444,#DC2626)',
+      label: t('business.pharmacies'), sub: t('business.pharmaciesSub'),
+    },
+    {
+      icon: <IC style={{ width: 27, height: 27, color: '#fff' }}><path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z" /></IC>,
+      grad: 'linear-gradient(135deg,#EC4899,#DB2777)',
+      label: t('business.clothing'), sub: t('business.clothingSub'),
+    },
+    {
+      icon: <IC style={{ width: 27, height: 27, color: '#fff' }}><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 3.9C1.7 12.3 1 13.1 1 14v2c0 .6.4 1 1 1h2" /><circle cx="7" cy="17" r="2" /><circle cx="17" cy="17" r="2" /></IC>,
+      grad: 'linear-gradient(135deg,#06B6D4,#0891B2)',
+      label: t('business.carwash'), sub: t('business.carwashSub'),
+    },
   ]
 
-  const NAV_LINKS = [
-    { label: t('nav.features'), href: '#features' },
-    { label: t('nav.sectors'),  href: '#sectors' },
-    { label: t('nav.pricing'),  href: '#pricing' },
+  const TESTIMONIALS = [
+    { q: t('testimonials.q1'), name: t('testimonials.n1'), role: t('testimonials.r1'), init: 'خ', grad: 'linear-gradient(135deg,#1565C0,#0C447C)' },
+    { q: t('testimonials.q2'), name: t('testimonials.n2'), role: t('testimonials.r2'), init: 'ن', grad: 'linear-gradient(135deg,#10B981,#059669)' },
+    { q: t('testimonials.q3'), name: t('testimonials.n3'), role: t('testimonials.r3'), init: 'ع', grad: 'linear-gradient(135deg,#8B5CF6,#6D28D9)' },
   ]
+
+  const TRUST = [
+    { v: t('trust.stat1v'), l: t('trust.stat1l') },
+    { v: t('trust.stat2v'), l: t('trust.stat2l') },
+    { v: t('trust.stat3v'), l: t('trust.stat3l') },
+    { v: t('trust.stat4v'), l: t('trust.stat4l') },
+  ]
+
+  const NAV = [
+    { label: t('nav.features'), id: 'features' },
+    { label: t('nav.business'), id: 'business' },
+    { label: t('nav.pricing'), id: 'pricing' },
+    { label: t('nav.testimonials'), id: 'testimonials' },
+  ]
+
+  const BARS = [55, 42, 70, 85, 60, 95, 78]
+
+  const sectionTag = (icon: React.ReactNode, label: string) => (
+    <div className="inline-flex items-center gap-[7px] rounded-[30px] px-[14px] py-[6px] text-[13px] font-semibold mb-[18px]"
+      style={{ background: '#F5F8FC', border: '1px solid #E4EAF2', color: '#0C447C', borderInlineEnd: '3px solid #0C447C' }}>
+      <span style={{ width: 14, height: 14, display: 'flex' }}>{icon}</span>
+      {label}
+    </div>
+  )
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white overflow-x-hidden" style={{ fontFamily: "'IBM Plex Sans Arabic', system-ui, sans-serif", color: '#0A1628', fontSize: 15, lineHeight: 1.6 }}>
 
-      {/* ── Navbar ── */}
+      {/* ── NAV ── */}
       <nav
         className="fixed top-0 inset-x-0 z-40 transition-all duration-300"
         style={{
-          background: 'linear-gradient(135deg, #082F5C 0%, #0C447C 50%, #1761B8 100%)',
-          boxShadow: scrolled ? '0 2px 20px rgba(8,47,92,0.4)' : 'none',
+          background: 'linear-gradient(115deg,#082F5C 0%,#0C447C 42%,#1761B8 100%)',
+          padding: scrolled ? '10px 0' : '14px 0',
+          boxShadow: scrolled
+            ? '0 4px 20px rgba(8,47,92,.5)'
+            : '0 6px 28px rgba(8,47,92,.42),0 1px 0 rgba(255,255,255,.1) inset',
         }}
       >
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2 shrink-0">
-            <div className="w-8 h-8 rounded-sm flex items-center justify-center text-white font-bold text-sm" style={{ background: 'rgba(255,255,255,0.18)' }}>S</div>
-            <span className="text-white font-bold text-lg">Sefay</span>
-          </div>
+        <div className="max-w-[1200px] mx-auto px-6 flex items-center gap-6">
+          {/* Logo */}
+          <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-[10px] cursor-pointer bg-none border-none">
+            <div className="w-[38px] h-[38px] rounded-[11px] flex items-center justify-center" style={{ background: 'linear-gradient(135deg,rgba(255,255,255,.28),rgba(255,255,255,.12))', border: '1px solid rgba(255,255,255,.3)', boxShadow: '0 2px 10px rgba(0,0,0,.18)' }}>
+              <svg viewBox="0 0 24 24" style={{ width: 21, height: 21, fill: '#fff', stroke: 'none' }}><path d="M12 2L21 7V17L12 22L3 17V7L12 2Z" /></svg>
+            </div>
+            <span className="text-[21px] font-bold text-white" style={{ letterSpacing: '-.5px' }}>Sefay</span>
+          </button>
 
-          <div className="hidden md:flex items-center gap-6">
-            {NAV_LINKS.map((item) => (
-              <a key={item.href} href={item.href} className="text-white/80 hover:text-white text-sm font-medium transition-colors relative group">
-                {item.label}
-                <span className="absolute -bottom-0.5 start-0 w-0 h-0.5 bg-white group-hover:w-full transition-all duration-200" />
-              </a>
+          {/* Nav links — me-auto يدفعهم لليسار في RTL وليمين في LTR */}
+          <div className="hidden md:flex items-center gap-1 me-auto">
+            {NAV.map(n => (
+              <button key={n.id} onClick={() => goSection(n.id)}
+                className="relative px-[14px] py-2 rounded-[9px] text-[14px] font-medium cursor-pointer border-none bg-transparent"
+                style={{ color: 'rgba(255,255,255,.85)' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#fff', e.currentTarget.style.background = 'rgba(255,255,255,.12)')}
+                onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,.85)', e.currentTarget.style.background = 'transparent')}
+              >
+                {n.label}
+              </button>
             ))}
           </div>
 
-          <div className="hidden md:flex items-center gap-2">
-            <button
-              onClick={() => setModal('login')}
-              className="text-white/80 hover:text-white text-sm font-medium px-3 py-1.5 rounded-sm hover:bg-white/10 transition-colors"
+          {/* Actions */}
+          <div className="hidden md:flex items-center gap-[10px]">
+            <LangSwitcher />
+            <button onClick={() => setModal('login')}
+              className="px-[18px] py-[9px] rounded-[10px] text-[14px] font-semibold cursor-pointer border transition-all"
+              style={{ color: 'rgba(255,255,255,.95)', background: 'rgba(255,255,255,.1)', borderColor: 'rgba(255,255,255,.25)', backdropFilter: 'blur(10px)' }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,.5)', e.currentTarget.style.background = 'rgba(255,255,255,.2)')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,.25)', e.currentTarget.style.background = 'rgba(255,255,255,.1)')}
             >
               {t('nav.login')}
             </button>
-            <button
-              onClick={() => setModal('register')}
-              className="text-brand-primary text-sm font-semibold px-4 py-1.5 rounded-sm hover:opacity-90 transition-opacity"
-              style={{ background: 'rgba(255,255,255,0.92)' }}
+            <button onClick={() => setModal('signup')}
+              className="px-[20px] py-[10px] rounded-[10px] text-[14px] font-semibold cursor-pointer border-none transition-all hover:-translate-y-px"
+              style={{ color: '#0C447C', background: '#fff', boxShadow: '0 2px 10px rgba(0,0,0,.15)' }}
             >
               {t('nav.startFree')}
             </button>
           </div>
 
-          <button className="md:hidden text-white" onClick={() => setMenuOpen(!menuOpen)}>
-            {menuOpen ? <X size={22} strokeWidth={2} /> : <Menu size={22} strokeWidth={2} />}
+          {/* Burger */}
+          <button className="md:hidden ms-auto text-white cursor-pointer bg-none border-none p-1" onClick={() => setMobileOpen(!mobileOpen)}>
+            <IC style={{ width: 24, height: 24 }}>{mobileOpen ? <><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></> : <><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" /></>}</IC>
           </button>
         </div>
 
-        {menuOpen && (
-          <div className="md:hidden border-t border-white/10 px-4 py-4 space-y-3" style={{ background: '#082F5C' }}>
-            {NAV_LINKS.map((item) => (
-              <a key={item.href} href={item.href} className="block text-white/80 hover:text-white text-sm font-medium py-1" onClick={() => setMenuOpen(false)}>
-                {item.label}
-              </a>
+        {/* Mobile menu */}
+        {mobileOpen && (
+          <div className="md:hidden px-6 py-4 border-t" style={{ borderColor: 'rgba(255,255,255,.1)', background: '#082F5C' }}>
+            {NAV.map(n => (
+              <button key={n.id} onClick={() => goSection(n.id)} className="block w-full text-start py-3 text-[15px] font-medium border-none bg-transparent cursor-pointer" style={{ color: 'rgba(255,255,255,.8)' }}>{n.label}</button>
             ))}
-            <div className="flex gap-2 pt-2">
-              <button
-                onClick={() => { setModal('login'); setMenuOpen(false) }}
-                className="flex-1 text-white border border-white/30 text-sm font-medium py-2 rounded-sm hover:bg-white/10 transition-colors"
-              >
-                {t('nav.login')}
-              </button>
-              <button
-                onClick={() => { setModal('register'); setMenuOpen(false) }}
-                className="flex-1 text-sm font-semibold py-2 rounded-sm text-brand-primary"
-                style={{ background: 'rgba(255,255,255,0.92)' }}
-              >
-                {t('nav.startFree')}
-              </button>
+            <button onClick={toggleLang} className="block w-full text-start py-3 text-[15px] font-medium border-none bg-transparent cursor-pointer" style={{ color: 'rgba(255,255,255,.8)' }}>
+              {locale === 'ar' ? 'English' : 'عربي'}
+            </button>
+            <div className="flex gap-2 pt-3">
+              <button onClick={() => { setModal('login'); setMobileOpen(false) }} className="flex-1 py-2 rounded-[10px] text-[14px] font-medium border cursor-pointer" style={{ color: '#fff', borderColor: 'rgba(255,255,255,.3)', background: 'transparent' }}>{t('nav.login')}</button>
+              <button onClick={() => { setModal('signup'); setMobileOpen(false) }} className="flex-1 py-2 rounded-[10px] text-[14px] font-semibold border-none cursor-pointer" style={{ color: '#0C447C', background: '#fff' }}>{t('nav.startFree')}</button>
             </div>
           </div>
         )}
       </nav>
 
-      {/* ── Hero ── */}
-      <section
-        className="relative pt-32 pb-20 px-4 overflow-hidden"
-        style={{ background: 'linear-gradient(160deg, #082F5C 0%, #0C447C 40%, #1565C0 80%, #2671C4 100%)' }}
-      >
-        <div className="absolute top-20 end-10 w-64 h-64 rounded-full opacity-10 pointer-events-none" style={{ background: 'radial-gradient(circle, #fff 0%, transparent 70%)' }} />
-        <div className="absolute bottom-10 start-10 w-48 h-48 rounded-full opacity-10 pointer-events-none" style={{ background: 'radial-gradient(circle, #fff 0%, transparent 70%)' }} />
+      {/* ── HERO ── */}
+      <section className="relative overflow-hidden" style={{ paddingTop: 140, paddingBottom: 90 }}>
+        <div className="absolute inset-0 z-0" style={{
+          backgroundImage: 'linear-gradient(#EEF2F7 1px,transparent 1px),linear-gradient(90deg,#EEF2F7 1px,transparent 1px)',
+          backgroundSize: '48px 48px',
+          maskImage: 'radial-gradient(ellipse 80% 50% at 50% 0%,#000,transparent 75%)',
+          opacity: .5,
+        }} />
+        <div className="absolute inset-0 z-0" style={{ background: 'radial-gradient(900px 500px at 80% -10%,rgba(37,99,235,.1),transparent 55%),radial-gradient(700px 500px at 10% 20%,rgba(12,68,124,.06),transparent 50%)' }} />
 
-        <div className="relative max-w-4xl mx-auto text-center text-white">
-          <div
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium mb-6"
-            style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)' }}
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+        <div className="relative z-10 max-w-[1200px] mx-auto px-6 text-center">
+          <div className="inline-flex items-center gap-2 rounded-[30px] px-[16px] py-[7px] text-[13px] font-medium mb-7" style={{ background: '#F5F8FC', border: '1px solid #E4EAF2', color: '#0C447C', boxShadow: '0 1px 3px rgba(10,22,40,.06)' }}>
+            <span className="rounded-[20px] px-[9px] py-[2px] text-[11px] font-bold text-white" style={{ background: 'linear-gradient(135deg,#10B981,#059669)' }}>{t('hero.badgePill')}</span>
             {t('hero.badge')}
+            <IC style={{ width: 15, height: 15 }}><polyline points="9 18 15 12 9 6" /></IC>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-6">
-            {t('hero.title1')}<br />
-            <span className="text-white/70">{t('hero.title2')}</span>
+          <h1 style={{ fontSize: 56, fontWeight: 700, letterSpacing: -2, lineHeight: 1.1, marginBottom: 22, color: '#0A1628', animation: 'heroIn .8s .1s cubic-bezier(.4,0,.2,1) backwards' }}>
+            <style>{`@keyframes heroIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}`}</style>
+            {t('hero.title')}<br />
+            <span style={{ background: 'linear-gradient(120deg,#0C447C,#2671C4 60%,#3B82F6)', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              {t('hero.titleGrad')}
+            </span>
           </h1>
 
-          <p className="text-white/70 text-base sm:text-lg max-w-2xl mx-auto mb-8">
+          <p style={{ fontSize: 19, color: '#54657C', maxWidth: 620, margin: '0 auto 36px', lineHeight: 1.6, animation: 'heroIn .8s .22s cubic-bezier(.4,0,.2,1) backwards' }}>
             {t('hero.subtitle')}
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <button
-              onClick={() => setModal('register')}
-              className="flex items-center justify-center gap-2 px-6 py-3 rounded-sm font-semibold text-brand-primary hover:opacity-90 transition-opacity"
-              style={{ background: 'rgba(255,255,255,0.95)' }}
+          <div className="flex items-center justify-center gap-[14px] flex-wrap mb-[18px]" style={{ animation: 'heroIn .8s .34s cubic-bezier(.4,0,.2,1) backwards' }}>
+            <button onClick={() => setModal('signup')}
+              className="inline-flex items-center gap-2 transition-all hover:-translate-y-px"
+              style={{ padding: '14px 28px', borderRadius: 13, fontSize: 16, fontWeight: 600, color: '#fff', background: 'linear-gradient(135deg,#0C447C,#1565C0)', border: 'none', cursor: 'pointer', boxShadow: '0 6px 18px rgba(12,68,124,.3),0 2px 6px rgba(12,68,124,.22)', fontFamily: 'inherit' }}
             >
               {t('hero.cta')}
-              <ArrowRight size={16} strokeWidth={2} />
+              <IC style={{ width: 16, height: 16 }}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></IC>
             </button>
-            <button
-              onClick={() => setModal('login')}
-              className="flex items-center justify-center gap-2 px-6 py-3 rounded-sm font-medium text-white border border-white/30 hover:bg-white/10 transition-colors"
+            <button onClick={() => goSection('features')}
+              className="inline-flex items-center gap-2 transition-all hover:bg-[#F5F8FC]"
+              style={{ padding: '14px 28px', borderRadius: 13, fontSize: 16, fontWeight: 600, color: '#0C447C', background: 'transparent', border: '1.5px solid #E4EAF2', cursor: 'pointer', fontFamily: 'inherit' }}
             >
-              {t('hero.ctaLogin')}
+              <IC style={{ width: 16, height: 16 }}><circle cx="12" cy="12" r="10" /><polygon points="10 8 16 12 10 16 10 8" /></IC>
+              {t('hero.demo')}
             </button>
           </div>
-        </div>
-      </section>
 
-      {/* ── Stats ── */}
-      <section className="bg-slate-50 border-y border-slate-100">
-        <div className="max-w-4xl mx-auto px-4 py-10 grid grid-cols-2 sm:grid-cols-4 gap-6">
-          {STATS.map((s, i) => (
-            <Reveal key={i} className="text-center" delay={i * 80}>
-              <p className="text-2xl font-bold text-brand-primary tabular-nums">{s.value}</p>
-              <p className="text-sm text-slate-500 mt-1">{s.label}</p>
-            </Reveal>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Features ── */}
-      <section id="features" className="py-20 px-4">
-        <div className="max-w-6xl mx-auto">
-          <Reveal className="text-center mb-14">
-            <p className="text-xs font-semibold text-brand-primary mb-2 uppercase tracking-wide">{t('features.title')}</p>
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-800">{t('features.heading')}</h2>
-          </Reveal>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {FEATURES.map((f, i) => {
-              const Icon = f.icon
-              return (
-                <Reveal key={i} delay={i * 60}>
-                  <div
-                    className="bg-white border border-slate-100 rounded-md p-5 h-full hover:-translate-y-1 hover:shadow-md transition-all duration-200"
-                    style={{ borderTop: '3px solid #0C447C' }}
-                  >
-                    <div className="w-10 h-10 rounded-sm bg-brand-light flex items-center justify-center mb-4">
-                      <Icon className="w-5 h-5 text-brand-primary" strokeWidth={2} />
-                    </div>
-                    <h3 className="font-semibold text-slate-800 mb-2">{f.label}</h3>
-                    <p className="text-sm text-slate-500 leading-relaxed">{f.desc}</p>
-                  </div>
-                </Reveal>
-              )
-            })}
+          <div className="flex items-center justify-center gap-[18px] flex-wrap text-[13px]" style={{ color: '#8C9CB2', animation: 'heroIn .8s .44s cubic-bezier(.4,0,.2,1) backwards' }}>
+            {[t('hero.note1'), t('hero.note2'), t('hero.note3')].map(n => (
+              <span key={n} className="inline-flex items-center gap-[6px]">
+                <IC style={{ width: 15, height: 15, color: '#10B981' }}><polyline points="20 6 9 17 4 12" /></IC>
+                {n}
+              </span>
+            ))}
           </div>
         </div>
-      </section>
 
-      {/* ── Sectors ── */}
-      <section id="sectors" className="py-20 px-4 bg-slate-50">
-        <div className="max-w-6xl mx-auto">
-          <Reveal className="text-center mb-14">
-            <p className="text-xs font-semibold text-brand-primary mb-2 uppercase tracking-wide">{t('sectors.title')}</p>
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-800">{t('sectors.heading')}</h2>
-          </Reveal>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            {SECTORS.map((s, i) => {
-              const Icon = s.icon
-              return (
-                <Reveal key={i} delay={i * 50}>
-                  <div className="bg-white rounded-md p-4 text-center hover:-translate-y-1 hover:shadow-md transition-all duration-200 border border-slate-100 group cursor-default">
-                    <div className="w-12 h-12 rounded-sm bg-brand-light group-hover:bg-brand transition-colors duration-200 flex items-center justify-center mx-auto mb-3">
-                      <Icon className="w-6 h-6 text-brand-primary group-hover:text-white transition-colors duration-200" strokeWidth={2} />
+        {/* Dashboard preview */}
+        <div className="relative z-10 max-w-[980px] mx-auto px-6 mt-[60px]" style={{ animation: 'heroIn 1s .3s cubic-bezier(.4,0,.2,1) backwards' }}>
+          <div className="rounded-[20px] p-[10px] relative" style={{ background: 'linear-gradient(135deg,#0C447C,#1565C0)', boxShadow: '0 30px 80px rgba(12,68,124,.35),0 12px 32px rgba(12,68,124,.25)' }}>
+            <div className="flex items-center gap-[7px] px-3 py-2">
+              {['#FF5F57', '#FEBC2E', '#28C840'].map(c => <div key={c} className="w-[11px] h-[11px] rounded-full" style={{ background: c }} />)}
+            </div>
+            <div className="rounded-[13px] overflow-hidden relative" style={{ background: '#F5F8FC', aspectRatio: '16/9.5' }}>
+              <div className="absolute inset-0 p-4 flex gap-3">
+                <div className="w-[30%] bg-white rounded-[10px] p-3 flex flex-col gap-[7px]" style={{ boxShadow: '0 1px 3px rgba(10,22,40,.06)' }}>
+                  {[true, false, false, false, false, false].map((on, i) => (
+                    <div key={i} className="h-[30px] rounded-[7px] flex items-center px-[10px] gap-2" style={{ background: on ? 'linear-gradient(135deg,#0C447C,#1565C0)' : '#EEF3F9' }}>
+                      <div className="w-[14px] h-[14px] rounded-[4px]" style={{ background: on ? 'rgba(255,255,255,.4)' : '#E4EAF2' }} />
+                      <div className="flex-1 h-[6px] rounded-[4px]" style={{ background: on ? 'rgba(255,255,255,.5)' : '#E4EAF2' }} />
                     </div>
-                    <p className="text-xs font-medium text-slate-700">{s.label}</p>
-                  </div>
-                </Reveal>
-              )
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Pricing ── */}
-      <section id="pricing" className="py-20 px-4">
-        <div className="max-w-5xl mx-auto">
-          <Reveal className="text-center mb-14">
-            <p className="text-xs font-semibold text-brand-primary mb-2 uppercase tracking-wide">{t('pricing.title')}</p>
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-800">{t('pricing.heading')}</h2>
-          </Reveal>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {PLANS.map((plan, i) => (
-              <Reveal key={i} delay={i * 80}>
-                <div
-                  className={`rounded-md p-6 h-full flex flex-col transition-all duration-200 ${
-                    plan.featured ? 'text-white' : 'bg-white border border-slate-100 hover:border-brand-primary/30 hover:shadow-md'
-                  }`}
-                  style={plan.featured
-                    ? { background: 'linear-gradient(135deg, #082F5C 0%, #0C447C 50%, #1761B8 100%)', border: '2px solid rgba(255,255,255,0.15)' }
-                    : { borderTop: '3px solid #0C447C' }
-                  }
-                >
-                  {plan.featured && (
-                    <div className="flex items-center gap-1 mb-3">
-                      <Star size={13} fill="currentColor" className="text-yellow-300" />
-                      <span className="text-xs font-medium text-yellow-300">{t('pricing.popular')}</span>
-                    </div>
-                  )}
-                  <h3 className={`text-lg font-bold mb-1 ${plan.featured ? 'text-white' : 'text-slate-800'}`}>{plan.name}</h3>
-                  <div className="mb-5">
-                    <span className={`text-3xl font-bold tabular-nums ${plan.featured ? 'text-white' : 'text-brand-primary'}`}>{plan.price}</span>
-                    <span className={`text-sm ms-1 ${plan.featured ? 'text-white/60' : 'text-slate-400'}`}>
-                      SAR / {t('pricing.perMonth')}
-                    </span>
-                  </div>
-                  <ul className="space-y-2.5 flex-1 mb-6">
-                    {plan.features.map((feat, j) => (
-                      <li key={j} className="flex items-center gap-2 text-sm">
-                        <Check size={14} strokeWidth={2.5} className={plan.featured ? 'text-green-300 shrink-0' : 'text-brand-primary shrink-0'} />
-                        <span className={plan.featured ? 'text-white/80' : 'text-slate-600'}>{feat}</span>
-                      </li>
+                  ))}
+                </div>
+                <div className="flex-1 flex flex-col gap-3">
+                  <div className="grid grid-cols-3 gap-[10px]">
+                    {[
+                      { grad: 'linear-gradient(90deg,#0C447C,#3B82F6)', ico: 'linear-gradient(135deg,#1565C0,#0C447C)' },
+                      { grad: 'linear-gradient(90deg,#059669,#34D399)', ico: 'linear-gradient(135deg,#10B981,#059669)' },
+                      { grad: 'linear-gradient(90deg,#7C3AED,#A78BFA)', ico: 'linear-gradient(135deg,#8B5CF6,#6D28D9)' },
+                    ].map((c, i) => (
+                      <div key={i} className="bg-white rounded-[10px] p-3 relative overflow-hidden" style={{ boxShadow: '0 1px 3px rgba(10,22,40,.06)' }}>
+                        <div className="absolute top-0 inset-x-0 h-[3px]" style={{ background: c.grad }} />
+                        <div className="w-[26px] h-[26px] rounded-[8px] mb-2" style={{ background: c.ico }} />
+                        <div className="h-[13px] w-[60%] rounded-[5px] mb-1" style={{ background: '#0A1628', opacity: .85 }} />
+                        <div className="h-[6px] w-[80%] rounded-[4px]" style={{ background: '#E4EAF2' }} />
+                      </div>
                     ))}
-                  </ul>
-                  <button
-                    onClick={() => setModal('register')}
-                    className={`w-full py-2.5 rounded-sm text-sm font-semibold transition-opacity hover:opacity-90 ${plan.featured ? 'text-brand-primary' : 'text-white'}`}
-                    style={plan.featured
-                      ? { background: 'rgba(255,255,255,0.92)' }
-                      : { background: 'linear-gradient(135deg, #082F5C 0%, #0C447C 100%)' }
-                    }
-                  >
-                    {t('pricing.getStarted')}
-                  </button>
+                  </div>
+                  <div className="flex-1 bg-white rounded-[10px] p-[14px] flex items-end gap-2" style={{ boxShadow: '0 1px 3px rgba(10,22,40,.06)' }}>
+                    {BARS.map((h, i) => (
+                      <div key={i} className="flex-1 rounded-t-[6px]" style={{ height: `${h}%`, background: 'linear-gradient(180deg,#1565C0,rgba(21,101,192,.2))', animation: `barGrow .8s ${.1 + i * .08}s cubic-bezier(.4,0,.2,1) backwards`, transformOrigin: 'bottom' }} />
+                    ))}
+                    <style>{`@keyframes barGrow{from{transform:scaleY(0)}to{transform:scaleY(1)}}`}</style>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="absolute top-[18%] -end-[4%] hidden lg:flex items-center gap-[10px] bg-white rounded-[12px] px-[15px] py-[11px]"
+            style={{ boxShadow: '0 8px 30px rgba(12,68,124,.13),0 2px 8px rgba(10,22,40,.07)', border: '1px solid rgba(12,68,124,.1)', animation: 'float 3.5s ease-in-out infinite' }}>
+            <style>{`@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}`}</style>
+            <div className="w-[34px] h-[34px] rounded-[10px] flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#10B981,#059669)' }}>
+              <IC style={{ width: 17, height: 17, color: '#fff' }}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></IC>
+            </div>
+            <div>
+              <div className="text-[15px] font-bold text-[#0A1628]">+12.4%</div>
+              <div className="text-[11px] text-[#8C9CB2]">{t('hero.salesGrowth')}</div>
+            </div>
+          </div>
+          <div className="absolute bottom-[14%] -start-[3%] hidden lg:flex items-center gap-[10px] bg-white rounded-[12px] px-[15px] py-[11px]"
+            style={{ boxShadow: '0 8px 30px rgba(12,68,124,.13),0 2px 8px rgba(10,22,40,.07)', border: '1px solid rgba(12,68,124,.1)', animation: 'float 3.5s 1.5s ease-in-out infinite' }}>
+            <div className="w-[34px] h-[34px] rounded-[10px] flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#1565C0,#0C447C)' }}>
+              <IC style={{ width: 17, height: 17, color: '#fff' }}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></IC>
+            </div>
+            <div>
+              <div className="text-[15px] font-bold text-[#0A1628]">347</div>
+              <div className="text-[11px] text-[#8C9CB2]">{t('hero.ordersToday')}</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── TRUST / STATS ── */}
+      <section style={{ padding: '50px 0', borderBottom: '1px solid #EEF2F7' }}>
+        <div className="max-w-[1100px] mx-auto px-6 text-center">
+          <p className="text-[13px] font-semibold mb-7" style={{ color: '#8C9CB2', letterSpacing: '.05em' }}>{t('trust.label')}</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+            {TRUST.map((s, i) => (
+              <Reveal key={i} delay={i * 80}>
+                <div style={{ fontSize: 38, fontWeight: 700, letterSpacing: -1, lineHeight: 1, background: 'linear-gradient(120deg,#0C447C,#2671C4)', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{s.v}</div>
+                <div style={{ fontSize: 14, color: '#54657C', marginTop: 6 }}>{s.l}</div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── FEATURES ── */}
+      <section id="features" style={{ padding: '90px 0' }}>
+        <div className="max-w-[1200px] mx-auto px-6">
+          <Reveal className="text-center" style={{ maxWidth: 640, margin: '0 auto 56px' }}>
+            {sectionTag(<IC><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></IC>, t('features.tag'))}
+            <h2 style={{ fontSize: 40, fontWeight: 700, letterSpacing: -1.2, lineHeight: 1.15, marginBottom: 16, color: '#0A1628' }}>{t('features.heading')}</h2>
+            <p style={{ fontSize: 17, color: '#54657C', lineHeight: 1.6 }}>{t('features.sub')}</p>
+          </Reveal>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {FEATURES.map((f, i) => (
+              <Reveal key={i} delay={i * 70}>
+                <div
+                  className="transition-all duration-300 hover:-translate-y-1"
+                  style={{ background: '#fff', border: '1px solid #E4EAF2', borderRadius: 18, padding: 28, height: '100%', cursor: 'default' }}
+                  onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 8px 16px rgba(10,22,40,.05),0 20px 48px rgba(10,22,40,.12)'; e.currentTarget.style.borderColor = 'transparent' }}
+                  onMouseLeave={e => { e.currentTarget.style.boxShadow = ''; e.currentTarget.style.borderColor = '#E4EAF2' }}
+                >
+                  <div className="w-[52px] h-[52px] rounded-[15px] flex items-center justify-center mb-5" style={{ background: f.grad, boxShadow: '0 1px 3px rgba(10,22,40,.06),0 1px 0 rgba(255,255,255,.5) inset' }}>
+                    {f.icon}
+                  </div>
+                  <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 10, color: '#0A1628' }}>{f.label}</h3>
+                  <p style={{ fontSize: 14, color: '#54657C', lineHeight: 1.65 }}>{f.desc}</p>
                 </div>
               </Reveal>
             ))}
@@ -430,46 +631,250 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ── CTA band ── */}
-      <section
-        className="py-20 px-4"
-        style={{ background: 'linear-gradient(135deg, #082F5C 0%, #0C447C 50%, #1761B8 100%)' }}
-      >
-        <Reveal className="max-w-2xl mx-auto text-center text-white">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-4">{t('cta.heading')}</h2>
-          <p className="text-white/70 mb-8">{t('cta.sub')}</p>
-          <button
-            onClick={() => setModal('register')}
-            className="inline-flex items-center gap-2 px-8 py-3 rounded-sm font-semibold text-brand-primary hover:opacity-90 transition-opacity"
-            style={{ background: 'rgba(255,255,255,0.95)' }}
-          >
-            {t('cta.button')}
-            <ArrowRight size={16} strokeWidth={2} />
-          </button>
-        </Reveal>
+      {/* ── BUSINESS TYPES ── */}
+      <section id="business" style={{ padding: '90px 0', background: '#F5F8FC' }}>
+        <div className="max-w-[1200px] mx-auto px-6">
+          <Reveal className="text-center" style={{ maxWidth: 640, margin: '0 auto 56px' }}>
+            {sectionTag(<IC><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4" /></IC>, t('business.tag'))}
+            <h2 style={{ fontSize: 40, fontWeight: 700, letterSpacing: -1.2, lineHeight: 1.15, marginBottom: 16, color: '#0A1628' }}>{t('business.heading')}</h2>
+            <p style={{ fontSize: 17, color: '#54657C', lineHeight: 1.6 }}>{t('business.sub')}</p>
+          </Reveal>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {BUSINESS.map((b, i) => (
+              <Reveal key={i} delay={i * 60}>
+                <div
+                  className="transition-all duration-300 hover:-translate-y-[3px] cursor-pointer"
+                  style={{ background: '#fff', border: '1px solid #E4EAF2', borderRadius: 14, padding: 24, display: 'flex', alignItems: 'center', gap: 16 }}
+                  onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 6px rgba(10,22,40,.03),0 8px 24px rgba(10,22,40,.07)'; e.currentTarget.style.borderColor = '#0C447C' }}
+                  onMouseLeave={e => { e.currentTarget.style.boxShadow = ''; e.currentTarget.style.borderColor = '#E4EAF2' }}
+                >
+                  <div className="w-[54px] h-[54px] rounded-[14px] flex items-center justify-center flex-shrink-0" style={{ background: b.grad }}>
+                    {b.icon}
+                  </div>
+                  <div>
+                    <h4 style={{ fontSize: 16, fontWeight: 700, marginBottom: 3 }}>{b.label}</h4>
+                    <p style={{ fontSize: 13, color: '#8C9CB2' }}>{b.sub}</p>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
       </section>
 
-      {/* ── Footer ── */}
-      <footer className="bg-slate-900 py-10 px-4">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-sm flex items-center justify-center text-white font-bold text-xs" style={{ background: '#0C447C' }}>S</div>
-            <span className="text-white font-semibold">Sefay</span>
-            <span className="text-slate-500 text-sm">— {t('footer.tagline')}</span>
+      {/* ── PRICING ── */}
+      <section id="pricing" style={{ padding: '90px 0' }}>
+        <div className="max-w-[1200px] mx-auto px-6">
+          <Reveal className="text-center" style={{ maxWidth: 640, margin: '0 auto 56px' }}>
+            {sectionTag(<IC><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></IC>, t('pricing.tag'))}
+            <h2 style={{ fontSize: 40, fontWeight: 700, letterSpacing: -1.2, lineHeight: 1.15, marginBottom: 16, color: '#0A1628' }}>{t('pricing.heading')}</h2>
+            <p style={{ fontSize: 17, color: '#54657C', lineHeight: 1.6 }}>{t('pricing.sub')}</p>
+          </Reveal>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 items-stretch">
+            <Reveal>
+              <div className="relative flex flex-col h-full transition-all hover:shadow-md" style={{ background: '#fff', border: '1.5px solid #E4EAF2', borderRadius: 18, padding: 32 }}>
+                <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 6 }}>{t('pricing.starter')}</div>
+                <div style={{ fontSize: 13, color: '#8C9CB2', marginBottom: 22, minHeight: 38 }}>{t('pricing.starterDesc')}</div>
+                <div className="flex items-baseline gap-[6px] mb-[6px]">
+                  <span style={{ fontSize: 44, fontWeight: 700, letterSpacing: -1.5, color: '#0A1628' }}>{t('pricing.starterPrice')}</span>
+                  <span style={{ fontSize: 14, color: '#8C9CB2' }}>{t('pricing.sar')} / {t('pricing.perMonth')}</span>
+                </div>
+                <div style={{ fontSize: 12, color: '#059669', fontWeight: 600, marginBottom: 24 }}>{t('pricing.save')}</div>
+                <ul className="flex flex-col gap-[13px] mb-7 flex-1" style={{ listStyle: 'none' }}>
+                  {[t('pricing.starterF1'), t('pricing.starterF2'), t('pricing.starterF3'), t('pricing.starterF4')].map(f => (
+                    <li key={f} className="flex items-center gap-[10px] text-[14px]" style={{ color: '#54657C' }}>
+                      <IC style={{ width: 18, height: 18, color: '#10B981', flexShrink: 0 }}><polyline points="20 6 9 17 4 12" /></IC>{f}
+                    </li>
+                  ))}
+                  <li className="flex items-center gap-[10px] text-[14px]" style={{ color: '#B4C0CF' }}>
+                    <IC style={{ width: 18, height: 18, color: '#B4C0CF', flexShrink: 0 }}><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></IC>{t('pricing.starterF5off')}
+                  </li>
+                </ul>
+                <button onClick={() => setModal('signup')} className="w-full py-[11px] rounded-[10px] text-[14px] font-semibold border cursor-pointer transition-all hover:border-[#0C447C] hover:bg-[#F5F8FC]" style={{ color: '#0C447C', background: 'transparent', borderColor: '#E4EAF2', fontFamily: 'inherit' }}>
+                  {t('pricing.startNow')}
+                </button>
+              </div>
+            </Reveal>
+
+            <Reveal delay={80}>
+              <div className="relative flex flex-col h-full" style={{ borderRadius: 18, padding: 32, border: '1.5px solid #0C447C', transform: 'scale(1.03)', boxShadow: '0 8px 16px rgba(10,22,40,.05),0 20px 48px rgba(10,22,40,.12)' }}>
+                <div className="absolute inset-[-2px] rounded-[20px] -z-10" style={{ background: 'linear-gradient(135deg,#0C447C,#3B82F6,#0C447C,#2671C4)', backgroundSize: '300% 300%', animation: 'gradMove 4s linear infinite' }} />
+                <style>{`@keyframes gradMove{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}`}</style>
+                <div className="absolute -top-[13px] start-1/2 px-[16px] py-[5px] rounded-[20px] text-[12px] font-bold text-white whitespace-nowrap" style={{ background: 'linear-gradient(135deg,#0C447C,#1565C0)', boxShadow: '0 6px 18px rgba(12,68,124,.3)', transform: 'translateX(-50%)' }}>
+                  {t('pricing.popular')}
+                </div>
+                <div className="absolute inset-0 rounded-[18px] bg-white -z-[5]" />
+                <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 6, position: 'relative' }}>{t('pricing.pro')}</div>
+                <div style={{ fontSize: 13, color: '#8C9CB2', marginBottom: 22, minHeight: 38, position: 'relative' }}>{t('pricing.proDesc')}</div>
+                <div className="flex items-baseline gap-[6px] mb-[6px]" style={{ position: 'relative' }}>
+                  <span style={{ fontSize: 44, fontWeight: 700, letterSpacing: -1.5, color: '#0A1628' }}>{t('pricing.proPrice')}</span>
+                  <span style={{ fontSize: 14, color: '#8C9CB2' }}>{t('pricing.sar')} / {t('pricing.perMonth')}</span>
+                </div>
+                <div style={{ fontSize: 12, color: '#059669', fontWeight: 600, marginBottom: 24, position: 'relative' }}>{t('pricing.save')}</div>
+                <ul className="flex flex-col gap-[13px] mb-7 flex-1" style={{ listStyle: 'none', position: 'relative' }}>
+                  {[t('pricing.proF1'), t('pricing.proF2'), t('pricing.proF3'), t('pricing.proF4'), t('pricing.proF5')].map(f => (
+                    <li key={f} className="flex items-center gap-[10px] text-[14px]" style={{ color: '#54657C' }}>
+                      <IC style={{ width: 18, height: 18, color: '#10B981', flexShrink: 0 }}><polyline points="20 6 9 17 4 12" /></IC>{f}
+                    </li>
+                  ))}
+                </ul>
+                <button onClick={() => setModal('signup')} className="w-full py-[11px] rounded-[10px] text-[14px] font-semibold border-none cursor-pointer transition-all hover:opacity-90 hover:-translate-y-px" style={{ color: '#fff', background: 'linear-gradient(135deg,#0C447C,#1565C0)', boxShadow: '0 6px 18px rgba(12,68,124,.3)', fontFamily: 'inherit', position: 'relative' }}>
+                  {t('pricing.startTrial')}
+                </button>
+              </div>
+            </Reveal>
+
+            <Reveal delay={160}>
+              <div className="relative flex flex-col h-full transition-all hover:shadow-md" style={{ background: '#fff', border: '1.5px solid #E4EAF2', borderRadius: 18, padding: 32 }}>
+                <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 6 }}>{t('pricing.enterprise')}</div>
+                <div style={{ fontSize: 13, color: '#8C9CB2', marginBottom: 22, minHeight: 38 }}>{t('pricing.enterpriseDesc')}</div>
+                <div className="flex items-baseline gap-[6px] mb-[6px]">
+                  <span style={{ fontSize: 44, fontWeight: 700, letterSpacing: -1.5, color: '#0A1628' }}>{t('pricing.entPrice')}</span>
+                </div>
+                <div style={{ fontSize: 12, color: '#059669', fontWeight: 600, marginBottom: 24 }}>{t('pricing.customPrice')}</div>
+                <ul className="flex flex-col gap-[13px] mb-7 flex-1" style={{ listStyle: 'none' }}>
+                  {[t('pricing.entF1'), t('pricing.entF2'), t('pricing.entF3'), t('pricing.entF4'), t('pricing.entF5')].map(f => (
+                    <li key={f} className="flex items-center gap-[10px] text-[14px]" style={{ color: '#54657C' }}>
+                      <IC style={{ width: 18, height: 18, color: '#10B981', flexShrink: 0 }}><polyline points="20 6 9 17 4 12" /></IC>{f}
+                    </li>
+                  ))}
+                </ul>
+                <button onClick={() => setModal('signup')} className="w-full py-[11px] rounded-[10px] text-[14px] font-semibold border cursor-pointer transition-all hover:border-[#0C447C] hover:bg-[#F5F8FC]" style={{ color: '#0C447C', background: 'transparent', borderColor: '#E4EAF2', fontFamily: 'inherit' }}>
+                  {t('pricing.contactUs')}
+                </button>
+              </div>
+            </Reveal>
           </div>
-          <p className="text-xs text-slate-500">
-            © {new Date().getFullYear()} Sefay. {t('footer.rights')}
-          </p>
+        </div>
+      </section>
+
+      {/* ── TESTIMONIALS ── */}
+      <section id="testimonials" style={{ padding: '90px 0', background: '#F5F8FC' }}>
+        <div className="max-w-[1200px] mx-auto px-6">
+          <Reveal className="text-center" style={{ maxWidth: 640, margin: '0 auto 56px' }}>
+            {sectionTag(<IC><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></IC>, t('testimonials.tag'))}
+            <h2 style={{ fontSize: 40, fontWeight: 700, letterSpacing: -1.2, lineHeight: 1.15, color: '#0A1628' }}>{t('testimonials.heading')}</h2>
+          </Reveal>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            {TESTIMONIALS.map((ts, i) => (
+              <Reveal key={i} delay={i * 70}>
+                <div
+                  className="relative overflow-hidden transition-all duration-300 hover:-translate-y-[3px]"
+                  style={{ background: '#fff', border: '1px solid #E4EAF2', borderRadius: 18, padding: 26, height: '100%' }}
+                  onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 6px rgba(10,22,40,.03),0 8px 24px rgba(10,22,40,.07)' }}
+                  onMouseLeave={e => { e.currentTarget.style.boxShadow = '' }}
+                >
+                  <div className="absolute -top-[14px] end-4 text-[88px] font-black leading-none pointer-events-none select-none" style={{ color: '#E4EAF2', fontFamily: 'Georgia,serif' }}>"</div>
+                  <div className="flex gap-[3px] mb-4">
+                    {Array(5).fill(0).map((_, j) => (
+                      <svg key={j} viewBox="0 0 24 24" style={{ width: 16, height: 16, fill: '#F59E0B', stroke: 'none' }}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
+                    ))}
+                  </div>
+                  <p style={{ fontSize: 15, color: '#0A1628', lineHeight: 1.7, marginBottom: 20 }}>"{ts.q}"</p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-[44px] h-[44px] rounded-full flex items-center justify-center text-white text-[15px] font-bold flex-shrink-0" style={{ background: ts.grad }}>{ts.init}</div>
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 700 }}>{ts.name}</div>
+                      <div style={{ fontSize: 12, color: '#8C9CB2' }}>{ts.role}</div>
+                    </div>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── CTA ── */}
+      <section style={{ padding: '80px 0' }}>
+        <div className="max-w-[1100px] mx-auto px-6">
+          <div className="relative rounded-[28px] text-center overflow-hidden" style={{ background: 'linear-gradient(125deg,#0C447C 0%,#1565C0 50%,#2671C4 100%)', padding: '64px 48px', boxShadow: '0 30px 70px rgba(12,68,124,.35)' }}>
+            <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px)', backgroundSize: '40px 40px', maskImage: 'linear-gradient(180deg,#000,transparent)' }} />
+            <div className="absolute -top-[50px] -end-[50px] w-[200px] h-[200px] rounded-full" style={{ background: 'radial-gradient(circle,rgba(255,255,255,.1),transparent 70%)' }} />
+            <div className="absolute -bottom-[60px] -start-[30px] w-[180px] h-[180px] rounded-full" style={{ background: 'radial-gradient(circle,rgba(37,99,235,.3),transparent 70%)' }} />
+            <Reveal>
+              <h2 style={{ fontSize: 38, fontWeight: 700, color: '#fff', letterSpacing: -1, marginBottom: 16, position: 'relative' }}>{t('cta.heading')}</h2>
+              <p style={{ fontSize: 18, color: 'rgba(255,255,255,.85)', maxWidth: 520, margin: '0 auto 32px', position: 'relative' }}>{t('cta.sub')}</p>
+              <div className="flex items-center justify-center gap-[14px] flex-wrap" style={{ position: 'relative' }}>
+                <button onClick={() => setModal('signup')}
+                  className="inline-flex items-center gap-2 transition-all hover:-translate-y-[2px]"
+                  style={{ padding: '14px 30px', borderRadius: 13, fontSize: 16, fontWeight: 600, color: '#0C447C', background: '#fff', border: 'none', cursor: 'pointer', boxShadow: '0 8px 24px rgba(0,0,0,.2)', fontFamily: 'inherit' }}
+                >
+                  {t('cta.primary')}
+                  <IC style={{ width: 16, height: 16 }}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></IC>
+                </button>
+                <button onClick={() => goSection('pricing')}
+                  className="transition-all hover:bg-[rgba(255,255,255,.2)]"
+                  style={{ padding: '14px 28px', borderRadius: 13, fontSize: 16, fontWeight: 600, color: '#fff', background: 'rgba(255,255,255,.1)', border: '1.5px solid rgba(255,255,255,.3)', cursor: 'pointer', backdropFilter: 'blur(10px)', fontFamily: 'inherit' }}
+                >
+                  {t('cta.secondary')}
+                </button>
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FOOTER ── */}
+      <footer style={{ background: '#0A1628', color: '#fff', padding: '64px 0 32px' }}>
+        <div className="max-w-[1200px] mx-auto px-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
+            <div>
+              <div className="flex items-center gap-[10px] mb-4">
+                <div className="w-[38px] h-[38px] rounded-[11px] flex items-center justify-center" style={{ background: '#0C447C' }}>
+                  <svg viewBox="0 0 24 24" style={{ width: 21, height: 21, fill: '#fff', stroke: 'none' }}><path d="M12 2L21 7V17L12 22L3 17V7L12 2Z" /></svg>
+                </div>
+                <span className="text-[21px] font-bold">Sefay</span>
+              </div>
+              <p style={{ fontSize: 14, color: 'rgba(255,255,255,.55)', maxWidth: 280, lineHeight: 1.6 }}>{t('footer.tagline')}</p>
+              <div className="flex gap-[10px] mt-5">
+                {[
+                  <IC key="tw"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z" /></IC>,
+                  <IC key="ig"><rect x="2" y="2" width="20" height="20" rx="5" /><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" /><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" /></IC>,
+                  <IC key="li"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z" /><rect x="2" y="9" width="4" height="12" /><circle cx="4" cy="4" r="2" /></IC>,
+                ].map((ico, i) => (
+                  <button key={i} className="w-[38px] h-[38px] rounded-[10px] flex items-center justify-center transition-all hover:-translate-y-[2px]" style={{ background: 'rgba(255,255,255,.08)', border: 'none', cursor: 'pointer', color: '#fff' }}>
+                    <span style={{ width: 18, height: 18, display: 'flex' }}>{ico}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <h5 style={{ fontSize: 14, fontWeight: 700, marginBottom: 18 }}>{t('footer.product')}</h5>
+              {[t('footer.features'), t('footer.pricing'), t('footer.app'), t('footer.updates')].map(l => (
+                <a key={l} className="block text-[14px] mb-3 transition-all hover:text-white cursor-pointer" style={{ color: 'rgba(255,255,255,.55)' }}>{l}</a>
+              ))}
+            </div>
+            <div>
+              <h5 style={{ fontSize: 14, fontWeight: 700, marginBottom: 18 }}>{t('footer.company')}</h5>
+              {[t('footer.about'), t('footer.blog'), t('footer.careers'), t('footer.contact')].map(l => (
+                <a key={l} className="block text-[14px] mb-3 transition-all hover:text-white cursor-pointer" style={{ color: 'rgba(255,255,255,.55)' }}>{l}</a>
+              ))}
+            </div>
+            <div>
+              <h5 style={{ fontSize: 14, fontWeight: 700, marginBottom: 18 }}>{t('footer.support')}</h5>
+              {[t('footer.help'), t('footer.faq'), t('footer.tech'), t('footer.status')].map(l => (
+                <a key={l} className="block text-[14px] mb-3 transition-all hover:text-white cursor-pointer" style={{ color: 'rgba(255,255,255,.55)' }}>{l}</a>
+              ))}
+            </div>
+          </div>
+          <div className="flex items-center justify-between flex-wrap gap-4 pt-7" style={{ borderTop: '1px solid rgba(255,255,255,.1)' }}>
+            <span style={{ fontSize: 13, color: 'rgba(255,255,255,.5)' }}>© {new Date().getFullYear().toLocaleString('en-US')} Sefay. {t('footer.rights')}</span>
+            <div className="flex gap-6">
+              {[t('footer.privacy'), t('footer.terms'), t('footer.security')].map(l => (
+                <a key={l} className="text-[13px] transition-colors hover:text-white cursor-pointer" style={{ color: 'rgba(255,255,255,.5)' }}>{l}</a>
+              ))}
+            </div>
+          </div>
         </div>
       </footer>
 
       {/* ── Modal ── */}
       {modal && (
         <AuthModal
-          mode={modal}
+          initialStep={modal}
           locale={locale}
           onClose={() => setModal(null)}
-          onSwitch={() => setModal(modal === 'login' ? 'register' : 'login')}
         />
       )}
     </div>

@@ -50,31 +50,13 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   if (!isAuthenticated) return null;
 
-  const sidebarTranslate = sidebarOpen
-    ? 'translate-x-0'
-    : isRTL
-      ? 'translate-x-full lg:translate-x-0'
-      : '-translate-x-full lg:translate-x-0';
-
   return (
     <ThemeProvider>
       <div className="h-screen bg-slate-50 dark:bg-gray-950 flex overflow-hidden">
-        {sidebarOpen && (
-          <div
-            className="fixed inset-0 bg-black/30 z-20 lg:hidden"
-            onClick={() => setSidebarOpen(false)}
-          />
-        )}
-
-        <div
-          className={cn(
-            'fixed inset-y-0 z-30 lg:relative lg:translate-x-0 transition-transform duration-200',
-            isRTL ? 'right-0' : 'left-0',
-            sidebarTranslate
-          )}
-        >
-          <DashboardSidebar onClose={() => setSidebarOpen(false)} />
-        </div>
+        <DashboardSidebar
+          open={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+        />
 
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           <DashboardHeader onMenuClick={() => setSidebarOpen(!sidebarOpen)} />

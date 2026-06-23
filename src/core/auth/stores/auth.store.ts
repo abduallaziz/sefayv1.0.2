@@ -2,6 +2,8 @@ import { create } from 'zustand';
 
 export type UserRole = 'owner' | 'manager' | 'cashier' | 'worker' | 'superadmin';
 
+export type BusinessType = 'restaurant' | 'cafe' | 'retail' | 'services' | 'workshop' | 'other';
+
 export interface AuthUser {
   id: string;
   name: string;
@@ -12,6 +14,7 @@ export interface AuthUser {
   branchId?: string;
   permissions: string[];
   features: string[];
+  business_type: BusinessType | null;
 }
 
 interface AuthState {

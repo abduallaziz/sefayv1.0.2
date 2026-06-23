@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useAuthStore, type UserRole } from './stores/auth.store';
+import { useAuthStore, type UserRole, type BusinessType } from './stores/auth.store';
 
 interface AuthProviderProps {
   children: React.ReactNode;
@@ -44,6 +44,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
               sessionId: user.session_id,
               permissions: user.permissions ?? [],
               features: user.features ?? [],
+              business_type: (user.business_type as BusinessType) ?? null,
             },
             data.access_token,
           );

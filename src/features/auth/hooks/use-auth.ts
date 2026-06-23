@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { authApi, LoginDto } from '../api/auth.api';
-import { useAuthStore, type UserRole } from '@/core/auth/stores/auth.store';
+import { useAuthStore, type UserRole, type BusinessType } from '@/core/auth/stores/auth.store';
 
 export function useLogin() {
   const { setAuth } = useAuthStore();
@@ -22,6 +22,7 @@ export function useLogin() {
           sessionId: data.user.session_id,
           permissions: data.user.permissions ?? [],
           features: data.user.features ?? [],
+          business_type: (data.user.business_type as BusinessType) ?? null,
         },
         data.access_token,
       );
