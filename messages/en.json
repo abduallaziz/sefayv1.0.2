@@ -4,7 +4,8 @@
     "user": "User",
     "logout": "Logout",
     "darkMode": "Dark mode",
-    "lightMode": "Light mode"
+    "lightMode": "Light mode",
+    "branch": "Main Branch"
   },
   "sidebar": {
     "menu": "Menu",
@@ -20,7 +21,9 @@
     "settings": "Settings",
     "plan": "Current Plan",
     "planDaysLeft": "{days} days left",
-    "upgrade": "Upgrade Plan"
+    "upgrade": "Upgrade Plan",
+    "planLabel": "Current Plan",
+    "trial": "Trial"
   },
   "common": {
     "save": "Save",

@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-const SAUDI_RIYAL_DISPLAY = '\uE900'
+const SAUDI_RIYAL_DISPLAY = '\uFDFC'
+
 
 function resolveSymbol(symbol: string): string {
   return symbol === '⃁' || symbol === '\u20C1' ? SAUDI_RIYAL_DISPLAY : symbol

@@ -4,7 +4,8 @@
     "user": "مستخدم",
     "logout": "تسجيل الخروج",
     "darkMode": "الوضع المظلم",
-    "lightMode": "الوضع المضيء"
+    "lightMode": "الوضع المضيء",
+    "branch": "الفرع الرئيسي"
   },
   "sidebar": {
     "menu": "القائمة",
@@ -20,7 +21,9 @@
     "settings": "الإعدادات",
     "plan": "الخطة الحالية",
     "planDaysLeft": "{days} يوم متبقي",
-    "upgrade": "ترقية الخطة"
+    "upgrade": "ترقية الخطة",
+    "planLabel": "خطتك الحالية",
+    "trial": "تجريبي"
   },
   "common": {
     "save": "حفظ",
