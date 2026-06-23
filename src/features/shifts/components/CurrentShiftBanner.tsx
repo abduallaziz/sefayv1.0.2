@@ -3,6 +3,8 @@
 import { useTranslations } from 'next-intl';
 import { Clock, CheckCircle } from 'lucide-react';
 import { useCurrentShift } from '../hooks/useShifts';
+import { useTenantStore } from '@/core/tenant/stores/tenant.store'
+import { formatCurrency } from '@/lib/format'
 
 interface Props {
   onOpenShift: () => void;
@@ -13,6 +15,7 @@ interface Props {
 export function CurrentShiftBanner({ onOpenShift, onCloseShift, onViewSummary }: Props) {
   const t = useTranslations('shifts');
   const { data: shift, isLoading } = useCurrentShift();
+  const currency = useTenantStore((s) => s.currency_symbol)
 
   if (isLoading) return null;
 
@@ -47,7 +50,7 @@ export function CurrentShiftBanner({ onOpenShift, onCloseShift, onViewSummary }:
             {t('shift_open')}
           </p>
           <p className="text-xs text-green-600 dark:text-green-500">
-            {t('opened_at')} {openedAt} · {t('opening_cash')}: {shift.opening_cash} ر.س
+            {t('opened_at')} {openedAt} · {t('opening_cash')}: {formatCurrency(shift.opening_cash, currency)}
           </p>
         </div>
       </div>
