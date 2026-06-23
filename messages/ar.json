@@ -1,4 +1,27 @@
 {
+  "header": {
+    "search": "بحث...",
+    "user": "مستخدم",
+    "logout": "تسجيل الخروج",
+    "darkMode": "الوضع المظلم",
+    "lightMode": "الوضع المضيء"
+  },
+  "sidebar": {
+    "menu": "القائمة",
+    "dashboard": "الرئيسية",
+    "pos": "نقطة البيع",
+    "orders": "الطلبات",
+    "items": "المنتجات",
+    "customers": "العملاء",
+    "expenses": "المصروفات",
+    "shifts": "الورديات",
+    "reports": "التقارير",
+    "users": "المستخدمون",
+    "settings": "الإعدادات",
+    "plan": "الخطة الحالية",
+    "planDaysLeft": "{days} يوم متبقي",
+    "upgrade": "ترقية الخطة"
+  },
   "common": {
     "save": "حفظ",
     "cancel": "إلغاء",
@@ -8,7 +31,7 @@
     "loading": "جاري التحميل...",
     "confirm": "تأكيد",
     "actions": "إجراءات",
-    "status": "نشط",
+    "status": "الحالة",
     "all": "الكل",
     "export": "تصدير",
     "active": "نشط",
@@ -533,7 +556,13 @@
     "expiresIn": "تنتهي خلال",
     "tabs": {
       "requests": "الطلبات",
-      "templates": "القوالب"
+      "templates": "القوالب",
+      "all": "الكل",
+      "pending": "المعلقة",
+      "approved": "الموافق عليها",
+      "rejected": "المرفوضة",
+      "cancelled": "الملغاة",
+      "recurring": "المتكررة"
     },
     "stats": {
       "pending": "قيد الانتظار",
@@ -563,7 +592,8 @@
       "back": "رجوع",
       "newRequest": "طلب جديد",
       "new": "جديد",
-      "newTemplate": "قالب جديد"
+      "newTemplate": "قالب جديد",
+      "reverse": "تراجع عن الموافقة"
     },
     "reject": {
       "title": "رفض الطلب",
@@ -576,6 +606,11 @@
       "confirm": "هل أنت متأكد من إلغاء طلب المصروف؟",
       "submit": "إلغاء الطلب"
     },
+    "approve": {
+      "title": "الموافقة على المصروف",
+      "confirm": "هل أنت متأكد من الموافقة على هذا المصروف؟",
+      "submit": "موافقة"
+    },
     "empty": {
       "requests": "لا توجد طلبات",
       "templates": "لا توجد قوالب"
@@ -585,7 +620,18 @@
       "name": "الاسم",
       "defaultAmount": "المبلغ الافتراضي",
       "requiresPhoto": "يتطلب صورة",
-      "expiryHours": "مدة الصلاحية (ساعات)"
+      "expiryHours": "مدة الصلاحية (ساعات)",
+      "recurrenceType": "نوع التكرار",
+      "recurrenceDay": "يوم التكرار",
+      "nextRun": "التشغيل التالي",
+      "isActive": "نشط",
+      "preApproved": "موافقة مسبقة",
+      "types": {
+        "none": "بدون تكرار",
+        "daily": "يومي",
+        "weekly": "أسبوعي",
+        "monthly": "شهري"
+      }
     }
   },
   "customers": {
@@ -679,22 +725,211 @@
     "noOrders": "لا توجد فواتير"
   },
   "datePicker": {
-  "placeholder": "اختر فترة زمنية",
-  "selectEnd": "اختر تاريخ الانتهاء",
-  "clear": "مسح الفترة",
-  "from": "من",
-  "to": "إلى",
-  "selectFrom": "اختر تاريخ البداية",
-  "selectTo": "اختر تاريخ النهاية",
-  "presets": {
-    "today": "اليوم",
-    "yesterday": "أمس",
-    "last7": "آخر 7 أيام",
-    "last30": "آخر 30 يوم",
-    "thisMonth": "هذا الشهر",
-    "lastMonth": "الشهر الماضي",
-    "last3months": "آخر 3 أشهر",
-    "thisYear": "هذه السنة"
+    "placeholder": "اختر فترة زمنية",
+    "selectEnd": "اختر تاريخ الانتهاء",
+    "clear": "مسح الفترة",
+    "from": "من",
+    "to": "إلى",
+    "selectFrom": "اختر تاريخ البداية",
+    "selectTo": "اختر تاريخ النهاية",
+    "presets": {
+      "today": "اليوم",
+      "yesterday": "أمس",
+      "last7": "آخر 7 أيام",
+      "last30": "آخر 30 يوم",
+      "thisMonth": "هذا الشهر",
+      "lastMonth": "الشهر الماضي",
+      "last3months": "آخر 3 أشهر",
+      "thisYear": "هذه السنة"
+    }
+  },
+  "landing": {
+    "nav": {
+      "features": "المميزات",
+      "sectors": "القطاعات",
+      "pricing": "الأسعار",
+      "login": "دخول",
+      "startFree": "ابدأ مجاناً"
+    },
+    "hero": {
+      "badge": "متاح الآن للمنشآت السعودية والخليجية",
+      "title1": "منصة نقاط البيع الأذكى",
+      "title2": "لمنشأتك في السعودية",
+      "subtitle": "سيفاي منصة SaaS متكاملة لإدارة المبيعات والمخزون والعملاء والورديات — مع دعم الزاتكا والفوترة الإلكترونية",
+      "cta": "ابدأ تجربة 14 يوم مجاناً",
+      "ctaLogin": "تسجيل الدخول"
+    },
+    "stats": {
+      "businesses": "منشأة نشطة",
+      "uptime": "وقت تشغيل",
+      "invoices": "فاتورة يومياً",
+      "sectors": "قطاعات مدعومة"
+    },
+    "features": {
+      "title": "المميزات",
+      "heading": "كل ما تحتاجه في منصة واحدة",
+      "pos": "نقطة بيع ذكية",
+      "posDesc": "واجهة سريعة تدعم الباركود والمتغيرات والخصومات",
+      "reports": "تقارير لحظية",
+      "reportsDesc": "لوحة تحكم تعرض مبيعاتك وأرباحك في الوقت الفعلي",
+      "customers": "إدارة العملاء",
+      "customersDesc": "قاعدة عملاء متكاملة مع نقاط الولاء وسجل الشراء",
+      "zatca": "متوافق مع الزاتكا",
+      "zatcaDesc": "فواتير إلكترونية معتمدة تلقائياً حسب اشتراطات هيئة الزكاة",
+      "shifts": "إدارة الورديات",
+      "shiftsDesc": "فتح وإغلاق الورديات مع تسوية النقد والتقارير الفورية",
+      "branches": "متعدد الفروع",
+      "branchesDesc": "أدر جميع فروعك من لوحة تحكم واحدة موحدة"
+    },
+    "sectors": {
+      "title": "القطاعات",
+      "heading": "يناسب كل أنواع المنشآت",
+      "restaurants": "مطاعم وكافيهات",
+      "retail": "بيع بالتجزئة",
+      "salons": "صالونات وسبا",
+      "health": "صيدليات وعيادات",
+      "electronics": "إلكترونيات",
+      "furniture": "أثاث ومنزل"
+    },
+    "pricing": {
+      "title": "الأسعار",
+      "heading": "خطط تناسب حجم منشأتك",
+      "popular": "الأكثر شيوعاً",
+      "perMonth": "شهر",
+      "getStarted": "ابدأ الآن",
+      "basic": "أساسي",
+      "pro": "احترافي",
+      "enterprise": "مؤسسي",
+      "basicF1": "فرع واحد",
+      "basicF2": "3 مستخدمين",
+      "basicF3": "POS + المبيعات",
+      "basicF4": "تقارير أساسية",
+      "proF1": "3 فروع",
+      "proF2": "10 مستخدمين",
+      "proF3": "كل مميزات الأساسي",
+      "proF4": "إدارة مخزون",
+      "proF5": "تقارير متقدمة",
+      "proF6": "دعم أولوية",
+      "entF1": "فروع غير محدودة",
+      "entF2": "مستخدمون غير محدودون",
+      "entF3": "كل المميزات",
+      "entF4": "API مخصص",
+      "entF5": "مدير حساب",
+      "entF6": "SLA 99.9%"
+    },
+    "cta": {
+      "heading": "ابدأ رحلتك مع سيفاي اليوم",
+      "sub": "14 يوم تجريبي مجاني — بدون بطاقة ائتمان",
+      "button": "ابدأ مجاناً"
+    },
+    "footer": {
+      "rights": "جميع الحقوق محفوظة.",
+      "tagline": "منصة نقاط البيع"
+    },
+    "auth": {
+      "loginTitle": "تسجيل الدخول",
+      "registerTitle": "إنشاء حساب",
+      "businessName": "اسم المنشأة",
+      "businessPlaceholder": "مثال: مطعم الأصيل",
+      "email": "البريد الإلكتروني",
+      "password": "كلمة المرور",
+      "loginBtn": "دخول",
+      "registerBtn": "إنشاء الحساب",
+      "noAccount": "ليس لديك حساب؟",
+      "hasAccount": "لديك حساب بالفعل؟",
+      "createOne": "أنشئ حساباً",
+      "loginLink": "سجّل دخولك"
+    }
+  },
+  "onboarding": {
+    "step1": "معلومات المنشأة",
+    "step2": "نوع النشاط",
+    "step3": "الإعدادات",
+    "step4": "الملخص",
+    "next": "التالي",
+    "back": "رجوع",
+    "finish": "ابدأ الآن",
+    "stepOf": "خطوة {current} من {total}",
+    "info": {
+      "title": "أخبرنا عن منشأتك",
+      "businessName": "اسم المنشأة",
+      "businessNamePlaceholder": "مثال: مطعم الأصيل",
+      "ownerName": "اسم المالك",
+      "ownerNamePlaceholder": "الاسم الكامل",
+      "phone": "رقم الجوال",
+      "phonePlaceholder": "05xxxxxxxx",
+      "email": "البريد الإلكتروني",
+      "emailPlaceholder": "example@email.com"
+    },
+    "activity": {
+      "title": "اختر نوع نشاطك",
+      "subtitle": "اختر النشاط الأقرب لطبيعة عملك",
+      "restaurants": "المطاعم والأغذية",
+      "retail": "البيع بالتجزئة",
+      "fashion": "الأزياء والموضة",
+      "health": "الصحة والعناية",
+      "beauty": "الجمال والصالونات",
+      "services": "الخدمات",
+      "electronics": "الإلكترونيات",
+      "home": "المنزل والأثاث",
+      "restaurant": "مطاعم",
+      "cafe": "كافيهات",
+      "fastFood": "وجبات سريعة",
+      "bakery": "مخابز",
+      "juice": "عصائر",
+      "foodTruck": "عربات طعام",
+      "grocery": "بقالات",
+      "supermarket": "سوبرماركت",
+      "perfume": "عطور وعود",
+      "stationery": "قرطاسية",
+      "gifts": "هدايا وألعاب",
+      "menClothing": "رجالية",
+      "womenClothing": "نسائية",
+      "shoes": "أحذية وحقائب",
+      "accessories": "إكسسوارات",
+      "tailoring": "خياطة",
+      "pharmacy": "صيدليات",
+      "medical": "مستلزمات طبية",
+      "clinic": "عيادات",
+      "optics": "نظارات",
+      "supplements": "مكملات",
+      "barber": "حلاقة",
+      "womenSalon": "صالونات نسائية",
+      "spa": "سبا",
+      "cosmetics": "مستحضرات",
+      "carWash": "مغاسل سيارات",
+      "laundry": "مغاسل ملابس",
+      "phoneFix": "صيانة جوالات",
+      "carWorkshop": "ورش سيارات",
+      "homeServices": "خدمات منزلية",
+      "phones": "جوالات",
+      "gadgets": "أجهزة إلكترونية",
+      "gaming": "ألعاب",
+      "furniture": "أثاث",
+      "homeware": "أدوات منزلية",
+      "flowers": "ورود",
+      "pets": "مستلزمات حيوانات"
+    },
+    "settings": {
+      "title": "إعدادات المنشأة",
+      "branchName": "اسم الفرع الرئيسي",
+      "branchNamePlaceholder": "مثال: الفرع الرئيسي",
+      "city": "المدينة",
+      "cityPlaceholder": "مثال: الرياض",
+      "currency": "العملة",
+      "vatEnabled": "تفعيل ضريبة القيمة المضافة (VAT 15%)"
+    },
+    "summary": {
+      "title": "كل شيء جاهز!",
+      "subtitle": "راجع معلوماتك قبل البدء",
+      "businessName": "اسم المنشأة",
+      "activity": "النشاط",
+      "city": "المدينة",
+      "currency": "العملة",
+      "vat": "ضريبة VAT",
+      "vatOn": "مفعّلة",
+      "vatOff": "غير مفعّلة",
+      "editStep": "تعديل"
+    }
   }
-}
 }

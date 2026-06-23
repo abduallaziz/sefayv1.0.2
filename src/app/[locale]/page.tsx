@@ -1,10 +1,5 @@
-import { redirect } from 'next/navigation'
+import { LandingPage } from '@/features/landing/pages/LandingPage'
 
-interface Props {
-  params: Promise<{ locale: string }>
-}
-
-export default async function LocalePage({ params }: Props) {
-  const { locale } = await params
-  redirect(`/${locale}/login`)
+export default function Page() {
+  return <LandingPage />
 }
