@@ -930,6 +930,9 @@
     "next": "Next",
     "back": "Back",
     "finish": "Get Started",
+    "creating": "Creating your account...",
+    "errorEmailTaken": "This email is already registered",
+    "errorGeneric": "Something went wrong creating your account, please try again",
     "stepOf": "Step {current} of {total}",
     "info": {
       "title": "Tell us about your business",

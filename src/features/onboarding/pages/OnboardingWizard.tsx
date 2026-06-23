@@ -1,10 +1,11 @@
 'use client'
 
 import { useTranslations, useLocale } from 'next-intl'
-import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { Check, ChevronRight, ChevronLeft, Building2, Tag, Settings, Sparkles, Eye, EyeOff } from 'lucide-react'
+import { Check, ChevronRight, ChevronLeft, Building2, Tag, Settings, Sparkles, Eye, EyeOff, AlertCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useRegister } from '@/features/auth/hooks/use-auth'
+import { ApiError } from '@/lib/api'
 
 /* ── Types ───────────────────────────────────────────────── */
 interface FormData {
@@ -312,8 +313,8 @@ function Step4({ data, onEdit }: {
 export function OnboardingWizard() {
   const t = useTranslations('onboarding')
   const locale = useLocale()
-  const router = useRouter()
   const isRtl = locale === 'ar'
+  const register = useRegister()
 
   const [step, setStep] = useState(0)
   const [data, setData] = useState<FormData>({
@@ -340,13 +341,36 @@ export function OnboardingWizard() {
   }
 
   function next() {
-    if (step < TOTAL - 1) setStep(step + 1)
-    else router.push(`/${locale}/dashboard`)
+    if (step < TOTAL - 1) {
+      setStep(step + 1)
+      return
+    }
+
+    register.mutate({
+      businessName: data.businessName,
+      ownerName: data.ownerName,
+      phone: data.phone,
+      email: data.email,
+      password: data.password,
+      activity: data.activity,
+      branchName: data.branchName,
+      city: data.city,
+      currency: data.currency,
+      vatEnabled: data.vatEnabled,
+      language: locale,
+      device_name: 'Onboarding Web',
+    })
   }
 
   function back() {
     if (step > 0) setStep(step - 1)
   }
+
+  const errorMessage = register.error
+    ? register.error instanceof ApiError && register.error.status === 409
+      ? t('errorEmailTaken')
+      : t('errorGeneric')
+    : null
 
   const BackIcon = isRtl ? ChevronRight : ChevronLeft
   const NextIcon = isRtl ? ChevronLeft : ChevronRight
@@ -417,11 +441,19 @@ export function OnboardingWizard() {
                 {step === 3 && <Step4 data={data} onEdit={setStep} />}
               </div>
 
+              {/* Error */}
+              {errorMessage && (
+                <div className="flex items-center gap-2 bg-[#FCEBEB] border border-[#A32D2D]/20 rounded-[11px] px-4 py-3 text-[#A32D2D] text-[13px] mt-6">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <span>{errorMessage}</span>
+                </div>
+              )}
+
               {/* Navigation */}
               <div className="flex items-center justify-between mt-8 pt-6" style={{ borderTop: '1px solid #EEF2F7' }}>
                 <button
                   onClick={back}
-                  disabled={step === 0}
+                  disabled={step === 0 || register.isPending}
                   className="flex items-center gap-[6px] px-4 py-[10px] rounded-[11px] text-[14px] font-semibold text-[#8C9CB2] hover:text-[#54657C] hover:bg-[#F5F8FC] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 >
                   <BackIcon size={16} strokeWidth={2} />
@@ -430,7 +462,8 @@ export function OnboardingWizard() {
 
                 <button
                   onClick={next}
-                  className="inline-flex items-center gap-2 transition-all hover:-translate-y-px"
+                  disabled={register.isPending}
+                  className="inline-flex items-center gap-2 transition-all hover:-translate-y-px disabled:opacity-60 disabled:cursor-not-allowed"
                   style={{
                     padding: '12px 26px',
                     borderRadius: 12,
@@ -443,7 +476,9 @@ export function OnboardingWizard() {
                     boxShadow: '0 6px 18px rgba(12,68,124,.3),0 2px 6px rgba(12,68,124,.22)',
                   }}
                 >
-                  {step === TOTAL - 1 ? t('finish') : t('next')}
+                  {step === TOTAL - 1
+                    ? register.isPending ? t('creating') : t('finish')
+                    : t('next')}
                   {step < TOTAL - 1 && <NextIcon size={16} strokeWidth={2} />}
                 </button>
               </div>

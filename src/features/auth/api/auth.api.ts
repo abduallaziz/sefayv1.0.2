@@ -6,6 +6,21 @@ export interface LoginDto {
   device_name: string;
 }
 
+export interface RegisterDto {
+  businessName: string;
+  ownerName: string;
+  phone: string;
+  email: string;
+  password: string;
+  activity: string;
+  branchName?: string;
+  city?: string;
+  currency?: string;
+  vatEnabled?: boolean;
+  language?: string;
+  device_name?: string;
+}
+
 export interface LoginResponse {
   access_token: string;
   user: {
@@ -36,6 +51,9 @@ export interface MeResponse {
 export const authApi = {
   login: (dto: LoginDto) =>
     apiClient.post<LoginResponse>('/auth/login', dto),
+
+  register: (dto: RegisterDto) =>
+    apiClient.post<LoginResponse>('/auth/register', dto),
 
   logout: () =>
     apiClient.post<void>('/auth/logout', {}),

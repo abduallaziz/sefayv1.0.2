@@ -1,8 +1,36 @@
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
-import { authApi, LoginDto } from '../api/auth.api';
+import { authApi, LoginDto, RegisterDto } from '../api/auth.api';
 import { useAuthStore, type UserRole, type BusinessType } from '@/core/auth/stores/auth.store';
+
+export function useRegister() {
+  const { setAuth } = useAuthStore();
+  const router = useRouter();
+  const locale = useLocale();
+
+  return useMutation({
+    mutationFn: (dto: RegisterDto) => authApi.register(dto),
+    onSuccess: (data) => {
+      setAuth(
+        {
+          id: data.user.id,
+          email: data.user.email,
+          name: data.user.name,
+          role: data.user.role as UserRole,
+          tenantId: data.user.tenant_id,
+          sessionId: data.user.session_id,
+          permissions: data.user.permissions ?? [],
+          features: data.user.features ?? [],
+          business_type: (data.user.business_type as BusinessType) ?? null,
+        },
+        data.access_token,
+      );
+
+      router.push(`/${locale}/dashboard`);
+    },
+  });
+}
 
 export function useLogin() {
   const { setAuth } = useAuthStore();
