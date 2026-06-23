@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Eye, Edit2, Trash2, Star, Phone, Mail } from 'lucide-react';
 import { Customer } from '../types/customer.types';
+import { useTenantStore } from '@/core/tenant/stores/tenant.store';
 
 interface Props {
   customers: Customer[];
@@ -13,6 +14,7 @@ interface Props {
 
 export function CustomersTable({ customers, onView, onEdit, onDelete }: Props) {
   const t = useTranslations('customers');
+  const currency = useTenantStore((s) => s.currency_symbol);
 
   if (customers.length === 0) {
     return (
@@ -69,7 +71,7 @@ export function CustomersTable({ customers, onView, onEdit, onDelete }: Props) {
               </td>
               <td className="py-3 px-4">
                 <span className="text-gray-900 dark:text-white font-medium">
-                  {(customer.total_spent ?? 0).toLocaleString()} {t('currency')}
+                  {(customer.total_spent ?? 0).toLocaleString()} {currency}
                 </span>
               </td>
               <td className="py-3 px-4">

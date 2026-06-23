@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { X, Phone, Mail, Star, ShoppingBag, TrendingUp } from 'lucide-react';
 import { Customer } from '../types/customer.types';
 import { useCustomerHistory } from '../hooks/useCustomers';
+import { useTenantStore } from '@/core/tenant/stores/tenant.store';
 
 interface Props {
   customer: Customer;
@@ -13,6 +14,7 @@ interface Props {
 
 export function CustomerDetailsModal({ customer, onClose, onEdit }: Props) {
   const t = useTranslations('customers');
+  const currency = useTenantStore((s) => s.currency_symbol);
   const { data: orders, isLoading } = useCustomerHistory(customer.id);
 
   const statusColors: Record<string, string> = {
@@ -71,7 +73,7 @@ export function CustomerDetailsModal({ customer, onClose, onEdit }: Props) {
               <p className="text-lg font-bold text-gray-900 dark:text-white">
                 {(customer.total_spent ?? 0).toLocaleString()}
               </p>
-              <p className="text-xs text-gray-400">{t('currency')}</p>
+              <p className="text-xs text-gray-400">{currency}</p>
             </div>
             <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3 text-center">
               <Star className="w-5 h-5 text-yellow-500 mx-auto mb-1 fill-yellow-500" />
@@ -96,7 +98,7 @@ export function CustomerDetailsModal({ customer, onClose, onEdit }: Props) {
                   <div key={order.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <div>
                       <p className="text-sm font-medium text-gray-900 dark:text-white">
-                        {order.total.toLocaleString()} {t('currency')}
+                        {order.total.toLocaleString()} {currency}
                       </p>
                       <p className="text-xs text-gray-400">
                         {new Date(order.created_at).toLocaleDateString('ar-SA')} · {order.items_count} {t('details.items')}
