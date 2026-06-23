@@ -111,7 +111,7 @@ function AuthModal({ onClose, initialStep, locale }: { onClose: () => void; init
       `}</style>
       <div
         className="w-full bg-white rounded-[24px] relative overflow-y-auto"
-        style={{ maxWidth: 440, maxHeight: '92vh', animation: 'modalIn .3s cubic-bezier(.4,0,.2,1)', boxShadow: '0 8px 16px rgba(10,22,40,.05),0 20px 48px rgba(10,22,40,.12)' }}
+        style={{ maxWidth: 440, maxHeight: '92vh', overflowY: 'auto', animation: 'modalIn .3s cubic-bezier(.4,0,.2,1)', boxShadow: '0 8px 16px rgba(10,22,40,.05),0 20px 48px rgba(10,22,40,.12)' }}
         onClick={e => e.stopPropagation()}
       >
         {/* Close */}
@@ -122,7 +122,7 @@ function AuthModal({ onClose, initialStep, locale }: { onClose: () => void; init
           <IC style={{ width: 18, height: 18 }}><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></IC>
         </button>
 
-        <div className="px-8 py-9 pt-12">
+        <div className="px-8 py-6 pt-10">
           {/* Logo */}
           <div className="flex items-center justify-center gap-[9px] mb-2">
             <div className="w-[34px] h-[34px] rounded-[10px] flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#0C447C,#2671C4)' }}>
