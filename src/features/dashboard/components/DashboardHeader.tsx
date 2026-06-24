@@ -6,6 +6,7 @@ import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { useThemeStore } from '@/core/theme/stores/theme.store'
 import { useLogout } from '@/features/auth/hooks/use-auth'
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { usePathname, useRouter } from 'next/navigation'
 
 interface DashboardHeaderProps {
@@ -18,7 +19,9 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
   const { mutate: logout } = useLogout()
   const [notifCount] = useState(3)
   const [menuOpen, setMenuOpen] = useState(false)
-  const menuRef = useRef<HTMLDivElement>(null)
+  const [menuPos, setMenuPos] = useState({ top: 0, left: 0 })
+  const avatarBtnRef = useRef<HTMLButtonElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
   const pathname = usePathname()
   const router = useRouter()
   const currentLocale = useLocale()
@@ -35,13 +38,28 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
   useEffect(() => {
     if (!menuOpen) return
     const onClickOutside = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+      const target = e.target as Node
+      if (
+        avatarBtnRef.current && !avatarBtnRef.current.contains(target) &&
+        dropdownRef.current && !dropdownRef.current.contains(target)
+      ) {
         setMenuOpen(false)
       }
     }
     document.addEventListener('mousedown', onClickOutside)
     return () => document.removeEventListener('mousedown', onClickOutside)
   }, [menuOpen])
+
+  const openMenu = () => {
+    const rect = avatarBtnRef.current?.getBoundingClientRect()
+    if (rect) {
+      const menuWidth = 180
+      const rawLeft = isRTL ? rect.left : rect.right - menuWidth
+      const clampedLeft = Math.min(Math.max(rawLeft, 8), window.innerWidth - menuWidth - 8)
+      setMenuPos({ top: rect.bottom + 10, left: clampedLeft })
+    }
+    setMenuOpen((v) => !v)
+  }
 
   return (
     <header
@@ -261,9 +279,10 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
       </button>
 
       {/* User avatar + menu */}
-      <div ref={menuRef} style={{ position: 'relative', flexShrink: 0 }}>
+      <div style={{ position: 'relative', flexShrink: 0 }}>
         <button
-          onClick={() => setMenuOpen((v) => !v)}
+          ref={avatarBtnRef}
+          onClick={openMenu}
           style={{
             display: 'flex', alignItems: 'center', gap: '10px',
             background: 'transparent', border: 'none', cursor: 'pointer', padding: 0,
@@ -294,51 +313,53 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
             </div>
           </div>
         </button>
-
-        {menuOpen && (
-          <div
-            style={{
-              position: 'absolute',
-              top: 'calc(100% + 10px)',
-              insetInlineEnd: 0,
-              minWidth: '180px',
-              background: '#fff',
-              borderRadius: '12px',
-              boxShadow: '0 8px 28px rgba(10,22,40,0.22)',
-              border: '1px solid rgba(10,22,40,0.06)',
-              overflow: 'hidden',
-              zIndex: 400,
-            }}
-          >
-            <div style={{ padding: '12px 14px', borderBottom: '1px solid rgba(10,22,40,0.06)' }}>
-              <div style={{ fontSize: '13px', fontWeight: 600, color: '#0F172A' }}>
-                {user?.name ?? '...'}
-              </div>
-              <div style={{ fontSize: '11px', color: '#64748B' }}>
-                {user?.email ?? ''}
-              </div>
-            </div>
-            <button
-              onClick={() => {
-                setMenuOpen(false)
-                logout()
-              }}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '8px',
-                width: '100%', padding: '11px 14px',
-                background: 'transparent', border: 'none', cursor: 'pointer',
-                fontSize: '13px', fontWeight: 500, color: '#EF4444',
-                textAlign: isRTL ? 'right' : 'left',
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = '#FEF2F2' }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
-            >
-              <LogOut size={15} />
-              {t('logout')}
-            </button>
-          </div>
-        )}
       </div>
+
+      {menuOpen && typeof document !== 'undefined' && createPortal(
+        <div
+          ref={dropdownRef}
+          style={{
+            position: 'fixed',
+            top: menuPos.top,
+            left: menuPos.left,
+            minWidth: '180px',
+            background: '#fff',
+            borderRadius: '12px',
+            boxShadow: '0 8px 28px rgba(10,22,40,0.22)',
+            border: '1px solid rgba(10,22,40,0.06)',
+            overflow: 'hidden',
+            zIndex: 1000,
+          }}
+        >
+          <div style={{ padding: '12px 14px', borderBottom: '1px solid rgba(10,22,40,0.06)' }}>
+            <div style={{ fontSize: '13px', fontWeight: 600, color: '#0F172A' }}>
+              {user?.name ?? '...'}
+            </div>
+            <div style={{ fontSize: '11px', color: '#64748B' }}>
+              {user?.email ?? ''}
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              setMenuOpen(false)
+              logout()
+            }}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '8px',
+              width: '100%', padding: '11px 14px',
+              background: 'transparent', border: 'none', cursor: 'pointer',
+              fontSize: '13px', fontWeight: 500, color: '#EF4444',
+              textAlign: isRTL ? 'right' : 'left',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = '#FEF2F2' }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
+          >
+            <LogOut size={15} />
+            {t('logout')}
+          </button>
+        </div>,
+        document.body
+      )}
 
       <style>{`
         @media (max-width: 480px) {
