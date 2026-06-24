@@ -105,11 +105,11 @@
   }
 
   html[dir="rtl"] body {
-    font-family: 'IBM Plex Sans Arabic', 'Inter', system-ui, sans-serif;
+    font-family: 'IBM Plex Sans Arabic', 'Inter', 'saudi_riyal', system-ui, sans-serif;
   }
 
   html[dir="ltr"] body {
-    font-family: 'Inter', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+    font-family: 'Inter', 'IBM Plex Sans Arabic', 'saudi_riyal', system-ui, sans-serif;
   }
 
   body {
