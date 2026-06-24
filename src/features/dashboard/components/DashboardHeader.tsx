@@ -30,6 +30,7 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
 
   return (
     <header
+      className="dash-header"
       style={{
         height: '66px',
         background: 'linear-gradient(115deg, #082F5C 0%, #0C447C 42%, #1761B8 100%)',
@@ -42,6 +43,8 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
         padding: '0 16px',
         gap: '12px',
         flexShrink: 0,
+        minWidth: 0,
+        overflow: 'hidden',
       }}
     >
       {/* Logo zone */}
@@ -89,9 +92,11 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
 
         {/* Brand name */}
         <span
+          className="brand-name"
           style={{
             fontSize: '21px', fontWeight: 700, color: '#fff',
             letterSpacing: '-0.6px', textShadow: '0 1px 3px rgba(0,0,0,0.18)',
+            whiteSpace: 'nowrap',
           }}
         >
           Sefay
@@ -152,13 +157,14 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
       {/* Lang switcher */}
       <button
         onClick={switchLocale}
+        className="lang-btn"
         style={{
           display: 'flex', alignItems: 'center', gap: '7px',
           background: 'rgba(255,255,255,0.13)',
           border: '1px solid rgba(255,255,255,0.22)',
           borderRadius: '11px', padding: '8px 13px',
           color: 'rgba(255,255,255,0.94)', fontSize: '12px', fontWeight: 500,
-          cursor: 'pointer', backdropFilter: 'blur(10px)',
+          cursor: 'pointer', backdropFilter: 'blur(10px)', flexShrink: 0,
         }}
       >
         {otherLabel}
@@ -167,6 +173,7 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
       {/* Theme toggle */}
       <button
         onClick={toggle}
+        className="icon-btn"
         style={{
           width: '39px', height: '39px', borderRadius: '12px',
           background: 'rgba(255,255,255,0.13)',
@@ -181,6 +188,7 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
 
       {/* Notifications */}
       <button
+        className="icon-btn"
         style={{
           width: '39px', height: '39px', borderRadius: '12px',
           background: 'rgba(255,255,255,0.13)',
@@ -210,6 +218,7 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
 
       {/* User avatar */}
       <div
+        className="avatar-circle"
         style={{
           width: '39px', height: '39px', borderRadius: '50%',
           background: 'linear-gradient(135deg, #3B82F6, #1D4ED8)',
@@ -232,6 +241,19 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
           {user?.role ?? ''}
         </div>
       </div>
+
+      <style>{`
+        @media (max-width: 480px) {
+          .dash-header { padding: 0 8px !important; gap: 6px !important; }
+          .brand-name { display: none; }
+          .lang-btn { padding: 6px 9px !important; font-size: 11px !important; gap: 0 !important; }
+          .icon-btn { width: 32px !important; height: 32px !important; }
+          .avatar-circle { width: 32px !important; height: 32px !important; font-size: 11px !important; }
+        }
+        @media (max-width: 360px) {
+          .lang-btn { display: none !important; }
+        }
+      `}</style>
     </header>
   )
 }
