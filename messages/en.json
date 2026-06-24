@@ -935,6 +935,8 @@
     "errorGeneric": "Something went wrong creating your account, please try again",
     "fieldRequired": "This field is required",
     "activityRequired": "Please select an activity type to continue",
+    "phoneInvalid": "Invalid phone number, please enter a real number in international format (e.g. +9665XXXXXXXX)",
+    "emailInvalid": "Invalid email address, please enter a properly formatted email (e.g. name@example.com)",
     "stepOf": "Step {current} of {total}",
     "info": {
       "title": "Tell us about your business",

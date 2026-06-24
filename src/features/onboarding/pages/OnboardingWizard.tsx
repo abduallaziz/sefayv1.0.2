@@ -40,6 +40,17 @@ const ACTIVITY_SECTIONS: ActivitySection[] = [
 
 const CURRENCIES = ['SAR', 'AED', 'KWD', 'BHD', 'QAR', 'OMR']
 
+const PHONE_REGEX = /^\+?[1-9]\d{7,14}$/
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/
+
+function isValidPhone(v: string) {
+  return PHONE_REGEX.test(v.trim().replace(/[\s-]/g, ''))
+}
+
+function isValidEmail(v: string) {
+  return EMAIL_REGEX.test(v.trim())
+}
+
 /* ── Step indicator ──────────────────────────────────────── */
 function StepIndicator({ current, total }: { current: number; total: number }) {
   return (
@@ -113,6 +124,20 @@ function Step1({ data, onChange, showErrors }: { data: FormData; onChange: (k: k
   const [showPassword, setShowPassword] = useState(false)
 
   const err = (v: string) => showErrors && !v.trim() ? tc('fieldRequired') : undefined
+  const phoneErr = showErrors
+    ? !data.phone.trim()
+      ? tc('fieldRequired')
+      : !isValidPhone(data.phone)
+        ? tc('phoneInvalid')
+        : undefined
+    : undefined
+  const emailErr = showErrors
+    ? !data.email.trim()
+      ? tc('fieldRequired')
+      : !isValidEmail(data.email)
+        ? tc('emailInvalid')
+        : undefined
+    : undefined
 
   return (
     <div className="space-y-4">
@@ -128,12 +153,12 @@ function Step1({ data, onChange, showErrors }: { data: FormData; onChange: (k: k
         <input type="text" className={fieldCls(!!err(data.ownerName))} placeholder={t('ownerNamePlaceholder')}
           value={data.ownerName} onChange={(e) => onChange('ownerName', e.target.value)} />
       </Field>
-      <Field label={t('phone')} errorText={err(data.phone)}>
-        <input type="tel" className={fieldCls(!!err(data.phone))} placeholder={t('phonePlaceholder')}
+      <Field label={t('phone')} errorText={phoneErr}>
+        <input type="tel" className={fieldCls(!!phoneErr)} placeholder={t('phonePlaceholder')}
           value={data.phone} onChange={(e) => onChange('phone', e.target.value)} />
       </Field>
-      <Field label={t('email')} errorText={err(data.email)}>
-        <input type="email" className={fieldCls(!!err(data.email))} placeholder={t('emailPlaceholder')}
+      <Field label={t('email')} errorText={emailErr}>
+        <input type="email" className={fieldCls(!!emailErr)} placeholder={t('emailPlaceholder')}
           value={data.email} onChange={(e) => onChange('email', e.target.value)} />
       </Field>
       <Field label={t('password')} errorText={err(data.password)}>
@@ -365,7 +390,13 @@ export function OnboardingWizard() {
   function isStepValid(s: number): boolean {
     switch (s) {
       case 0:
-        return !!(data.businessName.trim() && data.ownerName.trim() && data.phone.trim() && data.email.trim() && data.password.trim())
+        return !!(
+          data.businessName.trim() &&
+          data.ownerName.trim() &&
+          data.password.trim() &&
+          isValidPhone(data.phone) &&
+          isValidEmail(data.email)
+        )
       case 1:
         return !!data.activity
       case 2:
