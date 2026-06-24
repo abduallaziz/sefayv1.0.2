@@ -168,6 +168,13 @@ function Step1({ data, onChange, showErrors }: { data: FormData; onChange: (k: k
   const [showPassword, setShowPassword] = useState(false)
 
   const err = (v: string) => showErrors && !v.trim() ? tc('fieldRequired') : undefined
+  const passwordErr = showErrors
+    ? !data.password.trim()
+      ? tc('fieldRequired')
+      : data.password.length < 8
+        ? tc('passwordTooShort')
+        : undefined
+    : undefined
   const phoneErr = showErrors
     ? !data.phone.trim()
       ? tc('fieldRequired')
@@ -231,11 +238,11 @@ function Step1({ data, onChange, showErrors }: { data: FormData; onChange: (k: k
         <input type="email" className={fieldCls(!!emailErr)} placeholder={t('emailPlaceholder')}
           value={data.email} onChange={(e) => onChange('email', e.target.value)} />
       </Field>
-      <Field label={t('password')} errorText={err(data.password)}>
+      <Field label={t('password')} errorText={passwordErr}>
         <div className="relative">
           <input
             type={showPassword ? 'text' : 'password'}
-            className={fieldCls(!!err(data.password))}
+            className={fieldCls(!!passwordErr)}
             style={{ paddingInlineEnd: 42 }}
             placeholder={t('passwordPlaceholder')}
             value={data.password}
@@ -500,7 +507,7 @@ export function OnboardingWizard() {
         return !!(
           data.businessName.trim() &&
           data.ownerName.trim() &&
-          data.password.trim() &&
+          data.password.length >= 8 &&
           isValidPhone(data.phone) &&
           isValidEmail(data.email)
         )
