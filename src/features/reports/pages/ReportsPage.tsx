@@ -117,7 +117,7 @@ export function ReportsPage() {
                   color: '#111827',
                 }}
               />
-              <Bar dataKey="total" fill="#3b82f6" radius={[4, 4, 0, 0]} name={t('revenue')} />
+              <Bar dataKey="total" fill="#0C447C" radius={[4, 4, 0, 0]} name={t('revenue')} />
             </BarChart>
           </ResponsiveContainer>
         )}

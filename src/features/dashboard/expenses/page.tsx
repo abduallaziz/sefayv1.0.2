@@ -62,7 +62,7 @@ export default function ExpensesPage() {
         </div>
       </div>
 
-      <div className="flex gap-1 bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-1 w-fit">
+      <div className="flex gap-1 bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-1 w-fit max-w-full overflow-x-auto">
         <button
           onClick={() => setTab('requests')}
           className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${

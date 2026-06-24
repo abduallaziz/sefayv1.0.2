@@ -21,14 +21,14 @@ export function CurrentShiftBanner({ onOpenShift, onCloseShift, onViewSummary }:
 
   if (!shift) {
     return (
-      <div className="flex items-center justify-between p-4 rounded-xl border border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-xl border border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50">
         <div className="flex items-center gap-3">
-          <Clock className="w-5 h-5 text-gray-400" />
+          <Clock className="w-5 h-5 text-gray-400 shrink-0" />
           <span className="text-sm text-gray-500 dark:text-gray-400">{t('no_open_shift')}</span>
         </div>
         <button
           onClick={onOpenShift}
-          className="px-4 py-1.5 rounded-lg bg-[#0C447C] hover:bg-[#0a3a6b] text-white text-sm font-medium transition-colors"
+          className="px-4 py-1.5 rounded-lg bg-[#0C447C] hover:bg-[#0a3a6b] text-white text-sm font-medium transition-colors shrink-0"
         >
           {t('open_shift')}
         </button>
@@ -42,9 +42,9 @@ export function CurrentShiftBanner({ onOpenShift, onCloseShift, onViewSummary }:
   });
 
   return (
-    <div className="flex items-center justify-between p-4 rounded-xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20">
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20">
       <div className="flex items-center gap-3">
-        <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+        <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 shrink-0" />
         <div>
           <p className="text-sm font-medium text-green-800 dark:text-green-300">
             {t('shift_open')}
@@ -54,7 +54,7 @@ export function CurrentShiftBanner({ onOpenShift, onCloseShift, onViewSummary }:
           </p>
         </div>
       </div>
-      <div className="flex gap-2">
+      <div className="flex gap-2 shrink-0">
         <button
           onClick={() => onViewSummary(shift.id)}
           className="px-3 py-1.5 rounded-lg border border-green-300 dark:border-green-700 text-green-700 dark:text-green-300 text-sm hover:bg-green-100 dark:hover:bg-green-800/50 transition-colors"
