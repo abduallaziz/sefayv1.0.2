@@ -48,7 +48,63 @@ export function CategoriesList() {
         </div>
       ) : (
         <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl overflow-hidden">
-          <table className="w-full text-sm">
+          {/* Mobile cards */}
+          <div className="md:hidden divide-y divide-slate-100 dark:divide-gray-800">
+            {categories.map((cat) => (
+              <div key={cat.id} className="p-3">
+                <div className="flex items-center justify-between gap-2">
+                  {editId === cat.id ? (
+                    <input
+                      value={editName}
+                      onChange={e => setEditName(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && saveEdit(cat.id)}
+                      autoFocus
+                      className="px-2 py-1 text-sm bg-slate-50 dark:bg-gray-950 border border-[#0C447C] dark:border-[#0C447C] text-slate-800 dark:text-white rounded-lg focus:outline-none flex-1 min-w-0"
+                    />
+                  ) : (
+                    <span className="text-slate-800 dark:text-white font-medium truncate">{cat.name}</span>
+                  )}
+                  <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium border shrink-0 ${
+                    cat.is_active
+                      ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700'
+                  }`}>
+                    {cat.is_active ? 'نشط' : 'معطّل'}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 justify-end mt-2">
+                  {editId === cat.id ? (
+                    <>
+                      <button onClick={() => saveEdit(cat.id)} className="p-1.5 rounded-lg hover:bg-emerald-500/10 text-slate-400 hover:text-emerald-500 dark:hover:text-emerald-400">
+                        <Check className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => setEditId(null)} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-700 text-slate-400 hover:text-slate-600 dark:hover:text-white">
+                        <X className="w-4 h-4" />
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button onClick={() => startEdit(cat)} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-700 text-slate-400 hover:text-slate-600 dark:hover:text-white">
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => updateMutation.mutate({ id: cat.id, dto: { is_active: !cat.is_active } })}
+                        className="px-3 py-1 rounded-lg text-xs border border-slate-200 dark:border-gray-700 text-slate-500 hover:text-slate-800 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-gray-700"
+                      >
+                        {cat.is_active ? 'تعطيل' : 'تفعيل'}
+                      </button>
+                      <button onClick={() => deleteMutation.mutate(cat.id)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-slate-400 hover:text-red-500 dark:hover:text-red-400">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop table */}
+          <table className="hidden md:table w-full text-sm">
             <thead>
               <tr className="border-b border-slate-200 dark:border-gray-800">
                 <th className="text-start px-4 py-3 text-xs font-medium text-slate-500">الاسم</th>

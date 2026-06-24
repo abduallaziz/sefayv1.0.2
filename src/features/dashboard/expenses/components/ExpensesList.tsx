@@ -68,86 +68,134 @@ export function ExpensesList() {
           <p>{t('empty.requests')}</p>
         </div>
       ) : (
-        <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm min-w-[360px]">
-              <thead>
-                <tr className="border-b border-slate-200 dark:border-gray-800">
-                  <th className="text-start px-3 py-3 text-xs font-medium text-slate-500">{t('table.type')}</th>
-                  <th className="text-start px-3 py-3 text-xs font-medium text-slate-500 w-24">{t('table.amount')}</th>
-                  <th className="hidden sm:table-cell text-start px-3 py-3 text-xs font-medium text-slate-500">{t('table.requestedBy')}</th>
-                  <th className="hidden md:table-cell text-start px-3 py-3 text-xs font-medium text-slate-500">{t('table.note')}</th>
-                  <th className="text-start px-3 py-3 text-xs font-medium text-slate-500 w-24">{t('table.actions')}</th>
-                  <th className="px-3 py-3 w-28" />
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-gray-800">
-                {expenses.map((row) => {
-                  const cfg = statusConfig[row.status]
-                  const Icon = cfg.icon
-                  return (
-                    <tr key={row.id} className="hover:bg-slate-50 dark:hover:bg-gray-800/30 transition-colors">
-                      <td className="px-3 py-3 text-slate-800 dark:text-white font-medium max-w-[100px] truncate">
-                        {((row as any).category?.name) ?? (row.title || '—')}
-                      </td>
-                      <td className="px-3 py-3 text-slate-800 dark:text-white font-semibold w-24 tabular-nums">
-                        {formatCurrency(row.amount, currency)}
-                      </td>
-                      <td className="hidden sm:table-cell px-3 py-3 text-slate-500 max-w-[100px] truncate">
-                        {row.requester?.name ?? '—'}
-                      </td>
-                      <td className="hidden md:table-cell px-3 py-3 text-slate-400 text-xs max-w-[120px] truncate">
-                        {row.notes?.split('|')[0]?.trim() || '—'}
-                      </td>
-                      <td className="px-3 py-3 w-24">
-                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-xs font-medium ${cfg.color}`}>
-                          <Icon className="w-3 h-3" />
-                          <span className="hidden sm:inline">{t(cfg.labelKey as any)}</span>
-                        </span>
-                      </td>
-                      <td className="px-3 py-3 w-28">
-                        {row.status === 'pending' && (
-                          <div className="flex items-center gap-1 justify-end">
-                            <button
-                              onClick={() => approveMutation.mutate(row.id)}
-                              className="px-2 py-1 rounded-lg text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20"
-                            >
-                              ✓
-                            </button>
-                            <button
-                              onClick={() => setRejectTarget(row)}
-                              className="px-2 py-1 rounded-lg text-xs font-medium bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20 border border-red-500/20"
-                            >
-                              ✕
-                            </button>
-                            <button
-                              onClick={() => setCancelTarget(row)}
-                              className="px-2 py-1 rounded-lg text-xs font-medium bg-gray-500/10 text-gray-500 hover:bg-gray-500/20 border border-gray-500/20"
-                              title={t('actions.cancel')}
-                            >
-                              <Ban className="w-3 h-3" />
-                            </button>
-                          </div>
-                        )}
-                        {row.status === 'approved' && (
-                          <div className="flex items-center gap-1 justify-end">
-                            <button
-                              onClick={() => setRejectTarget(row)}
-                              className="px-2 py-1 rounded-lg text-xs font-medium bg-orange-500/10 text-orange-600 dark:text-orange-400 hover:bg-orange-500/20 border border-orange-500/20"
-                              title={t('actions.reverse')}
-                            >
-                              <RotateCcw className="w-3 h-3" />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
+        <>
+          {/* Mobile cards */}
+          <div className="md:hidden space-y-2">
+            {expenses.map((row) => {
+              const cfg = statusConfig[row.status]
+              const Icon = cfg.icon
+              return (
+                <div key={row.id} className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-slate-800 dark:text-white font-medium truncate">
+                      {((row as any).category?.name) ?? (row.title || '—')}
+                    </span>
+                    <span className="text-slate-800 dark:text-white font-semibold tabular-nums shrink-0">
+                      {formatCurrency(row.amount, currency)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="text-xs text-slate-500 truncate">{row.requester?.name ?? '—'}</span>
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-xs font-medium shrink-0 ${cfg.color}`}>
+                      <Icon className="w-3 h-3" />
+                      {t(cfg.labelKey as any)}
+                    </span>
+                  </div>
+                  {(row.status === 'pending' || row.status === 'approved') && (
+                    <div className="flex items-center gap-1 justify-end mt-2 pt-2 border-t border-slate-100 dark:border-gray-800">
+                      {row.status === 'pending' && (
+                        <>
+                          <button onClick={() => approveMutation.mutate(row.id)} className="px-2 py-1 rounded-lg text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20">✓</button>
+                          <button onClick={() => setRejectTarget(row)} className="px-2 py-1 rounded-lg text-xs font-medium bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20 border border-red-500/20">✕</button>
+                          <button onClick={() => setCancelTarget(row)} className="px-2 py-1 rounded-lg text-xs font-medium bg-gray-500/10 text-gray-500 hover:bg-gray-500/20 border border-gray-500/20" title={t('actions.cancel')}>
+                            <Ban className="w-3 h-3" />
+                          </button>
+                        </>
+                      )}
+                      {row.status === 'approved' && (
+                        <button onClick={() => setRejectTarget(row)} className="px-2 py-1 rounded-lg text-xs font-medium bg-orange-500/10 text-orange-600 dark:text-orange-400 hover:bg-orange-500/20 border border-orange-500/20" title={t('actions.reverse')}>
+                          <RotateCcw className="w-3 h-3" />
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
           </div>
-        </div>
+
+          {/* Desktop table */}
+          <div className="hidden md:block bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-slate-200 dark:border-gray-800">
+                    <th className="text-start px-3 py-3 text-xs font-medium text-slate-500">{t('table.type')}</th>
+                    <th className="text-start px-3 py-3 text-xs font-medium text-slate-500 w-24">{t('table.amount')}</th>
+                    <th className="text-start px-3 py-3 text-xs font-medium text-slate-500">{t('table.requestedBy')}</th>
+                    <th className="text-start px-3 py-3 text-xs font-medium text-slate-500">{t('table.note')}</th>
+                    <th className="text-start px-3 py-3 text-xs font-medium text-slate-500 w-24">{t('table.actions')}</th>
+                    <th className="px-3 py-3 w-28" />
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-gray-800">
+                  {expenses.map((row) => {
+                    const cfg = statusConfig[row.status]
+                    const Icon = cfg.icon
+                    return (
+                      <tr key={row.id} className="hover:bg-slate-50 dark:hover:bg-gray-800/30 transition-colors">
+                        <td className="px-3 py-3 text-slate-800 dark:text-white font-medium max-w-[140px] truncate">
+                          {((row as any).category?.name) ?? (row.title || '—')}
+                        </td>
+                        <td className="px-3 py-3 text-slate-800 dark:text-white font-semibold w-24 tabular-nums">
+                          {formatCurrency(row.amount, currency)}
+                        </td>
+                        <td className="px-3 py-3 text-slate-500 max-w-[140px] truncate">
+                          {row.requester?.name ?? '—'}
+                        </td>
+                        <td className="px-3 py-3 text-slate-400 text-xs max-w-[160px] truncate">
+                          {row.notes?.split('|')[0]?.trim() || '—'}
+                        </td>
+                        <td className="px-3 py-3 w-24">
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-xs font-medium ${cfg.color}`}>
+                            <Icon className="w-3 h-3" />
+                            <span>{t(cfg.labelKey as any)}</span>
+                          </span>
+                        </td>
+                        <td className="px-3 py-3 w-28">
+                          {row.status === 'pending' && (
+                            <div className="flex items-center gap-1 justify-end">
+                              <button
+                                onClick={() => approveMutation.mutate(row.id)}
+                                className="px-2 py-1 rounded-lg text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20"
+                              >
+                                ✓
+                              </button>
+                              <button
+                                onClick={() => setRejectTarget(row)}
+                                className="px-2 py-1 rounded-lg text-xs font-medium bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20 border border-red-500/20"
+                              >
+                                ✕
+                              </button>
+                              <button
+                                onClick={() => setCancelTarget(row)}
+                                className="px-2 py-1 rounded-lg text-xs font-medium bg-gray-500/10 text-gray-500 hover:bg-gray-500/20 border border-gray-500/20"
+                                title={t('actions.cancel')}
+                              >
+                                <Ban className="w-3 h-3" />
+                              </button>
+                            </div>
+                          )}
+                          {row.status === 'approved' && (
+                            <div className="flex items-center gap-1 justify-end">
+                              <button
+                                onClick={() => setRejectTarget(row)}
+                                className="px-2 py-1 rounded-lg text-xs font-medium bg-orange-500/10 text-orange-600 dark:text-orange-400 hover:bg-orange-500/20 border border-orange-500/20"
+                                title={t('actions.reverse')}
+                              >
+                                <RotateCcw className="w-3 h-3" />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
       )}
 
       {showAdd && <AddExpenseModal onClose={() => setShowAdd(false)} />}

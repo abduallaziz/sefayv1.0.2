@@ -123,7 +123,7 @@ function AddTemplateModal({ onClose }: { onClose: () => void }) {
   )
 }
 
-function TemplateRow({ template }: { template: ExpenseTemplate }) {
+function useTemplateRowState(template: ExpenseTemplate) {
   const updateMutation = useUpdateExpenseTemplate()
   const deleteMutation = useDeleteExpenseTemplate()
   const isPending = updateMutation.isPending || deleteMutation.isPending
@@ -179,6 +179,119 @@ function TemplateRow({ template }: { template: ExpenseTemplate }) {
   }
 
   const inputClass = "px-2 py-1 text-sm bg-slate-50 dark:bg-gray-950 border border-[#0C447C] dark:border-[#0C447C] text-slate-800 dark:text-white rounded-lg focus:outline-none"
+  const selectClass = "px-2 py-1.5 text-sm bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 text-slate-800 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C] disabled:opacity-50"
+
+  const recurrenceDaySelect = (
+    <>
+      {template.recurrence_type === 'weekly' && (
+        <select value={template.recurrence_day ?? 0} onChange={e => handleDayChange(Number(e.target.value))} disabled={isPending} className={selectClass}>
+          {WEEKDAYS.map((d, i) => <option key={i} value={i}>{d}</option>)}
+        </select>
+      )}
+      {template.recurrence_type === 'monthly' && (
+        <select value={template.recurrence_day ?? 1} onChange={e => handleDayChange(Number(e.target.value))} disabled={isPending} className={selectClass}>
+          {Array.from({ length: 28 }, (_, i) => i + 1).map(d => <option key={d} value={d}>يوم {d}</option>)}
+        </select>
+      )}
+    </>
+  )
+
+  const editActions = editMode ? (
+    <>
+      <button onClick={saveEdit} disabled={isPending} className="p-1.5 rounded-lg hover:bg-emerald-500/10 text-slate-400 hover:text-emerald-500"><Check className="w-4 h-4" /></button>
+      <button onClick={() => { setEditMode(false); setEditName(template.name); setEditAmount(String(template.default_amount ?? '')) }} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-700 text-slate-400"><X className="w-4 h-4" /></button>
+    </>
+  ) : (
+    <>
+      <button onClick={() => setEditMode(true)} disabled={isPending} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-700 text-slate-400 hover:text-slate-600 dark:hover:text-white"><Pencil className="w-4 h-4" /></button>
+      <button onClick={() => setConfirmDelete(true)} disabled={isPending} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-slate-400 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
+    </>
+  )
+
+  return {
+    isPending, editMode, setEditMode, editName, setEditName, editAmount, setEditAmount,
+    confirmDelete, setConfirmDelete, saveEdit, handleRecurrenceChange, handleDayChange,
+    toggleActive, togglePreApproved, inputClass, selectClass, recurrenceDaySelect, editActions,
+    deleteMutation,
+  }
+}
+
+function TemplateCard({ template }: { template: ExpenseTemplate }) {
+  const {
+    isPending, editMode, editName, setEditName, editAmount, setEditAmount,
+    confirmDelete, setConfirmDelete, handleRecurrenceChange,
+    toggleActive, togglePreApproved, inputClass, selectClass, recurrenceDaySelect, editActions,
+    deleteMutation,
+  } = useTemplateRowState(template)
+
+  return (
+      <div className="p-3 border-b border-slate-100 dark:border-gray-800 last:border-0">
+        <div className="flex items-center justify-between gap-2">
+          {editMode ? (
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <input value={editName} onChange={e => setEditName(e.target.value)} className={`${inputClass} flex-1 min-w-0`} autoFocus />
+              <input value={editAmount} onChange={e => setEditAmount(e.target.value)} placeholder="المبلغ" className={`${inputClass} w-20 shrink-0`} inputMode="decimal" />
+            </div>
+          ) : (
+            <span className="text-slate-800 dark:text-white font-medium truncate">
+              {template.name}
+              {template.default_amount != null && <span className="text-xs text-slate-400 ms-2">{template.default_amount}</span>}
+            </span>
+          )}
+          <div className="flex items-center gap-1 shrink-0">{editActions}</div>
+        </div>
+
+        <div className="flex items-center gap-2 mt-2 flex-wrap">
+          <select
+            value={template.recurrence_type}
+            onChange={e => handleRecurrenceChange(e.target.value as RecurrenceScheduleType)}
+            disabled={isPending || editMode}
+            className={selectClass}
+          >
+            {RECURRENCE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+          {recurrenceDaySelect}
+        </div>
+
+        {template.recurrence_type !== 'none' && (
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
+            التشغيل التالي: {template.next_run_at ? new Date(template.next_run_at).toLocaleDateString('ar-SA') : '—'}
+          </p>
+        )}
+
+        <div className="flex items-center gap-2 mt-2 flex-wrap">
+          {isPending
+            ? <RefreshCw className="w-4 h-4 animate-spin text-slate-400" />
+            : <button onClick={toggleActive} disabled={isPending} className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium border transition-all ${template.is_active ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:bg-slate-200'}`}>
+                {template.is_active ? 'نشط' : 'معطّل'}
+              </button>
+          }
+          <button onClick={togglePreApproved} disabled={isPending || template.recurrence_type === 'none'} className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border transition-all disabled:opacity-40 disabled:cursor-not-allowed ${template.is_pre_approved ? 'bg-[#0C447C]/10 text-[#0C447C] dark:text-[#5B9BD5] border-[#0C447C]/20 hover:bg-[#E8F0FB]/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:bg-slate-200'}`}>
+            <ShieldCheck className="w-3 h-3" />
+            {template.is_pre_approved ? 'موافقة مسبقة' : 'بدون موافقة'}
+          </button>
+        </div>
+
+        {confirmDelete && (
+          <div className="mt-2 pt-2 border-t border-red-200 dark:border-red-500/20">
+            <p className="text-sm text-red-600 dark:text-red-400 mb-2">حذف &quot;{template.name}&quot;؟ لا يمكن التراجع.</p>
+            <div className="flex gap-2">
+              <button onClick={() => setConfirmDelete(false)} className="px-3 py-1 text-xs border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-100">إلغاء</button>
+              <button onClick={() => deleteMutation.mutate(template.id)} disabled={deleteMutation.isPending} className="px-3 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded-lg disabled:opacity-50">{deleteMutation.isPending ? '...' : 'حذف'}</button>
+            </div>
+          </div>
+        )}
+      </div>
+  )
+}
+
+function TemplateRow({ template }: { template: ExpenseTemplate }) {
+  const {
+    isPending, editMode, editName, setEditName, editAmount, setEditAmount,
+    confirmDelete, setConfirmDelete, handleRecurrenceChange,
+    toggleActive, togglePreApproved, inputClass, selectClass, recurrenceDaySelect, editActions,
+    deleteMutation,
+  } = useTemplateRowState(template)
 
   return (
     <>
@@ -201,22 +314,13 @@ function TemplateRow({ template }: { template: ExpenseTemplate }) {
             value={template.recurrence_type}
             onChange={e => handleRecurrenceChange(e.target.value as RecurrenceScheduleType)}
             disabled={isPending || editMode}
-            className="px-2 py-1.5 text-sm bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 text-slate-800 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C] disabled:opacity-50"
+            className={selectClass}
           >
             {RECURRENCE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
         </td>
         <td className="px-4 py-3">
-          {template.recurrence_type === 'weekly' && (
-            <select value={template.recurrence_day ?? 0} onChange={e => handleDayChange(Number(e.target.value))} disabled={isPending} className="px-2 py-1.5 text-sm bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 text-slate-800 dark:text-white rounded-lg focus:outline-none disabled:opacity-50">
-              {WEEKDAYS.map((d, i) => <option key={i} value={i}>{d}</option>)}
-            </select>
-          )}
-          {template.recurrence_type === 'monthly' && (
-            <select value={template.recurrence_day ?? 1} onChange={e => handleDayChange(Number(e.target.value))} disabled={isPending} className="px-2 py-1.5 text-sm bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 text-slate-800 dark:text-white rounded-lg focus:outline-none disabled:opacity-50">
-              {Array.from({ length: 28 }, (_, i) => i + 1).map(d => <option key={d} value={d}>يوم {d}</option>)}
-            </select>
-          )}
+          {recurrenceDaySelect}
           {(template.recurrence_type === 'daily' || template.recurrence_type === 'none') && <span className="text-sm text-slate-400">—</span>}
         </td>
         <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">
@@ -231,32 +335,20 @@ function TemplateRow({ template }: { template: ExpenseTemplate }) {
           }
         </td>
         <td className="px-4 py-3 text-center">
-          <button onClick={togglePreApproved} disabled={isPending || template.recurrence_type === 'none'} className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border transition-all disabled:opacity-40 disabled:cursor-not-allowed ${template.is_pre_approved ? 'bg-[#0C447C]/10 text-[#0C447C] dark:text-[#5B9BD5] border-[#0C447C]/20 hover:bg-[#E8F0FB]0/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:bg-slate-200'}`}>
+          <button onClick={togglePreApproved} disabled={isPending || template.recurrence_type === 'none'} className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border transition-all disabled:opacity-40 disabled:cursor-not-allowed ${template.is_pre_approved ? 'bg-[#0C447C]/10 text-[#0C447C] dark:text-[#5B9BD5] border-[#0C447C]/20 hover:bg-[#E8F0FB]/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:bg-slate-200'}`}>
             <ShieldCheck className="w-3 h-3" />
             {template.is_pre_approved ? 'موافقة مسبقة' : 'بدون موافقة'}
           </button>
         </td>
         <td className="px-4 py-3">
-          <div className="flex items-center gap-1 justify-end">
-            {editMode ? (
-              <>
-                <button onClick={saveEdit} disabled={isPending} className="p-1.5 rounded-lg hover:bg-emerald-500/10 text-slate-400 hover:text-emerald-500"><Check className="w-4 h-4" /></button>
-                <button onClick={() => { setEditMode(false); setEditName(template.name); setEditAmount(String(template.default_amount ?? '')) }} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-700 text-slate-400"><X className="w-4 h-4" /></button>
-              </>
-            ) : (
-              <>
-                <button onClick={() => setEditMode(true)} disabled={isPending} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-700 text-slate-400 hover:text-slate-600 dark:hover:text-white"><Pencil className="w-4 h-4" /></button>
-                <button onClick={() => setConfirmDelete(true)} disabled={isPending} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-slate-400 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
-              </>
-            )}
-          </div>
+          <div className="flex items-center gap-1 justify-end">{editActions}</div>
         </td>
       </tr>
       {confirmDelete && (
         <tr>
           <td colSpan={7} className="px-4 py-3 bg-red-50 dark:bg-red-500/10 border-t border-red-200 dark:border-red-500/20">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-red-600 dark:text-red-400">حذف "{template.name}"؟ لا يمكن التراجع.</span>
+              <span className="text-sm text-red-600 dark:text-red-400">حذف &quot;{template.name}&quot;؟ لا يمكن التراجع.</span>
               <div className="flex gap-2">
                 <button onClick={() => setConfirmDelete(false)} className="px-3 py-1 text-xs border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-100">إلغاء</button>
                 <button onClick={() => deleteMutation.mutate(template.id)} disabled={deleteMutation.isPending} className="px-3 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded-lg disabled:opacity-50">{deleteMutation.isPending ? '...' : 'حذف'}</button>
@@ -296,7 +388,13 @@ export function TemplatesList() {
         </div>
       ) : (
         <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl overflow-hidden">
-          <div className="overflow-x-auto">
+          {/* Mobile cards */}
+          <div className="md:hidden">
+            {templates.map(t => <TemplateCard key={t.id} template={t} />)}
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-200 dark:border-gray-800">
