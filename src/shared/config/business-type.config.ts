@@ -37,11 +37,11 @@ export const BUSINESS_TYPE_CONFIG: Record<BusinessTypeKey, BusinessTypeConfig> =
     label: { ar: 'متجر تجزئة', en: 'Retail' },
   },
   services: {
-    sidebar: ['dashboard', 'orders', 'items', 'customers', 'expenses', 'shifts', 'reports', 'users', 'settings'],
+    sidebar: ['dashboard', 'pos', 'orders', 'items', 'customers', 'expenses', 'shifts', 'reports', 'users', 'settings'],
     label: { ar: 'خدمات', en: 'Services' },
   },
   workshop: {
-    sidebar: ['dashboard', 'orders', 'items', 'customers', 'expenses', 'shifts', 'reports', 'users', 'settings'],
+    sidebar: ['dashboard', 'pos', 'orders', 'items', 'customers', 'expenses', 'shifts', 'reports', 'users', 'settings'],
     label: { ar: 'ورشة', en: 'Workshop' },
   },
   other: {
