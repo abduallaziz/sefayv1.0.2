@@ -71,13 +71,11 @@ export function DashboardSidebar({ open, onClose }: SidebarProps) {
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar — always docked at the inline-start edge (right in RTL, left in LTR) */}
       <aside
         className={cn(
-          'fixed bottom-0 z-40 flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0',
-          locale === 'ar'
-            ? open ? 'translate-x-0 end-0' : 'translate-x-full end-0'
-            : open ? 'translate-x-0 start-0' : '-translate-x-full start-0'
+          'fixed bottom-0 start-0 z-40 flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0',
+          open ? 'translate-x-0' : locale === 'ar' ? 'translate-x-full' : '-translate-x-full'
         )}
         style={{
           top: '66px',
@@ -85,9 +83,8 @@ export function DashboardSidebar({ open, onClose }: SidebarProps) {
           background: 'linear-gradient(180deg, rgba(255,255,255,0.88), rgba(255,255,255,0.72))',
           backdropFilter: 'blur(22px) saturate(180%)',
           WebkitBackdropFilter: 'blur(22px) saturate(180%)',
-          borderInlineStart: locale === 'ar' ? '1px solid rgba(255,255,255,0.95)' : 'none',
-          borderInlineEnd: locale === 'ar' ? 'none' : '1px solid rgba(255,255,255,0.95)',
-          boxShadow: '-4px 0 28px rgba(10,22,40,0.06)',
+          borderInlineEnd: '1px solid rgba(255,255,255,0.95)',
+          boxShadow: locale === 'ar' ? '-4px 0 28px rgba(10,22,40,0.06)' : '4px 0 28px rgba(10,22,40,0.06)',
         }}
       >
         {/* Mobile close */}

@@ -30,7 +30,6 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
 
   return (
     <header
-      dir="ltr"
       style={{
         height: '66px',
         background: 'linear-gradient(115deg, #082F5C 0%, #0C447C 42%, #1761B8 100%)',

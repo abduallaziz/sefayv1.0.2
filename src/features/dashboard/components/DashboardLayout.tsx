@@ -5,16 +5,14 @@ import { DashboardSidebar } from './DashboardSidebar'
 import { DashboardHeader } from './DashboardHeader'
 import { ThemeProvider } from '@/core/theme/components/ThemeProvider'
 import { useTenantAuth } from '@/core/auth/hooks/useTenantAuth'
-import { useTranslations, useLocale } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import { settingsApi } from '@/features/settings/api/settings.api'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
-import { cn } from '@/lib/utils'
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { isLoading, isAuthenticated } = useTenantAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const t = useTranslations('common')
-  const locale = useLocale()
   const setCurrency = useTenantStore((s) => s.setCurrency)
   const [profileLoaded, setProfileLoaded] = useState(false)
 
@@ -67,7 +65,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           />
 
           <main
-            className={cn('p-4 lg:p-6', locale === 'ar' ? 'lg:me-[264px]' : 'lg:ms-[264px]')}
+            className="p-4 lg:p-6 lg:ms-[264px]"
             style={{ flex: 1, minWidth: 0, overflowX: 'hidden' }}
           >
             {children}
