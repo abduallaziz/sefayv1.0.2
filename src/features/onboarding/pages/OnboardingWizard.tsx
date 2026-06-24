@@ -185,6 +185,7 @@ function Step1({ data, onChange, showErrors }: { data: FormData; onChange: (k: k
       </Field>
       <Field label={t('phone')} errorText={phoneErr}>
         <div
+          dir="ltr"
           className={cn(
             'flex items-stretch rounded-[11px] border bg-[#F5F8FC] transition-all overflow-hidden',
             'focus-within:bg-white focus-within:border-[#0C447C] focus-within:shadow-[0_0_0_3.5px_rgba(12,68,124,.11)]',
@@ -205,7 +206,7 @@ function Step1({ data, onChange, showErrors }: { data: FormData; onChange: (k: k
           </div>
           <input
             type="tel"
-            className="flex-1 min-w-0 px-3 py-3 text-sm font-[inherit] text-[#0A1628] bg-transparent outline-none"
+            className="flex-1 min-w-0 px-3 py-3 text-sm font-[inherit] text-[#0A1628] bg-transparent outline-none text-start"
             placeholder={t('phonePlaceholder')}
             value={data.phone}
             onChange={(e) => onChange('phone', e.target.value.replace(/^0+/, ''))}
