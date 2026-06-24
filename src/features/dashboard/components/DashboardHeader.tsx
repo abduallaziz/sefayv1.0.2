@@ -1,10 +1,11 @@
 'use client'
 
 import { useLocale, useTranslations } from 'next-intl'
-import { Bell, Menu, Moon, Sun, Search } from 'lucide-react'
+import { Bell, Menu, Moon, Sun, Search, LogOut } from 'lucide-react'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { useThemeStore } from '@/core/theme/stores/theme.store'
-import { useState } from 'react'
+import { useLogout } from '@/features/auth/hooks/use-auth'
+import { useEffect, useRef, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 
 interface DashboardHeaderProps {
@@ -14,7 +15,10 @@ interface DashboardHeaderProps {
 export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
   const user = useAuthStore((s) => s.user)
   const { theme, toggle } = useThemeStore()
+  const { mutate: logout } = useLogout()
   const [notifCount] = useState(3)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
   const pathname = usePathname()
   const router = useRouter()
   const currentLocale = useLocale()
@@ -27,6 +31,17 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
     const newPath = pathname.replace(`/${currentLocale}`, `/${otherLocale}`)
     router.push(newPath)
   }
+
+  useEffect(() => {
+    if (!menuOpen) return
+    const onClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', onClickOutside)
+    return () => document.removeEventListener('mousedown', onClickOutside)
+  }, [menuOpen])
 
   return (
     <header
@@ -245,30 +260,84 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
         )}
       </button>
 
-      {/* User avatar */}
-      <div
-        className="avatar-circle"
-        style={{
-          width: '39px', height: '39px', borderRadius: '50%',
-          background: 'linear-gradient(135deg, #3B82F6, #1D4ED8)',
-          border: '2px solid rgba(255,255,255,0.42)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: '12px', fontWeight: 700, color: '#fff',
-          flexShrink: 0, cursor: 'pointer',
-          boxShadow: '0 2px 10px rgba(0,0,0,0.22)',
-        }}
-      >
-        {user?.name?.[0]?.toUpperCase() ?? 'U'}
-      </div>
+      {/* User avatar + menu */}
+      <div ref={menuRef} style={{ position: 'relative', flexShrink: 0 }}>
+        <button
+          onClick={() => setMenuOpen((v) => !v)}
+          style={{
+            display: 'flex', alignItems: 'center', gap: '10px',
+            background: 'transparent', border: 'none', cursor: 'pointer', padding: 0,
+          }}
+        >
+          <div
+            className="avatar-circle"
+            style={{
+              width: '39px', height: '39px', borderRadius: '50%',
+              background: 'linear-gradient(135deg, #3B82F6, #1D4ED8)',
+              border: '2px solid rgba(255,255,255,0.42)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '12px', fontWeight: 700, color: '#fff',
+              flexShrink: 0,
+              boxShadow: '0 2px 10px rgba(0,0,0,0.22)',
+            }}
+          >
+            {user?.name?.[0]?.toUpperCase() ?? 'U'}
+          </div>
 
-      {/* User name */}
-      <div className="hidden lg:block" style={{ minWidth: 0 }}>
-        <div style={{ fontSize: '12px', fontWeight: 600, color: '#fff', lineHeight: 1.3 }}>
-          {user?.name ?? '...'}
-        </div>
-        <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.6)' }}>
-          {user?.role ?? ''}
-        </div>
+          {/* User name */}
+          <div className="hidden lg:block" style={{ minWidth: 0, textAlign: isRTL ? 'right' : 'left' }}>
+            <div style={{ fontSize: '12px', fontWeight: 600, color: '#fff', lineHeight: 1.3 }}>
+              {user?.name ?? '...'}
+            </div>
+            <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.6)' }}>
+              {user?.role ?? ''}
+            </div>
+          </div>
+        </button>
+
+        {menuOpen && (
+          <div
+            style={{
+              position: 'absolute',
+              top: 'calc(100% + 10px)',
+              insetInlineEnd: 0,
+              minWidth: '180px',
+              background: '#fff',
+              borderRadius: '12px',
+              boxShadow: '0 8px 28px rgba(10,22,40,0.22)',
+              border: '1px solid rgba(10,22,40,0.06)',
+              overflow: 'hidden',
+              zIndex: 400,
+            }}
+          >
+            <div style={{ padding: '12px 14px', borderBottom: '1px solid rgba(10,22,40,0.06)' }}>
+              <div style={{ fontSize: '13px', fontWeight: 600, color: '#0F172A' }}>
+                {user?.name ?? '...'}
+              </div>
+              <div style={{ fontSize: '11px', color: '#64748B' }}>
+                {user?.email ?? ''}
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                setMenuOpen(false)
+                logout()
+              }}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '8px',
+                width: '100%', padding: '11px 14px',
+                background: 'transparent', border: 'none', cursor: 'pointer',
+                fontSize: '13px', fontWeight: 500, color: '#EF4444',
+                textAlign: isRTL ? 'right' : 'left',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = '#FEF2F2' }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
+            >
+              <LogOut size={15} />
+              {t('logout')}
+            </button>
+          </div>
+        )}
       </div>
 
       <style>{`
