@@ -431,7 +431,7 @@ export function DashboardOverview() {
         <StatCard title="عملاء جدد" value={totalCustomers.toLocaleString('en-US')} icon={Users}
           spark={sp.customers} sparkColor="#7C3AED"
           stripe="linear-gradient(90deg,#6D28D9,#A78BFA)" />
-        <StatCard title="تنبيهات المخزون" value={totalExpenses.toLocaleString('en-US')} icon={Wallet}
+        <StatCard title="المصروفات" value={totalExpenses.toLocaleString('en-US')} icon={Wallet}
           spark={sp.expenses} sparkColor="#D97706"
           stripe="linear-gradient(90deg,#B45309,#FBBF24)" />
       </div>

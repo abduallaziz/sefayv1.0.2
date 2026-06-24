@@ -8,6 +8,7 @@ import { useTenantAuth } from '@/core/auth/hooks/useTenantAuth'
 import { useTranslations, useLocale } from 'next-intl'
 import { settingsApi } from '@/features/settings/api/settings.api'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
+import { cn } from '@/lib/utils'
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { isLoading, isAuthenticated } = useTenantAuth()
@@ -66,14 +67,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           />
 
           <main
-            style={{
-              flex: 1,
-              marginInlineEnd: locale === 'ar' ? '264px' : '0',
-              marginInlineStart: locale === 'ar' ? '0' : '264px',
-              padding: '24px',
-              minWidth: 0,
-              overflowX: 'hidden',
-            }}
+            className={cn('p-4 lg:p-6', locale === 'ar' ? 'lg:me-[264px]' : 'lg:ms-[264px]')}
+            style={{ flex: 1, minWidth: 0, overflowX: 'hidden' }}
           >
             {children}
           </main>
