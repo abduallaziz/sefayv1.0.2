@@ -945,7 +945,7 @@
       "ownerName": "اسم المالك",
       "ownerNamePlaceholder": "الاسم الكامل",
       "phone": "رقم الجوال",
-      "phonePlaceholder": "05xxxxxxxx",
+      "phonePlaceholder": "5xxxxxxxx",
       "email": "البريد الإلكتروني",
       "emailPlaceholder": "example@email.com",
       "password": "كلمة المرور",

@@ -945,7 +945,7 @@
       "ownerName": "Owner Name",
       "ownerNamePlaceholder": "Full name",
       "phone": "Phone",
-      "phonePlaceholder": "05xxxxxxxx",
+      "phonePlaceholder": "5xxxxxxxx",
       "email": "Email",
       "emailPlaceholder": "example@email.com",
       "password": "Password",

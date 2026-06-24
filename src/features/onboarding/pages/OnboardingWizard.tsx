@@ -184,19 +184,32 @@ function Step1({ data, onChange, showErrors }: { data: FormData; onChange: (k: k
           value={data.ownerName} onChange={(e) => onChange('ownerName', e.target.value)} />
       </Field>
       <Field label={t('phone')} errorText={phoneErr}>
-        <div className="flex gap-2">
-          <select
-            className="px-2 py-3 rounded-[11px] border border-[#E4EAF2] text-sm font-[inherit] text-[#0A1628] bg-[#F5F8FC] outline-none transition-all focus:border-[#0C447C] focus:bg-white"
-            style={{ width: 108, flexShrink: 0 }}
-            value={data.countryCode}
-            onChange={(e) => onChange('countryCode', e.target.value)}
-          >
-            {COUNTRY_CODES.map((c) => (
-              <option key={c.code} value={c.dial}>{c.flag} {c.dial}</option>
-            ))}
-          </select>
-          <input type="tel" className={fieldCls(!!phoneErr)} placeholder={t('phonePlaceholder')}
-            value={data.phone} onChange={(e) => onChange('phone', e.target.value)} />
+        <div
+          className={cn(
+            'flex items-stretch rounded-[11px] border bg-[#F5F8FC] transition-all overflow-hidden',
+            'focus-within:bg-white focus-within:border-[#0C447C] focus-within:shadow-[0_0_0_3.5px_rgba(12,68,124,.11)]',
+            phoneErr ? 'border-[#A32D2D] bg-[#FCEBEB] focus-within:border-[#A32D2D]' : 'border-[#E4EAF2]'
+          )}
+        >
+          <div className="relative flex items-center" style={{ flexShrink: 0 }}>
+            <select
+              className="h-full appearance-none ps-3 pe-7 text-sm font-semibold text-[#0A1628] bg-transparent outline-none cursor-pointer border-e border-[#E4EAF2]"
+              value={data.countryCode}
+              onChange={(e) => onChange('countryCode', e.target.value)}
+            >
+              {COUNTRY_CODES.map((c) => (
+                <option key={c.code} value={c.dial}>{c.flag} {c.dial}</option>
+              ))}
+            </select>
+            <ChevronRight size={13} strokeWidth={2.5} className="absolute pointer-events-none text-[#8C9CB2] rotate-90" style={{ insetInlineEnd: 9 }} />
+          </div>
+          <input
+            type="tel"
+            className="flex-1 min-w-0 px-3 py-3 text-sm font-[inherit] text-[#0A1628] bg-transparent outline-none"
+            placeholder={t('phonePlaceholder')}
+            value={data.phone}
+            onChange={(e) => onChange('phone', e.target.value.replace(/^0+/, ''))}
+          />
         </div>
       </Field>
       <Field label={t('email')} errorText={emailErr}>
