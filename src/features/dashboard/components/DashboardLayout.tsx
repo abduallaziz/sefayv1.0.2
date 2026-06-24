@@ -57,7 +57,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       >
         <DashboardHeader onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
 
-        <div style={{ display: 'flex', minHeight: 'calc(100vh - 66px)', position: 'relative' }}>
+        <div style={{ display: 'flex', height: 'calc(100vh - 66px)', position: 'relative' }}>
 
           <DashboardSidebar
             open={sidebarOpen}
@@ -66,7 +66,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
           <main
             className="p-4 lg:p-6 lg:ms-[264px]"
-            style={{ flex: 1, minWidth: 0, overflowX: 'hidden' }}
+            style={{ flex: 1, minWidth: 0, overflowX: 'hidden', overflowY: 'auto' }}
           >
             {children}
           </main>
