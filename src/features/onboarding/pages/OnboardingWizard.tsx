@@ -11,6 +11,7 @@ import { ApiError } from '@/lib/api'
 interface FormData {
   businessName: string
   ownerName: string
+  countryCode: string
   phone: string
   email: string
   password: string
@@ -40,7 +41,36 @@ const ACTIVITY_SECTIONS: ActivitySection[] = [
 
 const CURRENCIES = ['SAR', 'AED', 'KWD', 'BHD', 'QAR', 'OMR']
 
-const PHONE_REGEX = /^\+?[1-9]\d{7,14}$/
+/* ── Country dial codes ──────────────────────────────────── */
+const COUNTRY_CODES: { code: string; dial: string; flag: string }[] = [
+  { code: 'SA', dial: '+966', flag: '🇸🇦' },
+  { code: 'AE', dial: '+971', flag: '🇦🇪' },
+  { code: 'KW', dial: '+965', flag: '🇰🇼' },
+  { code: 'BH', dial: '+973', flag: '🇧🇭' },
+  { code: 'QA', dial: '+974', flag: '🇶🇦' },
+  { code: 'OM', dial: '+968', flag: '🇴🇲' },
+  { code: 'EG', dial: '+20', flag: '🇪🇬' },
+  { code: 'JO', dial: '+962', flag: '🇯🇴' },
+  { code: 'LB', dial: '+961', flag: '🇱🇧' },
+  { code: 'IQ', dial: '+964', flag: '🇮🇶' },
+  { code: 'YE', dial: '+967', flag: '🇾🇪' },
+  { code: 'SY', dial: '+963', flag: '🇸🇾' },
+  { code: 'PS', dial: '+970', flag: '🇵🇸' },
+  { code: 'SD', dial: '+249', flag: '🇸🇩' },
+  { code: 'LY', dial: '+218', flag: '🇱🇾' },
+  { code: 'TN', dial: '+216', flag: '🇹🇳' },
+  { code: 'DZ', dial: '+213', flag: '🇩🇿' },
+  { code: 'MA', dial: '+212', flag: '🇲🇦' },
+  { code: 'TR', dial: '+90', flag: '🇹🇷' },
+  { code: 'US', dial: '+1', flag: '🇺🇸' },
+  { code: 'GB', dial: '+44', flag: '🇬🇧' },
+  { code: 'IN', dial: '+91', flag: '🇮🇳' },
+  { code: 'PK', dial: '+92', flag: '🇵🇰' },
+  { code: 'PH', dial: '+63', flag: '🇵🇭' },
+  { code: 'BD', dial: '+880', flag: '🇧🇩' },
+]
+
+const PHONE_REGEX = /^[1-9]\d{6,13}$/
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/
 
 function isValidPhone(v: string) {
@@ -154,8 +184,20 @@ function Step1({ data, onChange, showErrors }: { data: FormData; onChange: (k: k
           value={data.ownerName} onChange={(e) => onChange('ownerName', e.target.value)} />
       </Field>
       <Field label={t('phone')} errorText={phoneErr}>
-        <input type="tel" className={fieldCls(!!phoneErr)} placeholder={t('phonePlaceholder')}
-          value={data.phone} onChange={(e) => onChange('phone', e.target.value)} />
+        <div className="flex gap-2">
+          <select
+            className="px-2 py-3 rounded-[11px] border border-[#E4EAF2] text-sm font-[inherit] text-[#0A1628] bg-[#F5F8FC] outline-none transition-all focus:border-[#0C447C] focus:bg-white"
+            style={{ width: 108, flexShrink: 0 }}
+            value={data.countryCode}
+            onChange={(e) => onChange('countryCode', e.target.value)}
+          >
+            {COUNTRY_CODES.map((c) => (
+              <option key={c.code} value={c.dial}>{c.flag} {c.dial}</option>
+            ))}
+          </select>
+          <input type="tel" className={fieldCls(!!phoneErr)} placeholder={t('phonePlaceholder')}
+            value={data.phone} onChange={(e) => onChange('phone', e.target.value)} />
+        </div>
       </Field>
       <Field label={t('email')} errorText={emailErr}>
         <input type="email" className={fieldCls(!!emailErr)} placeholder={t('emailPlaceholder')}
@@ -366,6 +408,7 @@ export function OnboardingWizard() {
   const [data, setData] = useState<FormData>({
     businessName: '',
     ownerName: '',
+    countryCode: '+966',
     phone: '',
     email: '',
     password: '',
@@ -421,7 +464,7 @@ export function OnboardingWizard() {
     register.mutate({
       businessName: data.businessName,
       ownerName: data.ownerName,
-      phone: data.phone,
+      phone: `${data.countryCode}${data.phone.trim().replace(/[\s-]/g, '')}`,
       email: data.email,
       password: data.password,
       activity: data.activity,
