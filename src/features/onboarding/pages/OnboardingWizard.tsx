@@ -2,7 +2,10 @@
 
 import { useTranslations, useLocale } from 'next-intl'
 import { useState } from 'react'
-import { Check, ChevronRight, ChevronLeft, Building2, Tag, Settings, Sparkles, Eye, EyeOff, AlertCircle } from 'lucide-react'
+import {
+  Check, ChevronRight, ChevronLeft, Building2, Tag, Settings, Sparkles, Eye, EyeOff, AlertCircle,
+  Utensils, ShoppingBag, Shirt, HeartPulse, Scissors, Wrench, Smartphone, Home as HomeIcon,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useRegister } from '@/features/auth/hooks/use-auth'
 import { ApiError } from '@/lib/api'
@@ -38,6 +41,17 @@ const ACTIVITY_SECTIONS: ActivitySection[] = [
   { key: 'electronics', items: ['phones','gadgets','gaming'] },
   { key: 'home',        items: ['furniture','homeware','flowers','pets'] },
 ]
+
+const SECTION_ICONS: Record<string, React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>> = {
+  restaurants: Utensils,
+  retail: ShoppingBag,
+  fashion: Shirt,
+  health: HeartPulse,
+  beauty: Scissors,
+  services: Wrench,
+  electronics: Smartphone,
+  home: HomeIcon,
+}
 
 const CURRENCIES = ['SAR', 'AED', 'KWD', 'BHD', 'QAR', 'OMR']
 
@@ -244,11 +258,12 @@ function Step1({ data, onChange, showErrors }: { data: FormData; onChange: (k: k
 function Step2({ data, onChange, showErrors }: { data: FormData; onChange: (k: keyof FormData, v: string) => void; showErrors: boolean }) {
   const t = useTranslations('onboarding.activity')
   const tc = useTranslations('onboarding')
-  const [open, setOpen] = useState<string | null>(ACTIVITY_SECTIONS[0].key)
+  const selectedSection = ACTIVITY_SECTIONS.find((s) => s.items.includes(data.activity))
+  const [open, setOpen] = useState<string | null>(selectedSection?.key ?? null)
   const invalid = showErrors && !data.activity
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <div className="text-center mb-7">
         <StepIcon icon={<Tag className="w-7 h-7 text-white" strokeWidth={2} />} />
         <h2 className="text-[21px] font-bold text-[#0A1628]">{t('title')}</h2>
@@ -259,47 +274,82 @@ function Step2({ data, onChange, showErrors }: { data: FormData; onChange: (k: k
         <p className="text-[13px] text-[#A32D2D] font-medium text-center">{tc('activityRequired')}</p>
       )}
 
-      <div className={cn('space-y-2 max-h-[400px] overflow-y-auto pe-1 rounded-[15px]', invalid && 'ring-2 ring-[#A32D2D]/40 p-2')}>
-        {ACTIVITY_SECTIONS.map((section) => (
-          <div key={section.key} className="border border-[#E4EAF2] rounded-[13px] overflow-hidden">
-            {/* Section header */}
-            <button
-              className="w-full flex items-center justify-between px-4 py-3 text-[14px] font-semibold text-[#54657C] hover:bg-[#F5F8FC] transition-colors"
-              onClick={() => setOpen(open === section.key ? null : section.key)}
-            >
-              <span>{t(section.key)}</span>
-              <ChevronRight
-                size={16}
-                strokeWidth={2}
-                className={cn('transition-transform duration-200 text-[#B4C0CF]', open === section.key ? 'rotate-90' : '')}
-              />
-            </button>
+      <div className={cn('grid grid-cols-2 gap-3 max-h-[440px] overflow-y-auto pe-1', invalid && 'ring-2 ring-[#A32D2D]/40 rounded-[18px] p-2')}>
+        {ACTIVITY_SECTIONS.map((section) => {
+          const Icon = SECTION_ICONS[section.key]
+          const isOpen = open === section.key
+          const sectionSelected = section.items.includes(data.activity)
 
-            {/* Items */}
-            {open === section.key && (
-              <div className="px-3 pb-3 grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {section.items.map((item) => {
-                  const selected = data.activity === item
-                  return (
-                    <button
-                      key={item}
-                      onClick={() => onChange('activity', item)}
-                      className={cn(
-                        'px-3 py-2 rounded-[10px] text-[13px] font-medium text-start transition-all duration-150',
-                        selected
-                          ? 'text-white'
-                          : 'bg-[#F5F8FC] text-[#54657C] hover:bg-[#EAF2FB] hover:text-[#0C447C] border border-[#E4EAF2]'
-                      )}
-                      style={selected ? { background: 'linear-gradient(135deg,#0C447C,#1565C0)', boxShadow: '0 4px 12px rgba(12,68,124,.25)' } : {}}
-                    >
-                      {t(item)}
-                    </button>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-        ))}
+          return (
+            <div
+              key={section.key}
+              className={cn(
+                'col-span-2 sm:col-span-1 rounded-[16px] border overflow-hidden transition-all duration-200',
+                sectionSelected ? 'border-[#0C447C]/35 shadow-[0_4px_16px_rgba(12,68,124,.1)]' : 'border-[#E4EAF2]',
+                isOpen && 'col-span-2 sm:col-span-2'
+              )}
+              style={{ background: sectionSelected ? 'linear-gradient(180deg,#F3F8FF,#FFFFFF)' : '#fff' }}
+            >
+              {/* Section card header */}
+              <button
+                type="button"
+                onClick={() => setOpen(isOpen ? null : section.key)}
+                className="w-full flex items-center gap-3 px-4 py-3.5 text-start hover:bg-[#F5F8FC] transition-colors"
+              >
+                <div
+                  className="w-10 h-10 rounded-[12px] flex items-center justify-center flex-shrink-0"
+                  style={
+                    sectionSelected
+                      ? { background: 'linear-gradient(135deg,#0C447C,#1565C0)', boxShadow: '0 4px 12px rgba(12,68,124,.28)' }
+                      : { background: '#F5F8FC', border: '1px solid #E4EAF2' }
+                  }
+                >
+                  <Icon size={18} strokeWidth={2} className={sectionSelected ? 'text-white' : 'text-[#54657C]'} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[14px] font-semibold text-[#0A1628] truncate">{t(section.key)}</p>
+                  {sectionSelected && (
+                    <p className="text-[12px] font-medium text-[#0C447C] truncate">{t(data.activity as Parameters<typeof t>[0])}</p>
+                  )}
+                </div>
+                {sectionSelected && !isOpen && (
+                  <Check size={15} strokeWidth={2.5} className="text-[#0C447C] flex-shrink-0" />
+                )}
+                <ChevronRight
+                  size={16}
+                  strokeWidth={2}
+                  className={cn('transition-transform duration-200 text-[#B4C0CF] flex-shrink-0', isOpen ? 'rotate-90' : '')}
+                />
+              </button>
+
+              {/* Sub-activities */}
+              {isOpen && (
+                <div className="px-3 pb-3.5 grid grid-cols-2 sm:grid-cols-3 gap-2" style={{ borderTop: '1px solid #EEF2F7', paddingTop: 12 }}>
+                  {section.items.map((item) => {
+                    const selected = data.activity === item
+                    return (
+                      <button
+                        key={item}
+                        type="button"
+                        onClick={() => onChange('activity', item)}
+                        className={cn(
+                          'flex items-center gap-1.5 px-3 py-2.5 rounded-[10px] text-[13px] font-medium text-start transition-all duration-150',
+                          selected
+                            ? 'text-white'
+                            : 'bg-[#F5F8FC] text-[#54657C] hover:bg-[#EAF2FB] hover:text-[#0C447C] border border-[#E4EAF2]'
+                        )}
+                        style={selected ? { background: 'linear-gradient(135deg,#0C447C,#1565C0)', boxShadow: '0 4px 12px rgba(12,68,124,.25)' } : {}}
+                      >
+                        {selected && <Check size={13} strokeWidth={2.5} className="flex-shrink-0" />}
+                        <span className="truncate">{t(item)}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          )
+        })}
       </div>
     </div>
   )
@@ -548,7 +598,7 @@ export function OnboardingWizard() {
 
         <div className="relative z-10 flex items-center justify-center px-4">
           <div
-            className="w-full max-w-lg bg-white rounded-[24px] overflow-hidden"
+            className="w-full max-w-xl bg-white rounded-[24px] overflow-hidden"
             style={{ border: '1px solid #E4EAF2', boxShadow: '0 8px 16px rgba(10,22,40,.05),0 20px 48px rgba(10,22,40,.12)' }}
           >
             {/* Progress bar */}
