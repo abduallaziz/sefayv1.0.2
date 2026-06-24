@@ -167,7 +167,7 @@ export function ExpensesList() {
                 onChange={e => setRejectReason(e.target.value)}
                 placeholder={t('reject.reasonPlaceholder')}
                 rows={3}
-                className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 text-slate-800 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C] dark:focus:border-blue-500 resize-none"
+                className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 text-slate-800 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C] dark:focus:border-[#0C447C] resize-none"
               />
             </div>
             <div className="flex gap-3">

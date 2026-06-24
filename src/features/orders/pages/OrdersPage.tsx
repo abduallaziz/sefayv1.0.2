@@ -51,7 +51,7 @@ export function OrdersPage() {
     { labelKey: 'completedCount', value: stats.completed, color: 'text-emerald-600 dark:text-emerald-400' },
     { labelKey: 'pendingCount', value: stats.pending, color: 'text-amber-600 dark:text-amber-400' },
     { labelKey: 'cancelledCount', value: stats.cancelled, color: 'text-red-600 dark:text-red-400' },
-    { labelKey: 'todayRevenue', value: `${stats.revenue.toLocaleString('en-US')} ${currency}`, color: 'text-[#0C447C] dark:text-blue-400' },
+    { labelKey: 'todayRevenue', value: `${stats.revenue.toLocaleString('en-US')} ${currency}`, color: 'text-[#0C447C] dark:text-[#5B9BD5]' },
   ];
 
   function handleCancelConfirm(id: string, reason: string) {
@@ -69,8 +69,8 @@ export function OrdersPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <div className="p-2.5 rounded-xl bg-[#E8F1FB] dark:bg-blue-500/10">
-          <FileText size={22} className="text-[#0C447C] dark:text-blue-400" />
+        <div className="p-2.5 rounded-xl bg-[#E8F1FB] dark:bg-[#0C447C]/10">
+          <FileText size={22} className="text-[#0C447C] dark:text-[#5B9BD5]" />
         </div>
         <div>
           <h1 className="text-xl font-bold text-slate-800 dark:text-white">{t('title')}</h1>

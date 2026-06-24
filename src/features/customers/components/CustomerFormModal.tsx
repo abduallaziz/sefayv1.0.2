@@ -63,7 +63,7 @@ export function CustomerFormModal({ customer, onClose, onSubmit, isLoading }: Pr
             </label>
             <input
               {...register('full_name')}
-              className="w-full px-3 py-2 border border-slate-200 dark:border-gray-700 rounded-lg bg-slate-50 dark:bg-gray-950 text-slate-800 dark:text-white text-sm focus:outline-none focus:border-[#0C447C] dark:focus:border-blue-500"
+              className="w-full px-3 py-2 border border-slate-200 dark:border-gray-700 rounded-lg bg-slate-50 dark:bg-gray-950 text-slate-800 dark:text-white text-sm focus:outline-none focus:border-[#0C447C] dark:focus:border-[#0C447C]"
             />
             {errors.full_name && <p className="mt-1 text-xs text-red-500">{t('form.errors.name')}</p>}
           </div>
@@ -76,7 +76,7 @@ export function CustomerFormModal({ customer, onClose, onSubmit, isLoading }: Pr
               {...register('phone')}
               type="tel"
               dir="ltr"
-              className="w-full px-3 py-2 border border-slate-200 dark:border-gray-700 rounded-lg bg-slate-50 dark:bg-gray-950 text-slate-800 dark:text-white text-sm focus:outline-none focus:border-[#0C447C] dark:focus:border-blue-500"
+              className="w-full px-3 py-2 border border-slate-200 dark:border-gray-700 rounded-lg bg-slate-50 dark:bg-gray-950 text-slate-800 dark:text-white text-sm focus:outline-none focus:border-[#0C447C] dark:focus:border-[#0C447C]"
             />
             {errors.phone && <p className="mt-1 text-xs text-red-500">{t('form.errors.phone')}</p>}
           </div>
@@ -89,7 +89,7 @@ export function CustomerFormModal({ customer, onClose, onSubmit, isLoading }: Pr
               {...register('email')}
               type="email"
               dir="ltr"
-              className="w-full px-3 py-2 border border-slate-200 dark:border-gray-700 rounded-lg bg-slate-50 dark:bg-gray-950 text-slate-800 dark:text-white text-sm focus:outline-none focus:border-[#0C447C] dark:focus:border-blue-500"
+              className="w-full px-3 py-2 border border-slate-200 dark:border-gray-700 rounded-lg bg-slate-50 dark:bg-gray-950 text-slate-800 dark:text-white text-sm focus:outline-none focus:border-[#0C447C] dark:focus:border-[#0C447C]"
             />
             {errors.email && <p className="mt-1 text-xs text-red-500">{t('form.errors.email')}</p>}
           </div>

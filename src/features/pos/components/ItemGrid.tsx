@@ -30,10 +30,10 @@ function VariantModal({ item, onAddItem, onClose, t }: {
           ) : variants.length === 0 ? (
             <button
               onClick={() => { onAddItem(item); onClose(); }}
-              className="flex justify-between items-center p-3 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 hover:bg-blue-500/5 transition-all"
+              className="flex justify-between items-center p-3 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-[#0C447C] hover:bg-[#E8F0FB]0/5 transition-all"
             >
               <span className="font-medium text-gray-900 dark:text-white">{item.name_ar}</span>
-              <span className="text-blue-600 dark:text-blue-400 font-bold">{item.price.toLocaleString('en-US')} {currency}</span>
+              <span className="text-[#0C447C] dark:text-[#5B9BD5] font-bold">{item.price.toLocaleString('en-US')} {currency}</span>
             </button>
           ) : (
             variants.map((v: any) => (
@@ -47,10 +47,10 @@ function VariantModal({ item, onAddItem, onClose, t }: {
                   });
                   onClose();
                 }}
-                className="flex justify-between items-center p-3 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 hover:bg-blue-500/5 transition-all"
+                className="flex justify-between items-center p-3 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-[#0C447C] hover:bg-[#E8F0FB]0/5 transition-all"
               >
                 <span className="font-medium text-gray-900 dark:text-white">{v.name}</span>
-                <span className="text-blue-600 dark:text-blue-400 font-bold">
+                <span className="text-[#0C447C] dark:text-[#5B9BD5] font-bold">
                   {(item.price + (v.price_adjustment ?? 0)).toLocaleString('en-US')} {currency}
                 </span>
               </button>
@@ -111,7 +111,7 @@ export function ItemGrid({ onAddItem }: Props) {
         placeholder={t('search')}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-blue-500 placeholder-gray-400 dark:placeholder-gray-600"
+        className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C] placeholder-gray-400 dark:placeholder-gray-600"
       />
 
       <div className="flex gap-2 flex-wrap">
@@ -119,7 +119,7 @@ export function ItemGrid({ onAddItem }: Props) {
           onClick={() => setActiveCategory('all')}
           className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
             activeCategory === 'all'
-              ? 'bg-blue-600 text-white'
+              ? 'bg-[#0C447C] text-white'
               : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
           }`}
         >
@@ -131,7 +131,7 @@ export function ItemGrid({ onAddItem }: Props) {
             onClick={() => setActiveCategory(cat.id)}
             className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
               activeCategory === cat.id
-                ? 'bg-blue-600 text-white'
+                ? 'bg-[#0C447C] text-white'
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
             }`}
           >
@@ -151,17 +151,17 @@ export function ItemGrid({ onAddItem }: Props) {
             <button
               key={item.id}
               onClick={() => handleItemClick(item)}
-              className="relative bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-3 text-right hover:border-blue-500 hover:shadow-sm transition-all active:scale-95"
+              className="relative bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-3 text-right hover:border-[#0C447C] hover:shadow-sm transition-all active:scale-95"
             >
               {item.type === 'service' && (
                 <span className="absolute top-2 left-2 text-xs bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 px-1.5 py-0.5 rounded">{t('service')}</span>
               )}
               {item.has_variants && (
-                <span className="absolute top-2 right-2 text-xs bg-blue-500/10 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded">{t('multiple')}</span>
+                <span className="absolute top-2 right-2 text-xs bg-[#0C447C]/10 text-[#0C447C] dark:text-[#5B9BD5] px-1.5 py-0.5 rounded">{t('multiple')}</span>
               )}
               <div className="mt-4">
                 <p className="font-medium text-sm text-gray-900 dark:text-white truncate">{item.name_ar}</p>
-                <p className="text-blue-600 dark:text-blue-400 font-bold text-base mt-2">{item.price.toLocaleString('en-US')} {currency}</p>
+                <p className="text-[#0C447C] dark:text-[#5B9BD5] font-bold text-base mt-2">{item.price.toLocaleString('en-US')} {currency}</p>
               </div>
             </button>
           ))}

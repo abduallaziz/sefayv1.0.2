@@ -99,7 +99,7 @@ export function POSPage() {
           onClick={() => setMobileTab('items')}
           className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors ${
             mobileTab === 'items'
-              ? 'text-blue-600 border-b-2 border-blue-600'
+              ? 'text-[#0C447C] border-b-2 border-[#0C447C]'
               : 'text-gray-500 dark:text-gray-400'
           }`}
         >
@@ -110,14 +110,14 @@ export function POSPage() {
           onClick={() => setMobileTab('cart')}
           className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors ${
             mobileTab === 'cart'
-              ? 'text-blue-600 border-b-2 border-blue-600'
+              ? 'text-[#0C447C] border-b-2 border-[#0C447C]'
               : 'text-gray-500 dark:text-gray-400'
           }`}
         >
           <ShoppingCart className="w-4 h-4" />
           {t('currentOrder')}
           {cart.items.length > 0 && (
-            <span className="bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+            <span className="bg-[#0C447C] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
               {cart.items.length}
             </span>
           )}

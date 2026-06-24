@@ -92,7 +92,7 @@ export function ReceiptModal({ cart, payment, invoiceNumber, taxRate, onClose, o
           </button>
           <button
             onClick={onNewOrder}
-            className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold"
+            className="flex-1 py-2.5 bg-[#0C447C] hover:bg-[#0a3a6b] text-white rounded-xl text-sm font-bold"
           >
             طلب جديد
           </button>

@@ -33,7 +33,7 @@ interface Props {
   isLoading?: boolean;
 }
 
-const inputClass = "w-full px-3 py-2 text-sm bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 text-slate-800 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C] dark:focus:border-blue-500";
+const inputClass = "w-full px-3 py-2 text-sm bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 text-slate-800 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C] dark:focus:border-[#0C447C]";
 const labelClass = "block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1";
 
 export function ItemFormModal({ open, onClose, onSubmit, item, categories, isLoading }: Props) {
@@ -153,7 +153,7 @@ export function ItemFormModal({ open, onClose, onSubmit, item, categories, isLoa
             <div className="border border-slate-200 dark:border-gray-700 rounded-lg p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-slate-800 dark:text-white">{t('variants')}</p>
-                <button type="button" onClick={addVariant} className="flex items-center gap-1 text-xs text-[#0C447C] dark:text-blue-400 hover:underline">
+                <button type="button" onClick={addVariant} className="flex items-center gap-1 text-xs text-[#0C447C] dark:text-[#5B9BD5] hover:underline">
                   <Plus className="w-3 h-3" />
                   {t('addVariant')}
                 </button>

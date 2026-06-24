@@ -66,7 +66,7 @@ export function CategoriesList() {
                         onChange={e => setEditName(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && saveEdit(cat.id)}
                         autoFocus
-                        className="px-2 py-1 text-sm bg-slate-50 dark:bg-gray-950 border border-[#0C447C] dark:border-blue-500 text-slate-800 dark:text-white rounded-lg focus:outline-none w-40"
+                        className="px-2 py-1 text-sm bg-slate-50 dark:bg-gray-950 border border-[#0C447C] dark:border-[#0C447C] text-slate-800 dark:text-white rounded-lg focus:outline-none w-40"
                       />
                     ) : (
                       <span className="text-slate-800 dark:text-white font-medium">{cat.name}</span>

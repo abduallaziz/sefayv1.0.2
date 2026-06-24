@@ -36,7 +36,7 @@ export function OpenShiftModal({ branchId, onClose }: Props) {
               inputMode="decimal"
               placeholder="0.00"
               {...register('opening_cash')}
-              className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-950 text-slate-800 dark:text-white focus:outline-none focus:border-[#0C447C] dark:focus:border-blue-500"
+              className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-950 text-slate-800 dark:text-white focus:outline-none focus:border-[#0C447C] dark:focus:border-[#0C447C]"
             />
             {errors.opening_cash && (
               <p className="text-xs text-red-500 mt-1">{String(errors.opening_cash.message)}</p>

@@ -8,7 +8,7 @@ import { Trash2, Plus } from 'lucide-react'
 
 const ROLE_COLORS: Record<string, string> = {
   owner: 'bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20',
-  manager: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
+  manager: 'bg-[#0C447C]/10 text-[#0C447C] dark:text-[#5B9BD5] border-[#0C447C]/20',
   cashier: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
   worker: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
 }
@@ -32,7 +32,7 @@ export function UsersPage() {
         </div>
         <button
           onClick={() => setDialogOpen(true)}
-          className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm text-white transition-colors shrink-0"
+          className="flex items-center gap-2 px-3 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] rounded-lg text-sm text-white transition-colors shrink-0"
         >
           <Plus className="w-4 h-4" />
           <span className="hidden sm:inline">{t('addUser')}</span>
@@ -63,8 +63,8 @@ export function UsersPage() {
                   <tr key={user.id} className="border-b border-gray-100 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-700/50">
                     <td className="px-3 py-3">
                       <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                          <span className="text-blue-600 dark:text-blue-400 text-xs font-medium">
+                        <div className="w-7 h-7 rounded-full bg-[#E8F0FB]0/20 flex items-center justify-center flex-shrink-0">
+                          <span className="text-[#0C447C] dark:text-[#5B9BD5] text-xs font-medium">
                             {user.name?.[0]?.toUpperCase()}
                           </span>
                         </div>

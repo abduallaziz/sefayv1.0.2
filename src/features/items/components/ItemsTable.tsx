@@ -18,7 +18,7 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onToggleActive
   const currency = useTenantStore((s) => s.currency_symbol);
 
   const typeColors: Record<string, string> = {
-    product: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
+    product: 'bg-[#0C447C]/10 text-[#0C447C] dark:text-[#5B9BD5]',
     service: 'bg-violet-500/10 text-violet-600 dark:text-violet-400',
     custom: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
   };
@@ -66,7 +66,7 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onToggleActive
                 {item.has_variants ? (
                   <button
                     onClick={() => onVariants(item)}
-                    className="flex items-center gap-1 text-[#0C447C] dark:text-blue-400 hover:underline text-xs"
+                    className="flex items-center gap-1 text-[#0C447C] dark:text-[#5B9BD5] hover:underline text-xs"
                   >
                     <Layers className="w-3 h-3" />
                     {(item as any).variants_count ?? 0} {t('variants')}

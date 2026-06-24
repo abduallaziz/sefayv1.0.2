@@ -178,7 +178,7 @@ function TemplateRow({ template }: { template: ExpenseTemplate }) {
     updateMutation.mutate({ id: template.id, dto: { is_pre_approved: !template.is_pre_approved } })
   }
 
-  const inputClass = "px-2 py-1 text-sm bg-slate-50 dark:bg-gray-950 border border-[#0C447C] dark:border-blue-500 text-slate-800 dark:text-white rounded-lg focus:outline-none"
+  const inputClass = "px-2 py-1 text-sm bg-slate-50 dark:bg-gray-950 border border-[#0C447C] dark:border-[#0C447C] text-slate-800 dark:text-white rounded-lg focus:outline-none"
 
   return (
     <>
@@ -231,7 +231,7 @@ function TemplateRow({ template }: { template: ExpenseTemplate }) {
           }
         </td>
         <td className="px-4 py-3 text-center">
-          <button onClick={togglePreApproved} disabled={isPending || template.recurrence_type === 'none'} className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border transition-all disabled:opacity-40 disabled:cursor-not-allowed ${template.is_pre_approved ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20 hover:bg-blue-500/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:bg-slate-200'}`}>
+          <button onClick={togglePreApproved} disabled={isPending || template.recurrence_type === 'none'} className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border transition-all disabled:opacity-40 disabled:cursor-not-allowed ${template.is_pre_approved ? 'bg-[#0C447C]/10 text-[#0C447C] dark:text-[#5B9BD5] border-[#0C447C]/20 hover:bg-[#E8F0FB]0/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:bg-slate-200'}`}>
             <ShieldCheck className="w-3 h-3" />
             {template.is_pre_approved ? 'موافقة مسبقة' : 'بدون موافقة'}
           </button>

@@ -28,7 +28,7 @@ export function CurrentShiftBanner({ onOpenShift, onCloseShift, onViewSummary }:
         </div>
         <button
           onClick={onOpenShift}
-          className="px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
+          className="px-4 py-1.5 rounded-lg bg-[#0C447C] hover:bg-[#0a3a6b] text-white text-sm font-medium transition-colors"
         >
           {t('open_shift')}
         </button>

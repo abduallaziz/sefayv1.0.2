@@ -45,8 +45,8 @@ export default function ExpensesPage() {
         <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs text-slate-500">{t('stats.totalToday')}</span>
-            <div className="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
-              <DollarSign className="w-3.5 h-3.5 text-[#0C447C] dark:text-blue-400" />
+            <div className="w-7 h-7 rounded-lg bg-[#0C447C]/10 flex items-center justify-center">
+              <DollarSign className="w-3.5 h-3.5 text-[#0C447C] dark:text-[#5B9BD5]" />
             </div>
           </div>
           <p className="text-xl font-bold text-slate-800 dark:text-white">{formatCurrency(stats?.total_amount ?? 0, currency)}</p>

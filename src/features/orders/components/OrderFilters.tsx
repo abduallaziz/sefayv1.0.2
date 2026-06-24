@@ -27,7 +27,7 @@ export function OrderFilters({ filters, onChange }: Props) {
   ];
 
   const inputClass =
-    'border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-slate-50 dark:bg-gray-950 text-slate-800 dark:text-white focus:outline-none focus:border-[#0C447C] dark:focus:border-blue-500';
+    'border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-slate-50 dark:bg-gray-950 text-slate-800 dark:text-white focus:outline-none focus:border-[#0C447C] dark:focus:border-[#0C447C]';
 
   return (
     <div className="flex flex-wrap items-center gap-3 mb-4">

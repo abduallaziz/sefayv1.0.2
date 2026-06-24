@@ -57,7 +57,7 @@ export function CartPanel({ cart, onUpdateQty, onRemoveItem, onApplyDiscount, on
                 {item.variant_name && (
                   <p className="text-xs text-gray-500 dark:text-gray-500">{item.variant_name}</p>
                 )}
-                <p className="text-xs text-blue-600 dark:text-blue-400 mt-0.5">{fmt(item.unit_price)} {currency}</p>
+                <p className="text-xs text-[#0C447C] dark:text-[#5B9BD5] mt-0.5">{fmt(item.unit_price)} {currency}</p>
               </div>
               <div className="flex items-center gap-1">
                 <button
@@ -86,7 +86,7 @@ export function CartPanel({ cart, onUpdateQty, onRemoveItem, onApplyDiscount, on
       <div className="border-t border-gray-100 dark:border-gray-700 pt-3 mb-3">
         <button
           onClick={() => setShowDiscount(!showDiscount)}
-          className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+          className="text-sm text-[#0C447C] dark:text-[#5B9BD5] hover:text-[#0a3a6b] dark:hover:text-blue-300"
         >
           {cart.discount_amount > 0
             ? `✓ ${t('discountApplied')}: −${fmt(cart.discount_amount)} ${currency}`
@@ -100,7 +100,7 @@ export function CartPanel({ cart, onUpdateQty, onRemoveItem, onApplyDiscount, on
                 onClick={() => setDiscountType('percentage')}
                 className={`flex-1 py-1 rounded-md text-xs font-medium transition-colors ${
                   discountType === 'percentage'
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-[#0C447C] text-white'
                     : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400'
                 }`}
               >
@@ -110,7 +110,7 @@ export function CartPanel({ cart, onUpdateQty, onRemoveItem, onApplyDiscount, on
                 onClick={() => setDiscountType('fixed')}
                 className={`flex-1 py-1 rounded-md text-xs font-medium transition-colors ${
                   discountType === 'fixed'
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-[#0C447C] text-white'
                     : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400'
                 }`}
               >
@@ -122,17 +122,17 @@ export function CartPanel({ cart, onUpdateQty, onRemoveItem, onApplyDiscount, on
               placeholder={discountType === 'percentage' ? '10' : '20'}
               value={discountInput}
               onChange={(e) => setDiscountInput(e.target.value)}
-              className="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-blue-500"
+              className="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C]"
             />
             <input
               placeholder={t('couponCode')}
               value={couponInput}
               onChange={(e) => setCouponInput(e.target.value)}
-              className="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-blue-500 placeholder-gray-400 dark:placeholder-gray-600"
+              className="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C] placeholder-gray-400 dark:placeholder-gray-600"
             />
             <button
               onClick={handleApplyDiscount}
-              className="w-full py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors"
+              className="w-full py-1.5 bg-[#0C447C] hover:bg-[#0a3a6b] text-white text-sm rounded-lg transition-colors"
             >
               {t('apply')}
             </button>
@@ -157,12 +157,12 @@ export function CartPanel({ cart, onUpdateQty, onRemoveItem, onApplyDiscount, on
         </div>
         <div className="flex justify-between font-bold text-base pt-1 border-t border-gray-100 dark:border-gray-700">
           <span className="text-gray-900 dark:text-white">{t('total')}</span>
-          <span className="text-blue-600 dark:text-blue-400">{fmt(cart.total)} {currency}</span>
+          <span className="text-[#0C447C] dark:text-[#5B9BD5]">{fmt(cart.total)} {currency}</span>
         </div>
       </div>
 
       <button
-        className="w-full h-12 text-base font-bold bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl transition-colors"
+        className="w-full h-12 text-base font-bold bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 text-white rounded-xl transition-colors"
         disabled={cart.items.length === 0}
         onClick={onCheckout}
       >

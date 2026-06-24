@@ -29,7 +29,7 @@ export function CustomerDetailsModal({ customer, onClose, onEdit }: Props) {
       <div className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col">
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 font-bold">
+            <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-[#0C447C] font-bold">
               {customer.full_name.charAt(0)}
             </div>
             <div>
@@ -62,7 +62,7 @@ export function CustomerDetailsModal({ customer, onClose, onEdit }: Props) {
 
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3 text-center">
-              <ShoppingBag className="w-5 h-5 text-blue-500 mx-auto mb-1" />
+              <ShoppingBag className="w-5 h-5 text-[#0C447C] mx-auto mb-1" />
               <p className="text-lg font-bold text-gray-900 dark:text-white">
                 {customer.orders_count ?? 0}
               </p>
@@ -115,7 +115,7 @@ export function CustomerDetailsModal({ customer, onClose, onEdit }: Props) {
         </div>
 
         <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-          <button onClick={onEdit} className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors">
+          <button onClick={onEdit} className="w-full py-2 bg-[#0C447C] hover:bg-[#0a3a6b] text-white rounded-lg text-sm font-medium transition-colors">
             {t('actions.edit')}
           </button>
         </div>

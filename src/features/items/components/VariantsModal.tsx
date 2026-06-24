@@ -81,13 +81,13 @@ export function VariantsModal({ open, onClose, item, onAddVariant, onDeleteVaria
               placeholder={t('variantName')}
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-blue-500 placeholder-gray-400 dark:placeholder-gray-600"
+              className="px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C] placeholder-gray-400 dark:placeholder-gray-600"
             />
             <input
               placeholder={t('sku')}
               value={form.sku}
               onChange={(e) => setForm({ ...form, sku: e.target.value })}
-              className="px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-blue-500 placeholder-gray-400 dark:placeholder-gray-600"
+              className="px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C] placeholder-gray-400 dark:placeholder-gray-600"
             />
             <input
               type="text"
@@ -95,7 +95,7 @@ export function VariantsModal({ open, onClose, item, onAddVariant, onDeleteVaria
               placeholder={t('priceAdjustment')}
               value={form.price_adjustment}
               onChange={(e) => setForm({ ...form, price_adjustment: e.target.value })}
-              className="px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-blue-500 placeholder-gray-400 dark:placeholder-gray-600"
+              className="px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C] placeholder-gray-400 dark:placeholder-gray-600"
             />
             <input
               type="text"
@@ -103,12 +103,12 @@ export function VariantsModal({ open, onClose, item, onAddVariant, onDeleteVaria
               placeholder={t('stock')}
               value={form.stock_quantity}
               onChange={(e) => setForm({ ...form, stock_quantity: e.target.value })}
-              className="px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-blue-500 placeholder-gray-400 dark:placeholder-gray-600"
+              className="px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C] placeholder-gray-400 dark:placeholder-gray-600"
             />
           </div>
           <button
             onClick={handleAdd}
-            className="mt-3 w-full flex items-center justify-center gap-2 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+            className="mt-3 w-full flex items-center justify-center gap-2 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] text-white rounded-lg text-sm font-medium transition-colors"
           >
             <Plus className="w-4 h-4" />
             {t('addVariant')}

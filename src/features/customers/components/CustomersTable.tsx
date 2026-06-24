@@ -43,7 +43,7 @@ export function CustomersTable({ customers, onView, onEdit, onDelete }: Props) {
             <tr key={customer.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
               <td className="py-3 px-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 font-semibold text-sm shrink-0">
+                  <div className="w-9 h-9 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-[#0C447C] dark:text-[#5B9BD5] font-semibold text-sm shrink-0">
                     {customer.full_name.charAt(0)}
                   </div>
                   <div>
@@ -82,7 +82,7 @@ export function CustomersTable({ customers, onView, onEdit, onDelete }: Props) {
               </td>
               <td className="py-3 px-4">
                 <div className="flex items-center justify-end gap-1">
-                  <button onClick={() => onView(customer)} className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors" title={t('actions.view')}>
+                  <button onClick={() => onView(customer)} className="p-1.5 rounded-lg text-gray-400 hover:text-[#0C447C] hover:bg-[#E8F0FB] dark:hover:bg-blue-900/20 transition-colors" title={t('actions.view')}>
                     <Eye className="w-4 h-4" />
                   </button>
                   <button onClick={() => onEdit(customer)} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" title={t('actions.edit')}>

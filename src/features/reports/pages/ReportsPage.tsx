@@ -62,7 +62,7 @@ export function ReportsPage() {
               onClick={() => setPeriod(p.key)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                 period === p.key
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-[#0C447C] text-white'
                   : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
               }`}
             >
@@ -83,7 +83,7 @@ export function ReportsPage() {
           label={t('totalOrders')}
           value={revLoading ? '...' : String(summary?.total_orders ?? 0)}
           icon={CreditCard}
-          color="bg-blue-600"
+          color="bg-[#0C447C]"
         />
         <StatCard
           label={t('totalShifts')}

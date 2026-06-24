@@ -79,8 +79,8 @@ export function PaymentModal({ cart, onConfirm, onClose, isSubmitting }: Props) 
                 onClick={() => setMethod(m.id)}
                 className={`py-3 rounded-xl border text-sm font-medium transition-all flex flex-col items-center gap-1 ${
                   method === m.id
-                    ? 'border-blue-500 bg-blue-500/10 text-blue-400'
-                    : 'border-[#1e2130] bg-[#141720] text-slate-400 hover:border-blue-500/50'
+                    ? 'border-[#0C447C] bg-[#0C447C]/10 text-blue-400'
+                    : 'border-[#1e2130] bg-[#141720] text-slate-400 hover:border-[#0C447C]/50'
                 }`}
               >
                 <span className="text-xl">{m.icon}</span>
@@ -98,7 +98,7 @@ export function PaymentModal({ cart, onConfirm, onClose, isSubmitting }: Props) 
                 placeholder={fmt(cart.total)}
                 value={cashTendered}
                 onChange={(e) => setCashTendered(e.target.value)}
-                className="w-full text-lg h-12 text-center font-bold bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500"
+                className="w-full text-lg h-12 text-center font-bold bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-[#0C447C]"
               />
               {change > 0 && (
                 <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3 text-center">
@@ -118,7 +118,7 @@ export function PaymentModal({ cart, onConfirm, onClose, isSubmitting }: Props) 
                 placeholder="0.00"
                 value={splitCash}
                 onChange={(e) => setSplitCash(e.target.value)}
-                className="w-full text-center h-12 bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-blue-500"
+                className="w-full text-center h-12 bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-[#0C447C]"
               />
               {splitCard > 0 && (
                 <div className="flex justify-between text-sm bg-[#141720] rounded-lg p-3">
@@ -130,7 +130,7 @@ export function PaymentModal({ cart, onConfirm, onClose, isSubmitting }: Props) 
           )}
 
           {method === 'card' && (
-            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 text-center text-sm text-blue-400">
+            <div className="bg-[#0C447C]/10 border border-[#0C447C]/20 rounded-lg p-4 text-center text-sm text-blue-400">
               {t('payment.cardInstruction')}
             </div>
           )}
@@ -146,7 +146,7 @@ export function PaymentModal({ cart, onConfirm, onClose, isSubmitting }: Props) 
           <button
             disabled={!canConfirm()}
             onClick={handleConfirm}
-            className="flex-[2] py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl text-sm font-bold"
+            className="flex-[2] py-2.5 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 text-white rounded-xl text-sm font-bold"
           >
             {isSubmitting ? t('common.processing') : t('payment.confirm')}
           </button>
