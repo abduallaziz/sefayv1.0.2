@@ -109,7 +109,7 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
       {/* Branch pill */}
       <div
         style={{
-          display: 'flex', alignItems: 'center', gap: '7px',
+          alignItems: 'center', gap: '7px',
           background: 'rgba(255,255,255,0.13)',
           border: '1px solid rgba(255,255,255,0.22)',
           borderRadius: '11px', padding: '8px 13px',
@@ -131,7 +131,7 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
       {/* Search */}
       <div
         style={{
-          display: 'flex', alignItems: 'center', gap: '9px',
+          alignItems: 'center', gap: '9px',
           background: 'rgba(255,255,255,0.13)',
           border: '1px solid rgba(255,255,255,0.22)',
           borderRadius: '11px', padding: '9px 14px',
