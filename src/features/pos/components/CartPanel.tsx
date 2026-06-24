@@ -33,7 +33,7 @@ export function CartPanel({ cart, onUpdateQty, onRemoveItem, onApplyDiscount, on
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full min-h-0">
       <div className="flex items-center justify-between mb-3">
         <h2 className="font-semibold text-base text-gray-900 dark:text-white">{t('currentOrder')}</h2>
         {cart.items.length > 0 && (
@@ -43,7 +43,7 @@ export function CartPanel({ cart, onUpdateQty, onRemoveItem, onApplyDiscount, on
         )}
       </div>
 
-      <div className="flex-1 overflow-y-auto space-y-2 mb-3">
+      <div className="flex-1 min-h-0 overflow-y-auto space-y-2 mb-3">
         {cart.items.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-40 text-gray-400 dark:text-gray-500">
             <span className="text-4xl mb-2">🛒</span>

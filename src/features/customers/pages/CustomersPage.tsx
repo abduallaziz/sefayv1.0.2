@@ -97,7 +97,7 @@ export function CustomersPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-3 sm:p-4 flex items-center gap-3">
           <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-[#0C447C]/10 flex items-center justify-center shrink-0">
             <Users className="w-4 h-4 sm:w-5 sm:h-5 text-[#0C447C] dark:text-[#5B9BD5]" />

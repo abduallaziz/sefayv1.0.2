@@ -91,7 +91,7 @@ export function POSPage() {
   }
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="flex flex-col h-full min-h-0 overflow-hidden">
 
       {/* Mobile Tabs */}
       <div className="flex lg:hidden border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shrink-0">
@@ -125,17 +125,17 @@ export function POSPage() {
       </div>
 
       {/* Desktop: side by side — Mobile: tabs */}
-      <div className="flex flex-1 gap-4 p-4 overflow-hidden">
+      <div className="flex flex-1 min-h-0 gap-4 p-4 overflow-hidden">
 
         {/* Items Grid */}
-        <div className={`flex-1 min-w-0 overflow-hidden flex flex-col ${mobileTab === 'cart' ? 'hidden lg:flex' : 'flex'}`}>
+        <div className={`flex-1 min-w-0 min-h-0 overflow-hidden flex flex-col ${mobileTab === 'cart' ? 'hidden lg:flex' : 'flex'}`}>
           <ItemGrid onAddItem={(item, variant) => {
             addItem(item, variant)
           }} />
         </div>
 
         {/* Cart Panel */}
-        <div className={`lg:w-80 lg:shrink-0 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 flex flex-col overflow-hidden ${mobileTab === 'items' ? 'hidden lg:flex' : 'flex'}`}>
+        <div className={`lg:w-80 lg:shrink-0 w-full min-h-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 flex flex-col overflow-hidden ${mobileTab === 'items' ? 'hidden lg:flex' : 'flex'}`}>
           <CartPanel
             cart={cart}
             onUpdateQty={updateQty}

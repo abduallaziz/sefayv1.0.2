@@ -106,7 +106,7 @@ export function ItemGrid({ onAddItem }: Props) {
   }
 
   return (
-    <div className="flex flex-col h-full gap-3">
+    <div className="flex flex-col h-full min-h-0 gap-3">
       <input
         placeholder={t('search')}
         value={search}
@@ -143,7 +143,7 @@ export function ItemGrid({ onAddItem }: Props) {
       {isLoading ? (
         <div className="flex-1 flex items-center justify-center text-gray-500 dark:text-gray-400 text-sm">{t('loading')}</div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto flex-1 pb-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto flex-1 min-h-0 pb-2">
           {filtered.length === 0 && (
             <p className="col-span-3 text-center text-gray-500 dark:text-gray-400 text-sm py-8">{t('noItems')}</p>
           )}
