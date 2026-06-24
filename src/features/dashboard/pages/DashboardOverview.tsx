@@ -162,13 +162,6 @@ function ActivityIcon({ type }: { type: 'order' | 'refund' | 'alert' }) {
   )
 }
 
-/* ── Period tabs ── */
-const PERIOD_LABELS: Record<Period, string> = {
-  today: 'اليوم',
-  week:  'هذا الأسبوع',
-  month: 'هذا الشهر',
-}
-
 const PERIOD_MAP: Record<Period, 'today' | 'week' | 'month'> = {
   today: 'today',
   week:  'week',
@@ -190,7 +183,13 @@ export function DashboardOverview() {
   const locale  = useLocale()
   const [period, setPeriod] = useState<Period>('week')
   const t = useTranslations('dashboard')
-  
+
+  const PERIOD_LABELS: Record<Period, string> = {
+    today: t('periodToday'),
+    week:  t('periodWeek'),
+    month: t('periodMonth'),
+  }
+
 
   useEffect(() => {
     if (!user) router.replace(`/${locale}/login`)
@@ -262,15 +261,17 @@ export function DashboardOverview() {
     return `${h}:${String(m).padStart(2, '0')}`
   })() : null
 
+  const dateLocale = locale === 'ar' ? 'ar-SA' : 'en-US'
+
   /* Bar chart — daily_breakdown */
   const barData = (revenue?.daily_breakdown ?? []).map((d) => ({
-    label: new Date(d.date).toLocaleDateString('ar-SA', { weekday: 'short' }),
+    label: new Date(d.date).toLocaleDateString(dateLocale, { weekday: 'short' }),
     current: d.total,
   }))
 
   /* Doughnut — by_payment_method */
   const donutData = Object.entries(revenue?.by_payment_method ?? {}).map(([key, val]) => ({
-    name: key === 'cash' ? 'كاش' : key === 'card' ? 'بطاقة' : key === 'split' ? 'مقسم' : key,
+    name: key === 'cash' ? t('cash') : key === 'card' ? t('card') : key === 'split' ? t('split') : t('other'),
     value: val.total,
     color: PAYMENT_COLORS[key] ?? '#94A3B8',
   }))
@@ -283,7 +284,7 @@ export function DashboardOverview() {
   const sp = sparklines ?? { sales: [0,0,0,0,0,0,0], orders: [0,0,0,0,0,0,0], customers: [0,0,0,0,0,0,0], expenses: [0,0,0,0,0,0,0] }
 
   /* Today date */
-  const todayStr = new Date().toLocaleDateString('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+  const todayStr = new Date().toLocaleDateString(dateLocale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
 
   return (
     <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
@@ -292,7 +293,7 @@ export function DashboardOverview() {
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '22px', flexWrap: 'wrap', gap: '12px' }}>
         <div>
           <div style={{ fontSize: '24px', fontWeight: 700, color: '#0A1628', letterSpacing: '-0.6px' }}>
-            أهلاً، {user?.name ?? '...'} 👋
+            {t('greeting', { name: user?.name ?? '...' })} 👋
           </div>
           <div style={{ fontSize: '12px', color: '#8C9CB2', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '7px' }}>
             {shift && (
@@ -302,7 +303,7 @@ export function DashboardOverview() {
                 padding: '2px 9px', borderRadius: '20px', fontWeight: 600, fontSize: '11px',
               }}>
                 <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22C55E', display: 'inline-block' }} />
-                مباشر
+                {t('live')}
               </span>
             )}
             {todayStr}
@@ -373,7 +374,7 @@ export function DashboardOverview() {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', fontWeight: 500, color: 'rgba(255,255,255,0.7)', marginBottom: '10px' }}>
               <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#4ADE80', display: 'inline-block', boxShadow: '0 0 0 3px rgba(74,222,128,0.3)' }} />
-              إجمالي المبيعات · {PERIOD_LABELS[period]}
+              {t('totalSalesLabel')} · {PERIOD_LABELS[period]}
             </div>
             <div style={{ fontSize: '40px', fontWeight: 700, color: '#fff', letterSpacing: '-1.5px', lineHeight: 1, display: 'flex', alignItems: 'baseline', gap: '9px' }}>
               {totalRevenue.toLocaleString('en-US')}
@@ -382,7 +383,7 @@ export function DashboardOverview() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginTop: '14px', flexWrap: 'wrap' }}>
               {avgOrder > 0 && (
                 <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.62)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  متوسط الفاتورة: {avgOrder.toLocaleString('en-US', { maximumFractionDigits: 1 })} {currency}
+                  {t('avgOrderLabel')}: {avgOrder.toLocaleString('en-US', { maximumFractionDigits: 1 })} {currency}
                 </span>
               )}
             </div>
@@ -400,7 +401,7 @@ export function DashboardOverview() {
               <div style={{ fontSize: '22px', fontWeight: 700, color: '#fff', lineHeight: 1, letterSpacing: '-0.5px' }}>
                 {totalOrders.toLocaleString('en-US')}
               </div>
-              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.62)', marginTop: '5px' }}>طلب</div>
+              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.62)', marginTop: '5px' }}>{t('ordersUnit')}</div>
             </div>
             {shiftDuration && (
               <div style={{
@@ -413,7 +414,7 @@ export function DashboardOverview() {
                 <div style={{ fontSize: '22px', fontWeight: 700, color: '#fff', lineHeight: 1, letterSpacing: '-0.5px' }}>
                   {shiftDuration}
                 </div>
-                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.62)', marginTop: '5px' }}>مدة الشيفت</div>
+                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.62)', marginTop: '5px' }}>{t('shiftDurationLabel')}</div>
               </div>
             )}
           </div>
@@ -422,16 +423,16 @@ export function DashboardOverview() {
 
       {/* ── Stat Cards ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '16px', marginBottom: '18px' }} className="stat-grid">
-        <StatCard title="المبيعات" value={totalRevenue.toLocaleString('en-US')} icon={TrendingUp}
+        <StatCard title={t('statSales')} value={totalRevenue.toLocaleString('en-US')} icon={TrendingUp}
           spark={sp.sales} sparkColor="#2563EB"
           stripe="linear-gradient(90deg,#0C447C,#3B82F6)" />
-        <StatCard title="عدد الطلبات" value={totalOrders.toLocaleString('en-US')} icon={ShoppingCart}
+        <StatCard title={t('statOrders')} value={totalOrders.toLocaleString('en-US')} icon={ShoppingCart}
           spark={sp.orders} sparkColor="#059669"
           stripe="linear-gradient(90deg,#059669,#34D399)" />
-        <StatCard title="عملاء جدد" value={totalCustomers.toLocaleString('en-US')} icon={Users}
+        <StatCard title={t('statNewCustomers')} value={totalCustomers.toLocaleString('en-US')} icon={Users}
           spark={sp.customers} sparkColor="#7C3AED"
           stripe="linear-gradient(90deg,#6D28D9,#A78BFA)" />
-        <StatCard title="المصروفات" value={totalExpenses.toLocaleString('en-US')} icon={Wallet}
+        <StatCard title={t('statExpensesTitle')} value={totalExpenses.toLocaleString('en-US')} icon={Wallet}
           spark={sp.expenses} sparkColor="#D97706"
           stripe="linear-gradient(90deg,#B45309,#FBBF24)" />
       </div>
@@ -441,7 +442,7 @@ export function DashboardOverview() {
 
         {/* Bar chart */}
         <GlassCard>
-          <CardHeader icon={BarChart3} title="المبيعات اليومية" sub={`${PERIOD_LABELS[period]}`} tag={{ label: '↑ نمو', color: 'green' }} />
+          <CardHeader icon={BarChart3} title={t('dailySales')} sub={`${PERIOD_LABELS[period]}`} tag={{ label: `↑ ${t('growth')}`, color: 'green' }} />
           <div style={{ height: '200px' }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={barData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
@@ -462,14 +463,14 @@ export function DashboardOverview() {
 
         {/* Doughnut */}
         <GlassCard>
-          <CardHeader icon={CreditCard} title="طرق الدفع" sub="توزيع الفترة" />
+          <CardHeader icon={CreditCard} title={t('paymentMethods')} sub={t('periodDistribution')} />
           <div style={{ position: 'relative', height: '160px' }}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={donutData.length ? donutData : [{ name: 'لا يوجد', value: 1, color: '#E2E8F1' }]}
+                <Pie data={donutData.length ? donutData : [{ name: t('noDataLabel'), value: 1, color: '#E2E8F1' }]}
                   cx="50%" cy="50%" innerRadius="60%" outerRadius="85%"
                   dataKey="value" startAngle={90} endAngle={-270} strokeWidth={3}>
-                  {(donutData.length ? donutData : [{ name: 'لا يوجد', value: 1, color: '#E2E8F1' }]).map((entry, i) => (
+                  {(donutData.length ? donutData : [{ name: t('noDataLabel'), value: 1, color: '#E2E8F1' }]).map((entry, i) => (
                     <Cell key={i} fill={entry.color} stroke="#fff" />
                   ))}
                 </Pie>
@@ -485,7 +486,7 @@ export function DashboardOverview() {
               <div style={{ fontSize: '22px', fontWeight: 700, color: '#0A1628', letterSpacing: '-0.5px' }}>
                 {totalOrders}
               </div>
-              <div style={{ fontSize: '10px', color: '#8C9CB2', marginTop: '2px' }}>طلب</div>
+              <div style={{ fontSize: '10px', color: '#8C9CB2', marginTop: '2px' }}>{t('ordersUnit')}</div>
             </div>
           </div>
           {/* Legend */}
@@ -511,10 +512,10 @@ export function DashboardOverview() {
 
         {/* Recent activity */}
         <GlassCard>
-          <CardHeader icon={BarChart3} title="آخر النشاطات" sub="الطلبات والعمليات الأخيرة" tag={{ label: 'عرض الكل', color: 'neutral' }} />
+          <CardHeader icon={BarChart3} title={t('recentActivity')} sub={t('recentActivitySub')} tag={{ label: t('viewAll'), color: 'neutral' }} />
           <div>
             {(recentActivity?.activity ?? []).length === 0 && (
-              <p style={{ fontSize: '13px', color: '#8C9CB2', textAlign: 'center', padding: '20px 0' }}>لا توجد نشاطات</p>
+              <p style={{ fontSize: '13px', color: '#8C9CB2', textAlign: 'center', padding: '20px 0' }}>{t('noActivity')}</p>
             )}
             {(recentActivity?.activity ?? []).map((item, i) => (
               <div key={i} style={{
@@ -530,7 +531,7 @@ export function DashboardOverview() {
                 </div>
                 <div style={{ textAlign: 'end', flexShrink: 0 }}>
                   <div style={{ fontSize: '14px', fontWeight: 700, color: item.amount !== null && item.amount < 0 ? '#DC2626' : '#0A1628' }}>
-                    {item.amount !== null ? `${item.amount.toLocaleString('en-US')} ${currency}` : 'تنبيه'}
+                    {item.amount !== null ? `${item.amount.toLocaleString('en-US')} ${currency}` : t('alertLabel')}
                   </div>
                   <div style={{ fontSize: '10px', color: '#B4C0CF', marginTop: '2px' }}>
                     {new Date(item.time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
@@ -546,9 +547,9 @@ export function DashboardOverview() {
 
           {/* Top items */}
           <GlassCard>
-            <CardHeader icon={Star} title="الأكثر مبيعاً" sub={PERIOD_LABELS[period]} />
+            <CardHeader icon={Star} title={t('topSelling')} sub={PERIOD_LABELS[period]} />
             {(topItems?.items ?? []).length === 0 && (
-              <p style={{ fontSize: '13px', color: '#8C9CB2', textAlign: 'center', padding: '12px 0' }}>لا توجد بيانات</p>
+              <p style={{ fontSize: '13px', color: '#8C9CB2', textAlign: 'center', padding: '12px 0' }}>{t('noDataLabel')}</p>
             )}
             {(topItems?.items ?? []).map((item, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '11px', padding: '11px 0', borderBottom: i < (topItems?.items ?? []).length - 1 ? '1px solid #EEF2F7' : 'none' }}>
@@ -578,13 +579,13 @@ export function DashboardOverview() {
 
           {/* Quick actions */}
           <GlassCard>
-            <CardHeader icon={Zap} title="إجراءات سريعة" />
+            <CardHeader icon={Zap} title={t('quickActions')} />
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
               {[
-                { label: 'فاتورة جديدة', sub: 'نقطة البيع',      href: '/dashboard/pos',       color: 'linear-gradient(135deg,#1761B8,#0C447C)' },
-                { label: 'عميل جديد',    sub: 'إضافة بيانات',    href: '/dashboard/customers', color: 'linear-gradient(135deg,#10B981,#059669)' },
-                { label: 'مصروف جديد',   sub: 'تسجيل مصروف',     href: '/dashboard/expenses',  color: 'linear-gradient(135deg,#F59E0B,#D97706)' },
-                { label: 'تقرير اليوم',  sub: 'عرض التقارير',    href: '/dashboard/reports',   color: 'linear-gradient(135deg,#8B5CF6,#6D28D9)' },
+                { label: t('newInvoice'),  sub: t('posLabel'),          href: '/dashboard/pos',       color: 'linear-gradient(135deg,#1761B8,#0C447C)' },
+                { label: t('newCustomer'), sub: t('addDataLabel'),      href: '/dashboard/customers', color: 'linear-gradient(135deg,#10B981,#059669)' },
+                { label: t('newExpense'),  sub: t('recordExpenseLabel'), href: '/dashboard/expenses', color: 'linear-gradient(135deg,#F59E0B,#D97706)' },
+                { label: t('todayReport'), sub: t('viewReportsLabel'),  href: '/dashboard/reports',   color: 'linear-gradient(135deg,#8B5CF6,#6D28D9)' },
               ].map((a, i) => (
                 <Link key={i} href={`/${locale}${a.href}`} style={{
                   display: 'flex', alignItems: 'center', gap: '11px',
