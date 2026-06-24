@@ -7,7 +7,7 @@ import { useTenantStore } from '@/core/tenant/stores/tenant.store';
 import { Building2, CreditCard, BarChart3, Save, Coins } from 'lucide-react';
 
 const CURRENCIES = [
-  { code: 'SAR', symbol: '⃁', label: 'ريال سعودي' },
+  { code: 'SAR', symbol: '', label: 'ريال سعودي' },
   { code: 'USD', symbol: '$', label: 'دولار أمريكي' },
   { code: 'EUR', symbol: '€', label: 'يورو' },
   { code: 'AED', symbol: 'د.إ', label: 'درهم إماراتي' },
