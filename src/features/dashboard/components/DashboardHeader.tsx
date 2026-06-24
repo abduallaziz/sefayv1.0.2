@@ -47,11 +47,11 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
     >
       {/* Logo zone */}
       <div
+        className="lg:w-[264px]"
         style={{
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
-          width: '264px',
           flexShrink: 0,
         }}
       >
