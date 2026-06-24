@@ -1,11 +1,13 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-// U+E900 (Private Use Area) — the saudi_riyal font's stable, non-combining
-// mapping. U+20C1 is the "new" Unicode codepoint but is categorized as a
-// combining mark, which some mobile text-shaping engines (HarfBuzz/CoreText)
-// refuse to render standalone, causing it to disappear or show as a box.
-const SAUDI_RIYAL_DISPLAY = '';
+// Temporary fallback: the new Saudi Riyal Unicode sign (U+20C1, finalized
+// Sept 2025) is not reliably supported by mobile OS fonts yet, even with
+// a bundled web font (PUA U+E900) as a fallback. Until mobile font
+// coverage catches up, use the plain Arabic abbreviation, which renders
+// correctly everywhere with zero custom-font dependency. Revert to the
+// symbol by changing this one constant once mobile support is solid.
+const SAUDI_RIYAL_DISPLAY = 'ر.س';
 
 interface TenantState {
   currency_code: string;
