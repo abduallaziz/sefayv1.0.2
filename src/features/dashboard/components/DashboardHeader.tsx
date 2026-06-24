@@ -116,7 +116,7 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
           color: 'rgba(255,255,255,0.94)', fontSize: '12px', fontWeight: 500,
           cursor: 'pointer', backdropFilter: 'blur(10px)',
         }}
-        className="hidden sm:flex"
+        className="hidden lg:flex"
       >
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
@@ -138,7 +138,7 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
           color: 'rgba(255,255,255,0.62)', fontSize: '13px',
           width: '206px', backdropFilter: 'blur(10px)', cursor: 'text',
         }}
-        className="hidden md:flex"
+        className="hidden lg:flex"
       >
         <Search size={16} style={{ flexShrink: 0 }} />
         <span style={{ flex: 1 }}>{t('search')}</span>
@@ -233,7 +233,7 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
       </div>
 
       {/* User name */}
-      <div className="hidden sm:block" style={{ minWidth: 0 }}>
+      <div className="hidden lg:block" style={{ minWidth: 0 }}>
         <div style={{ fontSize: '12px', fontWeight: 600, color: '#fff', lineHeight: 1.3 }}>
           {user?.name ?? '...'}
         </div>
