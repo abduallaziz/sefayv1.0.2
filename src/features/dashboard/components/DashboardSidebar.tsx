@@ -9,6 +9,7 @@ import {
   X, Zap,
 } from 'lucide-react'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
+import { useThemeStore } from '@/core/theme/stores/theme.store'
 import { useBusinessType } from '@/shared/hooks/useBusinessType'
 import { cn } from '@/lib/utils'
 import type { NavKey } from '@/shared/config/business-type.config'
@@ -45,6 +46,12 @@ export function DashboardSidebar({ open, onClose }: SidebarProps) {
   const pathname = usePathname()
   const { user } = useAuthStore()
   const { config } = useBusinessType()
+  const isDark = useThemeStore((s) => s.theme === 'dark')
+
+  const textMuted = isDark ? '#8B949E' : '#54657C'
+  const iconMuted = isDark ? '#6E7681' : '#8C9CB2'
+  const hoverBg = isDark ? 'rgba(91,155,213,0.12)' : 'rgba(12,68,124,0.065)'
+  const hoverText = isDark ? '#5B9BD5' : '#0C447C'
 
   const userRole = user?.role ?? 'cashier'
 
@@ -80,22 +87,24 @@ export function DashboardSidebar({ open, onClose }: SidebarProps) {
         style={{
           top: '66px',
           width: '264px',
-          background: 'linear-gradient(180deg, rgba(255,255,255,0.88), rgba(255,255,255,0.72))',
+          background: isDark
+            ? 'linear-gradient(180deg, rgba(22,27,34,0.94), rgba(13,17,23,0.88))'
+            : 'linear-gradient(180deg, rgba(255,255,255,0.88), rgba(255,255,255,0.72))',
           backdropFilter: 'blur(22px) saturate(180%)',
           WebkitBackdropFilter: 'blur(22px) saturate(180%)',
-          borderInlineEnd: '1px solid rgba(255,255,255,0.95)',
+          borderInlineEnd: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(255,255,255,0.95)',
           boxShadow: locale === 'ar' ? '-4px 0 28px rgba(10,22,40,0.06)' : '4px 0 28px rgba(10,22,40,0.06)',
         }}
       >
         {/* Mobile close */}
-        <div className="flex items-center justify-between px-4 py-3 lg:hidden border-b border-white/40">
-          <span className="text-sm font-semibold" style={{ color: '#54657C' }}>{t('menu')}</span>
+        <div className="flex items-center justify-between px-4 py-3 lg:hidden border-b" style={{ borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.4)' }}>
+          <span className="text-sm font-semibold" style={{ color: textMuted }}>{t('menu')}</span>
           <button
             onClick={onClose}
             style={{
               width: '30px', height: '30px', borderRadius: '8px',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#54657C', cursor: 'pointer', background: 'transparent', border: 'none',
+              color: textMuted, cursor: 'pointer', background: 'transparent', border: 'none',
             }}
           >
             <X size={16} />
@@ -127,27 +136,27 @@ export function DashboardSidebar({ open, onClose }: SidebarProps) {
                         boxShadow: '0 6px 18px rgba(12,68,124,0.32), 0 2px 6px rgba(12,68,124,0.24)',
                       }
                     : {
-                        color: '#54657C',
+                        color: textMuted,
                         background: 'transparent',
                       }),
                 }}
                 onMouseEnter={(e) => {
                   if (!active) {
-                    e.currentTarget.style.background = 'rgba(12,68,124,0.065)'
-                    e.currentTarget.style.color = '#0C447C'
+                    e.currentTarget.style.background = hoverBg
+                    e.currentTarget.style.color = hoverText
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!active) {
                     e.currentTarget.style.background = 'transparent'
-                    e.currentTarget.style.color = '#54657C'
+                    e.currentTarget.style.color = textMuted
                   }
                 }}
               >
                 <Icon
                   size={18}
                   strokeWidth={2}
-                  style={{ color: active ? '#fff' : '#8C9CB2', flexShrink: 0 }}
+                  style={{ color: active ? '#fff' : iconMuted, flexShrink: 0 }}
                 />
                 <span style={{ flex: 1 }}>{t(item.key)}</span>
               </Link>

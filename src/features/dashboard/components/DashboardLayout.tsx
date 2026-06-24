@@ -8,12 +8,14 @@ import { useTenantAuth } from '@/core/auth/hooks/useTenantAuth'
 import { useTranslations } from 'next-intl'
 import { settingsApi } from '@/features/settings/api/settings.api'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
+import { useThemeStore } from '@/core/theme/stores/theme.store'
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { isLoading, isAuthenticated } = useTenantAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const t = useTranslations('common')
   const setCurrency = useTenantStore((s) => s.setCurrency)
+  const isDark = useThemeStore((s) => s.theme === 'dark')
   const [profileLoaded, setProfileLoaded] = useState(false)
 
   useEffect(() => {
@@ -28,7 +30,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   if (isLoading) {
     return (
-      <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#E9EEF5' }}>
+      <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: isDark ? '#0D1117' : '#E9EEF5' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
           <div style={{
             width: '40px', height: '40px', borderRadius: '12px',
@@ -51,7 +53,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       <div
         style={{
           minHeight: '100vh',
-          background: 'radial-gradient(1400px 700px at 88% -8%, rgba(37,99,235,0.07), transparent 52%), radial-gradient(1000px 600px at 6% 12%, rgba(12,68,124,0.055), transparent 48%), #E9EEF5',
+          background: isDark
+            ? 'radial-gradient(1400px 700px at 88% -8%, rgba(37,99,235,0.10), transparent 52%), radial-gradient(1000px 600px at 6% 12%, rgba(12,68,124,0.10), transparent 48%), #0D1117'
+            : 'radial-gradient(1400px 700px at 88% -8%, rgba(37,99,235,0.07), transparent 52%), radial-gradient(1000px 600px at 6% 12%, rgba(12,68,124,0.055), transparent 48%), #E9EEF5',
           backgroundAttachment: 'fixed',
         }}
       >
