@@ -106,7 +106,23 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
       {/* Spacer */}
       <div style={{ flex: 1 }} />
 
-      {/* Branch pill */}
+      {/* Branch — compact icon button on mobile/tablet, full pill at lg+ */}
+      <button
+        className="icon-btn flex lg:hidden"
+        style={{
+          width: '39px', height: '39px', borderRadius: '12px',
+          background: 'rgba(255,255,255,0.13)',
+          border: '1px solid rgba(255,255,255,0.22)',
+          alignItems: 'center', justifyContent: 'center',
+          color: '#fff', cursor: 'pointer', backdropFilter: 'blur(10px)',
+          flexShrink: 0,
+        }}
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+          <polyline points="9 22 9 12 15 12 15 22" />
+        </svg>
+      </button>
       <div
         style={{
           alignItems: 'center', gap: '7px',
@@ -128,7 +144,20 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
         </svg>
       </div>
 
-      {/* Search */}
+      {/* Search — compact icon button on mobile/tablet, full bar at lg+ */}
+      <button
+        className="icon-btn flex lg:hidden"
+        style={{
+          width: '39px', height: '39px', borderRadius: '12px',
+          background: 'rgba(255,255,255,0.13)',
+          border: '1px solid rgba(255,255,255,0.22)',
+          alignItems: 'center', justifyContent: 'center',
+          color: '#fff', cursor: 'pointer', backdropFilter: 'blur(10px)',
+          flexShrink: 0,
+        }}
+      >
+        <Search size={16} />
+      </button>
       <div
         style={{
           alignItems: 'center', gap: '9px',
@@ -244,14 +273,15 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
 
       <style>{`
         @media (max-width: 480px) {
-          .dash-header { padding: 0 8px !important; gap: 6px !important; }
+          .dash-header { padding: 0 8px !important; gap: 5px !important; }
           .brand-name { display: none; }
-          .lang-btn { padding: 6px 9px !important; font-size: 11px !important; gap: 0 !important; }
+          .lang-btn { padding: 6px 8px !important; font-size: 11px !important; }
           .icon-btn { width: 32px !important; height: 32px !important; }
           .avatar-circle { width: 32px !important; height: 32px !important; font-size: 11px !important; }
         }
         @media (max-width: 360px) {
-          .lang-btn { display: none !important; }
+          .dash-header { gap: 3px !important; }
+          .lang-btn { padding: 5px 6px !important; font-size: 10px !important; }
         }
       `}</style>
     </header>
