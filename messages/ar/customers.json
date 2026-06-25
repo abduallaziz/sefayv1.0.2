@@ -71,6 +71,47 @@
     "deleting": "جاري الحذف..."
   },
   "fields": {
-    "key_hint": "لعرض الجوال أو البريد بشكل صحيح في قائمة العملاء، اكتب المفتاح phone لحقل الجوال، أو email لحقل البريد. أي مفتاح آخر يُحفظ كحقل مخصص عادي ولا يظهر في عمود التواصل."
+    "key_hint": "لعرض الجوال أو البريد بشكل صحيح في قائمة العملاء، حدد ربط الحقل أدناه (جوال أو بريد). الحقول غير المرتبطة تُحفظ كحقول مخصصة عادية ولا تظهر في عمود التواصل.",
+    "contact_role_label": "ربط بعمود التواصل",
+    "contact_role_none": "بدون ربط",
+    "contact_role_phone": "رقم الجوال",
+    "contact_role_email": "البريد الإلكتروني",
+    "types": {
+      "text": "نص",
+      "number": "رقم",
+      "date": "تاريخ",
+      "select": "قائمة اختيار",
+      "boolean": "نعم/لا"
+    },
+    "name_row": {
+      "label": "الاسم",
+      "label_en": "Name",
+      "hint_enabled": "إدخال الاسم إلزامي من الكاشير",
+      "hint_disabled": "يُنشأ الاسم تلقائيًا (عميل 1، عميل 2، ...)"
+    },
+    "status": {
+      "active": "نشط",
+      "inactive": "معطّل",
+      "required": "إلزامي",
+      "optional": "اختياري"
+    },
+    "empty": "لا توجد حقول مخصصة بعد",
+    "add_field": "إضافة حقل مخصص",
+    "key_label": "المفتاح (إنجليزي، بدون مسافات) *",
+    "key_placeholder": "national_id",
+    "type_label": "النوع",
+    "label_ar_label": "التسمية بالعربي *",
+    "label_ar_placeholder": "رقم الهوية",
+    "label_en_label": "التسمية بالإنجليزي *",
+    "label_en_placeholder": "National ID",
+    "options_label": "الخيارات (مفصولة بفاصلة)",
+    "options_placeholder": "ذكر, أنثى",
+    "required_checkbox": "حقل إلزامي",
+    "key_readonly_label": "المفتاح",
+    "cancel": "إلغاء",
+    "add": "إضافة",
+    "saving": "...",
+    "save_edit": "حفظ التعديلات",
+    "delete_confirm": "تأكيد"
   }
 }

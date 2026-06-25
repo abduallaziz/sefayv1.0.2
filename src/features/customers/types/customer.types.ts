@@ -22,6 +22,8 @@ export interface CustomFieldOption {
   label_en: string;
 }
 
+export type ContactRole = 'phone' | 'email';
+
 export interface CustomerFieldDefinition {
   id: string;
   field_key: string;
@@ -32,6 +34,7 @@ export interface CustomerFieldDefinition {
   required: boolean;
   is_active: boolean;
   sort_order: number;
+  contact_role: ContactRole | null;
   created_at: string;
 }
 
@@ -42,6 +45,7 @@ export interface CreateFieldDefinitionDto {
   field_type: CustomFieldType;
   options?: CustomFieldOption[];
   required?: boolean;
+  contact_role?: ContactRole;
 }
 
 export interface UpdateFieldDefinitionDto {
@@ -52,6 +56,7 @@ export interface UpdateFieldDefinitionDto {
   required?: boolean;
   is_active?: boolean;
   sort_order?: number;
+  contact_role?: ContactRole | null;
 }
 
 export interface CustomerOrder {

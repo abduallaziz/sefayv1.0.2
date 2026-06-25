@@ -71,6 +71,47 @@
     "deleting": "Deleting..."
   },
   "fields": {
-    "key_hint": "To show phone or email correctly in the customers list, use the key phone for the phone field, or email for the email field. Any other key is saved as a regular custom field and won't appear in the contact column."
+    "key_hint": "To show phone or email correctly in the customers list, set the contact link below (phone or email). Unlinked fields are saved as regular custom fields and won't appear in the contact column.",
+    "contact_role_label": "Link to contact column",
+    "contact_role_none": "No link",
+    "contact_role_phone": "Phone number",
+    "contact_role_email": "Email address",
+    "types": {
+      "text": "Text",
+      "number": "Number",
+      "date": "Date",
+      "select": "Select list",
+      "boolean": "Yes/No"
+    },
+    "name_row": {
+      "label": "Name",
+      "label_en": "Name",
+      "hint_enabled": "Cashier must enter the name",
+      "hint_disabled": "Name is generated automatically (Customer 1, Customer 2, ...)"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "required": "Required",
+      "optional": "Optional"
+    },
+    "empty": "No custom fields yet",
+    "add_field": "Add custom field",
+    "key_label": "Key (English, no spaces) *",
+    "key_placeholder": "national_id",
+    "type_label": "Type",
+    "label_ar_label": "Arabic label *",
+    "label_ar_placeholder": "National ID",
+    "label_en_label": "English label *",
+    "label_en_placeholder": "National ID",
+    "options_label": "Options (comma-separated)",
+    "options_placeholder": "Male, Female",
+    "required_checkbox": "Required field",
+    "key_readonly_label": "Key",
+    "cancel": "Cancel",
+    "add": "Add",
+    "saving": "...",
+    "save_edit": "Save changes",
+    "delete_confirm": "Confirm"
   }
 }
