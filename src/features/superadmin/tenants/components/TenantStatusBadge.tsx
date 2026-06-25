@@ -10,6 +10,6 @@ const statusVariant: Record<TenantStatus, 'default' | 'success' | 'warning' | 'd
 };
 
 export function TenantStatusBadge({ status }: { status: TenantStatus }) {
-  const t = useTranslations('tenants');
+  const t = useTranslations('superadmin.tenants');
   return <Badge variant={statusVariant[status]}>{t(`status.${status}`)}</Badge>;
 }
