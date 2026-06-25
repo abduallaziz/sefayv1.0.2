@@ -1,12 +1,14 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Plus, Trash2, Pencil, Check, X } from 'lucide-react'
 import { useExpenseCategories, useDeleteCategory, useUpdateCategory } from '../hooks/useExpenses'
 import { AddCategoryModal } from './AddCategoryModal'
 import type { ExpenseCategory } from '../api/expenses.api'
 
 export function CategoriesList() {
+  const t = useTranslations('expenses')
   const { data: categories = [], isLoading } = useExpenseCategories()
   const deleteMutation = useDeleteCategory()
   const updateMutation = useUpdateCategory()
@@ -34,7 +36,7 @@ export function CategoriesList() {
           className="flex items-center gap-2 px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] text-white rounded-lg text-sm font-medium"
         >
           <Plus className="w-4 h-4" />
-          إضافة فئة
+          {t('category.addTitle')}
         </button>
       </div>
 
@@ -44,7 +46,7 @@ export function CategoriesList() {
         </div>
       ) : categories.length === 0 ? (
         <div className="text-center py-16 text-slate-500">
-          <p>لا توجد فئات — أضف فئة جديدة</p>
+          <p>{t('category.empty')}</p>
         </div>
       ) : (
         <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl overflow-hidden">
@@ -69,7 +71,7 @@ export function CategoriesList() {
                       ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
                       : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700'
                   }`}>
-                    {cat.is_active ? 'نشط' : 'معطّل'}
+                    {cat.is_active ? t('category.active') : t('category.inactive')}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 justify-end mt-2">
@@ -91,7 +93,7 @@ export function CategoriesList() {
                         onClick={() => updateMutation.mutate({ id: cat.id, dto: { is_active: !cat.is_active } })}
                         className="px-3 py-1 rounded-lg text-xs border border-slate-200 dark:border-gray-700 text-slate-500 hover:text-slate-800 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-gray-700"
                       >
-                        {cat.is_active ? 'تعطيل' : 'تفعيل'}
+                        {cat.is_active ? t('category.deactivate') : t('category.activate')}
                       </button>
                       <button onClick={() => deleteMutation.mutate(cat.id)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-slate-400 hover:text-red-500 dark:hover:text-red-400">
                         <Trash2 className="w-4 h-4" />
@@ -107,8 +109,8 @@ export function CategoriesList() {
           <table className="hidden md:table w-full text-sm">
             <thead>
               <tr className="border-b border-slate-200 dark:border-gray-800">
-                <th className="text-start px-4 py-3 text-xs font-medium text-slate-500">الاسم</th>
-                <th className="text-center px-4 py-3 text-xs font-medium text-slate-500">الحالة</th>
+                <th className="text-start px-4 py-3 text-xs font-medium text-slate-500">{t('category.col.name')}</th>
+                <th className="text-center px-4 py-3 text-xs font-medium text-slate-500">{t('category.col.status')}</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
@@ -134,7 +136,7 @@ export function CategoriesList() {
                         ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
                         : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700'
                     }`}>
-                      {cat.is_active ? 'نشط' : 'معطّل'}
+                      {cat.is_active ? t('category.active') : t('category.inactive')}
                     </span>
                   </td>
                   <td className="px-4 py-3">
@@ -157,7 +159,7 @@ export function CategoriesList() {
                             onClick={() => updateMutation.mutate({ id: cat.id, dto: { is_active: !cat.is_active } })}
                             className="px-3 py-1 rounded-lg text-xs border border-slate-200 dark:border-gray-700 text-slate-500 hover:text-slate-800 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-gray-700"
                           >
-                            {cat.is_active ? 'تعطيل' : 'تفعيل'}
+                            {cat.is_active ? t('category.deactivate') : t('category.activate')}
                           </button>
                           <button onClick={() => deleteMutation.mutate(cat.id)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-slate-400 hover:text-red-500 dark:hover:text-red-400">
                             <Trash2 className="w-4 h-4" />

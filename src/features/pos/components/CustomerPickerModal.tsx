@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Search, UserPlus } from 'lucide-react'
 import { useCustomerSearch, useCustomerFieldDefinitions, useCreateCustomer } from '@/features/customers/hooks/useCustomers'
 import { useProfile } from '@/features/settings/hooks/useSettings'
@@ -14,6 +15,7 @@ interface Props {
 const inputClass = 'w-full px-3 py-2 text-sm bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C]'
 
 function QuickAddCustomerForm({ onCreated, onCancel }: { onCreated: (c: Customer) => void; onCancel: () => void }) {
+  const t = useTranslations('pos.customerPicker')
   const { data: fieldDefs } = useCustomerFieldDefinitions()
   const { data: profile } = useProfile()
   const nameFieldEnabled = profile?.name_field_enabled ?? false
@@ -54,7 +56,7 @@ function QuickAddCustomerForm({ onCreated, onCancel }: { onCreated: (c: Customer
       {nameFieldEnabled && (
         <div>
           <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
-            الاسم <span className="text-red-500 dark:text-red-400">*</span>
+            {t('name')} <span className="text-red-500 dark:text-red-400">*</span>
           </label>
           <input
             type="text"
@@ -67,7 +69,7 @@ function QuickAddCustomerForm({ onCreated, onCancel }: { onCreated: (c: Customer
       )}
 
       {activeFields.length === 0 && (
-        <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-2">لا توجد حقول مفعّلة لتسجيل عميل</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-2">{t('noActiveFields')}</p>
       )}
 
       {activeFields.map(field => (
@@ -91,8 +93,8 @@ function QuickAddCustomerForm({ onCreated, onCancel }: { onCreated: (c: Customer
               className={inputClass}
             >
               <option value="">—</option>
-              <option value="true">نعم</option>
-              <option value="false">لا</option>
+              <option value="true">{t('yes')}</option>
+              <option value="false">{t('no')}</option>
             </select>
           ) : (
             <input
@@ -108,14 +110,14 @@ function QuickAddCustomerForm({ onCreated, onCancel }: { onCreated: (c: Customer
 
       <div className="flex gap-3 pt-1">
         <button onClick={onCancel} className="flex-1 py-2 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-lg text-sm">
-          إلغاء
+          {t('cancel')}
         </button>
         <button
           onClick={handleSubmit}
           disabled={createMutation.isPending || missingRequired}
           className="flex-1 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 text-white rounded-lg text-sm font-medium"
         >
-          {createMutation.isPending ? '...' : 'حفظ وتحديد'}
+          {createMutation.isPending ? t('saving') : t('save')}
         </button>
       </div>
     </div>
@@ -123,6 +125,7 @@ function QuickAddCustomerForm({ onCreated, onCancel }: { onCreated: (c: Customer
 }
 
 export function CustomerPickerModal({ onSelect, onClose }: Props) {
+  const t = useTranslations('pos.customerPicker')
   const [search, setSearch] = useState('')
   const [mode, setMode] = useState<'search' | 'add'>('search')
   const { data: results, isLoading } = useCustomerSearch(search)
@@ -131,7 +134,7 @@ export function CustomerPickerModal({ onSelect, onClose }: Props) {
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
       <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl w-full max-w-md shadow-xl max-h-[85vh] flex flex-col">
         <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-gray-700">
-          <h3 className="font-bold text-lg text-gray-900 dark:text-white">{mode === 'search' ? 'اختيار عميل' : 'عميل جديد'}</h3>
+          <h3 className="font-bold text-lg text-gray-900 dark:text-white">{mode === 'search' ? t('selectTitle') : t('newTitle')}</h3>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-white text-xl">✕</button>
         </div>
 
@@ -143,16 +146,16 @@ export function CustomerPickerModal({ onSelect, onClose }: Props) {
                 <input
                   value={search}
                   onChange={e => setSearch(e.target.value)}
-                  placeholder="بحث بالاسم / الجوال / أي حقل..."
+                  placeholder={t('searchPlaceholder')}
                   className={`${inputClass} pe-9`}
                   autoFocus
                 />
               </div>
 
-              {isLoading && <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">جارٍ البحث...</p>}
+              {isLoading && <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">{t('searching')}</p>}
 
               {!isLoading && search.trim().length >= 2 && (results ?? []).length === 0 && (
-                <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">لا يوجد عميل مطابق</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">{t('noMatch')}</p>
               )}
 
               <div className="space-y-1.5">
@@ -172,7 +175,7 @@ export function CustomerPickerModal({ onSelect, onClose }: Props) {
                 onClick={() => setMode('add')}
                 className="w-full flex items-center justify-center gap-2 py-2.5 border border-dashed border-gray-300 dark:border-gray-600 text-[#0C447C] dark:text-[#5B9BD5] hover:border-[#0C447C] rounded-lg text-sm"
               >
-                <UserPlus className="w-4 h-4" /> تسجيل عميل جديد
+                <UserPlus className="w-4 h-4" /> {t('addNew')}
               </button>
             </>
           ) : (

@@ -28,7 +28,9 @@
     "reject": "Reject",
     "cancel": "Cancel",
     "back": "Back",
-    "reverse": "Reverse Approval"
+    "reverse": "Reverse Approval",
+    "add": "Add",
+    "delete": "Delete"
 
   },
   "table": {
@@ -63,7 +65,56 @@
     "name": "Template Name",
     "defaultAmount": "Default Amount",
     "requiresPhoto": "Requires Photo",
-    "expiryHours": "Expiry Hours"
+    "expiryHours": "Expiry Hours",
+    "addTitle": "Add Recurring Template",
+    "addButton": "Add Template",
+    "nameLabel": "Name",
+    "namePlaceholder": "e.g. Monthly Rent",
+    "defaultAmountOptional": "Default Amount (optional)",
+    "empty": "No templates found — add a new template",
+    "preApproved": "Pre-approved",
+    "notPreApproved": "No approval",
+    "deleteConfirm": "Delete \"{name}\"? This cannot be undone.",
+    "recurrence": {
+      "none": "No recurrence",
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly"
+    },
+    "weekdays": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+    "dayOfMonth": "Day {day}",
+    "nextRunPrefix": "Next run: ",
+    "col": {
+      "name": "Template",
+      "recurrence": "Recurrence",
+      "day": "Day",
+      "nextRun": "Next Run",
+      "status": "Status",
+      "approval": "Approval"
+    }
+  },
+  "category": {
+    "addTitle": "Add Category",
+    "name": "Category Name",
+    "namePlaceholder": "e.g. Fuel, Stationery...",
+    "empty": "No categories found — add a new category",
+    "active": "Active",
+    "inactive": "Disabled",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "col": {
+      "name": "Name",
+      "status": "Status"
+    }
+  },
+  "addExpense": {
+    "title": "Add Expense",
+    "category": "Category",
+    "selectCategory": "— Select category —",
+    "amount": "Amount",
+    "description": "Description (optional)",
+    "descriptionPlaceholder": "Reason for expense...",
+    "addedBy": "Added by"
   },
   "empty": {
     "requests": "No expense requests found",

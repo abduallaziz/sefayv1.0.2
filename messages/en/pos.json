@@ -43,13 +43,33 @@
   "receipt": {
     "success": "Payment Successful",
     "invoice": "Invoice",
+    "invoiceNumber": "Invoice #{number}",
     "paymentMethod": "Payment Method",
     "change": "Change",
     "print": "Print",
-    "newOrder": "New Order"
+    "printButton": "Print 🖨️",
+    "newOrder": "New Order",
+    "taxLabel": "Tax {percent}",
+    "currency": "SAR",
+    "methodSplit": "Cash + Card"
   },
   "variant": {
     "title": "Select Option",
     "cancel": "Cancel"
+  },
+  "customerPicker": {
+    "selectTitle": "Select Customer",
+    "newTitle": "New Customer",
+    "searchPlaceholder": "Search by name / phone / any field...",
+    "searching": "Searching...",
+    "noMatch": "No matching customer",
+    "addNew": "Register new customer",
+    "name": "Name",
+    "noActiveFields": "No active fields to register a customer",
+    "yes": "Yes",
+    "no": "No",
+    "cancel": "Cancel",
+    "save": "Save & Select",
+    "saving": "..."
   }
 }

@@ -16,5 +16,9 @@
   "branches": "Branches",
   "taxRate": "Tax Rate",
   "taxRateHint": "Applied to POS invoices (0 to 100)",
-  "taxRateError": "Enter a percentage between 0 and 100"
+  "taxRateError": "Enter a percentage between 0 and 100",
+  "currency": "Currency",
+  "invoicesThisMonth": "Invoices This Month",
+  "customFields": "Custom Customer Fields",
+  "customFieldsHint": "When enabled, the cashier can search for a customer or register a new one during a sale (POS)."
 }

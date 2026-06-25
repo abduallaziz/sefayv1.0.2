@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { useCreateExpense, useExpenseCategories } from '../hooks/useExpenses'
 import { useCurrentShift } from '@/features/shifts/hooks/useShifts'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export function AddExpenseModal({ onClose }: Props) {
+  const t = useTranslations('expenses')
   const { user } = useAuthStore()
   const { data: categories = [] } = useExpenseCategories()
   const { data: currentShift } = useCurrentShift()
@@ -45,16 +47,16 @@ export function AddExpenseModal({ onClose }: Props) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
       <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl w-full max-w-md p-6 space-y-4">
-        <h2 className="text-base font-semibold text-slate-800 dark:text-white">إضافة مصروف</h2>
+        <h2 className="text-base font-semibold text-slate-800 dark:text-white">{t('addExpense.title')}</h2>
 
         <div>
-          <label className={labelClass}>الفئة <span className="text-red-400">*</span></label>
+          <label className={labelClass}>{t('addExpense.category')} <span className="text-red-400">*</span></label>
           <select
             value={form.category_id}
             onChange={e => setForm(p => ({ ...p, category_id: e.target.value }))}
             className={inputClass}
           >
-            <option value="">— اختر الفئة —</option>
+            <option value="">{t('addExpense.selectCategory')}</option>
             {categories.filter(c => c.is_active).map(c => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
@@ -62,7 +64,7 @@ export function AddExpenseModal({ onClose }: Props) {
         </div>
 
         <div>
-          <label className={labelClass}>المبلغ <span className="text-red-400">*</span></label>
+          <label className={labelClass}>{t('addExpense.amount')} <span className="text-red-400">*</span></label>
           <input
             type="text" inputMode="decimal" placeholder="0.00"
             value={form.amount}
@@ -72,17 +74,17 @@ export function AddExpenseModal({ onClose }: Props) {
         </div>
 
         <div>
-          <label className={labelClass}>الوصف (اختياري)</label>
+          <label className={labelClass}>{t('addExpense.description')}</label>
           <input
             value={form.description}
             onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
-            placeholder="سبب المصروف..."
+            placeholder={t('addExpense.descriptionPlaceholder')}
             className={inputClass}
           />
         </div>
 
         <div>
-          <label className={labelClass}>أضيف بواسطة</label>
+          <label className={labelClass}>{t('addExpense.addedBy')}</label>
           <div className="px-3 py-2 text-sm bg-slate-100 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-500 rounded-lg">
             {user?.name ?? '—'}
           </div>
@@ -90,14 +92,14 @@ export function AddExpenseModal({ onClose }: Props) {
 
         <div className="flex gap-3 pt-2">
           <button onClick={onClose} className="flex-1 py-2 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-800 rounded-lg text-sm">
-            إلغاء
+            {t('actions.cancel')}
           </button>
           <button
             onClick={handleSubmit}
             disabled={!form.category_id || !form.amount || mutation.isPending}
             className="flex-1 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 text-white rounded-lg text-sm font-medium"
           >
-            {mutation.isPending ? '...' : 'إضافة'}
+            {mutation.isPending ? '...' : t('actions.add')}
           </button>
         </div>
       </div>

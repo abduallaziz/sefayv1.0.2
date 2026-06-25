@@ -28,7 +28,9 @@
     "reject": "رفض",
     "cancel": "إلغاء",
     "back": "رجوع",
-    "reverse": "تراجع عن الموافقة"
+    "reverse": "تراجع عن الموافقة",
+    "add": "إضافة",
+    "delete": "حذف"
 
   },
   "table": {
@@ -63,7 +65,56 @@
     "name": "اسم القالب",
     "defaultAmount": "المبلغ الافتراضي",
     "requiresPhoto": "يتطلب صورة",
-    "expiryHours": "مدة الصلاحية (ساعات)"
+    "expiryHours": "مدة الصلاحية (ساعات)",
+    "addTitle": "إضافة قالب متكرر",
+    "addButton": "إضافة قالب",
+    "nameLabel": "الاسم",
+    "namePlaceholder": "مثال: إيجار شهري",
+    "defaultAmountOptional": "المبلغ الافتراضي (اختياري)",
+    "empty": "لا توجد قوالب — أضف قالباً جديداً",
+    "preApproved": "موافقة مسبقة",
+    "notPreApproved": "بدون موافقة",
+    "deleteConfirm": "حذف \"{name}\"؟ لا يمكن التراجع.",
+    "recurrence": {
+      "none": "بدون تكرار",
+      "daily": "يومي",
+      "weekly": "أسبوعي",
+      "monthly": "شهري"
+    },
+    "weekdays": ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"],
+    "dayOfMonth": "يوم {day}",
+    "nextRunPrefix": "التشغيل التالي: ",
+    "col": {
+      "name": "القالب",
+      "recurrence": "التكرار",
+      "day": "اليوم",
+      "nextRun": "التشغيل التالي",
+      "status": "الحالة",
+      "approval": "الموافقة"
+    }
+  },
+  "category": {
+    "addTitle": "إضافة فئة",
+    "name": "اسم الفئة",
+    "namePlaceholder": "مثال: وقود، قرطاسية...",
+    "empty": "لا توجد فئات — أضف فئة جديدة",
+    "active": "نشط",
+    "inactive": "معطّل",
+    "activate": "تفعيل",
+    "deactivate": "تعطيل",
+    "col": {
+      "name": "الاسم",
+      "status": "الحالة"
+    }
+  },
+  "addExpense": {
+    "title": "إضافة مصروف",
+    "category": "الفئة",
+    "selectCategory": "— اختر الفئة —",
+    "amount": "المبلغ",
+    "description": "الوصف (اختياري)",
+    "descriptionPlaceholder": "سبب المصروف...",
+    "addedBy": "أضيف بواسطة"
   },
   "empty": {
     "requests": "لا توجد طلبات مصروفات",

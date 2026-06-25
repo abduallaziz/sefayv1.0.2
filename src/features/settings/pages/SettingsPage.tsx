@@ -120,7 +120,7 @@ export function SettingsPage() {
       <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-5 space-y-4">
         <div className="flex items-center gap-2 mb-2">
           <Coins className="w-4 h-4 text-slate-400" />
-          <h2 className="text-sm font-semibold text-slate-700 dark:text-white">العملة</h2>
+          <h2 className="text-sm font-semibold text-slate-700 dark:text-white">{t('currency')}</h2>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {CURRENCIES.map((cur) => (
@@ -189,7 +189,7 @@ export function SettingsPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Users className="w-4 h-4 text-slate-400" />
-            <h2 className="text-sm font-semibold text-slate-700 dark:text-white">حقول العميل المخصصة</h2>
+            <h2 className="text-sm font-semibold text-slate-700 dark:text-white">{t('customFields')}</h2>
           </div>
           {profileLoading ? (
             <div className="h-6 w-12 bg-slate-100 dark:bg-gray-800 rounded-full animate-pulse" />
@@ -210,7 +210,7 @@ export function SettingsPage() {
           )}
         </div>
         <p className="text-xs text-slate-500">
-          عند التفعيل، يظهر للكاشير خيار البحث عن عميل أو تسجيل عميل جديد عند البيع (POS).
+          {t('customFieldsHint')}
         </p>
         <CustomFieldsManager />
       </div>
@@ -256,7 +256,7 @@ export function SettingsPage() {
         {usageLoading ? (
           <div className="h-10 bg-slate-100 dark:bg-gray-800 rounded-lg animate-pulse" />
         ) : (
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             <div>
               <p className="text-xs text-slate-500 mb-2">{t('users')}</p>
               <div className="flex items-center gap-2">
@@ -279,6 +279,12 @@ export function SettingsPage() {
                   />
                 </div>
                 <span className="text-xs text-slate-400">{usage?.branches?.used ?? 0}/{usage?.branches?.limit ?? sub?.max_branches ?? 0}</span>
+              </div>
+            </div>
+            <div>
+              <p className="text-xs text-slate-500 mb-2">{t('invoicesThisMonth')}</p>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-slate-800 dark:text-white">{usage?.invoices_this_month?.used ?? 0}</span>
               </div>
             </div>
           </div>

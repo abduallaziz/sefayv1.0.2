@@ -43,13 +43,33 @@
   "receipt": {
     "success": "تم الدفع بنجاح",
     "invoice": "فاتورة",
+    "invoiceNumber": "فاتورة #{number}",
     "paymentMethod": "طريقة الدفع",
     "change": "الباقي",
     "print": "طباعة",
-    "newOrder": "طلب جديد"
+    "printButton": "طباعة 🖨️",
+    "newOrder": "طلب جديد",
+    "taxLabel": "الضريبة {percent}",
+    "currency": "ر.س",
+    "methodSplit": "نقد + بطاقة"
   },
   "variant": {
     "title": "اختر الخيار",
     "cancel": "إلغاء"
+  },
+  "customerPicker": {
+    "selectTitle": "اختيار عميل",
+    "newTitle": "عميل جديد",
+    "searchPlaceholder": "بحث بالاسم / الجوال / أي حقل...",
+    "searching": "جارٍ البحث...",
+    "noMatch": "لا يوجد عميل مطابق",
+    "addNew": "تسجيل عميل جديد",
+    "name": "الاسم",
+    "noActiveFields": "لا توجد حقول مفعّلة لتسجيل عميل",
+    "yes": "نعم",
+    "no": "لا",
+    "cancel": "إلغاء",
+    "save": "حفظ وتحديد",
+    "saving": "..."
   }
 }
