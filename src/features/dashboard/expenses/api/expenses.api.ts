@@ -57,6 +57,7 @@ export interface CreateExpenseDto {
   type: ExpenseType;
   recurrence?: RecurrenceType;
   photo_url?: string;
+  shift_id?: string;
 }
 
 export interface CreateCategoryDto {

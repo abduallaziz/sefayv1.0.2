@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useCreateExpense, useExpenseCategories } from '../hooks/useExpenses'
+import { useCurrentShift } from '@/features/shifts/hooks/useShifts'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { useQuery } from '@tanstack/react-query'
 import { apiClient } from '@/lib/api'
@@ -13,6 +14,7 @@ interface Props {
 export function AddExpenseModal({ onClose }: Props) {
   const { user } = useAuthStore()
   const { data: categories = [] } = useExpenseCategories()
+  const { data: currentShift } = useCurrentShift()
   const mutation = useCreateExpense()
 
   const { data: branches } = useQuery({
@@ -33,6 +35,7 @@ export function AddExpenseModal({ onClose }: Props) {
       amount: parseFloat(form.amount),
       description: form.description || undefined,
       type: 'one_time',
+      shift_id: currentShift?.id,
     }, { onSuccess: onClose })
   }
 
