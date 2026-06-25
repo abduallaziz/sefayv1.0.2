@@ -371,8 +371,13 @@ export function DashboardOverview() {
       <div style={{
         position: 'relative', borderRadius: '22px', overflow: 'hidden',
         marginBottom: '18px',
-        background: 'linear-gradient(125deg,#0C447C 0%,#155799 50%,#2671C4 100%)',
-        boxShadow: '0 12px 36px rgba(12,68,124,0.25),0 4px 12px rgba(12,68,124,0.18)',
+        background: isDark
+          ? 'linear-gradient(125deg,#0D1117 0%,#11161F 50%,#161D29 100%)'
+          : 'linear-gradient(125deg,#0C447C 0%,#155799 50%,#2671C4 100%)',
+        border: isDark ? '1px solid rgba(91,155,213,0.18)' : 'none',
+        boxShadow: isDark
+          ? '0 12px 32px rgba(0,0,0,0.5)'
+          : '0 12px 36px rgba(12,68,124,0.25),0 4px 12px rgba(12,68,124,0.18)',
         minHeight: '150px',
       }}>
         {/* Area chart bg */}
