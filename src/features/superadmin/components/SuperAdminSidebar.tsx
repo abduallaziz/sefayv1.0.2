@@ -5,17 +5,30 @@ import { usePathname } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/core/auth/stores/auth.store';
+import { useThemeStore } from '@/core/theme/stores/theme.store';
 import {
   LayoutDashboard, Building2, CreditCard,
-  ToggleLeft, Shield, BarChart3, LogOut, Settings,
+  ToggleLeft, Shield, BarChart3, LogOut, Settings, X,
 } from 'lucide-react';
 
-export function SuperAdminSidebar() {
+interface SuperAdminSidebarProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+export function SuperAdminSidebar({ open, onClose }: SuperAdminSidebarProps) {
   const pathname = usePathname();
   const locale = useLocale();
   const t = useTranslations('nav');
   const user = useAuthStore((s) => s.user);
   const clearAuth = useAuthStore((s) => s.clearAuth);
+  const isDark = useThemeStore((s) => s.theme === 'dark');
+
+  const textMuted = isDark ? '#8B949E' : '#54657C';
+  const iconMuted = isDark ? '#6E7681' : '#8C9CB2';
+  const hoverBg = isDark ? 'rgba(91,155,213,0.12)' : 'rgba(12,68,124,0.065)';
+  const hoverText = isDark ? '#5B9BD5' : '#0C447C';
+  const sectionLabel = isDark ? '#6E7681' : '#94A3B8';
 
   const NAV = [
     {
@@ -43,67 +56,173 @@ export function SuperAdminSidebar() {
   ];
 
   return (
-    <aside className="flex flex-col w-64 h-full bg-[#0d1117] border-e border-white/[0.06]">
-      <div className="px-5 py-5 border-b border-white/[0.06]">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center">
-            <span className="text-white font-bold text-sm">S</span>
-          </div>
-          <div>
-            <p className="text-white font-semibold text-sm leading-tight">Sefay</p>
-            <p className="text-violet-400 text-xs">Super Admin</p>
+    <>
+      {/* Mobile overlay */}
+      {open && (
+        <div
+          className="fixed inset-0 z-30 lg:hidden"
+          style={{ background: 'rgba(10,22,40,0.4)', backdropFilter: 'blur(3px)' }}
+          onClick={onClose}
+          aria-hidden="true"
+        />
+      )}
+
+      <aside
+        className={cn(
+          'fixed bottom-0 start-0 z-40 flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0',
+          open ? 'translate-x-0' : locale === 'ar' ? 'translate-x-full' : '-translate-x-full'
+        )}
+        style={{
+          top: '66px',
+          width: '264px',
+          background: isDark
+            ? 'linear-gradient(180deg, rgba(22,27,34,0.94), rgba(13,17,23,0.88))'
+            : 'linear-gradient(180deg, rgba(255,255,255,0.88), rgba(255,255,255,0.72))',
+          backdropFilter: 'blur(22px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(22px) saturate(180%)',
+          borderInlineEnd: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(255,255,255,0.95)',
+          boxShadow: locale === 'ar' ? '-4px 0 28px rgba(10,22,40,0.06)' : '4px 0 28px rgba(10,22,40,0.06)',
+        }}
+      >
+        {/* Mobile close */}
+        <div className="flex items-center justify-between px-4 py-3 lg:hidden border-b" style={{ borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.4)' }}>
+          <span className="text-sm font-semibold" style={{ color: textMuted }}>{locale === 'ar' ? 'القائمة' : 'Menu'}</span>
+          <button
+            onClick={onClose}
+            style={{
+              width: '30px', height: '30px', borderRadius: '8px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: textMuted, cursor: 'pointer', background: 'transparent', border: 'none',
+            }}
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        {/* Brand */}
+        <div style={{ padding: '17px 16px', borderBottom: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(10,22,40,0.06)'}` }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{
+              width: '32px', height: '32px', borderRadius: '10px',
+              background: 'linear-gradient(135deg, #7C3AED, #5B21B6)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 2px 8px rgba(124,58,237,0.35)',
+            }}>
+              <span style={{ color: '#fff', fontWeight: 700, fontSize: '13px' }}>S</span>
+            </div>
+            <div>
+              <p style={{ fontWeight: 600, fontSize: '13px', lineHeight: 1.3, color: isDark ? '#E6EDF3' : '#0A1628' }}>Sefay</p>
+              <p style={{ fontSize: '11px', color: '#8B5CF6' }}>Super Admin</p>
+            </div>
           </div>
         </div>
-      </div>
 
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
-        {NAV.map((section) => (
-          <div key={section.title}>
-            <p className="px-3 mb-1 text-xs font-medium text-slate-600 uppercase tracking-wider">
-              {section.title}
-            </p>
-            <div className="space-y-0.5">
+        {/* Nav */}
+        <nav className="flex-1 overflow-y-auto" style={{ padding: '13px 13px 3px' }}>
+          {NAV.map((section) => (
+            <div key={section.title} style={{ marginBottom: '18px' }}>
+              <p style={{
+                padding: '0 12px', marginBottom: '6px', fontSize: '11px', fontWeight: 600,
+                color: sectionLabel, textTransform: 'uppercase', letterSpacing: '0.05em',
+              }}>
+                {section.title}
+              </p>
               {section.items.map((item) => {
                 const fullHref = `/${locale}${item.href}`;
                 const isActive = pathname === fullHref || pathname.startsWith(fullHref + '/');
                 const Icon = item.icon;
+
                 return (
                   <Link
                     key={item.key}
                     href={fullHref}
-                    className={cn(
-                      'flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-150',
-                      isActive
-                        ? 'bg-violet-500/10 text-violet-400 font-medium'
-                        : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
-                    )}
+                    onClick={onClose}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '12px',
+                      padding: '11px 12px', borderRadius: '13px',
+                      fontSize: '13px', fontWeight: isActive ? 600 : 500,
+                      marginBottom: '2px', textDecoration: 'none',
+                      transition: 'all 0.22s cubic-bezier(0.4,0,0.2,1)',
+                      ...(isActive
+                        ? {
+                            background: isDark
+                              ? 'linear-gradient(135deg, #161D29, #1C2433)'
+                              : 'linear-gradient(135deg, #7C3AED, #5B21B6)',
+                            color: isDark ? '#A78BFA' : '#fff',
+                            border: isDark ? '1px solid rgba(167,139,250,0.28)' : 'none',
+                            boxShadow: isDark
+                              ? '0 4px 14px rgba(0,0,0,0.45)'
+                              : '0 6px 18px rgba(124,58,237,0.3)',
+                          }
+                        : {
+                            color: textMuted,
+                            background: 'transparent',
+                          }),
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isActive) {
+                        e.currentTarget.style.background = hoverBg
+                        e.currentTarget.style.color = hoverText
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isActive) {
+                        e.currentTarget.style.background = 'transparent'
+                        e.currentTarget.style.color = textMuted
+                      }
+                    }}
                   >
-                    <Icon className="w-4 h-4 flex-shrink-0" />
-                    <span>{item.label}</span>
+                    <Icon
+                      size={18}
+                      strokeWidth={2}
+                      style={{ color: isActive ? (isDark ? '#A78BFA' : '#fff') : iconMuted, flexShrink: 0 }}
+                    />
+                    <span style={{ flex: 1 }}>{item.label}</span>
                   </Link>
                 );
               })}
             </div>
-          </div>
-        ))}
-      </nav>
+          ))}
+        </nav>
 
-      <div className="px-3 py-4 border-t border-white/[0.06]">
-        <div className="flex items-center gap-3 px-3 py-2 rounded-lg">
-          <div className="w-8 h-8 rounded-full bg-violet-500/20 border border-violet-500/30 flex items-center justify-center flex-shrink-0">
-            <span className="text-violet-400 text-xs font-medium">
+        {/* Account footer */}
+        <div style={{ padding: '13px' }}>
+          <div
+            style={{
+              display: 'flex', alignItems: 'center', gap: '10px',
+              padding: '11px', borderRadius: '14px',
+              background: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(10,22,40,0.03)',
+              border: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(10,22,40,0.05)',
+            }}
+          >
+            <div style={{
+              width: '34px', height: '34px', borderRadius: '50%', flexShrink: 0,
+              background: 'linear-gradient(135deg, #8B5CF6, #5B21B6)',
+              border: isDark ? '2px solid rgba(255,255,255,0.1)' : '2px solid rgba(255,255,255,0.7)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '12px', fontWeight: 700, color: '#fff',
+            }}>
               {user?.name?.[0]?.toUpperCase() ?? 'S'}
-            </span>
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontSize: '12px', fontWeight: 600, color: isDark ? '#E6EDF3' : '#0A1628', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {user?.name}
+              </p>
+              <p style={{ fontSize: '10px', color: textMuted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {user?.email}
+              </p>
+            </div>
+            <button
+              onClick={clearAuth}
+              style={{ color: textMuted, background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', flexShrink: 0 }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = '#EF4444' }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = textMuted }}
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-slate-200 text-sm font-medium truncate">{user?.name}</p>
-            <p className="text-slate-500 text-xs truncate">{user?.email}</p>
-          </div>
-          <button onClick={clearAuth} className="text-slate-600 hover:text-red-400 transition-colors">
-            <LogOut className="w-4 h-4" />
-          </button>
         </div>
-      </div>
-    </aside>
+      </aside>
+    </>
   );
 }
