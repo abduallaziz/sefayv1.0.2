@@ -303,5 +303,69 @@
   "reports": "التقارير",
   "settings": "الإعدادات"
 
+},
+"settings": {
+  "title": "الإعدادات",
+  "subtitle": "إدارة إعدادات حساب السوبر أدمن",
+  "tabs": {
+    "profile": "الملف الشخصي",
+    "security": "الأمان",
+    "notifications": "الإشعارات",
+    "system": "النظام"
+  },
+  "profile": {
+    "title": "الملف الشخصي",
+    "description": "بياناتك الأساسية كسوبر أدمن",
+    "name": "الاسم",
+    "email": "البريد الإلكتروني",
+    "phone": "رقم الجوال"
+  },
+  "security": {
+    "changePasswordTitle": "تغيير كلمة المرور",
+    "changePasswordDesc": "يُنصح بتغييرها كل 90 يوم",
+    "currentPassword": "كلمة المرور الحالية",
+    "newPassword": "كلمة المرور الجديدة",
+    "confirmPassword": "تأكيد كلمة المرور",
+    "updatePassword": "تحديث كلمة المرور",
+    "apiKeyTitle": "مفتاح API",
+    "apiKeyDesc": "للوصول إلى API السوبر أدمن",
+    "sessionsTitle": "الجلسات النشطة",
+    "sessionsDesc": "أجهزة مسجّلة دخول حالياً",
+    "now": "الآن",
+    "daysAgo": "منذ {count} يوم",
+    "currentSession": "الجلسة الحالية",
+    "revoke": "إلغاء"
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "description": "حدّد متى تصلك الإشعارات",
+    "newTenant": "تسجيل مستأجر جديد",
+    "newTenantDesc": "عند تسجيل أي عميل جديد",
+    "trialExpiring": "انتهاء التجربة",
+    "trialExpiringDesc": "قبل 3 أيام من انتهاء التجربة",
+    "paymentFailed": "فشل الدفع",
+    "paymentFailedDesc": "عند فشل أي عملية دفع",
+    "systemAlert": "تنبيهات النظام",
+    "systemAlertDesc": "أخطاء وتحذيرات النظام",
+    "weeklyReport": "تقرير أسبوعي",
+    "weeklyReportDesc": "ملخص أسبوعي بالأرقام"
+  },
+  "system": {
+    "infoTitle": "معلومات النظام",
+    "infoDesc": "بيانات البيئة الحالية",
+    "version": "الإصدار",
+    "environment": "البيئة",
+    "database": "قاعدة البيانات",
+    "hosting": "الاستضافة",
+    "lastDeploy": "آخر نشر",
+    "today": "اليوم {time}",
+    "generalTitle": "الإعدادات العامة",
+    "generalDesc": "تطبّق على كل المستأجرين",
+    "defaultTrialDays": "مدة التجربة الافتراضية (أيام)",
+    "gracePeriod": "Grace Period بعد انتهاء الاشتراك (أيام)",
+    "maxLoginAttempts": "الحد الأقصى لمحاولات تسجيل الدخول"
+  },
+  "save": "حفظ التغييرات",
+  "saved": "تم الحفظ"
 }
 }

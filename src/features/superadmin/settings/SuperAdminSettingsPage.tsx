@@ -2,26 +2,28 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 import { User, Shield, Bell, Database, Save, Eye, EyeOff, Copy, RefreshCw, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 type TabKey = 'profile' | 'security' | 'notifications' | 'system'
 
-const tabs: { key: TabKey; label: string; icon: React.ElementType }[] = [
-  { key: 'profile',       label: 'الملف الشخصي', icon: User },
-  { key: 'security',      label: 'الأمان',        icon: Shield },
-  { key: 'notifications', label: 'الإشعارات',     icon: Bell },
-  { key: 'system',        label: 'النظام',         icon: Database },
-]
-
 export function SuperAdminSettingsPage() {
+  const t = useTranslations('superadmin.settings')
   const [activeTab, setActiveTab] = useState<TabKey>('profile')
+
+  const tabs: { key: TabKey; label: string; icon: React.ElementType }[] = [
+    { key: 'profile',       label: t('tabs.profile'),       icon: User },
+    { key: 'security',      label: t('tabs.security'),      icon: Shield },
+    { key: 'notifications', label: t('tabs.notifications'), icon: Bell },
+    { key: 'system',        label: t('tabs.system'),        icon: Database },
+  ]
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-semibold text-slate-800 dark:text-white">الإعدادات</h1>
-        <p className="text-slate-500 dark:text-white/40 text-sm mt-0.5">إدارة إعدادات حساب السوبر أدمن</p>
+        <h1 className="text-xl font-semibold text-slate-800 dark:text-white">{t('title')}</h1>
+        <p className="text-slate-500 dark:text-white/40 text-sm mt-0.5">{t('subtitle')}</p>
       </div>
 
       <div className="flex gap-6">
@@ -67,13 +69,14 @@ export function SuperAdminSettingsPage() {
 }
 
 function ProfileTab() {
+  const t = useTranslations('superadmin.settings')
   const [saved, setSaved] = useState(false)
   return (
-    <Card title="الملف الشخصي" description="بياناتك الأساسية كسوبر أدمن">
+    <Card title={t('profile.title')} description={t('profile.description')}>
       <div className="space-y-4">
-        <Field label="الاسم"><input defaultValue="Super Admin" className={inputCls} /></Field>
-        <Field label="البريد الإلكتروني"><input defaultValue="admin@sefay.com" type="email" dir="ltr" className={inputCls} /></Field>
-        <Field label="رقم الجوال"><input defaultValue="+966 5x xxx xxxx" dir="ltr" className={inputCls} /></Field>
+        <Field label={t('profile.name')}><input defaultValue="Super Admin" className={inputCls} /></Field>
+        <Field label={t('profile.email')}><input defaultValue="admin@sefay.com" type="email" dir="ltr" className={inputCls} /></Field>
+        <Field label={t('profile.phone')}><input defaultValue="+966 5x xxx xxxx" dir="ltr" className={inputCls} /></Field>
       </div>
       <SaveBtn saved={saved} onClick={() => { setSaved(true); setTimeout(() => setSaved(false), 2000) }} />
     </Card>
@@ -81,22 +84,28 @@ function ProfileTab() {
 }
 
 function SecurityTab() {
+  const t = useTranslations('superadmin.settings')
   const [showPass, setShowPass] = useState(false)
   const [copied, setCopied]     = useState(false)
   const [saved, setSaved]       = useState(false)
 
+  const sessions = [
+    { device: 'Chrome — Windows 11', ip: '197.x.x.x', time: t('security.now'),               current: true },
+    { device: 'Safari — iPhone 15',  ip: '197.x.x.x', time: t('security.daysAgo', { count: 2 }), current: false },
+  ]
+
   return (
     <div className="space-y-4">
-      <Card title="تغيير كلمة المرور" description="يُنصح بتغييرها كل 90 يوم">
+      <Card title={t('security.changePasswordTitle')} description={t('security.changePasswordDesc')}>
         <div className="space-y-4">
-          <Field label="كلمة المرور الحالية"><PassInput show={showPass} onToggle={() => setShowPass(!showPass)} /></Field>
-          <Field label="كلمة المرور الجديدة"><PassInput show={showPass} onToggle={() => setShowPass(!showPass)} /></Field>
-          <Field label="تأكيد كلمة المرور"><PassInput show={showPass} onToggle={() => setShowPass(!showPass)} /></Field>
+          <Field label={t('security.currentPassword')}><PassInput show={showPass} onToggle={() => setShowPass(!showPass)} /></Field>
+          <Field label={t('security.newPassword')}><PassInput show={showPass} onToggle={() => setShowPass(!showPass)} /></Field>
+          <Field label={t('security.confirmPassword')}><PassInput show={showPass} onToggle={() => setShowPass(!showPass)} /></Field>
         </div>
-        <SaveBtn saved={saved} onClick={() => { setSaved(true); setTimeout(() => setSaved(false), 2000) }} label="تحديث كلمة المرور" />
+        <SaveBtn saved={saved} onClick={() => { setSaved(true); setTimeout(() => setSaved(false), 2000) }} label={t('security.updatePassword')} />
       </Card>
 
-      <Card title="مفتاح API" description="للوصول إلى API السوبر أدمن">
+      <Card title={t('security.apiKeyTitle')} description={t('security.apiKeyDesc')}>
         <div className="flex items-center gap-2">
           <input readOnly dir="ltr" value="sk-sa-••••••••••••••••••••••••••••" className={cn(inputCls, 'flex-1 font-mono text-xs')} />
           <button onClick={() => { setCopied(true); setTimeout(() => setCopied(false), 2000) }}
@@ -109,20 +118,17 @@ function SecurityTab() {
         </div>
       </Card>
 
-      <Card title="الجلسات النشطة" description="أجهزة مسجّلة دخول حالياً">
+      <Card title={t('security.sessionsTitle')} description={t('security.sessionsDesc')}>
         <div className="space-y-2">
-          {[
-            { device: 'Chrome — Windows 11', ip: '197.x.x.x', time: 'الآن',       current: true },
-            { device: 'Safari — iPhone 15',  ip: '197.x.x.x', time: 'منذ يومين', current: false },
-          ].map((s, i) => (
+          {sessions.map((s, i) => (
             <div key={i} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] rounded-lg">
               <div>
                 <p className="text-slate-800 dark:text-white text-sm">{s.device}</p>
                 <p className="text-slate-500 dark:text-white/40 text-xs">{s.ip} · {s.time}</p>
               </div>
               {s.current
-                ? <span className="text-xs text-green-600 dark:text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full">الجلسة الحالية</span>
-                : <button className="text-xs text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 transition-colors">إلغاء</button>}
+                ? <span className="text-xs text-green-600 dark:text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full">{t('security.currentSession')}</span>
+                : <button className="text-xs text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 transition-colors">{t('security.revoke')}</button>}
             </div>
           ))}
         </div>
@@ -132,20 +138,21 @@ function SecurityTab() {
 }
 
 function NotificationsTab() {
+  const t = useTranslations('superadmin.settings')
   const [saved, setSaved] = useState(false)
   const [prefs, setPrefs] = useState({
     newTenant: true, trialExpiring: true, paymentFailed: true, systemAlert: true, weeklyReport: false,
   })
   const toggle = (k: keyof typeof prefs) => setPrefs(p => ({ ...p, [k]: !p[k] }))
   const items: { key: keyof typeof prefs; label: string; desc: string }[] = [
-    { key: 'newTenant',     label: 'تسجيل tenant جديد', desc: 'عند تسجيل أي عميل جديد' },
-    { key: 'trialExpiring', label: 'انتهاء التجربة',     desc: 'قبل 3 أيام من انتهاء الـ trial' },
-    { key: 'paymentFailed', label: 'فشل الدفع',          desc: 'عند فشل أي عملية دفع' },
-    { key: 'systemAlert',   label: 'تنبيهات النظام',     desc: 'أخطاء وتحذيرات النظام' },
-    { key: 'weeklyReport',  label: 'تقرير أسبوعي',       desc: 'ملخص أسبوعي بالأرقام' },
+    { key: 'newTenant',     label: t('notifications.newTenant'),     desc: t('notifications.newTenantDesc') },
+    { key: 'trialExpiring', label: t('notifications.trialExpiring'), desc: t('notifications.trialExpiringDesc') },
+    { key: 'paymentFailed', label: t('notifications.paymentFailed'), desc: t('notifications.paymentFailedDesc') },
+    { key: 'systemAlert',   label: t('notifications.systemAlert'),   desc: t('notifications.systemAlertDesc') },
+    { key: 'weeklyReport',  label: t('notifications.weeklyReport'),  desc: t('notifications.weeklyReportDesc') },
   ]
   return (
-    <Card title="الإشعارات" description="حدّد متى تصلك الإشعارات">
+    <Card title={t('notifications.title')} description={t('notifications.description')}>
       <div className="space-y-2">
         {items.map(item => (
           <div key={item.key} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] rounded-lg">
@@ -163,18 +170,22 @@ function NotificationsTab() {
 }
 
 function SystemTab() {
+  const t = useTranslations('superadmin.settings')
   const [saved, setSaved] = useState(false)
+
+  const infoRows = [
+    { label: t('system.version'),     value: 'Sefay V1.02' },
+    { label: t('system.environment'), value: 'Production' },
+    { label: t('system.database'),    value: 'Supabase PostgreSQL' },
+    { label: t('system.hosting'),     value: 'Railway + Vercel' },
+    { label: t('system.lastDeploy'),  value: t('system.today', { time: '09:40' }) },
+  ]
+
   return (
     <div className="space-y-4">
-      <Card title="معلومات النظام" description="بيانات البيئة الحالية">
+      <Card title={t('system.infoTitle')} description={t('system.infoDesc')}>
         <div className="space-y-1">
-          {[
-            { label: 'الإصدار',           value: 'Sefay V1.02' },
-            { label: 'البيئة',            value: 'Production' },
-            { label: 'قاعدة البيانات',    value: 'Supabase PostgreSQL' },
-            { label: 'الاستضافة',         value: 'Railway + Vercel' },
-            { label: 'آخر نشر',           value: 'اليوم 09:40' },
-          ].map(row => (
+          {infoRows.map(row => (
             <div key={row.label} className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-white/[0.04] last:border-0">
               <span className="text-slate-500 dark:text-white/40 text-sm">{row.label}</span>
               <span className="text-slate-800 dark:text-white text-sm font-mono">{row.value}</span>
@@ -183,11 +194,11 @@ function SystemTab() {
         </div>
       </Card>
 
-      <Card title="الإعدادات العامة" description="تطبّق على كل التيننتس">
+      <Card title={t('system.generalTitle')} description={t('system.generalDesc')}>
         <div className="space-y-4">
-          <Field label="مدة التجربة الافتراضية (أيام)"><input defaultValue="14" type="number" dir="ltr" className={inputCls} /></Field>
-          <Field label="Grace Period بعد انتهاء الاشتراك (أيام)"><input defaultValue="3" type="number" dir="ltr" className={inputCls} /></Field>
-          <Field label="الحد الأقصى لمحاولات تسجيل الدخول"><input defaultValue="5" type="number" dir="ltr" className={inputCls} /></Field>
+          <Field label={t('system.defaultTrialDays')}><input defaultValue="14" type="number" dir="ltr" className={inputCls} /></Field>
+          <Field label={t('system.gracePeriod')}><input defaultValue="3" type="number" dir="ltr" className={inputCls} /></Field>
+          <Field label={t('system.maxLoginAttempts')}><input defaultValue="5" type="number" dir="ltr" className={inputCls} /></Field>
         </div>
         <SaveBtn saved={saved} onClick={() => { setSaved(true); setTimeout(() => setSaved(false), 2000) }} />
       </Card>
@@ -236,13 +247,14 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: () => void 
   )
 }
 
-function SaveBtn({ saved, onClick, label = 'حفظ التغييرات' }: { saved: boolean; onClick: () => void; label?: string }) {
+function SaveBtn({ saved, onClick, label }: { saved: boolean; onClick: () => void; label?: string }) {
+  const t = useTranslations('superadmin.settings')
   return (
     <div className="flex justify-end pt-2">
       <button onClick={onClick} className={cn('flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all',
         saved ? 'bg-green-500/20 text-green-600 dark:text-green-400 border border-green-500/30' : 'bg-indigo-600 hover:bg-indigo-500 text-white')}>
         {saved ? <Check className="w-4 h-4" /> : <Save className="w-4 h-4" />}
-        {saved ? 'تم الحفظ' : label}
+        {saved ? t('saved') : (label ?? t('save'))}
       </button>
     </div>
   )

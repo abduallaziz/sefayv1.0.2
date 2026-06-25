@@ -304,5 +304,69 @@
   "authControl": "Auth Control",
   "reports": "Reports",
   "settings": "Settings"
+},
+"settings": {
+  "title": "Settings",
+  "subtitle": "Manage your SuperAdmin account settings",
+  "tabs": {
+    "profile": "Profile",
+    "security": "Security",
+    "notifications": "Notifications",
+    "system": "System"
+  },
+  "profile": {
+    "title": "Profile",
+    "description": "Your basic SuperAdmin info",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone Number"
+  },
+  "security": {
+    "changePasswordTitle": "Change Password",
+    "changePasswordDesc": "Recommended every 90 days",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "updatePassword": "Update Password",
+    "apiKeyTitle": "API Key",
+    "apiKeyDesc": "For accessing the SuperAdmin API",
+    "sessionsTitle": "Active Sessions",
+    "sessionsDesc": "Devices currently signed in",
+    "now": "Now",
+    "daysAgo": "{count} days ago",
+    "currentSession": "Current session",
+    "revoke": "Revoke"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "description": "Choose when you receive notifications",
+    "newTenant": "New tenant registered",
+    "newTenantDesc": "When a new customer registers",
+    "trialExpiring": "Trial expiring",
+    "trialExpiringDesc": "3 days before trial ends",
+    "paymentFailed": "Payment failed",
+    "paymentFailedDesc": "When a payment fails",
+    "systemAlert": "System alerts",
+    "systemAlertDesc": "System errors and warnings",
+    "weeklyReport": "Weekly report",
+    "weeklyReportDesc": "Weekly summary with figures"
+  },
+  "system": {
+    "infoTitle": "System Information",
+    "infoDesc": "Current environment data",
+    "version": "Version",
+    "environment": "Environment",
+    "database": "Database",
+    "hosting": "Hosting",
+    "lastDeploy": "Last Deploy",
+    "today": "Today {time}",
+    "generalTitle": "General Settings",
+    "generalDesc": "Applies to all tenants",
+    "defaultTrialDays": "Default trial period (days)",
+    "gracePeriod": "Grace period after subscription ends (days)",
+    "maxLoginAttempts": "Max login attempts"
+  },
+  "save": "Save Changes",
+  "saved": "Saved"
 }
 }
