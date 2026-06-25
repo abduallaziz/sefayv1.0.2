@@ -4,6 +4,9 @@ export interface Customer {
   full_name: string | null;
   phone: string | null;
   email: string | null;
+  plate_number?: string | null;
+  visit_date?: string | null;
+  odometer?: number | null;
   loyalty_points: number;
   is_active: boolean;
   created_at: string;

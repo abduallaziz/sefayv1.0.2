@@ -13,6 +13,7 @@
   "table": {
     "customer": "Customer",
     "contact": "Contact",
+    "vehicle": "Vehicle",
     "orders": "Orders",
     "spent": "Spent",
     "points": "Points"

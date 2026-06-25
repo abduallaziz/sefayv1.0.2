@@ -13,6 +13,7 @@
   "table": {
     "customer": "العميل",
     "contact": "التواصل",
+    "vehicle": "المركبة",
     "orders": "الطلبات",
     "spent": "المصروف",
     "points": "النقاط"

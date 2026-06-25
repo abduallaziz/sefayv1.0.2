@@ -1,9 +1,12 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Eye, Edit2, Trash2, Star, Phone, Mail } from 'lucide-react';
+import { Eye, Edit2, Trash2, Star, Phone, Mail, Gauge, Calendar } from 'lucide-react';
 import { Customer } from '../types/customer.types';
 import { useTenantStore } from '@/core/tenant/stores/tenant.store';
+import { useProfile } from '@/features/settings/hooks/useSettings';
+
+const VEHICLE_BUSINESS_TYPES = ['workshop', 'services'];
 
 interface Props {
   customers: Customer[];
@@ -15,6 +18,8 @@ interface Props {
 export function CustomersTable({ customers, onView, onEdit, onDelete }: Props) {
   const t = useTranslations('customers');
   const currency = useTenantStore((s) => s.currency_symbol);
+  const { data: profile } = useProfile();
+  const showVehicleColumn = !!profile?.business_type && VEHICLE_BUSINESS_TYPES.includes(profile.business_type);
 
   if (customers.length === 0) {
     return (
@@ -42,6 +47,17 @@ export function CustomersTable({ customers, onView, onEdit, onDelete }: Props) {
                     <Phone className="w-3 h-3 shrink-0" />
                     <span className="text-xs truncate">{customer.phone}</span>
                   </div>
+                  {showVehicleColumn && (customer.plate_number || customer.visit_date || customer.odometer != null) && (
+                    <div className="flex items-center gap-2 text-gray-400 dark:text-gray-500 mt-0.5 text-xs">
+                      {customer.plate_number && <span dir="ltr">{customer.plate_number}</span>}
+                      {customer.odometer != null && (
+                        <span className="flex items-center gap-0.5"><Gauge className="w-3 h-3" />{customer.odometer.toLocaleString()}</span>
+                      )}
+                      {customer.visit_date && (
+                        <span className="flex items-center gap-0.5"><Calendar className="w-3 h-3" />{new Date(customer.visit_date).toLocaleDateString('ar-SA')}</span>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-1 shrink-0">
@@ -75,6 +91,9 @@ export function CustomersTable({ customers, onView, onEdit, onDelete }: Props) {
             <tr className="border-b border-gray-200 dark:border-gray-700">
               <th className="text-start py-3 px-4 text-gray-500 dark:text-gray-400 font-medium">{t('table.customer')}</th>
               <th className="text-start py-3 px-4 text-gray-500 dark:text-gray-400 font-medium">{t('table.contact')}</th>
+              {showVehicleColumn && (
+                <th className="text-start py-3 px-4 text-gray-500 dark:text-gray-400 font-medium">{t('table.vehicle')}</th>
+              )}
               <th className="text-start py-3 px-4 text-gray-500 dark:text-gray-400 font-medium">{t('table.orders')}</th>
               <th className="text-start py-3 px-4 text-gray-500 dark:text-gray-400 font-medium">{t('table.spent')}</th>
               <th className="text-start py-3 px-4 text-gray-500 dark:text-gray-400 font-medium">{t('table.points')}</th>
@@ -109,6 +128,30 @@ export function CustomersTable({ customers, onView, onEdit, onDelete }: Props) {
                     )}
                   </div>
                 </td>
+                {showVehicleColumn && (
+                  <td className="py-3 px-4">
+                    <div className="space-y-1">
+                      {customer.plate_number && (
+                        <p className="text-xs text-gray-600 dark:text-gray-300" dir="ltr">{customer.plate_number}</p>
+                      )}
+                      {customer.odometer != null && (
+                        <div className="flex items-center gap-1.5 text-gray-400">
+                          <Gauge className="w-3.5 h-3.5" />
+                          <span className="text-xs">{customer.odometer.toLocaleString()}</span>
+                        </div>
+                      )}
+                      {customer.visit_date && (
+                        <div className="flex items-center gap-1.5 text-gray-400">
+                          <Calendar className="w-3.5 h-3.5" />
+                          <span className="text-xs">{new Date(customer.visit_date).toLocaleDateString('ar-SA')}</span>
+                        </div>
+                      )}
+                      {!customer.plate_number && customer.odometer == null && !customer.visit_date && (
+                        <span className="text-xs text-gray-400">—</span>
+                      )}
+                    </div>
+                  </td>
+                )}
                 <td className="py-3 px-4">
                   <span className="text-gray-900 dark:text-white font-medium">{customer.orders_count ?? 0}</span>
                 </td>
