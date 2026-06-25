@@ -60,16 +60,16 @@ export function PaymentModal({ cart, onConfirm, onClose, isSubmitting }: Props) 
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-      <div className="bg-[#0d1117] border border-[#1e2130] rounded-2xl w-full max-w-md shadow-xl">
-        <div className="flex items-center justify-between p-5 border-b border-[#1e2130]">
-          <h3 className="font-bold text-lg text-white">{t('payment.title')}</h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-white text-xl">✕</button>
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl w-full max-w-md shadow-xl">
+        <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="font-bold text-lg text-gray-900 dark:text-white">{t('payment.title')}</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-white text-xl">✕</button>
         </div>
 
         <div className="p-5 space-y-4">
-          <div className="bg-[#141720] rounded-xl p-4 text-center">
-            <p className="text-sm text-slate-500">{t('payment.due')}</p>
-            <p className="text-3xl font-bold text-blue-400 mt-1">{fmt(cart.total)} {currency}</p>
+          <div className="bg-gray-50 dark:bg-white/5 rounded-xl p-4 text-center">
+            <p className="text-sm text-gray-500 dark:text-gray-400">{t('payment.due')}</p>
+            <p className="text-3xl font-bold text-[#0C447C] dark:text-[#5B9BD5] mt-1">{fmt(cart.total)} {currency}</p>
           </div>
 
           <div className="grid grid-cols-3 gap-2">
@@ -79,8 +79,8 @@ export function PaymentModal({ cart, onConfirm, onClose, isSubmitting }: Props) 
                 onClick={() => setMethod(m.id)}
                 className={`py-3 rounded-xl border text-sm font-medium transition-all flex flex-col items-center gap-1 ${
                   method === m.id
-                    ? 'border-[#0C447C] bg-[#0C447C]/10 text-blue-400'
-                    : 'border-[#1e2130] bg-[#141720] text-slate-400 hover:border-[#0C447C]/50'
+                    ? 'border-[#0C447C] bg-[#0C447C]/10 text-[#0C447C] dark:text-[#5B9BD5]'
+                    : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-white/5 text-gray-500 dark:text-gray-400 hover:border-[#0C447C]/50'
                 }`}
               >
                 <span className="text-xl">{m.icon}</span>
@@ -91,19 +91,19 @@ export function PaymentModal({ cart, onConfirm, onClose, isSubmitting }: Props) 
 
           {method === 'cash' && (
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-300">{t('payment.tendered')}</label>
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('payment.tendered')}</label>
               <input
                 type="text"
                 inputMode="decimal"
                 placeholder={fmt(cart.total)}
                 value={cashTendered}
                 onChange={(e) => setCashTendered(e.target.value)}
-                className="w-full text-lg h-12 text-center font-bold bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-[#0C447C]"
+                className="w-full text-lg h-12 text-center font-bold bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C]"
               />
               {change > 0 && (
                 <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3 text-center">
-                  <p className="text-sm text-emerald-400">{t('payment.change')}</p>
-                  <p className="text-xl font-bold text-emerald-400">{fmt(change)} {currency}</p>
+                  <p className="text-sm text-emerald-600 dark:text-emerald-400">{t('payment.change')}</p>
+                  <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">{fmt(change)} {currency}</p>
                 </div>
               )}
             </div>
@@ -111,26 +111,26 @@ export function PaymentModal({ cart, onConfirm, onClose, isSubmitting }: Props) 
 
           {method === 'split' && (
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-300">{t('payment.splitCash')}</label>
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('payment.splitCash')}</label>
               <input
                 type="text"
                 inputMode="decimal"
                 placeholder="0.00"
                 value={splitCash}
                 onChange={(e) => setSplitCash(e.target.value)}
-                className="w-full text-center h-12 bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-[#0C447C]"
+                className="w-full text-center h-12 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C]"
               />
               {splitCard > 0 && (
-                <div className="flex justify-between text-sm bg-[#141720] rounded-lg p-3">
-                  <span className="text-slate-400">{t('payment.splitCard')}</span>
-                  <span className="font-bold text-blue-400">{fmt(splitCard)} {currency}</span>
+                <div className="flex justify-between text-sm bg-gray-50 dark:bg-white/5 rounded-lg p-3">
+                  <span className="text-gray-500 dark:text-gray-400">{t('payment.splitCard')}</span>
+                  <span className="font-bold text-[#0C447C] dark:text-[#5B9BD5]">{fmt(splitCard)} {currency}</span>
                 </div>
               )}
             </div>
           )}
 
           {method === 'card' && (
-            <div className="bg-[#0C447C]/10 border border-[#0C447C]/20 rounded-lg p-4 text-center text-sm text-blue-400">
+            <div className="bg-[#0C447C]/10 border border-[#0C447C]/20 rounded-lg p-4 text-center text-sm text-[#0C447C] dark:text-[#5B9BD5]">
               {t('payment.cardInstruction')}
             </div>
           )}
@@ -139,7 +139,7 @@ export function PaymentModal({ cart, onConfirm, onClose, isSubmitting }: Props) 
         <div className="flex gap-3 p-5 pt-0">
           <button
             onClick={onClose}
-            className="flex-1 py-2.5 border border-[#1e2130] text-slate-400 hover:text-white rounded-xl text-sm font-medium"
+            className="flex-1 py-2.5 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-lg text-sm font-medium"
           >
             {t('payment.cancel')}
           </button>
