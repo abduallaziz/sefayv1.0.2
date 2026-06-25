@@ -22,7 +22,7 @@ export interface CustomFieldOption {
   label_en: string;
 }
 
-export type ContactRole = 'phone' | 'email';
+export type ContactRole = 'phone' | 'email' | 'plate_number' | 'visit_date' | 'odometer';
 
 export interface CustomerFieldDefinition {
   id: string;

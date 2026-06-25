@@ -76,6 +76,9 @@
     "contact_role_none": "بدون ربط",
     "contact_role_phone": "رقم الجوال",
     "contact_role_email": "البريد الإلكتروني",
+    "contact_role_plate_number": "رقم اللوحة",
+    "contact_role_visit_date": "تاريخ الزيارة",
+    "contact_role_odometer": "العداد",
     "types": {
       "text": "نص",
       "number": "رقم",

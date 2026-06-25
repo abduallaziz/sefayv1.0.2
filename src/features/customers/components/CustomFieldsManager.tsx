@@ -34,9 +34,32 @@ function useFieldTypeOptions(): { value: CustomFieldType; label: string }[] {
   ]
 }
 
-function AddFieldForm({ onClose }: { onClose: () => void }) {
+const VEHICLE_BUSINESS_TYPES = ['workshop', 'services']
+
+function useContactRoleOptions(businessType?: string): { value: ContactRole; label: string }[] {
+  const t = useTranslations('customers')
+  const options: { value: ContactRole; label: string }[] = [
+    { value: 'phone', label: t('fields.contact_role_phone') },
+    { value: 'email', label: t('fields.contact_role_email') },
+  ]
+  if (businessType && VEHICLE_BUSINESS_TYPES.includes(businessType)) {
+    options.push(
+      { value: 'plate_number', label: t('fields.contact_role_plate_number') },
+      { value: 'visit_date', label: t('fields.contact_role_visit_date') },
+      { value: 'odometer', label: t('fields.contact_role_odometer') },
+    )
+  }
+  return options
+}
+
+function contactRoleLabel(t: ReturnType<typeof useTranslations>, role: ContactRole) {
+  return t(`fields.contact_role_${role}`)
+}
+
+function AddFieldForm({ onClose, businessType }: { onClose: () => void; businessType?: string }) {
   const t = useTranslations('customers')
   const fieldTypeOptions = useFieldTypeOptions()
+  const contactRoleOptions = useContactRoleOptions(businessType)
   const createMutation = useCreateFieldDefinition()
   const [form, setForm] = useState({
     field_key: '',
@@ -133,8 +156,7 @@ function AddFieldForm({ onClose }: { onClose: () => void }) {
           className={inputClass}
         >
           <option value="">{t('fields.contact_role_none')}</option>
-          <option value="phone">{t('fields.contact_role_phone')}</option>
-          <option value="email">{t('fields.contact_role_email')}</option>
+          {contactRoleOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
       </div>
 
@@ -165,9 +187,10 @@ function AddFieldForm({ onClose }: { onClose: () => void }) {
   )
 }
 
-function EditFieldForm({ field, onClose }: { field: CustomerFieldDefinition; onClose: () => void }) {
+function EditFieldForm({ field, onClose, businessType }: { field: CustomerFieldDefinition; onClose: () => void; businessType?: string }) {
   const t = useTranslations('customers')
   const fieldTypeOptions = useFieldTypeOptions()
+  const contactRoleOptions = useContactRoleOptions(businessType)
   const updateMutation = useUpdateFieldDefinition()
   const [form, setForm] = useState({
     label_ar: field.label_ar,
@@ -253,8 +276,7 @@ function EditFieldForm({ field, onClose }: { field: CustomerFieldDefinition; onC
           className={inputClass}
         >
           <option value="">{t('fields.contact_role_none')}</option>
-          <option value="phone">{t('fields.contact_role_phone')}</option>
-          <option value="email">{t('fields.contact_role_email')}</option>
+          {contactRoleOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
       </div>
 
@@ -334,7 +356,7 @@ export function CustomFieldsManager() {
           {(fields ?? []).map(field => (
             editingId === field.id ? (
               <div key={field.id} className="py-2.5">
-                <EditFieldForm field={field} onClose={() => setEditingId(null)} />
+                <EditFieldForm field={field} onClose={() => setEditingId(null)} businessType={profile?.business_type} />
               </div>
             ) : (
               <div key={field.id} className="flex items-center justify-between py-2.5 gap-3">
@@ -345,7 +367,7 @@ export function CustomFieldsManager() {
                   </p>
                   <p className="text-xs text-slate-400 dark:text-slate-500" dir="ltr">
                     {field.field_key} · {field.field_type}
-                    {field.contact_role && ` · ${field.contact_role === 'phone' ? t('fields.contact_role_phone') : t('fields.contact_role_email')}`}
+                    {field.contact_role && ` · ${contactRoleLabel(t, field.contact_role)}`}
                   </p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
@@ -392,7 +414,7 @@ export function CustomFieldsManager() {
       )}
 
       {showAdd ? (
-        <AddFieldForm onClose={() => setShowAdd(false)} />
+        <AddFieldForm onClose={() => setShowAdd(false)} businessType={profile?.business_type} />
       ) : (
         <button
           onClick={() => setShowAdd(true)}

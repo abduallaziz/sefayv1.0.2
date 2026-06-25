@@ -76,6 +76,9 @@
     "contact_role_none": "No link",
     "contact_role_phone": "Phone number",
     "contact_role_email": "Email address",
+    "contact_role_plate_number": "Plate number",
+    "contact_role_visit_date": "Visit date",
+    "contact_role_odometer": "Odometer",
     "types": {
       "text": "Text",
       "number": "Number",
