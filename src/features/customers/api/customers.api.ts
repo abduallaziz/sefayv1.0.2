@@ -5,11 +5,14 @@ import {
   CreateCustomerDto,
   UpdateCustomerDto,
   CustomerStats,
+  CustomerFieldDefinition,
+  CreateFieldDefinitionDto,
+  UpdateFieldDefinitionDto,
 } from '../types/customer.types';
 
 export const customersApi = {
-  getAll: (): Promise<Customer[]> =>
-    apiClient.get('/customers'),
+  getAll: (search?: string): Promise<Customer[]> =>
+    apiClient.get(search ? `/customers?search=${encodeURIComponent(search)}` : '/customers'),
 
   getById: (id: string): Promise<Customer> =>
     apiClient.get(`/customers/${id}`),
@@ -28,4 +31,18 @@ export const customersApi = {
 
   delete: (id: string): Promise<void> =>
     apiClient.delete(`/customers/${id}`),
+};
+
+export const customerFieldDefinitionsApi = {
+  getAll: (): Promise<CustomerFieldDefinition[]> =>
+    apiClient.get('/customer-field-definitions'),
+
+  create: (dto: CreateFieldDefinitionDto): Promise<CustomerFieldDefinition> =>
+    apiClient.post('/customer-field-definitions', dto),
+
+  update: (id: string, dto: UpdateFieldDefinitionDto): Promise<CustomerFieldDefinition> =>
+    apiClient.patch(`/customer-field-definitions/${id}`, dto),
+
+  delete: (id: string): Promise<void> =>
+    apiClient.delete(`/customer-field-definitions/${id}`),
 };

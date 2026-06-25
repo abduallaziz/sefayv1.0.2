@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useProfile, useSubscription, useUsage, useUpdateProfile } from '../hooks/useSettings';
 import { useTenantStore } from '@/core/tenant/stores/tenant.store';
-import { Building2, CreditCard, BarChart3, Save, Coins } from 'lucide-react';
+import { Building2, CreditCard, BarChart3, Save, Coins, Users } from 'lucide-react';
+import { CustomFieldsManager } from '@/features/customers/components/CustomFieldsManager';
 
 const CURRENCIES = [
   { code: 'SAR', symbol: 'ر.س', label: 'ريال سعودي' },
@@ -33,6 +34,10 @@ export function SettingsPage() {
   function handleSaveName() {
     if (!name.trim()) return;
     updateProfile({ name: name.trim() });
+  }
+
+  function handleToggleCustomerCapture(enabled: boolean) {
+    updateProfile({ customer_capture_enabled: enabled });
   }
 
   function handleSaveCurrency() {
@@ -123,6 +128,37 @@ export function SettingsPage() {
           <Save className="w-4 h-4" />
           {isPending ? t('saving') : t('save')}
         </button>
+      </div>
+
+      {/* Custom Customer Fields */}
+      <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Users className="w-4 h-4 text-slate-400" />
+            <h2 className="text-sm font-semibold text-slate-700 dark:text-white">حقول العميل المخصصة</h2>
+          </div>
+          {profileLoading ? (
+            <div className="h-6 w-12 bg-slate-100 dark:bg-gray-800 rounded-full animate-pulse" />
+          ) : (
+            <button
+              onClick={() => handleToggleCustomerCapture(!profile?.customer_capture_enabled)}
+              disabled={isPending}
+              className={`relative w-12 h-6 rounded-full transition-colors disabled:opacity-50 ${
+                profile?.customer_capture_enabled ? 'bg-[#0C447C]' : 'bg-slate-200 dark:bg-gray-700'
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
+                  profile?.customer_capture_enabled ? 'translate-x-6 rtl:-translate-x-6' : 'translate-x-0.5 rtl:-translate-x-0.5'
+                }`}
+              />
+            </button>
+          )}
+        </div>
+        <p className="text-xs text-slate-500">
+          عند التفعيل، يظهر للكاشير خيار البحث عن عميل أو تسجيل عميل جديد عند البيع (POS).
+        </p>
+        <CustomFieldsManager />
       </div>
 
       {/* Subscription */}

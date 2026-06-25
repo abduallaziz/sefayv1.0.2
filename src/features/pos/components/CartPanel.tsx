@@ -2,8 +2,10 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
+import { UserPlus, User, X } from 'lucide-react'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
 import { Cart } from '../types/pos.types'
+import type { Customer } from '@/features/customers/types/customer.types'
 
 interface Props {
   cart: Cart
@@ -12,11 +14,18 @@ interface Props {
   onApplyDiscount: (type: Cart['discount_type'], value: number, coupon?: string) => void
   onCheckout: () => void
   onClear: () => void
+  customerCaptureEnabled?: boolean
+  selectedCustomer?: Customer | null
+  onOpenCustomerPicker?: () => void
+  onClearCustomer?: () => void
 }
 
 const fmt = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
-export function CartPanel({ cart, onUpdateQty, onRemoveItem, onApplyDiscount, onCheckout, onClear }: Props) {
+export function CartPanel({
+  cart, onUpdateQty, onRemoveItem, onApplyDiscount, onCheckout, onClear,
+  customerCaptureEnabled, selectedCustomer, onOpenCustomerPicker, onClearCustomer,
+}: Props) {
   const t = useTranslations('pos')
   const currency = useTenantStore((s) => s.currency_symbol)
   const [showDiscount, setShowDiscount] = useState(false)
@@ -82,6 +91,32 @@ export function CartPanel({ cart, onUpdateQty, onRemoveItem, onApplyDiscount, on
           ))
         )}
       </div>
+
+      {customerCaptureEnabled && (
+        <div className="border-t border-gray-100 dark:border-gray-700 pt-3 mb-3">
+          {selectedCustomer ? (
+            <div className="flex items-center justify-between gap-2 p-2 rounded-lg bg-gray-50 dark:bg-white/5">
+              <div className="flex items-center gap-2 min-w-0">
+                <User className="w-4 h-4 text-[#0C447C] dark:text-[#5B9BD5] shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{selectedCustomer.full_name}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400" dir="ltr">{selectedCustomer.phone}</p>
+                </div>
+              </div>
+              <button onClick={onClearCustomer} className="text-gray-400 hover:text-red-500 shrink-0">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={onOpenCustomerPicker}
+              className="w-full flex items-center justify-center gap-2 py-2 border border-dashed border-gray-300 dark:border-gray-600 text-[#0C447C] dark:text-[#5B9BD5] hover:border-[#0C447C] rounded-lg text-sm"
+            >
+              <UserPlus className="w-4 h-4" /> إضافة عميل
+            </button>
+          )}
+        </div>
+      )}
 
       <div className="border-t border-gray-100 dark:border-gray-700 pt-3 mb-3">
         <button

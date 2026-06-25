@@ -6,6 +6,7 @@ import { ItemGrid } from '../components/ItemGrid'
 import { CartPanel } from '../components/CartPanel'
 import { PaymentModal } from '../components/PaymentModal'
 import { ReceiptModal } from '../components/ReceiptModal'
+import { CustomerPickerModal } from '../components/CustomerPickerModal'
 import { useCart } from '../hooks/useCart'
 import { PaymentData } from '../types/pos.types'
 import { createOrder } from '@/features/orders/api/orders.api'
@@ -13,6 +14,7 @@ import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { apiClient } from '@/lib/api'
 import { useTranslations } from 'next-intl'
 import { ShoppingCart, Grid } from 'lucide-react'
+import type { Customer } from '@/features/customers/types/customer.types'
 
 export function POSPage() {
   const { user } = useAuthStore()
@@ -21,6 +23,8 @@ export function POSPage() {
   const [receipt, setReceipt] = useState<{ payment: PaymentData; invoiceNumber: string; taxRate: number } | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [mobileTab, setMobileTab] = useState<'items' | 'cart'>('items')
+  const [showCustomerPicker, setShowCustomerPicker] = useState(false)
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
 
   const { data: branches } = useQuery({
     queryKey: ['branches'],
@@ -36,11 +40,12 @@ export function POSPage() {
 
   const { data: tenantProfile } = useQuery({
     queryKey: ['tenant', 'profile'],
-    queryFn: () => apiClient.get<{ tax_rate?: number }>('/tenant/profile'),
+    queryFn: () => apiClient.get<{ tax_rate?: number; customer_capture_enabled?: boolean }>('/tenant/profile'),
     enabled: !!user,
   })
 
   const taxRate = (tenantProfile as any)?.tax_rate ?? 0.15
+  const customerCaptureEnabled = (tenantProfile as any)?.customer_capture_enabled ?? false
 
   const { cart, addItem, removeItem, updateQty, applyDiscount, clearCart } = useCart(taxRate)
 
@@ -53,6 +58,7 @@ export function POSPage() {
       const order = await createOrder({
         branch_id: branchId,
         shift_id: currentShift?.id,
+        customer_id: selectedCustomer?.id,
         payment_method: data.method,
         cash_tendered: data.method === 'cash' ? data.cash_tendered : undefined,
         cash_amount: data.method === 'split' ? data.split_cash : undefined,
@@ -88,6 +94,7 @@ export function POSPage() {
   const handleNewOrder = () => {
     clearCart()
     setReceipt(null)
+    setSelectedCustomer(null)
   }
 
   return (
@@ -143,6 +150,10 @@ export function POSPage() {
             onApplyDiscount={applyDiscount}
             onCheckout={() => setShowPayment(true)}
             onClear={clearCart}
+            customerCaptureEnabled={customerCaptureEnabled}
+            selectedCustomer={selectedCustomer}
+            onOpenCustomerPicker={() => setShowCustomerPicker(true)}
+            onClearCustomer={() => setSelectedCustomer(null)}
           />
         </div>
       </div>
@@ -153,6 +164,16 @@ export function POSPage() {
           onConfirm={handleConfirmPayment}
           onClose={() => setShowPayment(false)}
           isSubmitting={isSubmitting}
+        />
+      )}
+
+      {showCustomerPicker && (
+        <CustomerPickerModal
+          onSelect={(customer) => {
+            setSelectedCustomer(customer)
+            setShowCustomerPicker(false)
+          }}
+          onClose={() => setShowCustomerPicker(false)}
         />
       )}
 

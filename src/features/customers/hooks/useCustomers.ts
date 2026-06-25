@@ -1,9 +1,21 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { customersApi } from '../api/customers.api';
-import { CreateCustomerDto, UpdateCustomerDto } from '../types/customer.types';
+import { customersApi, customerFieldDefinitionsApi } from '../api/customers.api';
+import {
+  CreateCustomerDto,
+  UpdateCustomerDto,
+  CreateFieldDefinitionDto,
+  UpdateFieldDefinitionDto,
+} from '../types/customer.types';
 
 export const useCustomers = () =>
-  useQuery({ queryKey: ['customers'], queryFn: customersApi.getAll });
+  useQuery({ queryKey: ['customers'], queryFn: () => customersApi.getAll() });
+
+export const useCustomerSearch = (search: string) =>
+  useQuery({
+    queryKey: ['customers', 'search', search],
+    queryFn: () => customersApi.getAll(search),
+    enabled: search.trim().length >= 2,
+  });
 
 export const useCustomerDetails = (id: string) =>
   useQuery({
@@ -44,5 +56,36 @@ export const useDeleteCustomer = () => {
   return useMutation({
     mutationFn: (id: string) => customersApi.delete(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['customers'] }),
+  });
+};
+
+export const useCustomerFieldDefinitions = () =>
+  useQuery({
+    queryKey: ['customer-field-definitions'],
+    queryFn: customerFieldDefinitionsApi.getAll,
+  });
+
+export const useCreateFieldDefinition = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (dto: CreateFieldDefinitionDto) => customerFieldDefinitionsApi.create(dto),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['customer-field-definitions'] }),
+  });
+};
+
+export const useUpdateFieldDefinition = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, dto }: { id: string; dto: UpdateFieldDefinitionDto }) =>
+      customerFieldDefinitionsApi.update(id, dto),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['customer-field-definitions'] }),
+  });
+};
+
+export const useDeleteFieldDefinition = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => customerFieldDefinitionsApi.delete(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['customer-field-definitions'] }),
   });
 };

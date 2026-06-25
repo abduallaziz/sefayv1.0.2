@@ -11,6 +11,47 @@ export interface Customer {
   deleted_at: string | null;
   orders_count?: number;
   total_spent?: number;
+  custom_fields?: Record<string, string | number | boolean | null>;
+}
+
+export type CustomFieldType = 'text' | 'number' | 'date' | 'select' | 'boolean';
+
+export interface CustomFieldOption {
+  value: string;
+  label_ar: string;
+  label_en: string;
+}
+
+export interface CustomerFieldDefinition {
+  id: string;
+  field_key: string;
+  label_ar: string;
+  label_en: string;
+  field_type: CustomFieldType;
+  options: CustomFieldOption[] | null;
+  required: boolean;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+}
+
+export interface CreateFieldDefinitionDto {
+  field_key: string;
+  label_ar: string;
+  label_en: string;
+  field_type: CustomFieldType;
+  options?: CustomFieldOption[];
+  required?: boolean;
+}
+
+export interface UpdateFieldDefinitionDto {
+  label_ar?: string;
+  label_en?: string;
+  field_type?: CustomFieldType;
+  options?: CustomFieldOption[];
+  required?: boolean;
+  is_active?: boolean;
+  sort_order?: number;
 }
 
 export interface CustomerOrder {
@@ -26,12 +67,14 @@ export interface CreateCustomerDto {
   full_name: string;
   phone: string;
   email?: string;
+  custom_fields?: Record<string, string | number | boolean | null>;
 }
 
 export interface UpdateCustomerDto {
   full_name?: string;
   phone?: string;
   email?: string;
+  custom_fields?: Record<string, string | number | boolean | null>;
 }
 
 export interface CustomerFilters {
