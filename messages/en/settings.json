@@ -13,5 +13,8 @@
   "endsAt": "Ends At",
   "usage": "Usage",
   "users": "Users",
-  "branches": "Branches"
+  "branches": "Branches",
+  "taxRate": "Tax Rate",
+  "taxRateHint": "Applied to POS invoices (0 to 100)",
+  "taxRateError": "Enter a percentage between 0 and 100"
 }

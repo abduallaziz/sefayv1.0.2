@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useProfile, useSubscription, useUsage, useUpdateProfile } from '../hooks/useSettings';
 import { useTenantStore } from '@/core/tenant/stores/tenant.store';
-import { Building2, CreditCard, BarChart3, Save, Coins, Users } from 'lucide-react';
+import { Building2, CreditCard, BarChart3, Save, Coins, Users, Percent } from 'lucide-react';
 import { CustomFieldsManager } from '@/features/customers/components/CustomFieldsManager';
 
 const CURRENCIES = [
@@ -28,8 +28,16 @@ export function SettingsPage() {
   const { currency_code, setCurrency } = useTenantStore();
   const [name, setName] = useState('');
   const [selectedCurrency, setSelectedCurrency] = useState(currency_code);
+  const [taxRatePercent, setTaxRatePercent] = useState('');
+  const [taxRateError, setTaxRateError] = useState(false);
 
   const sub = (subscriptionData as any)?.subscription;
+
+  useEffect(() => {
+    if (profile?.tax_rate !== undefined) {
+      setTaxRatePercent(String(Math.round(profile.tax_rate * 100 * 100) / 100));
+    }
+  }, [profile?.tax_rate]);
 
   function handleSaveName() {
     if (!name.trim()) return;
@@ -49,6 +57,16 @@ export function SettingsPage() {
         onSuccess: () => setCurrency(cur.code, cur.symbol),
       }
     );
+  }
+
+  function handleSaveTaxRate() {
+    const value = Number(taxRatePercent);
+    if (Number.isNaN(value) || value < 0 || value > 100) {
+      setTaxRateError(true);
+      return;
+    }
+    setTaxRateError(false);
+    updateProfile({ tax_rate: value / 100 });
   }
 
   return (
@@ -128,6 +146,42 @@ export function SettingsPage() {
           <Save className="w-4 h-4" />
           {isPending ? t('saving') : t('save')}
         </button>
+      </div>
+
+      {/* Tax Rate */}
+      <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-5 space-y-4">
+        <div className="flex items-center gap-2 mb-2">
+          <Percent className="w-4 h-4 text-slate-400" />
+          <h2 className="text-sm font-semibold text-slate-700 dark:text-white">{t('taxRate')}</h2>
+        </div>
+        {profileLoading ? (
+          <div className="h-10 bg-slate-100 dark:bg-gray-800 rounded-lg animate-pulse" />
+        ) : (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 max-w-[160px]">
+              <input
+                type="number"
+                min={0}
+                max={100}
+                step={0.01}
+                value={taxRatePercent}
+                onChange={(e) => { setTaxRatePercent(e.target.value); setTaxRateError(false); }}
+                className="w-full bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-[#0C447C] dark:focus:border-[#0C447C]"
+              />
+              <span className="text-sm text-slate-500">%</span>
+            </div>
+            <p className="text-xs text-slate-500">{t('taxRateHint')}</p>
+            {taxRateError && <p className="text-xs text-red-500">{t('taxRateError')}</p>}
+            <button
+              onClick={handleSaveTaxRate}
+              disabled={isPending}
+              className="flex items-center gap-2 px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 rounded-lg text-sm text-white transition-colors"
+            >
+              <Save className="w-4 h-4" />
+              {isPending ? t('saving') : t('save')}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Custom Customer Fields */}

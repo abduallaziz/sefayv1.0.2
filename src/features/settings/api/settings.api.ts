@@ -8,6 +8,7 @@ export interface TenantProfile {
   created_at: string
   currency_code: string
   currency_symbol: string
+  tax_rate: number
   customer_capture_enabled: boolean
   name_field_enabled: boolean
 }
