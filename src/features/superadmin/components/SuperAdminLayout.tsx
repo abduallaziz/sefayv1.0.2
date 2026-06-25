@@ -15,9 +15,10 @@ export function SuperAdminLayout({ children }: { children: React.ReactNode }) {
       <div
         style={{
           minHeight: '100vh',
-          background: isDark
-            ? 'radial-gradient(1400px 700px at 88% -8%, rgba(37,99,235,0.10), transparent 52%), radial-gradient(1000px 600px at 6% 12%, rgba(12,68,124,0.10), transparent 48%), #0D1117'
-            : 'radial-gradient(1400px 700px at 88% -8%, rgba(37,99,235,0.07), transparent 52%), radial-gradient(1000px 600px at 6% 12%, rgba(12,68,124,0.055), transparent 48%), #E9EEF5',
+          backgroundImage: isDark
+            ? 'radial-gradient(1400px 700px at 88% -8%, rgba(37,99,235,0.10), transparent 52%), radial-gradient(1000px 600px at 6% 12%, rgba(12,68,124,0.10), transparent 48%)'
+            : 'radial-gradient(1400px 700px at 88% -8%, rgba(37,99,235,0.07), transparent 52%), radial-gradient(1000px 600px at 6% 12%, rgba(12,68,124,0.055), transparent 48%)',
+          backgroundColor: isDark ? '#0D1117' : '#E9EEF5',
           backgroundAttachment: 'fixed',
         }}
       >

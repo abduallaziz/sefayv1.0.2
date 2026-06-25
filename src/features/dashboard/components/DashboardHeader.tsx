@@ -99,13 +99,13 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
         {/* Mobile menu btn */}
         <button
           onClick={onMenuClick}
-          className="lg:hidden"
+          className="flex lg:hidden"
           style={{
             width: '36px', height: '36px',
             borderRadius: '10px',
             background: 'rgba(255,255,255,0.13)',
             border: '1px solid rgba(255,255,255,0.22)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            alignItems: 'center', justifyContent: 'center',
             color: '#fff', cursor: 'pointer', flexShrink: 0,
           }}
         >
