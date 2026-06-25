@@ -33,7 +33,7 @@ export function CustomerFormModal({ customer, onClose, onSubmit, isLoading }: Pr
 
   useEffect(() => {
     if (customer) {
-      reset({ full_name: customer.full_name, phone: customer.phone, email: customer.email ?? '' });
+      reset({ full_name: customer.full_name ?? '', phone: customer.phone ?? '', email: customer.email ?? '' });
     } else {
       reset({ full_name: '', phone: '', email: '' });
     }

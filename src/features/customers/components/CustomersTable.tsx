@@ -34,7 +34,7 @@ export function CustomersTable({ customers, onView, onEdit, onDelete }: Props) {
             <div className="flex items-start justify-between gap-2">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="w-9 h-9 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-[#0C447C] dark:text-[#5B9BD5] font-semibold text-sm shrink-0">
-                  {customer.full_name.charAt(0)}
+                  {(customer.full_name || '?').charAt(0)}
                 </div>
                 <div className="min-w-0">
                   <p className="font-medium text-gray-900 dark:text-white truncate">{customer.full_name}</p>
@@ -87,7 +87,7 @@ export function CustomersTable({ customers, onView, onEdit, onDelete }: Props) {
                 <td className="py-3 px-4">
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-[#0C447C] dark:text-[#5B9BD5] font-semibold text-sm shrink-0">
-                      {customer.full_name.charAt(0)}
+                      {(customer.full_name || '?').charAt(0)}
                     </div>
                     <div>
                       <p className="font-medium text-gray-900 dark:text-white">{customer.full_name}</p>

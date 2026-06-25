@@ -12,43 +12,49 @@ interface Props {
 
 const inputClass = 'w-full px-3 py-2 text-sm bg-[#141720] border border-[#1e2130] text-white rounded-lg focus:outline-none focus:border-[#0C447C]'
 
+const BUILTIN_FIELD_KEYS = new Set(['full_name', 'phone'])
+
 function QuickAddCustomerForm({ onCreated, onCancel }: { onCreated: (c: Customer) => void; onCancel: () => void }) {
   const { data: fieldDefs } = useCustomerFieldDefinitions()
   const createMutation = useCreateCustomer()
-  const [fullName, setFullName] = useState('')
-  const [phone, setPhone] = useState('')
-  const [customValues, setCustomValues] = useState<Record<string, string>>({})
+  const [values, setValues] = useState<Record<string, string>>({})
 
-  const activeFields = (fieldDefs ?? []).filter(f => f.is_active)
+  const activeFields = (fieldDefs ?? [])
+    .filter(f => f.is_active)
+    .sort((a, b) => a.sort_order - b.sort_order)
+
+  const missingRequired = activeFields.some(f => f.required && !values[f.field_key]?.trim())
 
   function handleSubmit() {
-    if (!fullName.trim() || !phone.trim()) return
+    if (missingRequired) return
 
     const custom_fields: Record<string, string | number | boolean> = {}
+    let full_name: string | undefined
+    let phone: string | undefined
+
     for (const field of activeFields) {
-      const raw = customValues[field.field_key]
+      const raw = values[field.field_key]
       if (raw === undefined || raw === '') continue
+
+      if (field.field_key === 'full_name') { full_name = raw; continue }
+      if (field.field_key === 'phone') { phone = raw; continue }
+
       if (field.field_type === 'number') custom_fields[field.field_key] = Number(raw)
       else if (field.field_type === 'boolean') custom_fields[field.field_key] = raw === 'true'
       else custom_fields[field.field_key] = raw
     }
 
     createMutation.mutate(
-      { full_name: fullName.trim(), phone: phone.trim(), custom_fields },
+      { full_name, phone, custom_fields },
       { onSuccess: (customer) => onCreated(customer) },
     )
   }
 
   return (
     <div className="space-y-3">
-      <div>
-        <label className="text-xs text-slate-400 mb-1 block">اسم العميل *</label>
-        <input value={fullName} onChange={e => setFullName(e.target.value)} className={inputClass} autoFocus />
-      </div>
-      <div>
-        <label className="text-xs text-slate-400 mb-1 block">رقم الجوال *</label>
-        <input value={phone} onChange={e => setPhone(e.target.value)} dir="ltr" className={inputClass} />
-      </div>
+      {activeFields.length === 0 && (
+        <p className="text-sm text-slate-500 text-center py-2">لا توجد حقول مفعّلة لتسجيل عميل</p>
+      )}
 
       {activeFields.map(field => (
         <div key={field.field_key}>
@@ -57,8 +63,8 @@ function QuickAddCustomerForm({ onCreated, onCancel }: { onCreated: (c: Customer
           </label>
           {field.field_type === 'select' ? (
             <select
-              value={customValues[field.field_key] ?? ''}
-              onChange={e => setCustomValues(p => ({ ...p, [field.field_key]: e.target.value }))}
+              value={values[field.field_key] ?? ''}
+              onChange={e => setValues(p => ({ ...p, [field.field_key]: e.target.value }))}
               className={inputClass}
             >
               <option value="">—</option>
@@ -66,8 +72,8 @@ function QuickAddCustomerForm({ onCreated, onCancel }: { onCreated: (c: Customer
             </select>
           ) : field.field_type === 'boolean' ? (
             <select
-              value={customValues[field.field_key] ?? ''}
-              onChange={e => setCustomValues(p => ({ ...p, [field.field_key]: e.target.value }))}
+              value={values[field.field_key] ?? ''}
+              onChange={e => setValues(p => ({ ...p, [field.field_key]: e.target.value }))}
               className={inputClass}
             >
               <option value="">—</option>
@@ -77,9 +83,11 @@ function QuickAddCustomerForm({ onCreated, onCancel }: { onCreated: (c: Customer
           ) : (
             <input
               type={field.field_type === 'number' ? 'number' : field.field_type === 'date' ? 'date' : 'text'}
-              value={customValues[field.field_key] ?? ''}
-              onChange={e => setCustomValues(p => ({ ...p, [field.field_key]: e.target.value }))}
+              dir={BUILTIN_FIELD_KEYS.has(field.field_key) && field.field_key === 'phone' ? 'ltr' : undefined}
+              value={values[field.field_key] ?? ''}
+              onChange={e => setValues(p => ({ ...p, [field.field_key]: e.target.value }))}
               className={inputClass}
+              autoFocus={field.sort_order === activeFields[0]?.sort_order}
             />
           )}
         </div>
@@ -91,7 +99,7 @@ function QuickAddCustomerForm({ onCreated, onCancel }: { onCreated: (c: Customer
         </button>
         <button
           onClick={handleSubmit}
-          disabled={createMutation.isPending || !fullName.trim() || !phone.trim()}
+          disabled={createMutation.isPending || missingRequired}
           className="flex-1 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 text-white rounded-lg text-sm font-medium"
         >
           {createMutation.isPending ? '...' : 'حفظ وتحديد'}
@@ -141,8 +149,8 @@ export function CustomerPickerModal({ onSelect, onClose }: Props) {
                     onClick={() => onSelect(customer)}
                     className="w-full text-start p-3 rounded-lg bg-[#141720] hover:bg-[#1a1f2e] border border-[#1e2130] transition-colors"
                   >
-                    <p className="text-sm font-medium text-white">{customer.full_name}</p>
-                    <p className="text-xs text-slate-400" dir="ltr">{customer.phone}</p>
+                    <p className="text-sm font-medium text-white">{customer.full_name || '—'}</p>
+                    {customer.phone && <p className="text-xs text-slate-400" dir="ltr">{customer.phone}</p>}
                   </button>
                 ))}
               </div>

@@ -30,11 +30,11 @@ export function CustomerDetailsModal({ customer, onClose, onEdit }: Props) {
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-[#0C447C] font-bold">
-              {customer.full_name.charAt(0)}
+              {(customer.full_name || '?').charAt(0)}
             </div>
             <div>
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                {customer.full_name}
+                {customer.full_name || '—'}
               </h2>
               <p className="text-sm text-gray-400">
                 {t('details.since')} {new Date(customer.created_at).toLocaleDateString('ar-SA')}

@@ -1,8 +1,8 @@
 export interface Customer {
   id: string;
   tenant_id: string;
-  full_name: string;
-  phone: string;
+  full_name: string | null;
+  phone: string | null;
   email: string | null;
   loyalty_points: number;
   is_active: boolean;
@@ -64,8 +64,8 @@ export interface CustomerOrder {
 }
 
 export interface CreateCustomerDto {
-  full_name: string;
-  phone: string;
+  full_name?: string;
+  phone?: string;
   email?: string;
   custom_fields?: Record<string, string | number | boolean | null>;
 }

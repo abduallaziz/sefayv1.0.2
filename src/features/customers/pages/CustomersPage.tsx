@@ -49,7 +49,7 @@ export function CustomersPage() {
       const q = filters.search.toLowerCase();
       list = list.filter(
         (c) =>
-          c.full_name.toLowerCase().includes(q) ||
+          c.full_name?.toLowerCase().includes(q) ||
           c.phone?.includes(q) ||
           c.email?.toLowerCase().includes(q),
       );

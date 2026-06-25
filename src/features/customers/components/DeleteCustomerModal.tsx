@@ -27,7 +27,7 @@ export function DeleteCustomerModal({ customer, onClose, onConfirm, isLoading }:
           </div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('delete.title')}</h3>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            {t('delete.message', { name: customer.full_name })}
+            {t('delete.message', { name: customer.full_name ?? '' })}
           </p>
         </div>
         <div className="flex gap-3 mt-6">

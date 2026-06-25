@@ -91,6 +91,14 @@ export function POSPage() {
     }
   }
 
+  const handleCheckoutClick = () => {
+    if (customerCaptureEnabled && !selectedCustomer) {
+      setShowCustomerPicker(true)
+    } else {
+      setShowPayment(true)
+    }
+  }
+
   const handleNewOrder = () => {
     clearCart()
     setReceipt(null)
@@ -148,11 +156,10 @@ export function POSPage() {
             onUpdateQty={updateQty}
             onRemoveItem={removeItem}
             onApplyDiscount={applyDiscount}
-            onCheckout={() => setShowPayment(true)}
+            onCheckout={handleCheckoutClick}
             onClear={clearCart}
             customerCaptureEnabled={customerCaptureEnabled}
             selectedCustomer={selectedCustomer}
-            onOpenCustomerPicker={() => setShowCustomerPicker(true)}
             onClearCustomer={() => setSelectedCustomer(null)}
           />
         </div>
@@ -172,6 +179,7 @@ export function POSPage() {
           onSelect={(customer) => {
             setSelectedCustomer(customer)
             setShowCustomerPicker(false)
+            setShowPayment(true)
           }}
           onClose={() => setShowCustomerPicker(false)}
         />

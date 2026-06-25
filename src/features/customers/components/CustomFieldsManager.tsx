@@ -10,6 +10,8 @@ import {
 } from '../hooks/useCustomers'
 import type { CustomFieldType } from '../types/customer.types'
 
+const BUILTIN_FIELD_KEYS = new Set(['full_name', 'phone'])
+
 const FIELD_TYPE_OPTIONS: { value: CustomFieldType; label: string }[] = [
   { value: 'text', label: 'نص' },
   { value: 'number', label: 'رقم' },
@@ -150,40 +152,57 @@ export function CustomFieldsManager() {
           {(fields ?? []).length === 0 && !showAdd && (
             <p className="text-sm text-slate-400 py-2">لا توجد حقول مخصصة بعد</p>
           )}
-          {(fields ?? []).map(field => (
-            <div key={field.id} className="flex items-center justify-between py-2.5 gap-3">
-              <div className="min-w-0">
-                <p className="text-sm font-medium text-slate-800 dark:text-white">
-                  {field.label_ar} <span className="text-slate-400 text-xs">({field.label_en})</span>
-                  {field.required && <span className="text-red-500 text-xs ms-1">*</span>}
-                </p>
-                <p className="text-xs text-slate-400 dark:text-slate-500" dir="ltr">{field.field_key} · {field.field_type}</p>
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <button
-                  onClick={() => updateMutation.mutate({ id: field.id, dto: { is_active: !field.is_active } })}
-                  disabled={updateMutation.isPending}
-                  className={`px-2 py-0.5 rounded-full text-xs font-medium border transition-all ${
-                    field.is_active
-                      ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700'
-                  }`}
-                >
-                  {field.is_active ? 'نشط' : 'معطّل'}
-                </button>
-                {confirmDeleteId === field.id ? (
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => deleteMutation.mutate(field.id, { onSuccess: () => setConfirmDeleteId(null) })} className="text-xs text-red-500 hover:text-red-600">تأكيد</button>
-                    <button onClick={() => setConfirmDeleteId(null)} className="text-xs text-slate-400">إلغاء</button>
-                  </div>
-                ) : (
-                  <button onClick={() => setConfirmDeleteId(field.id)} className="text-slate-400 hover:text-red-500">
-                    <Trash2 className="w-4 h-4" />
+          {(fields ?? []).map(field => {
+            const isBuiltin = BUILTIN_FIELD_KEYS.has(field.field_key)
+            return (
+              <div key={field.id} className="flex items-center justify-between py-2.5 gap-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-slate-800 dark:text-white">
+                    {field.label_ar} <span className="text-slate-400 text-xs">({field.label_en})</span>
+                    {isBuiltin && <span className="text-slate-400 text-xs ms-1">(أساسي)</span>}
+                    {field.required && <span className="text-red-500 text-xs ms-1">*</span>}
+                  </p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500" dir="ltr">{field.field_key} · {field.field_type}</p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    onClick={() => updateMutation.mutate({ id: field.id, dto: { required: !field.required } })}
+                    disabled={updateMutation.isPending}
+                    className={`px-2 py-0.5 rounded-full text-xs font-medium border transition-all ${
+                      field.required
+                        ? 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700'
+                    }`}
+                  >
+                    {field.required ? 'إلزامي' : 'اختياري'}
                   </button>
-                )}
+                  <button
+                    onClick={() => updateMutation.mutate({ id: field.id, dto: { is_active: !field.is_active } })}
+                    disabled={updateMutation.isPending}
+                    className={`px-2 py-0.5 rounded-full text-xs font-medium border transition-all ${
+                      field.is_active
+                        ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700'
+                    }`}
+                  >
+                    {field.is_active ? 'نشط' : 'معطّل'}
+                  </button>
+                  {!isBuiltin && (
+                    confirmDeleteId === field.id ? (
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => deleteMutation.mutate(field.id, { onSuccess: () => setConfirmDeleteId(null) })} className="text-xs text-red-500 hover:text-red-600">تأكيد</button>
+                        <button onClick={() => setConfirmDeleteId(null)} className="text-xs text-slate-400">إلغاء</button>
+                      </div>
+                    ) : (
+                      <button onClick={() => setConfirmDeleteId(field.id)} className="text-slate-400 hover:text-red-500">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
 
