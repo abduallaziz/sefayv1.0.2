@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
+import { useThemeStore } from '@/core/theme/stores/theme.store'
 import { reportsApi } from '@/features/reports/api/reports.api'
 import { shiftsApi } from '@/features/shifts/api/shifts.api'
 import { customersApi } from '@/features/customers/api/customers.api'
@@ -24,9 +25,31 @@ import Link from 'next/link'
 
 type Period = 'today' | 'week' | 'month'
 
+/* ── Theme tokens ── */
+function useDashboardColors(isDark: boolean) {
+  return {
+    cardBg: isDark ? 'rgba(22,27,34,0.78)' : 'rgba(255,255,255,0.74)',
+    cardBorder: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(255,255,255,0.95)',
+    cardShadow: isDark ? '0 4px 6px rgba(0,0,0,0.2),0 8px 24px rgba(0,0,0,0.25)' : '0 4px 6px rgba(10,22,40,0.03),0 8px 24px rgba(10,22,40,0.07)',
+    cardShadowHover: isDark ? '0 8px 16px rgba(0,0,0,0.25),0 20px 48px rgba(0,0,0,0.3)' : '0 8px 16px rgba(10,22,40,0.05),0 20px 48px rgba(10,22,40,0.12)',
+    textPrimary: isDark ? '#E6EDF3' : '#0A1628',
+    textSecondary: isDark ? '#8B949E' : '#54657C',
+    textMuted: isDark ? '#6E7681' : '#8C9CB2',
+    divider: isDark ? 'rgba(255,255,255,0.08)' : '#EEF2F7',
+    chipBg: isDark ? 'rgba(255,255,255,0.05)' : '#F5F8FC',
+    iconChipBg: isDark ? 'rgba(91,155,213,0.14)' : 'linear-gradient(135deg,#EAF2FB,#DBEAFE)',
+    iconColor: isDark ? '#5B9BD5' : '#0C447C',
+    tagNeutralBg: isDark ? 'rgba(255,255,255,0.07)' : '#F1F5F9',
+    tagNeutralBorder: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid #E2E8F1',
+    gridLine: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(10,22,40,0.04)',
+    axisTick: isDark ? '#6E7681' : '#94A3B8',
+    rankFallbackBg: isDark ? 'rgba(255,255,255,0.06)' : '#F1F5F9',
+  }
+}
+
 /* ── Sparkline ── */
 function Sparkline({ data, color }: { data: number[]; color: string }) {
-  const points = data.map((v, i) => ({ v }))
+  const points = data.map((v) => ({ v }))
   return (
     <ResponsiveContainer width="100%" height={34}>
       <LineChart data={points} margin={{ top: 2, right: 0, left: 0, bottom: 2 }}>
@@ -38,25 +61,26 @@ function Sparkline({ data, color }: { data: number[]; color: string }) {
 
 /* ── Stat Card ── */
 function StatCard({
-  title, value, delta, deltaUp, icon: Icon, spark, sparkColor, stripe,
+  title, value, delta, deltaUp, icon: Icon, spark, sparkColor, stripe, c,
 }: {
   title: string; value: string; delta?: string; deltaUp?: boolean
   icon: React.ElementType; spark: number[]; sparkColor: string; stripe: string
+  c: ReturnType<typeof useDashboardColors>
 }) {
   return (
     <div style={{
-      background: 'rgba(255,255,255,0.74)',
+      background: c.cardBg,
       backdropFilter: 'blur(20px) saturate(160%)',
       WebkitBackdropFilter: 'blur(20px) saturate(160%)',
       borderRadius: '20px',
-      border: '1px solid rgba(255,255,255,0.95)',
-      boxShadow: '0 4px 6px rgba(10,22,40,0.03),0 8px 24px rgba(10,22,40,0.07)',
+      border: c.cardBorder,
+      boxShadow: c.cardShadow,
       position: 'relative', overflow: 'hidden',
       transition: 'all .3s cubic-bezier(.4,0,.2,1)',
       cursor: 'default',
     }}
-      onMouseEnter={e => { const el = e.currentTarget as HTMLDivElement; el.style.transform = 'translateY(-4px)'; el.style.boxShadow = '0 8px 16px rgba(10,22,40,0.05),0 20px 48px rgba(10,22,40,0.12)' }}
-      onMouseLeave={e => { const el = e.currentTarget as HTMLDivElement; el.style.transform = 'translateY(0)'; el.style.boxShadow = '0 4px 6px rgba(10,22,40,0.03),0 8px 24px rgba(10,22,40,0.07)' }}
+      onMouseEnter={e => { const el = e.currentTarget as HTMLDivElement; el.style.transform = 'translateY(-4px)'; el.style.boxShadow = c.cardShadowHover }}
+      onMouseLeave={e => { const el = e.currentTarget as HTMLDivElement; el.style.transform = 'translateY(0)'; el.style.boxShadow = c.cardShadow }}
     >
       <div style={{ position: 'absolute', top: 0, right: 0, left: 0, height: '3px', background: stripe }} />
       <div style={{ padding: '18px 18px 0' }}>
@@ -79,10 +103,10 @@ function StatCard({
             </div>
           )}
         </div>
-        <div style={{ fontSize: '28px', fontWeight: 700, color: '#0A1628', letterSpacing: '-1px', lineHeight: 1, marginBottom: '5px' }}>
+        <div style={{ fontSize: '28px', fontWeight: 700, color: c.textPrimary, letterSpacing: '-1px', lineHeight: 1, marginBottom: '5px' }}>
           {value}
         </div>
-        <div style={{ fontSize: '12px', color: '#54657C', fontWeight: 500 }}>{title}</div>
+        <div style={{ fontSize: '12px', color: c.textSecondary, fontWeight: 500 }}>{title}</div>
       </div>
       <div style={{ marginTop: '12px', marginRight: '-1px', marginLeft: '-1px', marginBottom: '-1px' }}>
         <Sparkline data={spark} color={sparkColor} />
@@ -92,15 +116,15 @@ function StatCard({
 }
 
 /* ── Glass Card ── */
-function GlassCard({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
+function GlassCard({ children, style, c }: { children: React.ReactNode; style?: React.CSSProperties; c: ReturnType<typeof useDashboardColors> }) {
   return (
     <div style={{
-      background: 'rgba(255,255,255,0.74)',
+      background: c.cardBg,
       backdropFilter: 'blur(20px) saturate(160%)',
       WebkitBackdropFilter: 'blur(20px) saturate(160%)',
       borderRadius: '20px',
-      border: '1px solid rgba(255,255,255,0.95)',
-      boxShadow: '0 4px 6px rgba(10,22,40,0.03),0 8px 24px rgba(10,22,40,0.07)',
+      border: c.cardBorder,
+      boxShadow: c.cardShadow,
       padding: '22px',
       ...style,
     }}>
@@ -110,24 +134,25 @@ function GlassCard({ children, style }: { children: React.ReactNode; style?: Rea
 }
 
 /* ── Card Header ── */
-function CardHeader({ icon: Icon, title, sub, tag }: {
+function CardHeader({ icon: Icon, title, sub, tag, c }: {
   icon: React.ElementType; title: string; sub?: string
   tag?: { label: string; color: 'green' | 'neutral' }
+  c: ReturnType<typeof useDashboardColors>
 }) {
   return (
     <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '18px', gap: '10px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '11px' }}>
         <div style={{
           width: '36px', height: '36px', borderRadius: '11px',
-          background: 'linear-gradient(135deg,#EAF2FB,#DBEAFE)',
+          background: c.iconChipBg,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           boxShadow: '0 1px 2px rgba(10,22,40,0.05)',
         }}>
-          <Icon size={18} color="#0C447C" strokeWidth={2} />
+          <Icon size={18} color={c.iconColor} strokeWidth={2} />
         </div>
         <div>
-          <div style={{ fontSize: '14px', fontWeight: 700, color: '#0A1628' }}>{title}</div>
-          {sub && <div style={{ fontSize: '11px', color: '#8C9CB2', marginTop: '2px' }}>{sub}</div>}
+          <div style={{ fontSize: '14px', fontWeight: 700, color: c.textPrimary }}>{title}</div>
+          {sub && <div style={{ fontSize: '11px', color: c.textMuted, marginTop: '2px' }}>{sub}</div>}
         </div>
       </div>
       {tag && (
@@ -136,7 +161,7 @@ function CardHeader({ icon: Icon, title, sub, tag }: {
           display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap',
           ...(tag.color === 'green'
             ? { background: '#DCFCE7', color: '#15803D' }
-            : { background: '#F1F5F9', color: '#54657C', border: '1px solid #E2E8F1', cursor: 'pointer' }),
+            : { background: c.tagNeutralBg, color: c.textSecondary, border: c.tagNeutralBorder, cursor: 'pointer' }),
         }}>
           {tag.label}
         </div>
@@ -183,6 +208,8 @@ export function DashboardOverview() {
   const locale  = useLocale()
   const [period, setPeriod] = useState<Period>('week')
   const t = useTranslations('dashboard')
+  const isDark = useThemeStore((s) => s.theme === 'dark')
+  const c = useDashboardColors(isDark)
 
   const PERIOD_LABELS: Record<Period, string> = {
     today: t('periodToday'),
@@ -292,10 +319,10 @@ export function DashboardOverview() {
       {/* ── Page header ── */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '22px', flexWrap: 'wrap', gap: '12px' }}>
         <div>
-          <div style={{ fontSize: '24px', fontWeight: 700, color: '#0A1628', letterSpacing: '-0.6px' }}>
+          <div style={{ fontSize: '24px', fontWeight: 700, color: c.textPrimary, letterSpacing: '-0.6px' }}>
             {t('greeting', { name: user?.name ?? '...' })} 👋
           </div>
-          <div style={{ fontSize: '12px', color: '#8C9CB2', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '7px' }}>
+          <div style={{ fontSize: '12px', color: c.textMuted, marginTop: '4px', display: 'flex', alignItems: 'center', gap: '7px' }}>
             {shift && (
               <span style={{
                 display: 'inline-flex', alignItems: 'center', gap: '5px',
@@ -314,10 +341,10 @@ export function DashboardOverview() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '9px', flexWrap: 'wrap' }}>
           <div style={{
             display: 'flex',
-            background: 'rgba(255,255,255,0.74)', backdropFilter: 'blur(12px)',
-            border: '1px solid rgba(255,255,255,0.95)',
+            background: c.cardBg, backdropFilter: 'blur(12px)',
+            border: c.cardBorder,
             borderRadius: '13px', padding: '4px', gap: '2px',
-            boxShadow: '0 1px 3px rgba(10,22,40,0.06)',
+            boxShadow: isDark ? '0 1px 3px rgba(0,0,0,0.3)' : '0 1px 3px rgba(10,22,40,0.06)',
           }}>
             {(Object.keys(PERIOD_LABELS) as Period[]).map((p) => (
               <button
@@ -330,7 +357,7 @@ export function DashboardOverview() {
                   transition: 'all .2s',
                   ...(period === p
                     ? { background: 'linear-gradient(135deg,#0C447C,#1761B8)', color: '#fff', boxShadow: '0 6px 18px rgba(12,68,124,0.32)' }
-                    : { background: 'transparent', color: '#54657C' }),
+                    : { background: 'transparent', color: c.textSecondary }),
                 }}
               >
                 {PERIOD_LABELS[p]}
@@ -423,16 +450,16 @@ export function DashboardOverview() {
 
       {/* ── Stat Cards ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '16px', marginBottom: '18px' }} className="stat-grid">
-        <StatCard title={t('statSales')} value={totalRevenue.toLocaleString('en-US')} icon={TrendingUp}
+        <StatCard c={c} title={t('statSales')} value={totalRevenue.toLocaleString('en-US')} icon={TrendingUp}
           spark={sp.sales} sparkColor="#2563EB"
           stripe="linear-gradient(90deg,#0C447C,#3B82F6)" />
-        <StatCard title={t('statOrders')} value={totalOrders.toLocaleString('en-US')} icon={ShoppingCart}
+        <StatCard c={c} title={t('statOrders')} value={totalOrders.toLocaleString('en-US')} icon={ShoppingCart}
           spark={sp.orders} sparkColor="#059669"
           stripe="linear-gradient(90deg,#059669,#34D399)" />
-        <StatCard title={t('statNewCustomers')} value={totalCustomers.toLocaleString('en-US')} icon={Users}
+        <StatCard c={c} title={t('statNewCustomers')} value={totalCustomers.toLocaleString('en-US')} icon={Users}
           spark={sp.customers} sparkColor="#7C3AED"
           stripe="linear-gradient(90deg,#6D28D9,#A78BFA)" />
-        <StatCard title={t('statExpensesTitle')} value={totalExpenses.toLocaleString('en-US')} icon={Wallet}
+        <StatCard c={c} title={t('statExpensesTitle')} value={totalExpenses.toLocaleString('en-US')} icon={Wallet}
           spark={sp.expenses} sparkColor="#D97706"
           stripe="linear-gradient(90deg,#B45309,#FBBF24)" />
       </div>
@@ -441,14 +468,14 @@ export function DashboardOverview() {
       <div style={{ display: 'grid', gridTemplateColumns: '1.7fr 1fr', gap: '16px', marginBottom: '16px' }} className="chart-grid">
 
         {/* Bar chart */}
-        <GlassCard>
-          <CardHeader icon={BarChart3} title={t('dailySales')} sub={`${PERIOD_LABELS[period]}`} tag={{ label: `↑ ${t('growth')}`, color: 'green' }} />
+        <GlassCard c={c}>
+          <CardHeader c={c} icon={BarChart3} title={t('dailySales')} sub={`${PERIOD_LABELS[period]}`} tag={{ label: `↑ ${t('growth')}`, color: 'green' }} />
           <div style={{ height: '200px' }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={barData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(10,22,40,0.04)" vertical={false} />
-                <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false}
+                <CartesianGrid strokeDasharray="3 3" stroke={c.gridLine} vertical={false} />
+                <XAxis dataKey="label" tick={{ fontSize: 11, fill: c.axisTick }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: c.axisTick }} axisLine={false} tickLine={false}
                   tickFormatter={v => v >= 1000 ? `${(v / 1000).toFixed(0)}K` : String(v)} />
                 <Tooltip
                   contentStyle={{ background: 'rgba(10,22,40,0.95)', border: 'none', borderRadius: '12px', fontSize: '12px', color: '#fff' }}
@@ -462,16 +489,16 @@ export function DashboardOverview() {
         </GlassCard>
 
         {/* Doughnut */}
-        <GlassCard>
-          <CardHeader icon={CreditCard} title={t('paymentMethods')} sub={t('periodDistribution')} />
+        <GlassCard c={c}>
+          <CardHeader c={c} icon={CreditCard} title={t('paymentMethods')} sub={t('periodDistribution')} />
           <div style={{ position: 'relative', height: '160px' }}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={donutData.length ? donutData : [{ name: t('noDataLabel'), value: 1, color: '#E2E8F1' }]}
+                <Pie data={donutData.length ? donutData : [{ name: t('noDataLabel'), value: 1, color: c.rankFallbackBg }]}
                   cx="50%" cy="50%" innerRadius="60%" outerRadius="85%"
                   dataKey="value" startAngle={90} endAngle={-270} strokeWidth={3}>
-                  {(donutData.length ? donutData : [{ name: t('noDataLabel'), value: 1, color: '#E2E8F1' }]).map((entry, i) => (
-                    <Cell key={i} fill={entry.color} stroke="#fff" />
+                  {(donutData.length ? donutData : [{ name: t('noDataLabel'), value: 1, color: c.rankFallbackBg }]).map((entry, i) => (
+                    <Cell key={i} fill={entry.color} stroke={isDark ? '#0D1117' : '#fff'} />
                   ))}
                 </Pie>
                 <Tooltip
@@ -483,22 +510,22 @@ export function DashboardOverview() {
             </ResponsiveContainer>
             {/* Center label */}
             <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', textAlign: 'center', pointerEvents: 'none' }}>
-              <div style={{ fontSize: '22px', fontWeight: 700, color: '#0A1628', letterSpacing: '-0.5px' }}>
+              <div style={{ fontSize: '22px', fontWeight: 700, color: c.textPrimary, letterSpacing: '-0.5px' }}>
                 {totalOrders}
               </div>
-              <div style={{ fontSize: '10px', color: '#8C9CB2', marginTop: '2px' }}>{t('ordersUnit')}</div>
+              <div style={{ fontSize: '10px', color: c.textMuted, marginTop: '2px' }}>{t('ordersUnit')}</div>
             </div>
           </div>
           {/* Legend */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '9px', marginTop: '14px' }}>
             {donutData.map((d, i) => (
               <div key={i} style={{
-                display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', color: '#54657C',
-                padding: '7px 9px', borderRadius: '9px', background: '#F5F8FC',
+                display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', color: c.textSecondary,
+                padding: '7px 9px', borderRadius: '9px', background: c.chipBg,
               }}>
                 <div style={{ width: '11px', height: '11px', borderRadius: '50%', background: d.color, flexShrink: 0 }} />
                 <span style={{ flex: 1 }}>{d.name}</span>
-                <span style={{ fontWeight: 700, color: '#0A1628' }}>
+                <span style={{ fontWeight: 700, color: c.textPrimary }}>
                   {donutTotal > 0 ? Math.round((d.value / donutTotal) * 100) : 0}%
                 </span>
               </div>
@@ -511,29 +538,29 @@ export function DashboardOverview() {
       <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '16px' }} className="bottom-grid">
 
         {/* Recent activity */}
-        <GlassCard>
-          <CardHeader icon={BarChart3} title={t('recentActivity')} sub={t('recentActivitySub')} tag={{ label: t('viewAll'), color: 'neutral' }} />
+        <GlassCard c={c}>
+          <CardHeader c={c} icon={BarChart3} title={t('recentActivity')} sub={t('recentActivitySub')} tag={{ label: t('viewAll'), color: 'neutral' }} />
           <div>
             {(recentActivity?.activity ?? []).length === 0 && (
-              <p style={{ fontSize: '13px', color: '#8C9CB2', textAlign: 'center', padding: '20px 0' }}>{t('noActivity')}</p>
+              <p style={{ fontSize: '13px', color: c.textMuted, textAlign: 'center', padding: '20px 0' }}>{t('noActivity')}</p>
             )}
             {(recentActivity?.activity ?? []).map((item, i) => (
               <div key={i} style={{
                 display: 'flex', alignItems: 'center', gap: '12px',
-                padding: '13px 0', borderBottom: i < (recentActivity?.activity ?? []).length - 1 ? '1px solid #EEF2F7' : 'none',
+                padding: '13px 0', borderBottom: i < (recentActivity?.activity ?? []).length - 1 ? `1px solid ${c.divider}` : 'none',
               }}>
                 <ActivityIcon type={item.type} />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#0A1628', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <div style={{ fontSize: '13px', fontWeight: 600, color: c.textPrimary, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {item.title}
                   </div>
-                  <div style={{ fontSize: '11px', color: '#8C9CB2', marginTop: '2px' }}>{item.sub}</div>
+                  <div style={{ fontSize: '11px', color: c.textMuted, marginTop: '2px' }}>{item.sub}</div>
                 </div>
                 <div style={{ textAlign: 'end', flexShrink: 0 }}>
-                  <div style={{ fontSize: '14px', fontWeight: 700, color: item.amount !== null && item.amount < 0 ? '#DC2626' : '#0A1628' }}>
+                  <div style={{ fontSize: '14px', fontWeight: 700, color: item.amount !== null && item.amount < 0 ? '#DC2626' : c.textPrimary }}>
                     {item.amount !== null ? `${item.amount.toLocaleString('en-US')} ${currency}` : t('alertLabel')}
                   </div>
-                  <div style={{ fontSize: '10px', color: '#B4C0CF', marginTop: '2px' }}>
+                  <div style={{ fontSize: '10px', color: c.textMuted, marginTop: '2px' }}>
                     {new Date(item.time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                   </div>
                 </div>
@@ -546,31 +573,31 @@ export function DashboardOverview() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
           {/* Top items */}
-          <GlassCard>
-            <CardHeader icon={Star} title={t('topSelling')} sub={PERIOD_LABELS[period]} />
+          <GlassCard c={c}>
+            <CardHeader c={c} icon={Star} title={t('topSelling')} sub={PERIOD_LABELS[period]} />
             {(topItems?.items ?? []).length === 0 && (
-              <p style={{ fontSize: '13px', color: '#8C9CB2', textAlign: 'center', padding: '12px 0' }}>{t('noDataLabel')}</p>
+              <p style={{ fontSize: '13px', color: c.textMuted, textAlign: 'center', padding: '12px 0' }}>{t('noDataLabel')}</p>
             )}
             {(topItems?.items ?? []).map((item, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '11px', padding: '11px 0', borderBottom: i < (topItems?.items ?? []).length - 1 ? '1px solid #EEF2F7' : 'none' }}>
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '11px', padding: '11px 0', borderBottom: i < (topItems?.items ?? []).length - 1 ? `1px solid ${c.divider}` : 'none' }}>
                 <div style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: '12px', fontWeight: 800, color: '#fff',
                   background: i === 0 ? 'linear-gradient(135deg,#FBBF24,#F59E0B)'
                     : i === 1 ? 'linear-gradient(135deg,#CBD5E1,#94A3B8)'
                     : i === 2 ? 'linear-gradient(135deg,#D97706,#B45309)'
-                    : '#F1F5F9',
-                  ...(i >= 3 ? { color: '#B4C0CF' } : {}),
+                    : c.rankFallbackBg,
+                  ...(i >= 3 ? { color: c.textMuted } : {}),
                 }}>
                   {i + 1}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: '12px', fontWeight: 600, color: '#0A1628' }}>{item.name}</div>
-                  <div style={{ height: '5px', background: '#F1F5F9', borderRadius: '5px', marginTop: '6px', overflow: 'hidden' }}>
+                  <div style={{ fontSize: '12px', fontWeight: 600, color: c.textPrimary }}>{item.name}</div>
+                  <div style={{ height: '5px', background: c.rankFallbackBg, borderRadius: '5px', marginTop: '6px', overflow: 'hidden' }}>
                     <div style={{ height: '5px', width: `${item.pct}%`, background: 'linear-gradient(90deg,#0C447C,#3B82F6)', borderRadius: '5px' }} />
                   </div>
                 </div>
-                <div style={{ fontSize: '12px', fontWeight: 700, color: '#0C447C', flexShrink: 0 }}>
+                <div style={{ fontSize: '12px', fontWeight: 700, color: isDark ? '#5B9BD5' : '#0C447C', flexShrink: 0 }}>
                   {item.total.toLocaleString('en-US')} {currency}
                 </div>
               </div>
@@ -578,8 +605,8 @@ export function DashboardOverview() {
           </GlassCard>
 
           {/* Quick actions */}
-          <GlassCard>
-            <CardHeader icon={Zap} title={t('quickActions')} />
+          <GlassCard c={c}>
+            <CardHeader c={c} icon={Zap} title={t('quickActions')} />
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
               {[
                 { label: t('newInvoice'),  sub: t('posLabel'),          href: '/dashboard/pos',       color: 'linear-gradient(135deg,#1761B8,#0C447C)' },
@@ -589,19 +616,19 @@ export function DashboardOverview() {
               ].map((a, i) => (
                 <Link key={i} href={`/${locale}${a.href}`} style={{
                   display: 'flex', alignItems: 'center', gap: '11px',
-                  padding: '14px', background: '#F5F8FC', borderRadius: '14px',
+                  padding: '14px', background: c.chipBg, borderRadius: '14px',
                   border: '1.5px solid transparent', textDecoration: 'none',
                   transition: 'all .25s', cursor: 'pointer',
                 }}
-                  onMouseEnter={e => { const el = e.currentTarget; el.style.borderColor = 'rgba(12,68,124,0.2)'; el.style.transform = 'translateY(-2px)'; el.style.boxShadow = '0 4px 6px rgba(10,22,40,0.03),0 8px 24px rgba(10,22,40,0.07)' }}
+                  onMouseEnter={e => { const el = e.currentTarget; el.style.borderColor = 'rgba(12,68,124,0.2)'; el.style.transform = 'translateY(-2px)'; el.style.boxShadow = c.cardShadow }}
                   onMouseLeave={e => { const el = e.currentTarget; el.style.borderColor = 'transparent'; el.style.transform = 'translateY(0)'; el.style.boxShadow = 'none' }}
                 >
                   <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: a.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <Zap size={19} color="#fff" strokeWidth={2.2} />
                   </div>
                   <div>
-                    <div style={{ fontSize: '12px', fontWeight: 700, color: '#0A1628' }}>{a.label}</div>
-                    <div style={{ fontSize: '10px', color: '#8C9CB2', marginTop: '2px' }}>{a.sub}</div>
+                    <div style={{ fontSize: '12px', fontWeight: 700, color: c.textPrimary }}>{a.label}</div>
+                    <div style={{ fontSize: '10px', color: c.textMuted, marginTop: '2px' }}>{a.sub}</div>
                   </div>
                 </Link>
               ))}
