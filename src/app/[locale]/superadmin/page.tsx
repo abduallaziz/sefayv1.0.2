@@ -50,12 +50,12 @@ export default function SuperAdminPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-white">{t('title')}</h1>
-          <p className="text-xs text-white/30 mt-0.5">{t('subtitle')}</p>
+          <h1 className="text-xl font-bold text-slate-800 dark:text-white">{t('title')}</h1>
+          <p className="text-xs text-slate-400 dark:text-white/30 mt-0.5">{t('subtitle')}</p>
         </div>
-        <div className="flex items-center gap-2 rounded-lg border border-white/5 bg-white/3 px-3 py-1.5">
+        <div className="flex items-center gap-2 rounded-lg border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/3 px-3 py-1.5">
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-xs text-white/40 font-mono">{t('production')}</span>
+          <span className="text-xs text-slate-500 dark:text-white/40 font-mono">{t('production')}</span>
         </div>
       </div>
 

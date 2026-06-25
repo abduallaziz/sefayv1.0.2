@@ -44,21 +44,21 @@ export function ResetPasswordDialog({ user, onClose, onSubmit }: Props) {
 
   return (
     <Dialog open={!!user} onOpenChange={handleClose}>
-      <DialogContent className="bg-[#141720] border-[#1e2130] text-white max-w-md">
+      <DialogContent className="bg-white dark:bg-[#141720] border-slate-200 dark:border-[#1e2130] text-slate-800 dark:text-white max-w-md">
         <DialogHeader>
           <DialogTitle>{t('resetPassword')}</DialogTitle>
-          {user && <p className="text-sm text-gray-400">{user.name} — {user.email}</p>}
+          {user && <p className="text-sm text-slate-500 dark:text-gray-400">{user.name} — {user.email}</p>}
         </DialogHeader>
         <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
           <div>
-            <label className="text-sm text-gray-400 mb-1 block">{t('newPassword')}</label>
-            <Input type="password" placeholder={t('passwordPlaceholder')} className="bg-[#0f1117] border-[#1e2130] text-white" {...register('newPassword')} />
-            {errors.newPassword && <p className="text-red-400 text-xs mt-1">{errors.newPassword.message}</p>}
+            <label className="text-sm text-slate-500 dark:text-gray-400 mb-1 block">{t('newPassword')}</label>
+            <Input type="password" placeholder={t('passwordPlaceholder')} className="bg-slate-50 dark:bg-[#0f1117] border-slate-200 dark:border-[#1e2130] text-slate-800 dark:text-white" {...register('newPassword')} />
+            {errors.newPassword && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.newPassword.message}</p>}
           </div>
           <div>
-            <label className="text-sm text-gray-400 mb-1 block">{t('confirmPassword')}</label>
-            <Input type="password" placeholder={t('confirmPlaceholder')} className="bg-[#0f1117] border-[#1e2130] text-white" {...register('confirm')} />
-            {errors.confirm && <p className="text-red-400 text-xs mt-1">{errors.confirm.message}</p>}
+            <label className="text-sm text-slate-500 dark:text-gray-400 mb-1 block">{t('confirmPassword')}</label>
+            <Input type="password" placeholder={t('confirmPlaceholder')} className="bg-slate-50 dark:bg-[#0f1117] border-slate-200 dark:border-[#1e2130] text-slate-800 dark:text-white" {...register('confirm')} />
+            {errors.confirm && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.confirm.message}</p>}
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="ghost" onClick={handleClose}>{t('cancel')}</Button>

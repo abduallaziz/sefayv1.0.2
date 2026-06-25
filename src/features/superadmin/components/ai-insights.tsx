@@ -42,15 +42,15 @@ const insights: Insight[] = [
 function ConfidenceBar({ value }: { value: number }) {
   return (
     <div className="flex items-center gap-2">
-      <div className="h-1 w-16 rounded-full bg-white/5 overflow-hidden">
+      <div className="h-1 w-16 rounded-full bg-slate-200 dark:bg-white/5 overflow-hidden">
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${value}%` }}
           transition={{ duration: 0.8, ease: 'easeOut' }}
-          className="h-full rounded-full bg-white/20"
+          className="h-full rounded-full bg-slate-400 dark:bg-white/20"
         />
       </div>
-      <span className="text-[10px] text-white/25">{value}%</span>
+      <span className="text-[10px] text-slate-400 dark:text-white/25">{value}%</span>
     </div>
   )
 }
@@ -65,13 +65,13 @@ function InsightCard({ insight, index, t }: { insight: Insight; index: number; t
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.08 }}
       onClick={() => setExpanded(!expanded)}
-      className="group relative rounded-xl p-4 cursor-pointer transition-all duration-200"
+      className="group relative rounded-xl p-4 cursor-pointer transition-all duration-200 bg-slate-50 dark:bg-transparent"
       style={{
-        background: expanded ? cfg.bg : 'rgba(255,255,255,0.02)',
-        border: `1px solid ${expanded ? cfg.border : 'rgba(255,255,255,0.05)'}`,
+        background: expanded ? cfg.bg : undefined,
+        border: `1px solid ${expanded ? cfg.border : 'rgba(148,163,184,0.2)'}`,
       }}
       onMouseEnter={e => { if (!expanded) { e.currentTarget.style.background = cfg.bg; e.currentTarget.style.borderColor = cfg.border } }}
-      onMouseLeave={e => { if (!expanded) { e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)' } }}
+      onMouseLeave={e => { if (!expanded) { e.currentTarget.style.background = ''; e.currentTarget.style.borderColor = 'rgba(148,163,184,0.2)' } }}
     >
       <div className="flex items-start gap-3">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg mt-0.5"
@@ -80,22 +80,22 @@ function InsightCard({ insight, index, t }: { insight: Insight; index: number; t
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
-            <p className="text-sm font-semibold text-white/85 leading-snug">{t(`insights.${insight.titleKey}`)}</p>
+            <p className="text-sm font-semibold text-slate-800 dark:text-white/85 leading-snug">{t(`insights.${insight.titleKey}`)}</p>
             {insight.metric && (
               <div className="shrink-0 text-right">
                 <p className="text-base font-bold" style={{ color: cfg.color }}>{insight.metric}</p>
-                <p className="text-[10px] text-white/25">{insight.metricLabelKey ? t(`metrics.${insight.metricLabelKey}`) : ''}</p>
+                <p className="text-[10px] text-slate-400 dark:text-white/25">{insight.metricLabelKey ? t(`metrics.${insight.metricLabelKey}`) : ''}</p>
               </div>
             )}
           </div>
-          <p className="text-xs text-white/35 mt-1 leading-relaxed">{t(`insights.${insight.detailKey}`)}</p>
+          <p className="text-xs text-slate-500 dark:text-white/35 mt-1 leading-relaxed">{t(`insights.${insight.detailKey}`)}</p>
           <div className="mt-2 flex items-center justify-between">
             <div className="flex items-center gap-1.5">
-              <Brain className="h-3 w-3 text-white/20" />
-              <span className="text-[10px] text-white/25">{t('aiConfidence')}</span>
+              <Brain className="h-3 w-3 text-slate-400 dark:text-white/20" />
+              <span className="text-[10px] text-slate-400 dark:text-white/25">{t('aiConfidence')}</span>
               <ConfidenceBar value={insight.confidence} />
             </div>
-            <ChevronRight className="h-3.5 w-3.5 text-white/20 transition-transform duration-200"
+            <ChevronRight className="h-3.5 w-3.5 text-slate-400 dark:text-white/20 transition-transform duration-200"
               style={{ transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)' }} />
           </div>
         </div>
@@ -110,7 +110,7 @@ function InsightCard({ insight, index, t }: { insight: Insight; index: number; t
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="mt-3 pt-3 border-t border-white/5 flex items-center justify-between">
+            <div className="mt-3 pt-3 border-t border-slate-200 dark:border-white/5 flex items-center justify-between">
               {insight.tenants && (
                 <div className="flex flex-wrap gap-1">
                   {insight.tenants.map(t => (
@@ -143,28 +143,28 @@ export function AiInsights() {
   const critical = insights.filter(i => i.severity === 'high').length
 
   return (
-    <div className="rounded-2xl overflow-hidden" style={{ background: '#0a0a0f', border: '1px solid rgba(255,255,255,0.05)' }}>
-      <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
+    <div className="rounded-2xl overflow-hidden bg-white dark:bg-[#0a0a0f] border border-slate-200 dark:border-[rgba(255,255,255,0.05)]">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-white/5">
         <div className="flex items-center gap-2.5">
           <div className="flex h-7 w-7 items-center justify-center rounded-lg"
             style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.3), rgba(79,70,229,0.15))', border: '1px solid rgba(124,58,237,0.2)' }}>
-            <Sparkles className="h-3.5 w-3.5 text-violet-400" />
+            <Sparkles className="h-3.5 w-3.5 text-violet-500 dark:text-violet-400" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-white">{t('title')}</h3>
-            <span className="text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded px-1.5 py-0.5">Demo</span>
-            <p className="text-[10px] text-white/25">{t('updated')}</p>
+            <h3 className="text-sm font-semibold text-slate-800 dark:text-white">{t('title')}</h3>
+            <span className="text-xs bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 rounded px-1.5 py-0.5">Demo</span>
+            <p className="text-[10px] text-slate-400 dark:text-white/25">{t('updated')}</p>
           </div>
           {critical > 0 && (
-            <span className="rounded-full px-2 py-0.5 text-[10px] font-bold bg-red-500/15 text-red-400 border border-red-500/20">
+            <span className="rounded-full px-2 py-0.5 text-[10px] font-bold bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/20">
               {critical} {t('critical')}
             </span>
           )}
         </div>
         <button
           onClick={() => { setRefreshing(true); setTimeout(() => setRefreshing(false), 1200) }}
-          className="flex h-7 w-7 items-center justify-center rounded-lg text-white/30 hover:text-white transition-colors"
-          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+          className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 dark:text-white/30 hover:text-slate-700 dark:hover:text-white transition-colors"
+          style={{ background: 'rgba(148,163,184,0.08)', border: '1px solid rgba(148,163,184,0.15)' }}
         >
           <motion.div animate={{ rotate: refreshing ? 360 : 0 }} transition={{ duration: 0.8 }}>
             <RefreshCw className="h-3.5 w-3.5" />

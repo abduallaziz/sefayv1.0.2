@@ -49,11 +49,11 @@ export function SubscriptionsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-white">{t('title')}</h1>
-          <p className="mt-0.5 text-sm text-slate-500">{t('subtitle')}</p>
+          <h1 className="text-xl font-semibold text-slate-800 dark:text-white">{t('title')}</h1>
+          <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-500">{t('subtitle')}</p>
         </div>
         <div className="flex gap-3">
-          <Button onClick={() => setPaymentDialog(true)} variant="outline" className="gap-2 border-[#1e2130] bg-transparent text-slate-300 hover:bg-[#1e2130]">
+          <Button onClick={() => setPaymentDialog(true)} variant="outline" className="gap-2 border-slate-200 dark:border-[#1e2130] bg-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#1e2130]">
             <CreditCard size={15} />{t('actions.manualPayment')}
           </Button>
           {tab === 'plans' && (
@@ -64,10 +64,10 @@ export function SubscriptionsPage() {
         </div>
       </div>
 
-      <div className="flex w-fit gap-1 rounded-lg border border-[#1e2130] bg-[#141720] p-1">
+      <div className="flex w-fit gap-1 rounded-lg border border-slate-200 dark:border-[#1e2130] bg-white dark:bg-[#141720] p-1">
         {(['subscriptions', 'plans'] as const).map((tabKey) => (
           <button key={tabKey} onClick={() => setTab(tabKey)}
-            className={`rounded-md px-4 py-1.5 text-sm font-medium transition ${tab === tabKey ? 'bg-[#0f1117] text-white shadow' : 'text-slate-500 hover:text-slate-300'}`}>
+            className={`rounded-md px-4 py-1.5 text-sm font-medium transition ${tab === tabKey ? 'bg-slate-100 dark:bg-[#0f1117] text-slate-800 dark:text-white shadow' : 'text-slate-500 dark:text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'}`}>
             {t(`tabs.${tabKey}`)}
           </button>
         ))}
@@ -77,10 +77,10 @@ export function SubscriptionsPage() {
         <div className="space-y-4">
           <div className="flex gap-3">
             <div className="relative max-w-sm flex-1">
-              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-              <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('filters.search')} className="border-[#1e2130] bg-[#141720] pl-9 text-white placeholder:text-slate-600" />
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-500" />
+              <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('filters.search')} className="border-slate-200 dark:border-[#1e2130] bg-white dark:bg-[#141720] pl-9 text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600" />
             </div>
-            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="rounded-lg border border-[#1e2130] bg-[#141720] px-3 py-2 text-sm text-slate-300 focus:outline-none">
+            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="rounded-lg border border-slate-200 dark:border-[#1e2130] bg-white dark:bg-[#141720] px-3 py-2 text-sm text-slate-600 dark:text-slate-300 focus:outline-none">
               <option value="">{t('filters.allStatus')}</option>
               <option value="active">{t('status.active')}</option>
               <option value="trial">{t('status.trial')}</option>
@@ -89,14 +89,14 @@ export function SubscriptionsPage() {
               <option value="suspended">{t('status.suspended')}</option>
             </select>
           </div>
-          {loadingSubs ? <div className="py-12 text-center text-slate-500">{t('loading')}</div>
+          {loadingSubs ? <div className="py-12 text-center text-slate-500 dark:text-slate-500">{t('loading')}</div>
             : <SubscriptionsTable subscriptions={subscriptions} onCancel={(id) => cancelSub.mutate(id)} />}
         </div>
       )}
 
       {tab === 'plans' && (
         <div>
-          {loadingPlans ? <div className="py-12 text-center text-slate-500">{t('loading')}</div>
+          {loadingPlans ? <div className="py-12 text-center text-slate-500 dark:text-slate-500">{t('loading')}</div>
             : (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {plans.map((plan) => (

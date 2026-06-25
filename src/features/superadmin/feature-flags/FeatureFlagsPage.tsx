@@ -21,15 +21,15 @@ export function FeatureFlagsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-semibold text-white">{t('title')}</h1>
-        <p className="text-sm text-gray-500 mt-1">{t('subtitle')}</p>
+        <h1 className="text-xl font-semibold text-slate-800 dark:text-white">{t('title')}</h1>
+        <p className="text-sm text-slate-500 dark:text-gray-500 mt-1">{t('subtitle')}</p>
       </div>
 
-      <div className="flex gap-1 rounded-lg border border-[#1e2130] bg-[#0f1117] p-1 w-fit">
+      <div className="flex gap-1 rounded-lg border border-slate-200 dark:border-[#1e2130] bg-slate-50 dark:bg-[#0f1117] p-1 w-fit">
         <button
           onClick={() => setView('global')}
           className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-            view === 'global' ? 'bg-[#1e2130] text-white' : 'text-gray-500 hover:text-gray-300'
+            view === 'global' ? 'bg-white dark:bg-[#1e2130] text-slate-800 dark:text-white shadow-sm' : 'text-slate-500 dark:text-gray-500 hover:text-slate-700 dark:hover:text-gray-300'
           }`}
         >
           {t('globalView')}
@@ -37,7 +37,7 @@ export function FeatureFlagsPage() {
         <button
           onClick={() => setView('tenant')}
           className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-            view === 'tenant' ? 'bg-[#1e2130] text-white' : 'text-gray-500 hover:text-gray-300'
+            view === 'tenant' ? 'bg-white dark:bg-[#1e2130] text-slate-800 dark:text-white shadow-sm' : 'text-slate-500 dark:text-gray-500 hover:text-slate-700 dark:hover:text-gray-300'
           }`}
         >
           {t('tenantView')}
@@ -49,11 +49,11 @@ export function FeatureFlagsPage() {
       ) : (
         <div className="grid grid-cols-[240px_1fr] gap-6">
           <div className="space-y-1">
-            <p className="text-xs text-gray-500 font-medium px-2 mb-2">{t('selectTenant')}</p>
+            <p className="text-xs text-slate-500 dark:text-gray-500 font-medium px-2 mb-2">{t('selectTenant')}</p>
             {isLoading ? (
               <div className="space-y-1">
                 {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="h-9 rounded-lg bg-[#141720] animate-pulse" />
+                  <div key={i} className="h-9 rounded-lg bg-slate-100 dark:bg-[#141720] animate-pulse" />
                 ))}
               </div>
             ) : (
@@ -63,8 +63,8 @@ export function FeatureFlagsPage() {
                   onClick={() => setSelectedTenantId(tenant.id)}
                   className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                     (selectedTenantId || tenants[0]?.id) === tenant.id
-                      ? 'bg-[#1e2130] text-white'
-                      : 'text-gray-400 hover:bg-[#141720] hover:text-white'
+                      ? 'bg-slate-100 dark:bg-[#1e2130] text-slate-800 dark:text-white'
+                      : 'text-slate-500 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-[#141720] hover:text-slate-800 dark:hover:text-white'
                   }`}
                 >
                   {tenant.name}

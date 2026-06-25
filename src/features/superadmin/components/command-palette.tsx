@@ -108,28 +108,27 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: -20 }}
             transition={{ duration: 0.15 }}
-            className="fixed left-1/2 top-[20%] z-50 w-full max-w-xl -translate-x-1/2 rounded-2xl shadow-2xl overflow-hidden"
-            style={{ background: '#0a0a0f', border: '1px solid rgba(255,255,255,0.08)' }}
+            className="fixed left-1/2 top-[20%] z-50 w-full max-w-xl -translate-x-1/2 rounded-2xl shadow-2xl overflow-hidden bg-white dark:bg-[#0a0a0f] border border-slate-200 dark:border-[rgba(255,255,255,0.08)]"
           >
-            <div className="flex items-center gap-3 px-4 py-3.5 border-b border-white/5">
-              <Search className="h-4 w-4 shrink-0 text-white/30" />
+            <div className="flex items-center gap-3 px-4 py-3.5 border-b border-slate-200 dark:border-white/5">
+              <Search className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/30" />
               <input
                 ref={inputRef}
                 value={query}
                 onChange={e => { setQuery(e.target.value); setSelected(0) }}
                 placeholder="Search commands..."
-                className="flex-1 bg-transparent text-sm text-white placeholder:text-white/25 focus:outline-none"
+                className="flex-1 bg-transparent text-sm text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-white/25 focus:outline-none"
               />
-              <div className="flex items-center gap-1 rounded-lg border border-white/8 bg-white/5 px-2 py-1">
-                <Command className="h-3 w-3 text-white/25" />
-                <span className="text-xs text-white/25">/</span>
+              <div className="flex items-center gap-1 rounded-lg border border-slate-200 dark:border-white/8 bg-slate-100 dark:bg-white/5 px-2 py-1">
+                <Command className="h-3 w-3 text-slate-400 dark:text-white/25" />
+                <span className="text-xs text-slate-400 dark:text-white/25">/</span>
               </div>
             </div>
 
             <div className="overflow-y-auto" style={{ maxHeight: '400px' }}>
               {Object.entries(grouped).map(([category, commands]) => (
                 <div key={category}>
-                  <div className="flex items-center gap-2 px-4 py-2 sticky top-0" style={{ background: '#0a0a0f' }}>
+                  <div className="flex items-center gap-2 px-4 py-2 sticky top-0 bg-white dark:bg-[#0a0a0f]">
                     <span style={{ color: categoryColors[category as Category] }}>
                       {categoryIcons[category as Category]}
                     </span>
@@ -150,27 +149,26 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
                         onMouseEnter={() => setSelected(globalIndex)}
                         className="w-full flex items-center gap-3 px-4 py-2.5 transition-all text-left"
                         style={{
-                          background: isSelected ? 'rgba(255,255,255,0.05)' : 'transparent',
+                          background: isSelected ? 'rgba(124,58,237,0.08)' : 'transparent',
                           borderLeft: isSelected ? '2px solid rgba(124,58,237,0.6)' : '2px solid transparent',
                         }}
                       >
-                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
-                          style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.6)' }}>
+                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-white/60">
                           {cmd.icon}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <span className="text-sm font-medium text-white/60">{cmd.title}</span>
+                          <span className="text-sm font-medium text-slate-600 dark:text-white/60">{cmd.title}</span>
                         </div>
                         {cmd.shortcut && (
                           <div className="flex items-center gap-1">
                             {cmd.shortcut.map((k, i) => (
-                              <span key={i} className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] text-white/30">
+                              <span key={i} className="rounded border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/5 px-1.5 py-0.5 text-[10px] text-slate-400 dark:text-white/30">
                                 {k}
                               </span>
                             ))}
                           </div>
                         )}
-                        {isSelected && <ChevronRight className="h-3.5 w-3.5 text-white/30 shrink-0" />}
+                        {isSelected && <ChevronRight className="h-3.5 w-3.5 text-slate-400 dark:text-white/30 shrink-0" />}
                       </button>
                     )
                   })}
@@ -178,13 +176,13 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
               ))}
 
               {filtered.length === 0 && (
-                <div className="py-12 text-center text-sm text-white/25">
+                <div className="py-12 text-center text-sm text-slate-400 dark:text-white/25">
                   No commands found for "{query}"
                 </div>
               )}
             </div>
 
-            <div className="flex items-center gap-4 border-t border-white/5 px-4 py-2.5">
+            <div className="flex items-center gap-4 border-t border-slate-200 dark:border-white/5 px-4 py-2.5">
               {[
                 { keys: ['↑', '↓'], label: 'Navigate' },
                 { keys: ['↵'],      label: 'Execute' },
@@ -192,12 +190,12 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
               ].map(({ keys, label }) => (
                 <div key={label} className="flex items-center gap-1.5">
                   {keys.map(k => (
-                    <span key={k} className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] text-white/30">{k}</span>
+                    <span key={k} className="rounded border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/5 px-1.5 py-0.5 text-[10px] text-slate-400 dark:text-white/30">{k}</span>
                   ))}
-                  <span className="text-[10px] text-white/20">{label}</span>
+                  <span className="text-[10px] text-slate-400 dark:text-white/20">{label}</span>
                 </div>
               ))}
-              <span className="ml-auto text-[10px] text-white/15">{filtered.length} commands</span>
+              <span className="ml-auto text-[10px] text-slate-300 dark:text-white/15">{filtered.length} commands</span>
             </div>
           </motion.div>
         </>

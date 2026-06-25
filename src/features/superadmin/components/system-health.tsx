@@ -68,16 +68,18 @@ function ServiceChip({ label, status, metric, detail, icon }: ServiceChipProps) 
     <motion.div
       onHoverStart={() => setHovered(true)}
       onHoverEnd={() => setHovered(false)}
-      className="relative flex items-center gap-2.5 rounded-lg px-3 py-2 cursor-pointer transition-all duration-200"
+      className={`relative flex items-center gap-2.5 rounded-lg px-3 py-2 cursor-pointer transition-all duration-200 border ${
+        hovered ? 'border-transparent' : 'bg-slate-50 dark:bg-white/[0.02] border-slate-200 dark:border-white/5'
+      }`}
       style={{
-        background: hovered ? cfg.bg : 'rgba(255,255,255,0.02)',
-        border: `1px solid ${hovered ? cfg.border : 'rgba(255,255,255,0.05)'}`,
+        background: hovered ? cfg.bg : undefined,
+        borderColor: hovered ? cfg.border : undefined,
       }}
     >
       <span style={{ color: cfg.color }}>{icon}</span>
       <div className="flex flex-col">
         <div className="flex items-center gap-1.5">
-          <span className="text-xs font-semibold text-white/80">{label}</span>
+          <span className="text-xs font-semibold text-slate-600 dark:text-white/80">{label}</span>
           <PulseDot status={status} />
         </div>
         <span className="text-xs font-bold" style={{ color: cfg.color }}>{metric}</span>
@@ -90,11 +92,11 @@ function ServiceChip({ label, status, metric, detail, icon }: ServiceChipProps) 
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 6 }}
             transition={{ duration: 0.15 }}
-            className="absolute bottom-full left-0 mb-2 z-50 rounded-lg px-3 py-2 text-xs shadow-xl whitespace-nowrap"
-            style={{ background: '#0d0d18', border: `1px solid ${cfg.border}` }}
+            className="absolute bottom-full left-0 mb-2 z-50 rounded-lg px-3 py-2 text-xs shadow-xl whitespace-nowrap bg-white dark:bg-[#0d0d18] border"
+            style={{ borderColor: cfg.border }}
           >
             <p className="font-semibold" style={{ color: cfg.color }}>{status}</p>
-            <p className="text-white/40 mt-0.5">{detail}</p>
+            <p className="text-slate-400 dark:text-white/40 mt-0.5">{detail}</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -170,8 +172,8 @@ export function SystemHealth() {
               border: hasIncident ? '1px solid rgba(239,68,68,0.25)' : '1px solid rgba(245,158,11,0.25)',
             }}
           >
-            <AlertTriangle className={`h-4 w-4 shrink-0 ${hasIncident ? 'text-red-400' : 'text-amber-400'}`} />
-            <p className={`text-sm font-medium ${hasIncident ? 'text-red-300' : 'text-amber-300'}`}>
+            <AlertTriangle className={`h-4 w-4 shrink-0 ${hasIncident ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'}`} />
+            <p className={`text-sm font-medium ${hasIncident ? 'text-red-700 dark:text-red-300' : 'text-amber-700 dark:text-amber-300'}`}>
               {hasIncident ? t('incident.title') : t('overall.warning')}
             </p>
           </motion.div>
@@ -179,8 +181,7 @@ export function SystemHealth() {
       </AnimatePresence>
 
       <div
-        className="flex items-center justify-between rounded-xl px-4 py-2.5"
-        style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}
+        className="flex items-center justify-between rounded-xl px-4 py-2.5 bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5"
       >
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
@@ -195,8 +196,8 @@ export function SystemHealth() {
                 : '...'}
             </span>
           </div>
-          <div className="h-3 w-px bg-white/10" />
-          <span className="text-xs text-white/25 font-mono">
+          <div className="h-3 w-px bg-slate-200 dark:bg-white/10" />
+          <span className="text-xs text-slate-400 dark:text-white/25 font-mono">
             {time
               ? time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
               : '--:--:--'}

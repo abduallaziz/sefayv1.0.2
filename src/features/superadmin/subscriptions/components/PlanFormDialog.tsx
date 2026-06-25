@@ -42,38 +42,38 @@ export function PlanFormDialog({ open, plan, onClose, onSubmit, isLoading }: Pro
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="border-[#1e2130] bg-[#141720] text-white sm:max-w-md">
+      <DialogContent className="border-slate-200 dark:border-[#1e2130] bg-white dark:bg-[#141720] text-slate-800 dark:text-white sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{plan ? t('planForm.titleEdit') : t('planForm.titleCreate')}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
           <div>
-            <label className="mb-1.5 block text-sm text-slate-400">{t('planForm.name')}</label>
-            <Input {...register('name')} placeholder={t('planForm.namePlaceholder')} className="border-[#1e2130] bg-[#0f1117] text-white" />
-            {errors.name && <p className="mt-1 text-xs text-red-400">{errors.name.message}</p>}
+            <label className="mb-1.5 block text-sm text-slate-500 dark:text-slate-400">{t('planForm.name')}</label>
+            <Input {...register('name')} placeholder={t('planForm.namePlaceholder')} className="border-slate-200 dark:border-[#1e2130] bg-slate-50 dark:bg-[#0f1117] text-slate-800 dark:text-white" />
+            {errors.name && <p className="mt-1 text-xs text-red-500 dark:text-red-400">{errors.name.message}</p>}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="mb-1.5 block text-sm text-slate-400">{t('planForm.priceMonthly')}</label>
-              <Input {...register('price_monthly', { valueAsNumber: true })} type="number" className="border-[#1e2130] bg-[#0f1117] text-white" />
+              <label className="mb-1.5 block text-sm text-slate-500 dark:text-slate-400">{t('planForm.priceMonthly')}</label>
+              <Input {...register('price_monthly', { valueAsNumber: true })} type="number" className="border-slate-200 dark:border-[#1e2130] bg-slate-50 dark:bg-[#0f1117] text-slate-800 dark:text-white" />
             </div>
             <div>
-              <label className="mb-1.5 block text-sm text-slate-400">{t('planForm.priceYearly')}</label>
-              <Input {...register('price_yearly', { valueAsNumber: true })} type="number" className="border-[#1e2130] bg-[#0f1117] text-white" />
+              <label className="mb-1.5 block text-sm text-slate-500 dark:text-slate-400">{t('planForm.priceYearly')}</label>
+              <Input {...register('price_yearly', { valueAsNumber: true })} type="number" className="border-slate-200 dark:border-[#1e2130] bg-slate-50 dark:bg-[#0f1117] text-slate-800 dark:text-white" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="mb-1.5 block text-sm text-slate-400">{t('planForm.maxUsers')}</label>
-              <Input {...register('max_users', { valueAsNumber: true })} type="number" className="border-[#1e2130] bg-[#0f1117] text-white" />
+              <label className="mb-1.5 block text-sm text-slate-500 dark:text-slate-400">{t('planForm.maxUsers')}</label>
+              <Input {...register('max_users', { valueAsNumber: true })} type="number" className="border-slate-200 dark:border-[#1e2130] bg-slate-50 dark:bg-[#0f1117] text-slate-800 dark:text-white" />
             </div>
             <div>
-              <label className="mb-1.5 block text-sm text-slate-400">{t('planForm.maxBranches')}</label>
-              <Input {...register('max_branches', { valueAsNumber: true })} type="number" className="border-[#1e2130] bg-[#0f1117] text-white" />
+              <label className="mb-1.5 block text-sm text-slate-500 dark:text-slate-400">{t('planForm.maxBranches')}</label>
+              <Input {...register('max_branches', { valueAsNumber: true })} type="number" className="border-slate-200 dark:border-[#1e2130] bg-slate-50 dark:bg-[#0f1117] text-slate-800 dark:text-white" />
             </div>
           </div>
           <div className="flex justify-end gap-3 pt-2">
-            <Button type="button" variant="ghost" onClick={onClose} className="text-slate-400">{t('actions.cancel')}</Button>
+            <Button type="button" variant="ghost" onClick={onClose} className="text-slate-500 dark:text-slate-400">{t('actions.cancel')}</Button>
             <Button type="submit" disabled={isLoading} className="bg-indigo-600 hover:bg-indigo-500">
               {isLoading ? t('actions.saving') : plan ? t('actions.save') : t('actions.create')}
             </Button>

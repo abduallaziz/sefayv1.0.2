@@ -37,31 +37,31 @@ export function OverrideLimitDialog({ tenantId, feature, open, onClose }: Props)
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div className="w-full max-w-sm rounded-xl border border-[#1e2130] bg-[#141720] p-6 shadow-2xl">
-        <h3 className="text-base font-semibold text-white mb-1">
+      <div className="w-full max-w-sm rounded-xl border border-slate-200 dark:border-[#1e2130] bg-white dark:bg-[#141720] p-6 shadow-2xl">
+        <h3 className="text-base font-semibold text-slate-800 dark:text-white mb-1">
           {t('overrideLimit')}
         </h3>
-        <p className="text-sm text-gray-400 mb-4">{feature.name}</p>
+        <p className="text-sm text-slate-500 dark:text-gray-400 mb-4">{feature.name}</p>
 
         <div className="space-y-3">
           <div>
-            <label className="text-xs text-gray-400 mb-1 block">{t('limitValue')}</label>
+            <label className="text-xs text-slate-500 dark:text-gray-400 mb-1 block">{t('limitValue')}</label>
             <input
               type="number"
               value={limit}
               onChange={(e) => setLimit(e.target.value)}
               placeholder={t('unlimited')}
-              className="w-full rounded-lg border border-[#1e2130] bg-[#0f1117] px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-blue-500 focus:outline-none"
+              className="w-full rounded-lg border border-slate-200 dark:border-[#1e2130] bg-slate-50 dark:bg-[#0f1117] px-3 py-2 text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-gray-600 focus:border-violet-500 focus:outline-none"
             />
           </div>
           <div>
-            <label className="text-xs text-gray-400 mb-1 block">{t('note')}</label>
+            <label className="text-xs text-slate-500 dark:text-gray-400 mb-1 block">{t('note')}</label>
             <input
               type="text"
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder={t('notePlaceholder')}
-              className="w-full rounded-lg border border-[#1e2130] bg-[#0f1117] px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-blue-500 focus:outline-none"
+              className="w-full rounded-lg border border-slate-200 dark:border-[#1e2130] bg-slate-50 dark:bg-[#0f1117] px-3 py-2 text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-gray-600 focus:border-violet-500 focus:outline-none"
             />
           </div>
         </div>
@@ -69,14 +69,14 @@ export function OverrideLimitDialog({ tenantId, feature, open, onClose }: Props)
         <div className="mt-5 flex justify-end gap-2">
           <button
             onClick={onClose}
-            className="rounded-lg border border-[#1e2130] px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
+            className="rounded-lg border border-slate-200 dark:border-[#1e2130] px-4 py-2 text-sm text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white transition-colors"
           >
             {t('cancel')}
           </button>
           <button
             onClick={handleSave}
             disabled={isPending}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 disabled:opacity-50 transition-colors"
+            className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-500 disabled:opacity-50 transition-colors"
           >
             {isPending ? t('saving') : t('save')}
           </button>

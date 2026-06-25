@@ -66,7 +66,7 @@ function EventRow({ event, isNew, t }: { event: ActivityEvent; isNew?: boolean; 
       initial={isNew ? { opacity: 0, x: -20, height: 0 } : { opacity: 1, x: 0 }}
       animate={{ opacity: 1, x: 0, height: 'auto' }}
       transition={{ duration: 0.3 }}
-      className="group flex items-start gap-3 px-4 py-3 hover:bg-white/3 transition-colors cursor-pointer border-b border-white/3 last:border-0"
+      className="group flex items-start gap-3 px-4 py-3 hover:bg-slate-100 dark:hover:bg-white/3 transition-colors cursor-pointer border-b border-slate-200 dark:border-white/3 last:border-0"
     >
       <div className="flex flex-col items-center gap-1 shrink-0 pt-0.5">
         <div className="flex h-6 w-6 items-center justify-center rounded-lg" style={{ background: cfg.bg, color: cfg.color }}>
@@ -79,19 +79,19 @@ function EventRow({ event, isNew, t }: { event: ActivityEvent; isNew?: boolean; 
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <p className="text-xs font-semibold text-white/85 truncate">{t(`events.${event.titleKey}`)}</p>
+          <p className="text-xs font-semibold text-slate-800 dark:text-white/85 truncate">{t(`events.${event.titleKey}`)}</p>
           {isNew && (
-            <span className="shrink-0 rounded-full bg-violet-500/20 border border-violet-500/30 px-1.5 py-0.5 text-[9px] font-bold text-violet-400 uppercase">
+            <span className="shrink-0 rounded-full bg-violet-500/20 border border-violet-500/30 px-1.5 py-0.5 text-[9px] font-bold text-violet-600 dark:text-violet-400 uppercase">
               {t('new')}
             </span>
           )}
         </div>
-        <p className="text-xs text-white/35 mt-0.5">{t(`events.${event.detailKey}`)}</p>
-        {event.tenant && <p className="text-xs text-white/20 mt-0.5">↳ {event.tenant}</p>}
+        <p className="text-xs text-slate-500 dark:text-white/35 mt-0.5">{t(`events.${event.detailKey}`)}</p>
+        {event.tenant && <p className="text-xs text-slate-400 dark:text-white/20 mt-0.5">↳ {event.tenant}</p>}
       </div>
 
       <div className="flex flex-col items-end gap-1.5 shrink-0">
-        <span className="text-xs text-white/25 font-mono">{event.time}</span>
+        <span className="text-xs text-slate-400 dark:text-white/25 font-mono">{event.time}</span>
         {event.actionKey && (
           <button
             className="text-[10px] font-medium rounded-md px-2 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -131,24 +131,26 @@ export function ActivityFeed() {
   })
 
   return (
-    <div className="rounded-2xl overflow-hidden" style={{ background: '#0a0a0f', border: '1px solid rgba(255,255,255,0.05)' }}>
-      <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
+    <div className="rounded-2xl overflow-hidden bg-white dark:bg-[#0a0a0f] border border-slate-200 dark:border-[rgba(255,255,255,0.05)]">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-white/5">
         <div className="flex items-center gap-2">
           <span className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
           </span>
-          <h3 className="text-sm font-semibold text-white">{t('title')}</h3>
-          <span className="text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded px-1.5 py-0.5">Demo</span>
-          <span className="text-xs text-white/25 font-mono">{events.length} {t('eventsCount')}</span>
+          <h3 className="text-sm font-semibold text-slate-800 dark:text-white">{t('title')}</h3>
+          <span className="text-xs bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 rounded px-1.5 py-0.5">Demo</span>
+          <span className="text-xs text-slate-400 dark:text-white/25 font-mono">{events.length} {t('eventsCount')}</span>
         </div>
         <button
           onClick={() => setPaused(!paused)}
-          className="flex items-center gap-1.5 text-xs rounded-lg px-2.5 py-1.5 transition-all"
+          className={`flex items-center gap-1.5 text-xs rounded-lg px-2.5 py-1.5 transition-all ${
+            paused ? '' : 'text-slate-400 dark:text-white/50'
+          }`}
           style={{
-            color: paused ? '#fbbf24' : '#ffffff50',
-            background: paused ? 'rgba(251,191,36,0.08)' : 'rgba(255,255,255,0.03)',
-            border: `1px solid ${paused ? 'rgba(251,191,36,0.2)' : 'rgba(255,255,255,0.06)'}`,
+            color: paused ? '#fbbf24' : undefined,
+            background: paused ? 'rgba(251,191,36,0.08)' : undefined,
+            border: `1px solid ${paused ? 'rgba(251,191,36,0.2)' : 'rgba(148,163,184,0.25)'}`,
           }}
         >
           {paused ? <CheckCircle className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
@@ -156,15 +158,16 @@ export function ActivityFeed() {
         </button>
       </div>
 
-      <div className="flex items-center gap-1 px-4 py-2 border-b border-white/5 overflow-x-auto">
+      <div className="flex items-center gap-1 px-4 py-2 border-b border-slate-200 dark:border-white/5 overflow-x-auto">
         {FILTER_KEYS.map(f => (
           <button
             key={f}
             onClick={() => setActiveFilter(f)}
-            className="shrink-0 text-xs rounded-lg px-3 py-1.5 transition-all font-medium"
+            className={`shrink-0 text-xs rounded-lg px-3 py-1.5 transition-all font-medium ${
+              activeFilter === f ? 'text-violet-700 dark:text-white' : 'text-slate-500 dark:text-white/30'
+            }`}
             style={{
-              color: activeFilter === f ? '#fff' : 'rgba(255,255,255,0.3)',
-              background: activeFilter === f ? 'rgba(124,58,237,0.2)' : 'transparent',
+              background: activeFilter === f ? 'rgba(124,58,237,0.15)' : 'transparent',
               border: `1px solid ${activeFilter === f ? 'rgba(124,58,237,0.3)' : 'transparent'}`,
             }}
           >

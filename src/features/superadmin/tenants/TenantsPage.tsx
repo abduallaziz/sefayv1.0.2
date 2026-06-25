@@ -25,9 +25,9 @@ export function TenantsPage() {
           <Building2 className="w-5 h-5 text-primary" />
         </div>
         <div>
-          <h1 className="text-xl font-semibold text-white">{t('title')}</h1>
+          <h1 className="text-xl font-semibold text-slate-800 dark:text-white">{t('title')}</h1>
           {data && (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-slate-500 dark:text-muted-foreground">
               {data.total} {t('title')}
             </p>
           )}
@@ -48,17 +48,17 @@ export function TenantsPage() {
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
-            className="px-3 py-1.5 rounded-lg border border-[#1e2130] text-sm text-muted-foreground disabled:opacity-40 hover:text-white hover:border-white/20 transition-colors"
+            className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-[#1e2130] text-sm text-slate-500 dark:text-muted-foreground disabled:opacity-40 hover:text-slate-800 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/20 transition-colors"
           >
             {t('prev')}
           </button>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-sm text-slate-500 dark:text-muted-foreground">
             {page} / {totalPages}
           </span>
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
-            className="px-3 py-1.5 rounded-lg border border-[#1e2130] text-sm text-muted-foreground disabled:opacity-40 hover:text-white hover:border-white/20 transition-colors"
+            className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-[#1e2130] text-sm text-slate-500 dark:text-muted-foreground disabled:opacity-40 hover:text-slate-800 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/20 transition-colors"
           >
             {t('next')}
           </button>

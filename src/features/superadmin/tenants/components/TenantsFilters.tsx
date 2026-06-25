@@ -25,12 +25,12 @@ export function TenantsFiltersBar({ search, status, onSearchChange, onStatusChan
   return (
     <div className="flex items-center gap-3 flex-wrap">
       <div className="relative flex-1 min-w-[200px]">
-        <Search className="absolute end-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Search className="absolute end-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-muted-foreground" />
         <Input
           placeholder={t('search')}
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="pe-9"
+          className="pe-9 bg-slate-50 dark:bg-[#141720] border-slate-200 dark:border-[#1e2130] text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-[#64748b]"
         />
       </div>
       <div className="flex gap-2">
@@ -41,7 +41,7 @@ export function TenantsFiltersBar({ search, status, onSearchChange, onStatusChan
             className={`px-3 py-1.5 rounded-lg text-sm transition-colors border ${
               status === s.value
                 ? 'bg-primary text-primary-foreground border-primary'
-                : 'border-[#1e2130] text-muted-foreground hover:text-white hover:border-white/20'
+                : 'border-slate-200 dark:border-[#1e2130] text-slate-500 dark:text-muted-foreground hover:text-slate-800 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/20'
             }`}
           >
             {s.label}

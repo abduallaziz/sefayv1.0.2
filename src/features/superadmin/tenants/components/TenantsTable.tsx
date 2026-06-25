@@ -19,7 +19,7 @@ export function TenantsTable({ tenants, isLoading }: Props) {
     return (
       <div className="space-y-2">
         {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="h-14 rounded-lg bg-[#1e2130] animate-pulse" />
+          <div key={i} className="h-14 rounded-lg bg-slate-100 dark:bg-[#1e2130] animate-pulse" />
         ))}
       </div>
     );
@@ -27,17 +27,17 @@ export function TenantsTable({ tenants, isLoading }: Props) {
 
   if (!tenants.length) {
     return (
-      <div className="flex items-center justify-center h-40 text-muted-foreground">
+      <div className="flex items-center justify-center h-40 text-slate-500 dark:text-muted-foreground">
         {t('noResults')}
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl border border-[#1e2130] overflow-hidden">
+    <div className="rounded-xl border border-slate-200 dark:border-[#1e2130] overflow-hidden">
       <table className="w-full text-sm">
         <thead>
-          <tr className="bg-[#141720] text-muted-foreground text-right">
+          <tr className="bg-slate-50 dark:bg-[#141720] text-slate-500 dark:text-muted-foreground text-right">
             <th className="px-4 py-3 font-medium">{t('col.name')}</th>
             <th className="px-4 py-3 font-medium">{t('col.businessType')}</th>
             <th className="px-4 py-3 font-medium">{t('col.status')}</th>
@@ -48,32 +48,32 @@ export function TenantsTable({ tenants, isLoading }: Props) {
             <th className="px-4 py-3 font-medium"></th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-[#1e2130]">
+        <tbody className="divide-y divide-slate-100 dark:divide-[#1e2130]">
           {tenants.map((tenant) => (
-            <tr key={tenant.id} className="bg-[#0f1117] hover:bg-[#141720] transition-colors">
+            <tr key={tenant.id} className="bg-white dark:bg-[#0f1117] hover:bg-slate-50 dark:hover:bg-[#141720] transition-colors">
               <td className="px-4 py-3">
-                <div className="font-medium text-white">{tenant.name}</div>
+                <div className="font-medium text-slate-800 dark:text-white">{tenant.name}</div>
                 {tenant.owner_email && (
-                  <div className="text-xs text-muted-foreground">{tenant.owner_email}</div>
+                  <div className="text-xs text-slate-500 dark:text-muted-foreground">{tenant.owner_email}</div>
                 )}
                 {tenant.deleted_at && (
-                  <span className="text-xs text-red-500">({t('deleted')})</span>
+                  <span className="text-xs text-red-600 dark:text-red-500">({t('deleted')})</span>
                 )}
               </td>
-              <td className="px-4 py-3 text-muted-foreground">{tenant.business_type}</td>
+              <td className="px-4 py-3 text-slate-500 dark:text-muted-foreground">{tenant.business_type}</td>
               <td className="px-4 py-3"><TenantStatusBadge status={tenant.status} /></td>
-              <td className="px-4 py-3 text-muted-foreground">{tenant.subscription_plan ?? '—'}</td>
+              <td className="px-4 py-3 text-slate-500 dark:text-muted-foreground">{tenant.subscription_plan ?? '—'}</td>
               <td className="px-4 py-3">
-                <span className="flex items-center gap-1 text-muted-foreground">
+                <span className="flex items-center gap-1 text-slate-500 dark:text-muted-foreground">
                   <GitBranch className="w-3 h-3" />{tenant.branches_count ?? 0}
                 </span>
               </td>
               <td className="px-4 py-3">
-                <span className="flex items-center gap-1 text-muted-foreground">
+                <span className="flex items-center gap-1 text-slate-500 dark:text-muted-foreground">
                   <Users className="w-3 h-3" />{tenant.users_count ?? 0}
                 </span>
               </td>
-              <td className="px-4 py-3 text-muted-foreground">
+              <td className="px-4 py-3 text-slate-500 dark:text-muted-foreground">
                 {format(new Date(tenant.created_at), 'dd/MM/yyyy')}
               </td>
               <td className="px-4 py-3"><TenantActionsDropdown tenant={tenant} /></td>

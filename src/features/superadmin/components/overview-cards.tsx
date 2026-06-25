@@ -28,26 +28,26 @@ function StatCard({ title, value, change, icon, gradient, index, badge }: StatCa
       transition={{ duration: 0.3, delay: index * 0.08 }}
       onHoverStart={() => setHovered(true)}
       onHoverEnd={() => setHovered(false)}
-      className="relative cursor-pointer rounded-xl p-4 transition-all duration-200"
-      style={{
-        background: hovered ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.02)',
-        border: `1px solid ${hovered ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.05)'}`,
-      }}
+      className={`relative cursor-pointer rounded-xl p-4 transition-all duration-200 border ${
+        hovered
+          ? 'bg-violet-50 dark:bg-white/[0.04] border-violet-200 dark:border-white/10'
+          : 'bg-slate-50 dark:bg-white/[0.02] border-slate-200 dark:border-white/5'
+      }`}
     >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2.5">
           <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${gradient}`}>
             {icon}
           </div>
-          <span className="text-xs font-medium text-white/40 uppercase tracking-wider">{title}</span>
+          <span className="text-xs font-medium text-slate-500 dark:text-white/40 uppercase tracking-wider">{title}</span>
         </div>
         {badge && (
-          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-medium text-white/40">
+          <span className="rounded-full border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/5 px-2 py-0.5 text-[10px] font-medium text-slate-500 dark:text-white/40">
             {badge}
           </span>
         )}
       </div>
-      <p className="text-2xl font-bold text-white mb-2">{value}</p>
+      <p className="text-2xl font-bold text-slate-800 dark:text-white mb-2">{value}</p>
       {change !== undefined && (
         <div className="flex items-center justify-between">
           <div className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
