@@ -69,5 +69,8 @@
     "cancel": "Cancel",
     "confirm": "Delete",
     "deleting": "Deleting..."
+  },
+  "fields": {
+    "key_hint": "To show phone or email correctly in the customers list, use the key phone for the phone field, or email for the email field. Any other key is saved as a regular custom field and won't appear in the contact column."
   }
 }

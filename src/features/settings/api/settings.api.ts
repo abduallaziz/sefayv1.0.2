@@ -9,6 +9,7 @@ export interface TenantProfile {
   currency_code: string
   currency_symbol: string
   customer_capture_enabled: boolean
+  name_field_enabled: boolean
 }
 
 export interface TenantSubscription {
@@ -33,6 +34,7 @@ export interface UpdateProfileDto {
   currency_symbol?: string
   tax_rate?: number
   customer_capture_enabled?: boolean
+  name_field_enabled?: boolean
 }
 
 export const settingsApi = {

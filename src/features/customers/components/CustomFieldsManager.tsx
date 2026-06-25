@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Plus, Trash2, Pencil } from 'lucide-react'
 import {
   useCustomerFieldDefinitions,
@@ -8,6 +9,7 @@ import {
   useUpdateFieldDefinition,
   useDeleteFieldDefinition,
 } from '../hooks/useCustomers'
+import { useProfile, useUpdateProfile } from '@/features/settings/hooks/useSettings'
 import type { CustomFieldType, CustomerFieldDefinition } from '../types/customer.types'
 
 const FIELD_TYPE_OPTIONS: { value: CustomFieldType; label: string }[] = [
@@ -30,6 +32,7 @@ function parseOptionsText(text: string) {
 }
 
 function AddFieldForm({ onClose }: { onClose: () => void }) {
+  const t = useTranslations('customers')
   const createMutation = useCreateFieldDefinition()
   const [form, setForm] = useState({
     field_key: '',
@@ -59,6 +62,9 @@ function AddFieldForm({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="border border-slate-200 dark:border-gray-700 rounded-lg p-4 space-y-3 bg-slate-50/50 dark:bg-gray-950/50">
+      <p className="text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-gray-900 border border-slate-200 dark:border-gray-700 rounded-lg p-2.5">
+        {t('fields.key_hint')}
+      </p>
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className={labelClass}>المفتاح (إنجليزي، بدون مسافات) *</label>
@@ -245,6 +251,8 @@ function EditFieldForm({ field, onClose }: { field: CustomerFieldDefinition; onC
 
 export function CustomFieldsManager() {
   const { data: fields, isLoading } = useCustomerFieldDefinitions()
+  const { data: profile } = useProfile()
+  const updateProfileMutation = useUpdateProfile()
   const updateMutation = useUpdateFieldDefinition()
   const deleteMutation = useDeleteFieldDefinition()
   const [showAdd, setShowAdd] = useState(false)
@@ -257,6 +265,32 @@ export function CustomFieldsManager() {
         <div className="h-10 bg-slate-100 dark:bg-gray-800 rounded-lg animate-pulse" />
       ) : (
         <div className="divide-y divide-slate-100 dark:divide-gray-800">
+          <div className="flex items-center justify-between py-2.5 gap-3">
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-slate-800 dark:text-white">
+                الاسم <span className="text-slate-400 text-xs">(Name)</span>
+              </p>
+              <p className="text-xs text-slate-400 dark:text-slate-500">
+                {profile?.name_field_enabled
+                  ? 'إدخال الاسم إلزامي من الكاشير'
+                  : 'يُنشأ الاسم تلقائيًا (عميل 1، عميل 2، ...)'}
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={() => updateProfileMutation.mutate({ name_field_enabled: !profile?.name_field_enabled })}
+                disabled={updateProfileMutation.isPending}
+                className={`px-2 py-0.5 rounded-full text-xs font-medium border transition-all ${
+                  profile?.name_field_enabled
+                    ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700'
+                }`}
+              >
+                {profile?.name_field_enabled ? 'نشط' : 'معطّل'}
+              </button>
+            </div>
+          </div>
+
           {(fields ?? []).length === 0 && !showAdd && (
             <p className="text-sm text-slate-400 py-2">لا توجد حقول مخصصة بعد</p>
           )}

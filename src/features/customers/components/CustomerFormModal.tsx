@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { X } from 'lucide-react';
 import { Customer, CreateCustomerDto } from '../types/customer.types';
 import { useCustomerFieldDefinitions } from '../hooks/useCustomers';
+import { useProfile } from '@/features/settings/hooks/useSettings';
 
 interface Props {
   customer?: Customer | null;
@@ -20,13 +21,17 @@ export function CustomerFormModal({ customer, onClose, onSubmit, isLoading }: Pr
   const t = useTranslations('customers');
   const isEdit = !!customer;
   const { data: fieldDefs, isLoading: fieldsLoading } = useCustomerFieldDefinitions();
+  const { data: profile } = useProfile();
+  const nameFieldEnabled = profile?.name_field_enabled ?? false;
   const [values, setValues] = useState<Record<string, string>>({});
+  const [fullName, setFullName] = useState('');
 
   const activeFields = (fieldDefs ?? [])
     .filter((f) => f.is_active)
     .sort((a, b) => a.sort_order - b.sort_order);
 
   useEffect(() => {
+    setFullName(customer?.full_name ?? '');
     if (customer?.custom_fields) {
       const initial: Record<string, string> = {};
       for (const [key, value] of Object.entries(customer.custom_fields)) {
@@ -38,7 +43,9 @@ export function CustomerFormModal({ customer, onClose, onSubmit, isLoading }: Pr
     }
   }, [customer]);
 
-  const missingRequired = activeFields.some((f) => f.required && !values[f.field_key]?.trim());
+  const missingRequired =
+    (nameFieldEnabled && !fullName.trim()) ||
+    activeFields.some((f) => f.required && !values[f.field_key]?.trim());
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -53,7 +60,7 @@ export function CustomerFormModal({ customer, onClose, onSubmit, isLoading }: Pr
       else custom_fields[field.field_key] = raw;
     }
 
-    onSubmit({ custom_fields });
+    onSubmit({ ...(nameFieldEnabled ? { full_name: fullName.trim() } : {}), custom_fields });
   }
 
   return (
@@ -70,6 +77,20 @@ export function CustomerFormModal({ customer, onClose, onSubmit, isLoading }: Pr
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto flex-1">
+          {nameFieldEnabled && (
+            <div>
+              <label className={labelClass}>
+                الاسم <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className={inputClass}
+                autoFocus
+              />
+            </div>
+          )}
           {fieldsLoading ? (
             <div className="h-10 bg-slate-100 dark:bg-gray-800 rounded-lg animate-pulse" />
           ) : activeFields.length === 0 ? (

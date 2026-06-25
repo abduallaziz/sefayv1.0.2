@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Search, UserPlus } from 'lucide-react'
 import { useCustomerSearch, useCustomerFieldDefinitions, useCreateCustomer } from '@/features/customers/hooks/useCustomers'
+import { useProfile } from '@/features/settings/hooks/useSettings'
 import type { Customer } from '@/features/customers/types/customer.types'
 
 interface Props {
@@ -14,14 +15,19 @@ const inputClass = 'w-full px-3 py-2 text-sm bg-gray-50 dark:bg-white/5 border b
 
 function QuickAddCustomerForm({ onCreated, onCancel }: { onCreated: (c: Customer) => void; onCancel: () => void }) {
   const { data: fieldDefs } = useCustomerFieldDefinitions()
+  const { data: profile } = useProfile()
+  const nameFieldEnabled = profile?.name_field_enabled ?? false
   const createMutation = useCreateCustomer()
   const [values, setValues] = useState<Record<string, string>>({})
+  const [fullName, setFullName] = useState('')
 
   const activeFields = (fieldDefs ?? [])
     .filter(f => f.is_active)
     .sort((a, b) => a.sort_order - b.sort_order)
 
-  const missingRequired = activeFields.some(f => f.required && !values[f.field_key]?.trim())
+  const missingRequired =
+    (nameFieldEnabled && !fullName.trim()) ||
+    activeFields.some(f => f.required && !values[f.field_key]?.trim())
 
   function handleSubmit() {
     if (missingRequired) return
@@ -38,13 +44,28 @@ function QuickAddCustomerForm({ onCreated, onCancel }: { onCreated: (c: Customer
     }
 
     createMutation.mutate(
-      { custom_fields },
+      { ...(nameFieldEnabled ? { full_name: fullName.trim() } : {}), custom_fields },
       { onSuccess: (customer) => onCreated(customer) },
     )
   }
 
   return (
     <div className="space-y-3">
+      {nameFieldEnabled && (
+        <div>
+          <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+            الاسم <span className="text-red-500 dark:text-red-400">*</span>
+          </label>
+          <input
+            type="text"
+            value={fullName}
+            onChange={e => setFullName(e.target.value)}
+            className={inputClass}
+            autoFocus
+          />
+        </div>
+      )}
+
       {activeFields.length === 0 && (
         <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-2">لا توجد حقول مفعّلة لتسجيل عميل</p>
       )}
