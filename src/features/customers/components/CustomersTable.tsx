@@ -8,6 +8,16 @@ import { useProfile } from '@/features/settings/hooks/useSettings';
 
 const VEHICLE_BUSINESS_TYPES = ['workshop', 'services'];
 
+function PlateIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 16" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0.5" y="0.5" width="23" height="15" rx="3" stroke="currentColor" strokeWidth="1.2" />
+      <line x1="17.5" y1="1" x2="17.5" y2="15" stroke="currentColor" strokeWidth="1" />
+      <line x1="0.5" y1="8" x2="17.5" y2="8" stroke="currentColor" strokeWidth="0.8" />
+    </svg>
+  );
+}
+
 interface Props {
   customers: Customer[];
   onView: (customer: Customer) => void;
@@ -49,7 +59,9 @@ export function CustomersTable({ customers, onView, onEdit, onDelete }: Props) {
                   </div>
                   {showVehicleColumn && (customer.plate_number || customer.visit_date || customer.odometer != null) && (
                     <div className="flex items-center gap-2 text-gray-400 dark:text-gray-500 mt-0.5 text-xs">
-                      {customer.plate_number && <span dir="ltr">{customer.plate_number}</span>}
+                      {customer.plate_number && (
+                        <span className="flex items-center gap-0.5"><PlateIcon className="w-3.5 h-2.5" /><span dir="ltr">{customer.plate_number}</span></span>
+                      )}
                       {customer.odometer != null && (
                         <span className="flex items-center gap-0.5"><Gauge className="w-3 h-3" />{customer.odometer.toLocaleString()}</span>
                       )}
@@ -92,7 +104,7 @@ export function CustomersTable({ customers, onView, onEdit, onDelete }: Props) {
               <th className="text-start py-3 px-4 text-gray-500 dark:text-gray-400 font-medium">{t('table.customer')}</th>
               <th className="text-start py-3 px-4 text-gray-500 dark:text-gray-400 font-medium">{t('table.contact')}</th>
               {showVehicleColumn && (
-                <th className="text-start py-3 px-4 text-gray-500 dark:text-gray-400 font-medium">{t('table.vehicle')}</th>
+                <th className="text-center py-3 px-4 text-gray-500 dark:text-gray-400 font-medium">{t('table.vehicle')}</th>
               )}
               <th className="text-start py-3 px-4 text-gray-500 dark:text-gray-400 font-medium">{t('table.orders')}</th>
               <th className="text-start py-3 px-4 text-gray-500 dark:text-gray-400 font-medium">{t('table.spent')}</th>
@@ -130,9 +142,12 @@ export function CustomersTable({ customers, onView, onEdit, onDelete }: Props) {
                 </td>
                 {showVehicleColumn && (
                   <td className="py-3 px-4">
-                    <div className="space-y-1">
+                    <div className="space-y-1 flex flex-col items-center">
                       {customer.plate_number && (
-                        <p className="text-xs text-gray-600 dark:text-gray-300" dir="ltr">{customer.plate_number}</p>
+                        <div className="flex items-center gap-1.5 text-gray-600 dark:text-gray-300">
+                          <PlateIcon className="w-4 h-3" />
+                          <span className="text-xs" dir="ltr">{customer.plate_number}</span>
+                        </div>
                       )}
                       {customer.odometer != null && (
                         <div className="flex items-center gap-1.5 text-gray-400">
