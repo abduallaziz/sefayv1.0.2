@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/core/auth/stores/auth.store';
-import { useThemeStore } from '@/core/theme/stores/theme.store';
 import {
   LayoutDashboard, Building2, CreditCard,
   ToggleLeft, Shield, BarChart3, LogOut, Settings, X,
@@ -16,13 +15,16 @@ interface SuperAdminSidebarProps {
   onClose: () => void;
 }
 
+// Always dark — SuperAdmin page content assumes a permanent dark background,
+// so the sidebar doesn't follow the tenant-dashboard light/dark toggle.
+const isDark = true;
+
 export function SuperAdminSidebar({ open, onClose }: SuperAdminSidebarProps) {
   const pathname = usePathname();
   const locale = useLocale();
   const t = useTranslations('nav');
   const user = useAuthStore((s) => s.user);
   const clearAuth = useAuthStore((s) => s.clearAuth);
-  const isDark = useThemeStore((s) => s.theme === 'dark');
 
   const textMuted = isDark ? '#8B949E' : '#54657C';
   const iconMuted = isDark ? '#6E7681' : '#8C9CB2';

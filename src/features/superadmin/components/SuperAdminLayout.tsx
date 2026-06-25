@@ -3,21 +3,20 @@
 import { useState } from 'react';
 import { SuperAdminSidebar } from './SuperAdminSidebar';
 import { DashboardHeader } from '@/features/dashboard/components/DashboardHeader';
-import { ThemeProvider } from '@/core/theme/components/ThemeProvider';
-import { useThemeStore } from '@/core/theme/stores/theme.store';
 
+// SuperAdmin page content (cards, tables, charts) is built with fixed white-on-dark
+// styling throughout, so this shell stays permanently dark regardless of the
+// tenant-dashboard theme toggle — only the chrome (header/sidebar) shares that
+// theme system's visual language, not the actual light/dark switch.
 export function SuperAdminLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const isDark = useThemeStore((s) => s.theme === 'dark');
 
   return (
-    <ThemeProvider>
+    <>
       <div
         style={{
           minHeight: '100vh',
-          background: isDark
-            ? 'radial-gradient(1400px 700px at 88% -8%, rgba(37,99,235,0.10), transparent 52%), radial-gradient(1000px 600px at 6% 12%, rgba(12,68,124,0.10), transparent 48%), #0D1117'
-            : 'radial-gradient(1400px 700px at 88% -8%, rgba(37,99,235,0.07), transparent 52%), radial-gradient(1000px 600px at 6% 12%, rgba(12,68,124,0.055), transparent 48%), #E9EEF5',
+          background: 'radial-gradient(1400px 700px at 88% -8%, rgba(37,99,235,0.10), transparent 52%), radial-gradient(1000px 600px at 6% 12%, rgba(12,68,124,0.10), transparent 48%), #0D1117',
           backgroundAttachment: 'fixed',
         }}
       >
@@ -34,6 +33,6 @@ export function SuperAdminLayout({ children }: { children: React.ReactNode }) {
           </main>
         </div>
       </div>
-    </ThemeProvider>
+    </>
   );
 }
