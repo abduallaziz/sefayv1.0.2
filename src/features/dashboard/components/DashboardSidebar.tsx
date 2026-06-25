@@ -132,11 +132,12 @@ export function DashboardSidebar({ open, onClose }: SidebarProps) {
                   ...(active
                     ? {
                         background: isDark
-                          ? 'linear-gradient(135deg, #123354, #1B4C7A)'
+                          ? 'linear-gradient(135deg, #161D29, #1C2433)'
                           : 'linear-gradient(135deg, #0C447C, #1761B8)',
-                        color: '#fff',
+                        color: isDark ? '#5B9BD5' : '#fff',
+                        border: isDark ? '1px solid rgba(91,155,213,0.28)' : 'none',
                         boxShadow: isDark
-                          ? '0 6px 18px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.3)'
+                          ? '0 4px 14px rgba(0,0,0,0.45)'
                           : '0 6px 18px rgba(12,68,124,0.32), 0 2px 6px rgba(12,68,124,0.24)',
                       }
                     : {
@@ -160,7 +161,7 @@ export function DashboardSidebar({ open, onClose }: SidebarProps) {
                 <Icon
                   size={18}
                   strokeWidth={2}
-                  style={{ color: active ? '#fff' : iconMuted, flexShrink: 0 }}
+                  style={{ color: active ? (isDark ? '#5B9BD5' : '#fff') : iconMuted, flexShrink: 0 }}
                 />
                 <span style={{ flex: 1 }}>{t(item.key)}</span>
               </Link>
@@ -173,12 +174,13 @@ export function DashboardSidebar({ open, onClose }: SidebarProps) {
           <div
             style={{
               background: isDark
-                ? 'linear-gradient(135deg, #0A1F3A 0%, #123354 48%, #1B4C7A 100%)'
+                ? 'linear-gradient(135deg, #11161F 0%, #161D29 48%, #1C2433 100%)'
                 : 'linear-gradient(135deg, #082F5C 0%, #0C447C 48%, #1761B8 100%)',
+              border: isDark ? '1px solid rgba(91,155,213,0.2)' : 'none',
               borderRadius: '18px', padding: '17px',
               position: 'relative', overflow: 'hidden',
               boxShadow: isDark
-                ? '0 8px 16px rgba(0,0,0,0.3), 0 20px 40px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.06) inset'
+                ? '0 8px 16px rgba(0,0,0,0.4), 0 20px 40px rgba(0,0,0,0.4)'
                 : '0 8px 16px rgba(10,22,40,0.05), 0 20px 48px rgba(10,22,40,0.12), 0 1px 0 rgba(255,255,255,0.12) inset',
             }}
           >

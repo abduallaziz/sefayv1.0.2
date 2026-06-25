@@ -68,10 +68,11 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
       style={{
         height: '66px',
         background: isDark
-          ? 'linear-gradient(115deg, #0A1929 0%, #0F2942 42%, #15395C 100%)'
+          ? 'linear-gradient(115deg, #0D1117 0%, #11161F 50%, #161D29 100%)'
           : 'linear-gradient(115deg, #082F5C 0%, #0C447C 42%, #1761B8 100%)',
+        borderBottom: isDark ? '1px solid rgba(91,155,213,0.16)' : 'none',
         boxShadow: isDark
-          ? '0 6px 24px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.05) inset'
+          ? '0 6px 20px rgba(0,0,0,0.6)'
           : '0 6px 28px rgba(8,47,92,0.42), 0 1px 0 rgba(255,255,255,0.1) inset',
         position: 'sticky',
         top: 0,
@@ -274,7 +275,7 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
               color: '#fff', fontSize: '9px', fontWeight: 700,
               width: '18px', height: '18px', borderRadius: '50%',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              border: isDark ? '2px solid #0F2942' : '2px solid #0C447C',
+              border: isDark ? '2px solid #11161F' : '2px solid #0C447C',
               boxShadow: '0 2px 8px rgba(239,68,68,0.55)',
             }}
           >
