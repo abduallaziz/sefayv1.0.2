@@ -763,6 +763,7 @@
   },
   "datePicker": {
     "placeholder": "Select date range",
+    "placeholderSingle": "Select a date",
     "selectEnd": "Select end date",
     "clear": "Clear range",
     "from": "From",

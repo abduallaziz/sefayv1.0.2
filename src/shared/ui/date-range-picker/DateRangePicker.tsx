@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, Calendar, X } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
+import { useFloatingPosition } from './useFloatingPosition';
 
 export interface DateRange {
   from: string | undefined;
@@ -58,7 +60,9 @@ export function DateRangePicker({ value, onChange, placeholder, align = 'right' 
   const [viewMonth, setViewMonth] = useState(now.getMonth());
   const [yearRangeStart, setYearRangeStart] = useState(Math.floor(now.getFullYear() / 12) * 12);
 
-  const ref = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const pos = useFloatingPosition(triggerRef, panelRef, open);
 
   const PRESETS = [
     { key: 'today',       getDates: () => { const d = today(); return { from: d, to: d }; } },
@@ -81,7 +85,11 @@ export function DateRangePicker({ value, onChange, placeholder, align = 'right' 
 
   useEffect(() => {
     function handler(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      if (
+        triggerRef.current && !triggerRef.current.contains(target) &&
+        panelRef.current && !panelRef.current.contains(target)
+      ) {
         setOpen(false); setActiveField(null); setCalView('days');
       }
     }
@@ -168,7 +176,7 @@ export function DateRangePicker({ value, onChange, placeholder, align = 'right' 
   };
 
   return (
-    <div ref={ref} className="relative inline-block" dir="rtl">
+    <div ref={triggerRef} className="relative inline-block" dir="rtl">
       <button
         onClick={() => { setOpen(o => !o); if (!open) setActiveField('from'); }}
         className="flex items-center gap-2 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-slate-50 dark:bg-gray-950 text-slate-800 dark:text-white hover:border-[#0C447C] dark:hover:border-blue-500 transition-colors min-w-[240px]"
@@ -180,8 +188,13 @@ export function DateRangePicker({ value, onChange, placeholder, align = 'right' 
         {display && <X size={14} className="text-slate-400 hover:text-red-400 shrink-0" onClick={clear} />}
       </button>
 
-      {open && (
-        <div className={`absolute z-50 mt-2 bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 rounded-xl shadow-xl flex ${align === 'right' ? 'right-0' : 'left-0'}`}>
+      {open && createPortal(
+        <div
+          ref={panelRef}
+          dir="rtl"
+          style={{ position: 'fixed', top: pos?.top ?? -9999, left: pos?.left ?? -9999, visibility: pos ? 'visible' : 'hidden' }}
+          className="z-50 bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 rounded-xl shadow-xl flex"
+        >
 
           {/* Presets */}
           <div className="w-36 border-l border-slate-100 dark:border-gray-800 p-2 flex flex-col gap-0.5">
@@ -310,7 +323,8 @@ export function DateRangePicker({ value, onChange, placeholder, align = 'right' 
             </div>
 
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );

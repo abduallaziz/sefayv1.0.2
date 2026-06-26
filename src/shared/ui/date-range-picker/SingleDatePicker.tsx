@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, Calendar, X } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
+import { useFloatingPosition } from './useFloatingPosition';
 
 interface Props {
   value: string | undefined;
@@ -39,7 +41,9 @@ export function SingleDatePicker({ value, onChange, placeholder, align = 'right'
   const [viewMonth, setViewMonth] = useState(initial.getMonth());
   const [yearRangeStart, setYearRangeStart] = useState(Math.floor(initial.getFullYear() / 12) * 12);
 
-  const ref = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const pos = useFloatingPosition(triggerRef, panelRef, open);
 
   const dayNames = Array.from({ length: 7 }, (_, i) =>
     new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(new Date(2024, 0, i))
@@ -51,7 +55,11 @@ export function SingleDatePicker({ value, onChange, placeholder, align = 'right'
 
   useEffect(() => {
     function handler(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      if (
+        triggerRef.current && !triggerRef.current.contains(target) &&
+        panelRef.current && !panelRef.current.contains(target)
+      ) {
         setOpen(false); setCalView('days');
       }
     }
@@ -101,7 +109,7 @@ export function SingleDatePicker({ value, onChange, placeholder, align = 'right'
   };
 
   return (
-    <div ref={ref} className="relative inline-block w-full" dir="rtl">
+    <div ref={triggerRef} className="relative inline-block w-full" dir="rtl">
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
@@ -109,13 +117,18 @@ export function SingleDatePicker({ value, onChange, placeholder, align = 'right'
       >
         <Calendar size={15} className="text-slate-400 shrink-0" />
         <span className="flex-1 text-right truncate">
-          {display ?? <span className="text-slate-400">{placeholder ?? t('placeholder')}</span>}
+          {display ?? <span className="text-slate-400">{placeholder ?? t('placeholderSingle')}</span>}
         </span>
         {display && <X size={14} className="text-slate-400 hover:text-red-400 shrink-0" onClick={clear} />}
       </button>
 
-      {open && (
-        <div className={`absolute z-50 mt-2 bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 rounded-xl shadow-xl p-4 w-72 flex flex-col gap-3 ${align === 'right' ? 'right-0' : 'left-0'}`}>
+      {open && createPortal(
+        <div
+          ref={panelRef}
+          dir="rtl"
+          style={{ position: 'fixed', top: pos?.top ?? -9999, left: pos?.left ?? -9999, visibility: pos ? 'visible' : 'hidden' }}
+          className="z-50 bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 rounded-xl shadow-xl p-4 w-72 flex flex-col gap-3"
+        >
 
           {/* Nav */}
           <div className="flex items-center justify-between">
@@ -204,7 +217,8 @@ export function SingleDatePicker({ value, onChange, placeholder, align = 'right'
               </button>
             </div>
           )}
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );
