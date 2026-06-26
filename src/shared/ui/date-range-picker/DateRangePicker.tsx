@@ -192,8 +192,8 @@ export function DateRangePicker({ value, onChange, placeholder, align = 'right' 
         <div
           ref={panelRef}
           dir="rtl"
-          style={{ position: 'fixed', top: pos?.top ?? -9999, left: pos?.left ?? -9999, visibility: pos ? 'visible' : 'hidden' }}
-          className="z-50 bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 rounded-xl shadow-xl flex"
+          style={{ position: 'fixed', top: pos?.top ?? -9999, left: pos?.left ?? -9999, visibility: pos ? 'visible' : 'hidden', zIndex: 9999 }}
+          className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 rounded-xl shadow-xl flex"
         >
 
           {/* Presets */}
