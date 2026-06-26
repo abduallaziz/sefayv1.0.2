@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import { Search, UserPlus } from 'lucide-react'
 import { useCustomerSearch, useCustomerFieldDefinitions, useCreateCustomer } from '@/features/customers/hooks/useCustomers'
 import { useProfile } from '@/features/settings/hooks/useSettings'
+import { SingleDatePicker } from '@/shared/ui/date-range-picker'
 import type { Customer } from '@/features/customers/types/customer.types'
 
 interface Props {
@@ -96,9 +97,14 @@ function QuickAddCustomerForm({ onCreated, onCancel }: { onCreated: (c: Customer
               <option value="true">{t('yes')}</option>
               <option value="false">{t('no')}</option>
             </select>
+          ) : field.field_type === 'date' ? (
+            <SingleDatePicker
+              value={values[field.field_key] || undefined}
+              onChange={v => setValues(p => ({ ...p, [field.field_key]: v ?? '' }))}
+            />
           ) : (
             <input
-              type={field.field_type === 'number' ? 'number' : field.field_type === 'date' ? 'date' : 'text'}
+              type={field.field_type === 'number' ? 'number' : 'text'}
               value={values[field.field_key] ?? ''}
               onChange={e => setValues(p => ({ ...p, [field.field_key]: e.target.value }))}
               className={inputClass}
