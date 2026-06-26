@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { User, X } from 'lucide-react'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
+import { NumberInput } from '@/shared/ui/number-input'
 import { Cart } from '../types/pos.types'
 import type { Customer } from '@/features/customers/types/customer.types'
 
@@ -142,11 +143,10 @@ export function CartPanel({
                 {t('fixed')}
               </button>
             </div>
-            <input
-              type="number"
+            <NumberInput
               placeholder={discountType === 'percentage' ? '10' : '20'}
               value={discountInput}
-              onChange={(e) => setDiscountInput(e.target.value)}
+              onChange={setDiscountInput}
               className="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C]"
             />
             <input

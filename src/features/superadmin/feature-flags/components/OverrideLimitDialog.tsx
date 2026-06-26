@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useUpsertOverride } from '../hooks/useFeatureFlags'
+import { NumberInput } from '@/shared/ui/number-input'
 import type { FeatureWithOverride } from '../types/feature-flags.types'
 
 interface Props {
@@ -46,10 +47,9 @@ export function OverrideLimitDialog({ tenantId, feature, open, onClose }: Props)
         <div className="space-y-3">
           <div>
             <label className="text-xs text-slate-500 dark:text-gray-400 mb-1 block">{t('limitValue')}</label>
-            <input
-              type="number"
+            <NumberInput
               value={limit}
-              onChange={(e) => setLimit(e.target.value)}
+              onChange={setLimit}
               placeholder={t('unlimited')}
               className="w-full rounded-lg border border-slate-200 dark:border-[#1e2130] bg-slate-50 dark:bg-[#0f1117] px-3 py-2 text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-gray-600 focus:border-violet-500 focus:outline-none"
             />

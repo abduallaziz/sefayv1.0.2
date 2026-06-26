@@ -66,8 +66,11 @@ export function ManualPaymentDialog({ open, plans, tenants, onClose, onSubmit, i
           <div>
             <label className="mb-1.5 block text-sm text-slate-500 dark:text-slate-400">{t('payment.amount')}</label>
             <Input
-              {...register('amount', { valueAsNumber: true })}
-              type="number"
+              {...register('amount', { setValueAs: (v) => (v === '' ? undefined : Number(v)) })}
+              type="text"
+              inputMode="decimal"
+              lang="en"
+              dir="ltr"
               className="border-slate-200 dark:border-[#1e2130] bg-slate-50 dark:bg-[#0f1117] text-slate-800 dark:text-white"
             />
           </div>

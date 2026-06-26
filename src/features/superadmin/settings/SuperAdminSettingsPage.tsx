@@ -196,9 +196,9 @@ function SystemTab() {
 
       <Card title={t('system.generalTitle')} description={t('system.generalDesc')}>
         <div className="space-y-4">
-          <Field label={t('system.defaultTrialDays')}><input defaultValue="14" type="number" dir="ltr" className={inputCls} /></Field>
-          <Field label={t('system.gracePeriod')}><input defaultValue="3" type="number" dir="ltr" className={inputCls} /></Field>
-          <Field label={t('system.maxLoginAttempts')}><input defaultValue="5" type="number" dir="ltr" className={inputCls} /></Field>
+          <Field label={t('system.defaultTrialDays')}><input defaultValue="14" type="text" inputMode="numeric" lang="en" dir="ltr" className={inputCls} /></Field>
+          <Field label={t('system.gracePeriod')}><input defaultValue="3" type="text" inputMode="numeric" lang="en" dir="ltr" className={inputCls} /></Field>
+          <Field label={t('system.maxLoginAttempts')}><input defaultValue="5" type="text" inputMode="numeric" lang="en" dir="ltr" className={inputCls} /></Field>
         </div>
         <SaveBtn saved={saved} onClick={() => { setSaved(true); setTimeout(() => setSaved(false), 2000) }} />
       </Card>

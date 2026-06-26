@@ -32,11 +32,12 @@ export function ExtendTrialDialog({ tenantId, tenantName, open, onClose }: Props
         <div className="py-4 space-y-3">
           <p className="text-sm text-slate-500 dark:text-muted-foreground">{t('extendDays')}</p>
           <Input
-            type="number"
+            type="text"
+            inputMode="numeric"
+            lang="en"
+            dir="ltr"
             value={days}
-            onChange={(e) => setDays(e.target.value)}
-            min={1}
-            max={365}
+            onChange={(e) => { const v = e.target.value; if (v === '' || /^\d*$/.test(v)) setDays(v); }}
             className="bg-slate-50 dark:bg-[#141720] border-slate-200 dark:border-[#1e2130] text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-[#64748b]"
           />
         </div>

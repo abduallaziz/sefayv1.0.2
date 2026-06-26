@@ -6,6 +6,7 @@ import { useProfile, useSubscription, useUsage, useUpdateProfile } from '../hook
 import { useTenantStore } from '@/core/tenant/stores/tenant.store';
 import { Building2, CreditCard, BarChart3, Save, Coins, Users, Percent } from 'lucide-react';
 import { CustomFieldsManager } from '@/features/customers/components/CustomFieldsManager';
+import { NumberInput } from '@/shared/ui/number-input';
 
 const CURRENCIES = [
   { code: 'SAR', symbol: 'ر.س', label: 'ريال سعودي' },
@@ -159,13 +160,9 @@ export function SettingsPage() {
         ) : (
           <div className="space-y-2">
             <div className="flex items-center gap-2 max-w-[160px]">
-              <input
-                type="number"
-                min={0}
-                max={100}
-                step={0.01}
+              <NumberInput
                 value={taxRatePercent}
-                onChange={(e) => { setTaxRatePercent(e.target.value); setTaxRateError(false); }}
+                onChange={(v) => { setTaxRatePercent(v); setTaxRateError(false); }}
                 className="w-full bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-[#0C447C] dark:focus:border-[#0C447C]"
               />
               <span className="text-sm text-slate-500">%</span>

@@ -6,6 +6,7 @@ import { Search, UserPlus } from 'lucide-react'
 import { useCustomerSearch, useCustomerFieldDefinitions, useCreateCustomer } from '@/features/customers/hooks/useCustomers'
 import { useProfile } from '@/features/settings/hooks/useSettings'
 import { SingleDatePicker } from '@/shared/ui/date-range-picker'
+import { NumberInput } from '@/shared/ui/number-input'
 import type { Customer } from '@/features/customers/types/customer.types'
 
 interface Props {
@@ -102,9 +103,16 @@ function QuickAddCustomerForm({ onCreated, onCancel }: { onCreated: (c: Customer
               value={values[field.field_key] || undefined}
               onChange={v => setValues(p => ({ ...p, [field.field_key]: v ?? '' }))}
             />
+          ) : field.field_type === 'number' ? (
+            <NumberInput
+              value={values[field.field_key] ?? ''}
+              onChange={v => setValues(p => ({ ...p, [field.field_key]: v }))}
+              className={inputClass}
+              autoFocus={field.sort_order === activeFields[0]?.sort_order}
+            />
           ) : (
             <input
-              type={field.field_type === 'number' ? 'number' : 'text'}
+              type="text"
               value={values[field.field_key] ?? ''}
               onChange={e => setValues(p => ({ ...p, [field.field_key]: e.target.value }))}
               className={inputClass}

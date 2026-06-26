@@ -7,6 +7,7 @@ import { Customer, CreateCustomerDto } from '../types/customer.types';
 import { useCustomerFieldDefinitions } from '../hooks/useCustomers';
 import { useProfile } from '@/features/settings/hooks/useSettings';
 import { SingleDatePicker } from '@/shared/ui/date-range-picker';
+import { NumberInput } from '@/shared/ui/number-input';
 
 interface Props {
   customer?: Customer | null;
@@ -130,9 +131,15 @@ export function CustomerFormModal({ customer, onClose, onSubmit, isLoading }: Pr
                     value={values[field.field_key] || undefined}
                     onChange={(v) => setValues((p) => ({ ...p, [field.field_key]: v ?? '' }))}
                   />
+                ) : field.field_type === 'number' ? (
+                  <NumberInput
+                    value={values[field.field_key] ?? ''}
+                    onChange={(v) => setValues((p) => ({ ...p, [field.field_key]: v }))}
+                    className={inputClass}
+                  />
                 ) : (
                   <input
-                    type={field.field_type === 'number' ? 'number' : 'text'}
+                    type="text"
                     value={values[field.field_key] ?? ''}
                     onChange={(e) => setValues((p) => ({ ...p, [field.field_key]: e.target.value }))}
                     className={inputClass}

@@ -55,21 +55,21 @@ export function PlanFormDialog({ open, plan, onClose, onSubmit, isLoading }: Pro
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="mb-1.5 block text-sm text-slate-500 dark:text-slate-400">{t('planForm.priceMonthly')}</label>
-              <Input {...register('price_monthly', { valueAsNumber: true })} type="number" className="border-slate-200 dark:border-[#1e2130] bg-slate-50 dark:bg-[#0f1117] text-slate-800 dark:text-white" />
+              <Input {...register('price_monthly', { setValueAs: (v) => (v === '' ? undefined : Number(v)) })} type="text" inputMode="decimal" lang="en" dir="ltr" className="border-slate-200 dark:border-[#1e2130] bg-slate-50 dark:bg-[#0f1117] text-slate-800 dark:text-white" />
             </div>
             <div>
               <label className="mb-1.5 block text-sm text-slate-500 dark:text-slate-400">{t('planForm.priceYearly')}</label>
-              <Input {...register('price_yearly', { valueAsNumber: true })} type="number" className="border-slate-200 dark:border-[#1e2130] bg-slate-50 dark:bg-[#0f1117] text-slate-800 dark:text-white" />
+              <Input {...register('price_yearly', { setValueAs: (v) => (v === '' ? undefined : Number(v)) })} type="text" inputMode="decimal" lang="en" dir="ltr" className="border-slate-200 dark:border-[#1e2130] bg-slate-50 dark:bg-[#0f1117] text-slate-800 dark:text-white" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="mb-1.5 block text-sm text-slate-500 dark:text-slate-400">{t('planForm.maxUsers')}</label>
-              <Input {...register('max_users', { valueAsNumber: true })} type="number" className="border-slate-200 dark:border-[#1e2130] bg-slate-50 dark:bg-[#0f1117] text-slate-800 dark:text-white" />
+              <Input {...register('max_users', { setValueAs: (v) => (v === '' ? undefined : Number(v)) })} type="text" inputMode="numeric" lang="en" dir="ltr" className="border-slate-200 dark:border-[#1e2130] bg-slate-50 dark:bg-[#0f1117] text-slate-800 dark:text-white" />
             </div>
             <div>
               <label className="mb-1.5 block text-sm text-slate-500 dark:text-slate-400">{t('planForm.maxBranches')}</label>
-              <Input {...register('max_branches', { valueAsNumber: true })} type="number" className="border-slate-200 dark:border-[#1e2130] bg-slate-50 dark:bg-[#0f1117] text-slate-800 dark:text-white" />
+              <Input {...register('max_branches', { setValueAs: (v) => (v === '' ? undefined : Number(v)) })} type="text" inputMode="numeric" lang="en" dir="ltr" className="border-slate-200 dark:border-[#1e2130] bg-slate-50 dark:bg-[#0f1117] text-slate-800 dark:text-white" />
             </div>
           </div>
           <div className="flex justify-end gap-3 pt-2">
