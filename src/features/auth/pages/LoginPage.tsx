@@ -45,6 +45,7 @@ export function LoginPage() {
           permissions: res.user.permissions ?? [],
           features: res.user.features ?? [],
           business_type: (res.user.business_type as BusinessType) ?? null,
+          activity: res.user.activity ?? null,
         },
         res.access_token,
       );

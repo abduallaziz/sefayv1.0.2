@@ -45,6 +45,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
               permissions: user.permissions ?? [],
               features: user.features ?? [],
               business_type: (user.business_type as BusinessType) ?? null,
+              activity: user.activity ?? null,
             },
             data.access_token,
           );

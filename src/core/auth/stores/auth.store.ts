@@ -15,6 +15,7 @@ export interface AuthUser {
   permissions: string[];
   features: string[];
   business_type: BusinessType | null;
+  activity: string | null;
 }
 
 interface AuthState {

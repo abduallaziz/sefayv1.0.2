@@ -23,6 +23,7 @@ export function useRegister() {
           permissions: data.user.permissions ?? [],
           features: data.user.features ?? [],
           business_type: (data.user.business_type as BusinessType) ?? null,
+          activity: data.user.activity ?? null,
         },
         data.access_token,
       );
@@ -51,6 +52,7 @@ export function useLogin() {
           permissions: data.user.permissions ?? [],
           features: data.user.features ?? [],
           business_type: (data.user.business_type as BusinessType) ?? null,
+          activity: data.user.activity ?? null,
         },
         data.access_token,
       );

@@ -33,6 +33,7 @@ export interface LoginResponse {
     permissions: string[];
     features: string[];
     business_type: string | null;
+    activity: string | null;
   };
 }
 
@@ -46,6 +47,7 @@ export interface MeResponse {
   permissions: string[];
   features: string[];
   business_type: string | null;
+  activity: string | null;
 }
 
 export const authApi = {
