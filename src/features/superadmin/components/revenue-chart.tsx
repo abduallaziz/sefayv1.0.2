@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { motion } from 'framer-motion'
 import {
@@ -8,10 +7,8 @@ import {
   Tooltip, ResponsiveContainer,
 } from 'recharts'
 import { useThemeStore } from '@/core/theme/stores/theme.store'
+import { DateRangePicker, type DateRange } from '@/shared/ui/date-range-picker'
 import type { MRRHistoryPoint } from '../types'
-
-const PERIODS = ['7D', '1M', '3M', '1Y'] as const
-type Period = typeof PERIODS[number]
 
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
@@ -30,11 +27,12 @@ function CustomTooltip({ active, payload, label }: any) {
 
 interface RevenueChartProps {
   data: MRRHistoryPoint[]
+  range: DateRange
+  onRangeChange: (range: DateRange) => void
 }
 
-export function RevenueChart({ data }: RevenueChartProps) {
+export function RevenueChart({ data, range, onRangeChange }: RevenueChartProps) {
   const t = useTranslations('revenueChart')
-  const [activePeriod, setActivePeriod] = useState<Period>('1M')
   const isDark = useThemeStore((s) => s.theme === 'dark')
 
   const axisTick = isDark ? '#ffffff30' : '#94a3b8'
@@ -55,22 +53,7 @@ export function RevenueChart({ data }: RevenueChartProps) {
           <h3 className="text-lg font-bold text-slate-800 dark:text-white">{t('title')}</h3>
           <p className="text-xs text-slate-400 dark:text-white/40 mt-0.5">{t('subtitle')}</p>
         </div>
-        <div className="flex items-center gap-1 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/5 p-1">
-          {PERIODS.map((p) => (
-            <button
-              key={p}
-              onClick={() => setActivePeriod(p)}
-              className={`relative px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 ${
-                activePeriod === p ? 'text-white' : 'text-slate-400 dark:text-white/40 hover:text-slate-600 dark:hover:text-white/70'
-              }`}
-            >
-              {activePeriod === p && (
-                <motion.div layoutId="activePeriod" className="absolute inset-0 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600" />
-              )}
-              <span className="relative">{p}</span>
-            </button>
-          ))}
-        </div>
+        <DateRangePicker value={range} onChange={(r) => r.from && r.to && onRangeChange(r)} align="left" />
       </div>
 
       <div className="relative flex items-center gap-4 mb-4">

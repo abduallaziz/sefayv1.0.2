@@ -21,9 +21,18 @@ import { useThemeStore } from '@/core/theme/stores/theme.store'
 import { reportsApi } from '@/features/reports/api/reports.api'
 import { shiftsApi } from '@/features/shifts/api/shifts.api'
 import { customersApi } from '@/features/customers/api/customers.api'
+import { DateRangePicker, type DateRange } from '@/shared/ui/date-range-picker'
 import Link from 'next/link'
 
-type Period = 'today' | 'week' | 'month'
+function toYMD(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+function defaultRange(): DateRange {
+  const to = new Date()
+  const from = new Date()
+  from.setDate(from.getDate() - 6)
+  return { from: toYMD(from), to: toYMD(to) }
+}
 
 /* ── Theme tokens ── */
 function useDashboardColors(isDark: boolean) {
@@ -187,12 +196,6 @@ function ActivityIcon({ type }: { type: 'order' | 'refund' | 'alert' }) {
   )
 }
 
-const PERIOD_MAP: Record<Period, 'today' | 'week' | 'month'> = {
-  today: 'today',
-  week:  'week',
-  month: 'month',
-}
-
 const PAYMENT_COLORS: Record<string, string> = {
   cash:    '#059669',
   card:    '#0C447C',
@@ -206,40 +209,33 @@ export function DashboardOverview() {
   const currency = useTenantStore((s) => s.currency_symbol)
   const router  = useRouter()
   const locale  = useLocale()
-  const [period, setPeriod] = useState<Period>('week')
+  const [range, setRange] = useState<DateRange>(defaultRange)
   const t = useTranslations('dashboard')
   const isDark = useThemeStore((s) => s.theme === 'dark')
   const c = useDashboardColors(isDark)
-
-  const PERIOD_LABELS: Record<Period, string> = {
-    today: t('periodToday'),
-    week:  t('periodWeek'),
-    month: t('periodMonth'),
-  }
-
 
   useEffect(() => {
     if (!user) router.replace(`/${locale}/login`)
   }, [user, router, locale])
 
-  const apiPeriod = PERIOD_MAP[period]
+  const rangeQuery = { period: 'custom' as const, from: range.from, to: range.to }
 
   const { data: revenue } = useQuery({
-    queryKey: ['dashboard', 'revenue', apiPeriod],
-    queryFn: () => reportsApi.getRevenue({ period: apiPeriod }),
-    enabled: !!user, refetchInterval: 30000, staleTime: 0,
+    queryKey: ['dashboard', 'revenue', range.from, range.to],
+    queryFn: () => reportsApi.getRevenue(rangeQuery),
+    enabled: !!user && !!range.from && !!range.to, refetchInterval: 30000, staleTime: 0,
   })
 
   const { data: payments } = useQuery({
-    queryKey: ['dashboard', 'payments', apiPeriod],
-    queryFn: () => reportsApi.getPayments({ period: apiPeriod }),
-    enabled: !!user, refetchInterval: 30000, staleTime: 0,
+    queryKey: ['dashboard', 'payments', range.from, range.to],
+    queryFn: () => reportsApi.getPayments(rangeQuery),
+    enabled: !!user && !!range.from && !!range.to, refetchInterval: 30000, staleTime: 0,
   })
 
   const { data: expenses } = useQuery({
-    queryKey: ['dashboard', 'expenses', apiPeriod],
-    queryFn: () => reportsApi.getExpenses({ period: apiPeriod }),
-    enabled: !!user, refetchInterval: 30000, staleTime: 0,
+    queryKey: ['dashboard', 'expenses', range.from, range.to],
+    queryFn: () => reportsApi.getExpenses(rangeQuery),
+    enabled: !!user && !!range.from && !!range.to, refetchInterval: 30000, staleTime: 0,
   })
 
   const { data: shift } = useQuery({
@@ -261,9 +257,9 @@ export function DashboardOverview() {
   })
 
   const { data: topItems } = useQuery({
-    queryKey: ['dashboard', 'top-items', apiPeriod],
-    queryFn: () => reportsApi.getTopItems({ period: apiPeriod }),
-    enabled: !!user, staleTime: 60000,
+    queryKey: ['dashboard', 'top-items', range.from, range.to],
+    queryFn: () => reportsApi.getTopItems(rangeQuery),
+    enabled: !!user && !!range.from && !!range.to, staleTime: 60000,
   })
 
   const { data: recentActivity } = useQuery({
@@ -313,6 +309,11 @@ export function DashboardOverview() {
   /* Today date */
   const todayStr = new Date().toLocaleDateString(dateLocale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
 
+  /* Selected range, human label */
+  const rangeLabel = range.from && range.to
+    ? `${new Date(range.from).toLocaleDateString(dateLocale, { day: 'numeric', month: 'short' })} – ${new Date(range.to).toLocaleDateString(dateLocale, { day: 'numeric', month: 'short' })}`
+    : ''
+
   return (
     <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
 
@@ -337,33 +338,9 @@ export function DashboardOverview() {
           </div>
         </div>
 
-        {/* Period tabs */}
+        {/* Date range */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '9px', flexWrap: 'wrap' }}>
-          <div style={{
-            display: 'flex',
-            background: c.cardBg, backdropFilter: 'blur(12px)',
-            border: c.cardBorder,
-            borderRadius: '13px', padding: '4px', gap: '2px',
-            boxShadow: isDark ? '0 1px 3px rgba(0,0,0,0.3)' : '0 1px 3px rgba(10,22,40,0.06)',
-          }}>
-            {(Object.keys(PERIOD_LABELS) as Period[]).map((p) => (
-              <button
-                key={p}
-                onClick={() => setPeriod(p)}
-                style={{
-                  padding: '7px 15px', borderRadius: '10px', fontSize: '12px',
-                  fontWeight: 600, cursor: 'pointer', border: 'none',
-                  fontFamily: 'inherit', whiteSpace: 'nowrap',
-                  transition: 'all .2s',
-                  ...(period === p
-                    ? { background: 'linear-gradient(135deg,#0C447C,#1761B8)', color: '#fff', boxShadow: '0 6px 18px rgba(12,68,124,0.32)' }
-                    : { background: 'transparent', color: c.textSecondary }),
-                }}
-              >
-                {PERIOD_LABELS[p]}
-              </button>
-            ))}
-          </div>
+          <DateRangePicker value={range} onChange={(r) => r.from && r.to && setRange(r)} />
         </div>
       </div>
 
@@ -406,7 +383,7 @@ export function DashboardOverview() {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', fontWeight: 500, color: 'rgba(255,255,255,0.7)', marginBottom: '10px' }}>
               <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#4ADE80', display: 'inline-block', boxShadow: '0 0 0 3px rgba(74,222,128,0.3)' }} />
-              {t('totalSalesLabel')} · {PERIOD_LABELS[period]}
+              {t('totalSalesLabel')} · {rangeLabel}
             </div>
             <div style={{ fontSize: '40px', fontWeight: 700, color: '#fff', letterSpacing: '-1.5px', lineHeight: 1, display: 'flex', alignItems: 'baseline', gap: '9px' }}>
               {totalRevenue.toLocaleString('en-US')}
@@ -474,7 +451,7 @@ export function DashboardOverview() {
 
         {/* Bar chart */}
         <GlassCard c={c}>
-          <CardHeader c={c} icon={BarChart3} title={t('dailySales')} sub={`${PERIOD_LABELS[period]}`} tag={{ label: `↑ ${t('growth')}`, color: 'green' }} />
+          <CardHeader c={c} icon={BarChart3} title={t('dailySales')} sub={`${rangeLabel}`} tag={{ label: `↑ ${t('growth')}`, color: 'green' }} />
           <div style={{ height: '200px' }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={barData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
@@ -579,7 +556,7 @@ export function DashboardOverview() {
 
           {/* Top items */}
           <GlassCard c={c}>
-            <CardHeader c={c} icon={Star} title={t('topSelling')} sub={PERIOD_LABELS[period]} />
+            <CardHeader c={c} icon={Star} title={t('topSelling')} sub={rangeLabel} />
             {(topItems?.items ?? []).length === 0 && (
               <p style={{ fontSize: '13px', color: c.textMuted, textAlign: 'center', padding: '12px 0' }}>{t('noDataLabel')}</p>
             )}

@@ -6,13 +6,17 @@ import { useTenantStore } from '@/core/tenant/stores/tenant.store'
 import { useRevenueReport, useShiftsReport, useExpensesReport } from '../hooks/useReports'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { TrendingUp, Clock, TrendingDown, CreditCard } from 'lucide-react'
-import type { ReportPeriod } from '../api/reports.api'
+import { DateRangePicker, type DateRange } from '@/shared/ui/date-range-picker'
 
-const PERIODS: { key: ReportPeriod; labelKey: string }[] = [
-  { key: 'today', labelKey: 'today' },
-  { key: 'week', labelKey: 'week' },
-  { key: 'month', labelKey: 'month' },
-]
+function toYMD(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+function defaultRange(): DateRange {
+  const to = new Date()
+  const from = new Date()
+  from.setMonth(from.getMonth() - 1)
+  return { from: toYMD(from), to: toYMD(to) }
+}
 
 function StatCard({ label, value, icon: Icon, color }: {
   label: string
@@ -36,11 +40,12 @@ function StatCard({ label, value, icon: Icon, color }: {
 export function ReportsPage() {
   const t = useTranslations('reports')
   const currency = useTenantStore((s) => s.currency_symbol)
-  const [period, setPeriod] = useState<ReportPeriod>('month')
+  const [range, setRange] = useState<DateRange>(defaultRange)
+  const query = { period: 'custom' as const, from: range.from, to: range.to }
 
-  const { data: revenue, isLoading: revLoading } = useRevenueReport({ period })
-  const { data: shifts, isLoading: shiftsLoading } = useShiftsReport({ period })
-  const { data: expenses, isLoading: expLoading } = useExpensesReport({ period })
+  const { data: revenue, isLoading: revLoading } = useRevenueReport(query)
+  const { data: shifts, isLoading: shiftsLoading } = useShiftsReport(query)
+  const { data: expenses, isLoading: expLoading } = useExpensesReport(query)
 
   const summary = (revenue as any)?.summary
   const dailyBreakdown = (revenue as any)?.daily_breakdown ?? []
@@ -55,21 +60,7 @@ export function ReportsPage() {
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t('title')}</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t('subtitle')}</p>
         </div>
-        <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-1">
-          {PERIODS.map((p) => (
-            <button
-              key={p.key}
-              onClick={() => setPeriod(p.key)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                period === p.key
-                  ? 'bg-[#0C447C] text-white'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-              }`}
-            >
-              {t(p.labelKey)}
-            </button>
-          ))}
-        </div>
+        <DateRangePicker value={range} onChange={(r) => r.from && r.to && setRange(r)} />
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

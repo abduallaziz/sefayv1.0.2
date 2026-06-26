@@ -13,6 +13,17 @@ import {
 } from 'lucide-react'
 import AuditLogViewer from './components/AuditLogViewer'
 import { superadminApi } from '../api/superadmin.api'
+import { DateRangePicker, type DateRange } from '@/shared/ui/date-range-picker'
+
+function toYMD(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+function defaultRange(): DateRange {
+  const to = new Date()
+  const from = new Date()
+  from.setMonth(from.getMonth() - 12)
+  return { from: toYMD(from), to: toYMD(to) }
+}
 
 function StatCard({ label, value, sub, icon: Icon, trend, trendUp }: {
   label: string
@@ -51,6 +62,7 @@ type Tab = 'overview' | 'revenue' | 'tenants' | 'audit'
 export default function ReportsAuditPage() {
   const t = useTranslations('superadmin.reports')
   const [activeTab, setActiveTab] = useState<Tab>('overview')
+  const [range, setRange] = useState<DateRange>(defaultRange)
 
   const statsQuery = useQuery({
     queryKey: ['superadmin', 'stats'],
@@ -74,18 +86,21 @@ export default function ReportsAuditPage() {
   })
 
   const mrrHistoryQuery = useQuery({
-    queryKey: ['superadmin', 'analytics', 'mrr-history'],
-    queryFn: () => superadminApi.getMRRHistory('12m'),
+    queryKey: ['superadmin', 'analytics', 'mrr-history', range.from, range.to],
+    queryFn: () => superadminApi.getMRRHistory(undefined, range.from, range.to),
+    enabled: !!range.from && !!range.to,
   })
 
   const churnQuery = useQuery({
-    queryKey: ['superadmin', 'analytics', 'churn'],
-    queryFn: () => superadminApi.getChurnRate('12m'),
+    queryKey: ['superadmin', 'analytics', 'churn', range.from, range.to],
+    queryFn: () => superadminApi.getChurnRate(undefined, range.from, range.to),
+    enabled: !!range.from && !!range.to,
   })
 
   const growthQuery = useQuery({
-    queryKey: ['superadmin', 'analytics', 'growth'],
-    queryFn: () => superadminApi.getGrowthRate('12m'),
+    queryKey: ['superadmin', 'analytics', 'growth', range.from, range.to],
+    queryFn: () => superadminApi.getGrowthRate(undefined, range.from, range.to),
+    enabled: !!range.from && !!range.to,
   })
 
   const revenueByPlanQuery = useQuery({
@@ -115,10 +130,13 @@ export default function ReportsAuditPage() {
           <h1 className="text-xl font-bold text-slate-800 dark:text-white">{t('title')}</h1>
           <p className="text-sm text-slate-500 dark:text-slate-500 mt-0.5">{t('subtitle')}</p>
         </div>
-        <button className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-[#141720] border border-slate-200 dark:border-[#1e2130] rounded-lg text-sm text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:border-slate-400 dark:hover:border-slate-600 transition-all">
-          <Download className="w-4 h-4" />
-          {t('export')}
-        </button>
+        <div className="flex items-center gap-3">
+          <DateRangePicker value={range} onChange={(r) => r.from && r.to && setRange(r)} />
+          <button className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-[#141720] border border-slate-200 dark:border-[#1e2130] rounded-lg text-sm text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:border-slate-400 dark:hover:border-slate-600 transition-all">
+            <Download className="w-4 h-4" />
+            {t('export')}
+          </button>
+        </div>
       </div>
 
       <div className="flex gap-1 bg-white dark:bg-[#141720] border border-slate-200 dark:border-[#1e2130] rounded-xl p-1 w-fit">
@@ -170,7 +188,6 @@ export default function ReportsAuditPage() {
             <div className="lg:col-span-2 bg-white dark:bg-[#141720] border border-slate-200 dark:border-[#1e2130] rounded-xl p-5">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-slate-800 dark:text-white">{t('mrrGrowth')}</h3>
-                <span className="text-xs text-slate-500 dark:text-slate-500">{t('last6months')}</span>
               </div>
               {mrrHistoryQuery.isLoading ? (
                 <div className="h-[200px] flex items-center justify-center text-slate-500 dark:text-slate-500 text-sm">Loading...</div>

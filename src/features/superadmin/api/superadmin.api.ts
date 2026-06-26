@@ -44,19 +44,31 @@ export const superadminApi = {
   getARR: (): Promise<number> =>
     apiClient.get('/superadmin/analytics/arr'),
 
-  getMRRHistory: (period?: AnalyticsPeriod): Promise<MRRHistoryPoint[]> => {
-    const params = period ? `?period=${period}` : ''
-    return apiClient.get(`/superadmin/analytics/mrr/history${params}`)
+  getMRRHistory: (period?: AnalyticsPeriod, from?: string, to?: string): Promise<MRRHistoryPoint[]> => {
+    const params = new URLSearchParams()
+    if (period) params.set('period', period)
+    if (from) params.set('from', from)
+    if (to) params.set('to', to)
+    const qs = params.toString()
+    return apiClient.get(`/superadmin/analytics/mrr/history${qs ? `?${qs}` : ''}`)
   },
 
-  getChurnRate: (period?: AnalyticsPeriod): Promise<ChurnData> => {
-    const params = period ? `?period=${period}` : ''
-    return apiClient.get(`/superadmin/analytics/churn${params}`)
+  getChurnRate: (period?: AnalyticsPeriod, from?: string, to?: string): Promise<ChurnData> => {
+    const params = new URLSearchParams()
+    if (period) params.set('period', period)
+    if (from) params.set('from', from)
+    if (to) params.set('to', to)
+    const qs = params.toString()
+    return apiClient.get(`/superadmin/analytics/churn${qs ? `?${qs}` : ''}`)
   },
 
-  getGrowthRate: (period?: AnalyticsPeriod): Promise<GrowthData> => {
-    const params = period ? `?period=${period}` : ''
-    return apiClient.get(`/superadmin/analytics/growth${params}`)
+  getGrowthRate: (period?: AnalyticsPeriod, from?: string, to?: string): Promise<GrowthData> => {
+    const params = new URLSearchParams()
+    if (period) params.set('period', period)
+    if (from) params.set('from', from)
+    if (to) params.set('to', to)
+    const qs = params.toString()
+    return apiClient.get(`/superadmin/analytics/growth${qs ? `?${qs}` : ''}`)
   },
 
   getRevenueByPlan: (): Promise<RevenueByPlanItem[]> =>

@@ -11,10 +11,11 @@ export function useStats() {
   });
 }
 
-export function useRevenue() {
+export function useRevenue(range?: { from?: string; to?: string }) {
   return useQuery({
-    queryKey: ['superadmin', 'analytics', 'mrr-history'],
-    queryFn: () => superadminApi.getMRRHistory('12m'),
+    queryKey: ['superadmin', 'analytics', 'mrr-history', range?.from, range?.to],
+    queryFn: () => superadminApi.getMRRHistory(undefined, range?.from, range?.to),
+    enabled: !!range?.from && !!range?.to,
   });
 }
 

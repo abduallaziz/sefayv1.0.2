@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import { useActivateTenant, useDeactivateTenant, useExtendTrial, useStats, useRevenue } from '@/features/superadmin/hooks/use-tenants';
@@ -11,7 +12,18 @@ import { ActivityFeed } from '@/features/superadmin/components/activity-feed';
 import { AiInsights } from '@/features/superadmin/components/ai-insights';
 import { useTenants } from '@/features/superadmin/tenants/hooks';
 import { superadminApi } from '@/features/superadmin/api/superadmin.api';
+import type { DateRange } from '@/shared/ui/date-range-picker';
 import type { GlobalStats } from '@/features/superadmin/types';
+
+function toYMD(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+function defaultRevenueRange(): DateRange {
+  const to = new Date();
+  const from = new Date();
+  from.setMonth(from.getMonth() - 12);
+  return { from: toYMD(from), to: toYMD(to) };
+}
 
 const FALLBACK_STATS: GlobalStats = {
   totalTenants: 0,
@@ -26,8 +38,10 @@ export default function SuperAdminPage() {
   const deactivateTenant = useDeactivateTenant();
   const extendTrial = useExtendTrial();
 
+  const [revenueRange, setRevenueRange] = useState<DateRange>(defaultRevenueRange);
+
   const { data: stats } = useStats();
-  const { data: revenueData } = useRevenue();
+  const { data: revenueData } = useRevenue(revenueRange);
   const { data: tenantsData } = useTenants({ page: 1, limit: 10 });
 
   const { data: mrr = 0 } = useQuery({
@@ -69,7 +83,7 @@ export default function SuperAdminPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <AiInsights />
-        <RevenueChart data={revenueData ?? []} />
+        <RevenueChart data={revenueData ?? []} range={revenueRange} onRangeChange={setRevenueRange} />
       </div>
 
       <ActivityFeed />
