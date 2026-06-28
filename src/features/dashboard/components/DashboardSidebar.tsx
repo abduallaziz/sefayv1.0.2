@@ -6,7 +6,7 @@ import { useLocale, useTranslations } from 'next-intl'
 import {
   LayoutDashboard, ShoppingCart, Package, Users,
   Receipt, Clock, BarChart3, Settings, UserCog,
-  X, Zap,
+  X, Zap, Truck, Warehouse, ClipboardList, PackageCheck, Boxes, SlidersHorizontal,
 } from 'lucide-react'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { useThemeStore } from '@/core/theme/stores/theme.store'
@@ -32,6 +32,12 @@ const ALL_NAV_ITEMS: NavItem[] = [
   { key: 'pos',       href: '/dashboard/pos',        icon: ShoppingCart,    section: 'sales' },
   { key: 'orders',    href: '/dashboard/orders',     icon: Receipt,         section: 'sales' },
   { key: 'items',     href: '/dashboard/items',      icon: Package,         section: 'inventory' },
+  { key: 'warehouses', href: '/dashboard/warehouses', icon: Warehouse,      section: 'inventory' },
+  { key: 'stock',      href: '/dashboard/stock',      icon: Boxes,          section: 'inventory' },
+  { key: 'adjustments', href: '/dashboard/adjustments', icon: SlidersHorizontal, section: 'inventory' },
+  { key: 'suppliers', href: '/dashboard/suppliers',   icon: Truck,           section: 'purchasing' },
+  { key: 'purchaseOrders', href: '/dashboard/purchase-orders', icon: ClipboardList, section: 'purchasing' },
+  { key: 'goodsReceipts', href: '/dashboard/goods-receipts', icon: PackageCheck, section: 'purchasing' },
   { key: 'customers', href: '/dashboard/customers',  icon: Users,           section: 'customers' },
   { key: 'expenses',  href: '/dashboard/expenses',   icon: Receipt,         section: 'finance', roles: ['owner', 'manager'] },
   { key: 'shifts',    href: '/dashboard/shifts',     icon: Clock,           section: 'hr' },
