@@ -25,5 +25,16 @@
   "deleting": "جاري الحذف...",
   "deleteConfirm": "هل أنت متأكد من حذف",
   "required": "هذا الحقل مطلوب",
-  "loading": "جاري التحميل..."
+  "loading": "جاري التحميل...",
+  "notFound": "المورّد غير موجود",
+  "purchasingActivity": "نشاط الشراء",
+  "outstandingPOs": "أوامر شراء معلقة",
+  "openReceipts": "إيصالات مفتوحة",
+  "totalPurchaseOrders": "إجمالي أوامر الشراء",
+  "totalPurchasesValue": "إجمالي قيمة المشتريات",
+  "inventoryValuePurchased": "قيمة المخزون المُستلم",
+  "avgLeadTime": "متوسط مدة التوريد",
+  "days": "يوم",
+  "lastPurchaseDate": "تاريخ آخر شراء",
+  "never": "لم يحدث"
 }

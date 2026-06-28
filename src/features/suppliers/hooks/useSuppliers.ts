@@ -18,6 +18,15 @@ export function useSupplier(id: string | null) {
   });
 }
 
+export function useSupplierProfileStats(id: string | null) {
+  return useQuery({
+    queryKey: ['suppliers', id, 'profile-stats'],
+    queryFn: () => suppliersApi.getProfileStats(id!),
+    enabled: !!id,
+    staleTime: 60 * 1000,
+  });
+}
+
 export function useCreateSupplier() {
   const qc = useQueryClient();
   return useMutation({

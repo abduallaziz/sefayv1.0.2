@@ -25,5 +25,16 @@
   "deleting": "Deleting...",
   "deleteConfirm": "Are you sure you want to delete",
   "required": "This field is required",
-  "loading": "Loading..."
+  "loading": "Loading...",
+  "notFound": "Supplier not found",
+  "purchasingActivity": "Purchasing Activity",
+  "outstandingPOs": "Outstanding POs",
+  "openReceipts": "Open Receipts",
+  "totalPurchaseOrders": "Total Purchase Orders",
+  "totalPurchasesValue": "Total Purchases Value",
+  "inventoryValuePurchased": "Inventory Value Purchased",
+  "avgLeadTime": "Avg. Lead Time",
+  "days": "days",
+  "lastPurchaseDate": "Last Purchase Date",
+  "never": "Never"
 }
