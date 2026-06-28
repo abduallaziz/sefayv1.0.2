@@ -91,6 +91,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
       adjustments: inventory?.adjustments,
       inventoryDashboard: inventory?.dashboard,
       movements: inventory?.movements,
+      transfers: inventory?.transfers,
     }
   }
 })

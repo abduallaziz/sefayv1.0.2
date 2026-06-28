@@ -176,5 +176,47 @@
       "count_correction_in": "Count Correction In",
       "count_correction_out": "Count Correction Out"
     }
+  },
+  "transfers": {
+    "title": "Stock Transfers",
+    "transfers": "Stock Transfers",
+    "totalTransfers": "transfers",
+    "createTransfer": "New Transfer",
+    "transferNumber": "Transfer Number",
+    "fromWarehouse": "From Warehouse",
+    "toWarehouse": "To Warehouse",
+    "selectWarehouse": "Select Warehouse",
+    "item": "Item",
+    "selectItem": "Select Item",
+    "quantity": "Quantity",
+    "notes": "Notes",
+    "noTransfers": "No transfers found",
+    "noLineItems": "No line items added",
+    "lineItems": "Line Items",
+    "addLine": "Add Line",
+    "requiredFields": "Please fill in all required fields",
+    "requireAtLeastOneLine": "Add at least one line item",
+    "sameWarehouseError": "Source and destination warehouses must be different",
+    "save": "Save",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "notFound": "Not found",
+    "dispatch": "Dispatch",
+    "dispatching": "Dispatching...",
+    "receive": "Receive",
+    "receiving": "Receiving...",
+    "cancelTransfer": "Cancel Transfer",
+    "cancelling": "Cancelling...",
+    "cancelConfirm": "Are you sure you want to cancel this transfer?",
+    "back": "Back",
+    "status": {
+      "label": "Status",
+      "all": "All Status",
+      "draft": "Draft",
+      "in_transit": "In Transit",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    }
   }
 }

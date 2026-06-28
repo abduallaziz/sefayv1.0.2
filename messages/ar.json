@@ -33,7 +33,8 @@
     "inventory": "المخزون",
     "inventoryDashboard": "لوحة المخزون",
     "movements": "حركات المخزون",
-    "inventoryReports": "تقارير المخزون"
+    "inventoryReports": "تقارير المخزون",
+    "transfers": "التحويلات"
   },
   "common": {
     "save": "حفظ",

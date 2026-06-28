@@ -34,7 +34,8 @@ export type NavKey =
   | 'adjustments'
   | 'inventoryDashboard'
   | 'movements'
-  | 'inventoryReports';
+  | 'inventoryReports'
+  | 'transfers';
 
 export interface BusinessTypeConfig {
   sidebar: NavKey[];
@@ -44,7 +45,7 @@ export interface BusinessTypeConfig {
 // selling point, never hide it. (A §28 note from June 23, 2026 had proposed hiding
 // POS for pure-service activities; the user explicitly overruled that on June 26,
 // 2026 — POS stays in the sidebar for all 37 activities.)
-const FULL_SIDEBAR: NavKey[] = ['dashboard', 'pos', 'orders', 'items', 'customers', 'expenses', 'shifts', 'reports', 'users', 'settings', 'suppliers', 'warehouses', 'purchaseOrders', 'goodsReceipts', 'stock', 'adjustments', 'inventoryDashboard', 'movements', 'inventoryReports'];
+const FULL_SIDEBAR: NavKey[] = ['dashboard', 'pos', 'orders', 'items', 'customers', 'expenses', 'shifts', 'reports', 'users', 'settings', 'suppliers', 'warehouses', 'purchaseOrders', 'goodsReceipts', 'stock', 'adjustments', 'inventoryDashboard', 'movements', 'inventoryReports', 'transfers'];
 
 export const ACTIVITY_CONFIG: Record<ActivityKey, BusinessTypeConfig> = Object.fromEntries(
   ([

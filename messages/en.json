@@ -33,7 +33,8 @@
     "inventory": "Inventory",
     "inventoryDashboard": "Dashboard",
     "movements": "Movements",
-    "inventoryReports": "Reports"
+    "inventoryReports": "Reports",
+    "transfers": "Transfers"
   },
   "common": {
     "save": "Save",

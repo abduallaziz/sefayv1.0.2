@@ -176,5 +176,47 @@
       "count_correction_in": "تصحيح جرد إضافة",
       "count_correction_out": "تصحيح جرد خصم"
     }
+  },
+  "transfers": {
+    "title": "تحويلات المخزون",
+    "transfers": "تحويلات المخزون",
+    "totalTransfers": "تحويل",
+    "createTransfer": "تحويل جديد",
+    "transferNumber": "رقم التحويل",
+    "fromWarehouse": "من مستودع",
+    "toWarehouse": "إلى مستودع",
+    "selectWarehouse": "اختر المستودع",
+    "item": "المنتج",
+    "selectItem": "اختر المنتج",
+    "quantity": "الكمية",
+    "notes": "ملاحظات",
+    "noTransfers": "لا توجد تحويلات",
+    "noLineItems": "لم تتم إضافة عناصر",
+    "lineItems": "عناصر التحويل",
+    "addLine": "إضافة عنصر",
+    "requiredFields": "يرجى تعبئة جميع الحقول المطلوبة",
+    "requireAtLeastOneLine": "أضف عنصراً واحداً على الأقل",
+    "sameWarehouseError": "يجب أن يكون مستودع المصدر مختلفاً عن مستودع الوجهة",
+    "save": "حفظ",
+    "saving": "جارٍ الحفظ...",
+    "cancel": "إلغاء",
+    "loading": "جارٍ التحميل...",
+    "notFound": "غير موجود",
+    "dispatch": "إرسال",
+    "dispatching": "جارٍ الإرسال...",
+    "receive": "استلام",
+    "receiving": "جارٍ الاستلام...",
+    "cancelTransfer": "إلغاء التحويل",
+    "cancelling": "جارٍ الإلغاء...",
+    "cancelConfirm": "هل أنت متأكد من إلغاء هذا التحويل؟",
+    "back": "رجوع",
+    "status": {
+      "label": "الحالة",
+      "all": "كل الحالات",
+      "draft": "مسودة",
+      "in_transit": "قيد النقل",
+      "completed": "مكتمل",
+      "cancelled": "ملغي"
+    }
   }
 }

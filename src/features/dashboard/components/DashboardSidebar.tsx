@@ -51,6 +51,7 @@ const INVENTORY_GROUP_ITEMS: NavItem[] = [
   { key: 'warehouses',         href: '/dashboard/warehouses',        icon: Warehouse,         section: 'inventory-group' },
   { key: 'stock',              href: '/dashboard/stock',             icon: Boxes,             section: 'inventory-group' },
   { key: 'movements',          href: '/dashboard/movements',         icon: ArrowLeftRight,    section: 'inventory-group' },
+  { key: 'transfers',          href: '/dashboard/transfers',         icon: Layers,            section: 'inventory-group', roles: INVENTORY_ROLES },
   { key: 'adjustments',        href: '/dashboard/adjustments',       icon: SlidersHorizontal, section: 'inventory-group', roles: INVENTORY_ROLES },
   { key: 'suppliers',          href: '/dashboard/suppliers',         icon: Truck,             section: 'inventory-group', roles: INVENTORY_ROLES },
   { key: 'purchaseOrders',     href: '/dashboard/purchase-orders',   icon: ClipboardList,     section: 'inventory-group', roles: INVENTORY_ROLES },
