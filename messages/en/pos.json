@@ -19,6 +19,10 @@
   "apply": "Apply",
   "service": "Service",
   "multiple": "Variants",
+  "items": "Items",
+  "common": {
+    "processing": "Processing..."
+  },
   "categories": {
     "all": "All",
     "drinks": "Drinks",

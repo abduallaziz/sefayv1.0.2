@@ -19,6 +19,10 @@
   "apply": "تطبيق",
   "service": "خدمة",
   "multiple": "متعدد",
+  "items": "المنتجات",
+  "common": {
+    "processing": "جاري المعالجة..."
+  },
   "categories": {
     "all": "الكل",
     "drinks": "مشروبات",
