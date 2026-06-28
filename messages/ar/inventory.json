@@ -218,5 +218,43 @@
       "completed": "مكتمل",
       "cancelled": "ملغي"
     }
+  },
+  "stockCounts": {
+    "title": "جرد المخزون",
+    "stockCounts": "جرد المخزون",
+    "totalCounts": "جرد",
+    "createCount": "جرد جديد",
+    "countNumber": "رقم الجرد",
+    "warehouse": "المستودع",
+    "selectWarehouse": "اختر المستودع",
+    "notes": "ملاحظات",
+    "snapshotHint": "سيتم أخذ لقطة للكميات المتوقعة من مستويات المخزون الحالية للمستودع المحدد.",
+    "noCounts": "لا توجد عمليات جرد",
+    "requiredFields": "يرجى تعبئة جميع الحقول المطلوبة",
+    "save": "حفظ",
+    "saving": "جارٍ الحفظ...",
+    "cancel": "إلغاء",
+    "loading": "جارٍ التحميل...",
+    "notFound": "غير موجود",
+    "startedAt": "تاريخ البدء",
+    "item": "المنتج",
+    "expectedQuantity": "المتوقع",
+    "countedQuantity": "المعدود",
+    "variance": "الفرق",
+    "enterCount": "الكمية",
+    "countingProgress": "تقدم الجرد",
+    "itemsWithVariance": "عناصر بها فرق",
+    "netVariance": "صافي الفرق",
+    "finalize": "إنهاء الجرد",
+    "finalizing": "جارٍ الإنهاء...",
+    "finalizeHint": "أكمل جرد جميع العناصر قبل الإنهاء",
+    "status": {
+      "label": "الحالة",
+      "all": "كل الحالات",
+      "draft": "مسودة",
+      "in_progress": "قيد التنفيذ",
+      "completed": "مكتمل",
+      "cancelled": "ملغي"
+    }
   }
 }

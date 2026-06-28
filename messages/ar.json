@@ -34,7 +34,8 @@
     "inventoryDashboard": "لوحة المخزون",
     "movements": "حركات المخزون",
     "inventoryReports": "تقارير المخزون",
-    "transfers": "التحويلات"
+    "transfers": "التحويلات",
+    "stockCounts": "جرد المخزون"
   },
   "common": {
     "save": "حفظ",

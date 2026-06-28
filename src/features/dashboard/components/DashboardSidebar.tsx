@@ -8,7 +8,7 @@ import {
   LayoutDashboard, ShoppingCart, Package, Users,
   Receipt, Clock, BarChart3, Settings, UserCog,
   X, Zap, Truck, Warehouse, ClipboardList, PackageCheck, Boxes, SlidersHorizontal,
-  ChevronDown, ArrowLeftRight, FileBarChart, Layers,
+  ChevronDown, ArrowLeftRight, FileBarChart, Layers, ClipboardCheck,
 } from 'lucide-react'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { useThemeStore } from '@/core/theme/stores/theme.store'
@@ -53,6 +53,7 @@ const INVENTORY_GROUP_ITEMS: NavItem[] = [
   { key: 'movements',          href: '/dashboard/movements',         icon: ArrowLeftRight,    section: 'inventory-group' },
   { key: 'transfers',          href: '/dashboard/transfers',         icon: Layers,            section: 'inventory-group', roles: INVENTORY_ROLES },
   { key: 'adjustments',        href: '/dashboard/adjustments',       icon: SlidersHorizontal, section: 'inventory-group', roles: INVENTORY_ROLES },
+  { key: 'stockCounts',        href: '/dashboard/stock-counts',      icon: ClipboardCheck,    section: 'inventory-group', roles: INVENTORY_ROLES },
   { key: 'suppliers',          href: '/dashboard/suppliers',         icon: Truck,             section: 'inventory-group', roles: INVENTORY_ROLES },
   { key: 'purchaseOrders',     href: '/dashboard/purchase-orders',   icon: ClipboardList,     section: 'inventory-group', roles: INVENTORY_ROLES },
   { key: 'goodsReceipts',      href: '/dashboard/goods-receipts',    icon: PackageCheck,      section: 'inventory-group', roles: INVENTORY_ROLES },

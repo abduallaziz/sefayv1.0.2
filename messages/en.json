@@ -34,7 +34,8 @@
     "inventoryDashboard": "Dashboard",
     "movements": "Movements",
     "inventoryReports": "Reports",
-    "transfers": "Transfers"
+    "transfers": "Transfers",
+    "stockCounts": "Stock Counts"
   },
   "common": {
     "save": "Save",

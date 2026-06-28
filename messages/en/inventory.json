@@ -218,5 +218,43 @@
       "completed": "Completed",
       "cancelled": "Cancelled"
     }
+  },
+  "stockCounts": {
+    "title": "Stock Counts",
+    "stockCounts": "Stock Counts",
+    "totalCounts": "counts",
+    "createCount": "New Count",
+    "countNumber": "Count Number",
+    "warehouse": "Warehouse",
+    "selectWarehouse": "Select Warehouse",
+    "notes": "Notes",
+    "snapshotHint": "Expected quantities will be snapshotted from current stock levels for the selected warehouse.",
+    "noCounts": "No stock counts found",
+    "requiredFields": "Please fill in all required fields",
+    "save": "Save",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "notFound": "Not found",
+    "startedAt": "Started At",
+    "item": "Item",
+    "expectedQuantity": "Expected",
+    "countedQuantity": "Counted",
+    "variance": "Variance",
+    "enterCount": "Qty",
+    "countingProgress": "Counting Progress",
+    "itemsWithVariance": "Items with Variance",
+    "netVariance": "Net Variance",
+    "finalize": "Finalize Count",
+    "finalizing": "Finalizing...",
+    "finalizeHint": "Count all items before finalizing",
+    "status": {
+      "label": "Status",
+      "all": "All Status",
+      "draft": "Draft",
+      "in_progress": "In Progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    }
   }
 }

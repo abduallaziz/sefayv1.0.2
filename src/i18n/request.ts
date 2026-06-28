@@ -92,6 +92,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
       inventoryDashboard: inventory?.dashboard,
       movements: inventory?.movements,
       transfers: inventory?.transfers,
+      stockCounts: inventory?.stockCounts,
     }
   }
 })
