@@ -23,7 +23,10 @@
     "deleting": "جارٍ الحذف...",
     "deleteConfirm": "هل أنت متأكد من حذف",
     "required": "هذا الحقل مطلوب",
-    "loading": "جارٍ التحميل..."
+    "loading": "جارٍ التحميل...",
+    "noWarehousesHint": "أنشئ أول مستودع لبدء إدارة المخزون.",
+    "totalLocations": "مواقع",
+    "inventoryValue": "قيمة المخزون"
   },
   "stock": {
     "title": "مستويات المخزون",

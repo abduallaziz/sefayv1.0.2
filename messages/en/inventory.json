@@ -23,7 +23,10 @@
     "deleting": "Deleting...",
     "deleteConfirm": "Are you sure you want to delete",
     "required": "This field is required",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "noWarehousesHint": "Create your first warehouse to start inventory management.",
+    "totalLocations": "locations",
+    "inventoryValue": "Inventory Value"
   },
   "stock": {
     "title": "Stock Levels",
