@@ -136,5 +136,37 @@
     "locations": "locations",
     "active": "Active",
     "inactive": "Inactive"
+  },
+  "movements": {
+    "title": "Inventory Movements",
+    "loading": "Loading...",
+    "noMovements": "No movements found",
+    "totalMovements": "movements",
+    "allWarehouses": "All Warehouses",
+    "allItems": "All Items",
+    "allMovementTypes": "All Movement Types",
+    "date": "Date",
+    "movementType": "Movement Type",
+    "reference": "Reference",
+    "product": "Product",
+    "warehouse": "Warehouse",
+    "location": "Location",
+    "batch": "Batch",
+    "quantity": "Quantity",
+    "unitCost": "Unit Cost",
+    "runningBalance": "Running Balance",
+    "performedBy": "Performed By",
+    "page": "Page",
+    "type": {
+      "receipt": "Receipt",
+      "sale": "Sale",
+      "sale_return": "Sale Return",
+      "adjustment_in": "Adjustment In",
+      "adjustment_out": "Adjustment Out",
+      "transfer_out": "Transfer Out",
+      "transfer_in": "Transfer In",
+      "count_correction_in": "Count Correction In",
+      "count_correction_out": "Count Correction Out"
+    }
   }
 }
