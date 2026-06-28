@@ -113,6 +113,14 @@
       "approved": "Approved",
       "rejected": "Rejected",
       "posted": "Posted"
+    },
+    "requestedBy": "Requested By",
+    "approvedBy": "Approved By",
+    "workflow": {
+      "pendingApproval": "Pending Approval",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "posted": "Posted"
     }
   },
   "dashboard": {

@@ -14,9 +14,12 @@ export interface StockAdjustment {
   requested_by: string;
   approved_by: string | null;
   approved_at: string | null;
+  posted_at?: string | null;
   created_at: string;
   items?: { name: string; sku: string } | null;
   warehouses?: { name: string; code: string } | null;
+  requested_by_user?: { name: string } | null;
+  approved_by_user?: { name: string } | null;
 }
 
 export interface AdjustmentFilters {

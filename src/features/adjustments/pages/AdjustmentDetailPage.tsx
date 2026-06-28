@@ -10,6 +10,7 @@ import {
   useRejectAdjustment,
   usePostAdjustment,
 } from '../hooks/useAdjustments';
+import { AdjustmentWorkflowTimeline } from '../components/AdjustmentWorkflowTimeline';
 
 interface Props {
   id: string;
@@ -68,6 +69,10 @@ export function AdjustmentDetailPage({ id }: Props) {
         </span>
       </div>
 
+      <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-5">
+        <AdjustmentWorkflowTimeline status={adjustment.status} />
+      </div>
+
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-4">
           <p className="text-xs text-slate-500 mb-1">{t('warehouse')}</p>
@@ -75,7 +80,9 @@ export function AdjustmentDetailPage({ id }: Props) {
         </div>
         <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-4">
           <p className="text-xs text-slate-500 mb-1">{t('quantityDelta')}</p>
-          <p className="font-medium text-slate-800 dark:text-white">{adjustment.quantity_delta}</p>
+          <p className={`font-medium ${adjustment.quantity_delta >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+            {adjustment.quantity_delta >= 0 ? '+' : ''}{adjustment.quantity_delta}
+          </p>
         </div>
         <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-4">
           <p className="text-xs text-slate-500 mb-1">{t('unitCost')}</p>
@@ -84,6 +91,17 @@ export function AdjustmentDetailPage({ id }: Props) {
         <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-4">
           <p className="text-xs text-slate-500 mb-1">{t('requiresApproval')}</p>
           <p className="font-medium text-slate-800 dark:text-white">{adjustment.requires_approval ? t('yes') : t('no')}</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-4">
+          <p className="text-xs text-slate-500 mb-1">{t('requestedBy')}</p>
+          <p className="text-sm font-medium text-slate-800 dark:text-white">{adjustment.requested_by_user?.name ?? '—'}</p>
+        </div>
+        <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-4">
+          <p className="text-xs text-slate-500 mb-1">{t('approvedBy')}</p>
+          <p className="text-sm font-medium text-slate-800 dark:text-white">{adjustment.approved_by_user?.name ?? '—'}</p>
         </div>
       </div>
 

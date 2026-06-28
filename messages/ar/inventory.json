@@ -113,6 +113,14 @@
       "approved": "معتمد",
       "rejected": "مرفوض",
       "posted": "مُرحّل"
+    },
+    "requestedBy": "طلب من",
+    "approvedBy": "تمت الموافقة من",
+    "workflow": {
+      "pendingApproval": "بانتظار الموافقة",
+      "approved": "تمت الموافقة",
+      "rejected": "مرفوض",
+      "posted": "مُرحّل"
     }
   },
   "dashboard": {
