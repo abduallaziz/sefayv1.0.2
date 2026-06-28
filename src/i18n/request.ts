@@ -87,6 +87,8 @@ export default getRequestConfig(async ({ requestLocale }) => {
       inventory,
       suppliers,
       warehouses,
+      stock: inventory?.stock,
+      adjustments: inventory?.adjustments,
     }
   }
 })

@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { X } from 'lucide-react';
 import { useWarehouses } from '@/features/warehouses/hooks/useWarehouses';
 import { useItems } from '@/features/items/hooks/useItems';
-import { usePurchaseOrders, usePurchaseOrder } from '@/features/purchase-orders/hooks/usePurchaseOrders';
+import { purchaseOrdersApi } from '@/features/purchase-orders/api/purchase-orders.api';
+import { usePurchaseOrders } from '@/features/purchase-orders/hooks/usePurchaseOrders';
 import { GoodsReceiptLineItems, GRLineRow } from './GoodsReceiptLineItems';
 import type { CreateGoodsReceiptDTO } from '../types/goods-receipt.types';
 
@@ -32,25 +33,24 @@ export function GoodsReceiptFormModal({ open, onClose, onSubmit, isLoading }: Pr
   const [rows, setRows] = useState<GRLineRow[]>([]);
   const [error, setError] = useState('');
 
-  const { data: selectedOrder } = usePurchaseOrder(purchaseOrderId || null);
-
-  useEffect(() => {
-    if (selectedOrder) {
-      setWarehouseId(selectedOrder.warehouse_id);
-      setRows(
-        (selectedOrder.items ?? []).map((i) => ({
-          purchase_order_item_id: i.id,
-          item_id: i.item_id,
-          variant_id: i.variant_id ?? '',
-          quantity_received: i.quantity_ordered,
-          unit_cost: i.unit_cost,
-          batch_number: '',
-          serial_number: '',
-          expiration_date: '',
-        }))
-      );
-    }
-  }, [selectedOrder]);
+  const handleSelectPurchaseOrder = async (poId: string) => {
+    setPurchaseOrderId(poId);
+    if (!poId) return;
+    const selectedOrder = await purchaseOrdersApi.getById(poId);
+    setWarehouseId(selectedOrder.warehouse_id);
+    setRows(
+      (selectedOrder.items ?? []).map((i) => ({
+        purchase_order_item_id: i.id,
+        item_id: i.item_id,
+        variant_id: i.variant_id ?? '',
+        quantity_received: i.quantity_ordered,
+        unit_cost: i.unit_cost,
+        batch_number: '',
+        serial_number: '',
+        expiration_date: '',
+      }))
+    );
+  };
 
   const resetForm = () => {
     setPurchaseOrderId(''); setWarehouseId(''); setReceiptNumber('');
@@ -106,7 +106,7 @@ export function GoodsReceiptFormModal({ open, onClose, onSubmit, isLoading }: Pr
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div>
             <label className={labelClass}>{t('selectPurchaseOrder')}</label>
-            <select value={purchaseOrderId} onChange={(e) => setPurchaseOrderId(e.target.value)} className={inputClass}>
+            <select value={purchaseOrderId} onChange={(e) => handleSelectPurchaseOrder(e.target.value)} className={inputClass}>
               <option value="">{t('noPurchaseOrder')}</option>
               {approvedOrders.map((po) => (
                 <option key={po.id} value={po.id}>{po.order_number}</option>
