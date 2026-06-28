@@ -8,6 +8,7 @@ export interface GoodsReceiptItem {
   variant_id: string | null;
   variant_name?: string | null;
   quantity_received: number;
+  quantity_ordered?: number | null;
   unit_cost: number;
   batch_number: string | null;
   serial_number: string | null;
@@ -17,6 +18,8 @@ export interface GoodsReceiptItem {
 export interface GoodsReceipt {
   id: string;
   purchase_order_id: string | null;
+  purchase_order_number?: string | null;
+  supplier_name?: string | null;
   warehouse_id: string;
   warehouse_name?: string;
   receipt_number: string;

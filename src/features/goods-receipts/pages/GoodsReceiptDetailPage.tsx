@@ -62,14 +62,18 @@ export function GoodsReceiptDetailPage({ id }: Props) {
         </span>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-4">
           <p className="text-xs text-slate-500 mb-1">{t('warehouse')}</p>
           <p className="font-medium text-slate-800 dark:text-white">{receipt.warehouse_name ?? receipt.warehouse_id}</p>
         </div>
         <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-4">
           <p className="text-xs text-slate-500 mb-1">{t('purchaseOrder')}</p>
-          <p className="font-medium text-slate-800 dark:text-white">{receipt.purchase_order_id ?? '—'}</p>
+          <p className="font-medium text-slate-800 dark:text-white">{receipt.purchase_order_number ?? t('noPurchaseOrder')}</p>
+        </div>
+        <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-4">
+          <p className="text-xs text-slate-500 mb-1">{t('supplier')}</p>
+          <p className="font-medium text-slate-800 dark:text-white">{receipt.supplier_name ?? '—'}</p>
         </div>
         <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-4">
           <p className="text-xs text-slate-500 mb-1">{t('receiptNumber')}</p>
@@ -90,6 +94,7 @@ export function GoodsReceiptDetailPage({ id }: Props) {
             <tr>
               <th className="text-start px-3 py-3 font-medium text-slate-500">{t('item')}</th>
               <th className="text-start px-3 py-3 font-medium text-slate-500">{t('quantity')}</th>
+              <th className="text-start px-3 py-3 font-medium text-slate-500">{t('ordered')}</th>
               <th className="text-start px-3 py-3 font-medium text-slate-500">{t('unitCost')}</th>
               <th className="text-start px-3 py-3 font-medium text-slate-500">{t('lineTotal')}</th>
               <th className="text-start px-3 py-3 font-medium text-slate-500">{t('batchNumber')}</th>
@@ -105,6 +110,7 @@ export function GoodsReceiptDetailPage({ id }: Props) {
                   {item.variant_name && <span className="text-slate-400 text-xs ms-1">({item.variant_name})</span>}
                 </td>
                 <td className="px-3 py-3 text-slate-500">{item.quantity_received}</td>
+                <td className="px-3 py-3 text-slate-500">{item.quantity_ordered ?? '—'}</td>
                 <td className="px-3 py-3 text-slate-500">{item.unit_cost.toLocaleString('en-US')}</td>
                 <td className="px-3 py-3 font-medium text-slate-800 dark:text-white">
                   {(item.quantity_received * item.unit_cost).toLocaleString('en-US')}
@@ -119,7 +125,7 @@ export function GoodsReceiptDetailPage({ id }: Props) {
           </tbody>
           <tfoot>
             <tr className="border-t border-slate-200 dark:border-gray-800">
-              <td colSpan={3} className="px-3 py-3 text-end font-semibold text-slate-800 dark:text-white">{t('total')}</td>
+              <td colSpan={4} className="px-3 py-3 text-end font-semibold text-slate-800 dark:text-white">{t('total')}</td>
               <td colSpan={4} className="px-3 py-3 font-bold text-slate-800 dark:text-white">{lineTotal.toLocaleString('en-US')}</td>
             </tr>
           </tfoot>

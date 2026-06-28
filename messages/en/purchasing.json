@@ -62,5 +62,6 @@
     "received": "Received"
   },
   "received": "Received",
-  "receivingProgress": "Receiving Progress"
+  "receivingProgress": "Receiving Progress",
+  "ordered": "Ordered"
 }
