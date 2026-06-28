@@ -220,53 +220,56 @@ export function DashboardOverview() {
 
   const rangeQuery = { period: 'custom' as const, from: range.from, to: range.to }
 
-  const { data: revenue } = useQuery({
+  const { data: revenue, error: revenueError } = useQuery({
     queryKey: ['dashboard', 'revenue', range.from, range.to],
     queryFn: () => reportsApi.getRevenue(rangeQuery),
     enabled: !!user && !!range.from && !!range.to, refetchInterval: 30000, staleTime: 0,
   })
 
-  const { data: payments } = useQuery({
+  const { data: payments, error: paymentsError } = useQuery({
     queryKey: ['dashboard', 'payments', range.from, range.to],
     queryFn: () => reportsApi.getPayments(rangeQuery),
     enabled: !!user && !!range.from && !!range.to, refetchInterval: 30000, staleTime: 0,
   })
 
-  const { data: expenses } = useQuery({
+  const { data: expenses, error: expensesError } = useQuery({
     queryKey: ['dashboard', 'expenses', range.from, range.to],
     queryFn: () => reportsApi.getExpenses(rangeQuery),
     enabled: !!user && !!range.from && !!range.to, refetchInterval: 30000, staleTime: 0,
   })
 
-  const { data: shift } = useQuery({
+  const { data: shift, error: shiftError } = useQuery({
     queryKey: ['dashboard', 'shift'],
     queryFn: () => shiftsApi.getCurrent(),
     enabled: !!user, refetchInterval: 10000, staleTime: 0,
   })
 
-  const { data: customerStats } = useQuery({
+  const { data: customerStats, error: customerStatsError } = useQuery({
     queryKey: ['dashboard', 'customers'],
     queryFn: () => customersApi.getStats(),
     enabled: !!user, refetchInterval: 60000, staleTime: 0,
   })
 
-  const { data: sparklines } = useQuery({
+  const { data: sparklines, error: sparklinesError } = useQuery({
     queryKey: ['dashboard', 'sparklines'],
     queryFn: () => reportsApi.getSparklines(),
     enabled: !!user, staleTime: 60000,
   })
 
-  const { data: topItems } = useQuery({
+  const { data: topItems, error: topItemsError } = useQuery({
     queryKey: ['dashboard', 'top-items', range.from, range.to],
     queryFn: () => reportsApi.getTopItems(rangeQuery),
     enabled: !!user && !!range.from && !!range.to, staleTime: 60000,
   })
 
-  const { data: recentActivity } = useQuery({
+  const { data: recentActivity, error: recentActivityError } = useQuery({
     queryKey: ['dashboard', 'recent-activity'],
     queryFn: () => reportsApi.getRecentActivity(),
     enabled: !!user, refetchInterval: 30000, staleTime: 0,
   })
+
+  const dashboardError = revenueError || paymentsError || expensesError || shiftError
+    || customerStatsError || sparklinesError || topItemsError || recentActivityError
 
   if (!user) return null
 
@@ -316,6 +319,21 @@ export function DashboardOverview() {
 
   return (
     <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+
+      {dashboardError && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '8px',
+          background: isDark ? 'rgba(248,113,113,0.12)' : '#FEF2F2',
+          border: isDark ? '1px solid rgba(248,113,113,0.3)' : '1px solid #FECACA',
+          color: isDark ? '#FCA5A5' : '#B91C1C',
+          padding: '10px 14px', borderRadius: '10px', marginBottom: '16px', fontSize: '13px',
+        }}>
+          <AlertCircle size={16} />
+          <span>{locale === 'ar'
+            ? 'تعذّر تحميل بعض بيانات الداشبورد. تحقّق من الاتصال أو حاول تسجيل الدخول مجدداً.'
+            : 'Some dashboard data failed to load. Check your connection or try logging in again.'}</span>
+        </div>
+      )}
 
       {/* ── Page header ── */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '22px', flexWrap: 'wrap', gap: '12px' }}>

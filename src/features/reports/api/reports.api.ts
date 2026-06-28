@@ -91,6 +91,8 @@ export const reportsApi = {
   getShifts: (query?: ReportQuery): Promise<ShiftsReport> => {
     const params = new URLSearchParams()
     if (query?.period) params.set('period', query.period)
+    if (query?.from) params.set('from', query.from)
+    if (query?.to) params.set('to', query.to)
     const qs = params.toString()
     return apiClient.get(`/reports/shifts${qs ? `?${qs}` : ''}`)
   },
@@ -98,6 +100,8 @@ export const reportsApi = {
   getExpenses: (query?: ReportQuery): Promise<ExpensesReport> => {
     const params = new URLSearchParams()
     if (query?.period) params.set('period', query.period)
+    if (query?.from) params.set('from', query.from)
+    if (query?.to) params.set('to', query.to)
     const qs = params.toString()
     return apiClient.get(`/reports/expenses${qs ? `?${qs}` : ''}`)
   },
@@ -105,6 +109,8 @@ export const reportsApi = {
   getPayments: (query?: ReportQuery): Promise<PaymentsReport> => {
     const params = new URLSearchParams()
     if (query?.period) params.set('period', query.period)
+    if (query?.from) params.set('from', query.from)
+    if (query?.to) params.set('to', query.to)
     const qs = params.toString()
     return apiClient.get(`/reports/payments${qs ? `?${qs}` : ''}`)
   },
@@ -112,6 +118,8 @@ export const reportsApi = {
   getTopItems: (query?: ReportQuery): Promise<TopItemsReport> => {
     const params = new URLSearchParams()
     if (query?.period) params.set('period', query.period)
+    if (query?.from) params.set('from', query.from)
+    if (query?.to) params.set('to', query.to)
     const qs = params.toString()
     return apiClient.get(`/reports/top-items${qs ? `?${qs}` : ''}`)
   },
