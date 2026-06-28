@@ -28,10 +28,8 @@ function toYMD(d: Date) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 function defaultRange(): DateRange {
-  const to = new Date()
-  const from = new Date()
-  from.setDate(from.getDate() - 6)
-  return { from: toYMD(from), to: toYMD(to) }
+  const today = toYMD(new Date())
+  return { from: today, to: today }
 }
 
 /* ── Theme tokens ── */
