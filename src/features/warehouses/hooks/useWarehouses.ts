@@ -18,6 +18,14 @@ export function useWarehouse(id: string | null) {
   });
 }
 
+export function useBranches() {
+  return useQuery({
+    queryKey: ['branches'],
+    queryFn: () => warehousesApi.getBranches(),
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
 export function useCreateWarehouse() {
   const qc = useQueryClient();
   return useMutation({

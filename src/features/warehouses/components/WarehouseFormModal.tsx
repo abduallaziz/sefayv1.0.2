@@ -49,7 +49,7 @@ export function WarehouseFormModal({ open, onClose, onSubmit, warehouse, isLoadi
 
   if (!open) return null;
 
-  const handleFormSubmit = (data: any) => {
+  const handleFormSubmit = (data: z.infer<typeof schema>) => {
     const dto: CreateWarehouseDTO = {
       code: data.code,
       name: data.name,

@@ -8,6 +8,7 @@
     "code": "الرمز",
     "name": "الاسم",
     "branch": "الفرع",
+    "branchId": "رقم الفرع",
     "address": "العنوان",
     "status": "الحالة",
     "allStatus": "كل الحالات",

@@ -27,4 +27,4 @@ export interface CreateSupplierDTO {
   is_active?: boolean;
 }
 
-export interface UpdateSupplierDTO extends Partial<CreateSupplierDTO> {}
+export type UpdateSupplierDTO = Partial<CreateSupplierDTO>;

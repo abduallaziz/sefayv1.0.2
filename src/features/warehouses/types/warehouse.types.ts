@@ -21,4 +21,4 @@ export interface CreateWarehouseDTO {
   is_active?: boolean;
 }
 
-export interface UpdateWarehouseDTO extends Partial<CreateWarehouseDTO> {}
+export type UpdateWarehouseDTO = Partial<CreateWarehouseDTO>;

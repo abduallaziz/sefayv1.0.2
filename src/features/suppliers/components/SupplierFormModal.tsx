@@ -55,7 +55,7 @@ export function SupplierFormModal({ open, onClose, onSubmit, supplier, isLoading
 
   if (!open) return null;
 
-  const handleFormSubmit = (data: any) => {
+  const handleFormSubmit = (data: z.infer<typeof schema>) => {
     const dto: CreateSupplierDTO = {
       name: data.name,
       contact_name: data.contact_name || undefined,
