@@ -29,7 +29,11 @@
     "planDaysLeft": "{days} يوم متبقي",
     "upgrade": "ترقية الخطة",
     "planLabel": "خطتك الحالية",
-    "trial": "تجريبي"
+    "trial": "تجريبي",
+    "inventory": "المخزون",
+    "inventoryDashboard": "لوحة المخزون",
+    "movements": "حركات المخزون",
+    "inventoryReports": "تقارير المخزون"
   },
   "common": {
     "save": "حفظ",

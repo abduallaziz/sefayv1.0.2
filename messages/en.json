@@ -29,7 +29,11 @@
     "planDaysLeft": "{days} days left",
     "upgrade": "Upgrade Plan",
     "planLabel": "Current Plan",
-    "trial": "Trial"
+    "trial": "Trial",
+    "inventory": "Inventory",
+    "inventoryDashboard": "Dashboard",
+    "movements": "Movements",
+    "inventoryReports": "Reports"
   },
   "common": {
     "save": "Save",
