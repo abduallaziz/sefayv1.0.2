@@ -96,5 +96,27 @@
       "rejected": "Rejected",
       "posted": "Posted"
     }
+  },
+  "dashboard": {
+    "title": "Inventory Dashboard",
+    "loading": "Loading...",
+    "noData": "No data available",
+    "inventoryValue": "Inventory Value",
+    "totalWarehouses": "Total Warehouses",
+    "productsInStock": "Products in Stock",
+    "lowStockItems": "Low Stock Items",
+    "outOfStockItems": "Out of Stock Items",
+    "reservedStock": "Reserved Stock",
+    "pendingPurchaseOrders": "Pending Purchase Orders",
+    "pendingGoodsReceipts": "Pending Goods Receipts",
+    "movementsToday": "Today's Movements",
+    "adjustmentsToday": "Today's Adjustments",
+    "recentMovements": "Recent Inventory Movements",
+    "lowStockList": "Low Stock List",
+    "purchaseOrdersWaitingReceipt": "Purchase Orders Waiting for Receipt",
+    "warehouseSummary": "Warehouse Summary",
+    "locations": "locations",
+    "active": "Active",
+    "inactive": "Inactive"
   }
 }

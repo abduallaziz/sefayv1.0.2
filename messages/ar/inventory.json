@@ -96,5 +96,27 @@
       "rejected": "مرفوض",
       "posted": "مُرحّل"
     }
+  },
+  "dashboard": {
+    "title": "لوحة المخزون",
+    "loading": "جارٍ التحميل...",
+    "noData": "لا توجد بيانات",
+    "inventoryValue": "قيمة المخزون",
+    "totalWarehouses": "إجمالي المستودعات",
+    "productsInStock": "المنتجات المتوفرة",
+    "lowStockItems": "منتجات منخفضة المخزون",
+    "outOfStockItems": "منتجات نفذت من المخزون",
+    "reservedStock": "المخزون المحجوز",
+    "pendingPurchaseOrders": "أوامر الشراء المعلقة",
+    "pendingGoodsReceipts": "إيصالات الاستلام المعلقة",
+    "movementsToday": "حركات اليوم",
+    "adjustmentsToday": "تعديلات اليوم",
+    "recentMovements": "أحدث حركات المخزون",
+    "lowStockList": "قائمة المخزون المنخفض",
+    "purchaseOrdersWaitingReceipt": "أوامر شراء بانتظار الاستلام",
+    "warehouseSummary": "ملخص المستودعات",
+    "locations": "مواقع",
+    "active": "نشط",
+    "inactive": "غير نشط"
   }
 }
