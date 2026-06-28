@@ -34,7 +34,8 @@ export function AdjustmentDetailPage({ id }: Props) {
   const locale = useLocale();
   const router = useRouter();
   const { user } = useAuthStore();
-  const canApprove = user?.role === 'owner' || user?.role === 'manager';
+  const canApprove =
+    user?.role === 'owner' || user?.role === 'manager' || user?.role === 'superadmin';
 
   const { data: adjustment, isLoading } = useAdjustment(id);
   const approveAdjustment = useApproveAdjustment();

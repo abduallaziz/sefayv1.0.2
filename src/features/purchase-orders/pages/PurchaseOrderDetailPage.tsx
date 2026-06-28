@@ -36,7 +36,8 @@ export function PurchaseOrderDetailPage({ id }: Props) {
   const locale = useLocale();
   const router = useRouter();
   const { user } = useAuthStore();
-  const canApprove = user?.role === 'owner' || user?.role === 'manager';
+  const canApprove =
+    user?.role === 'owner' || user?.role === 'manager' || user?.role === 'superadmin';
 
   const { data: order, isLoading } = usePurchaseOrder(id);
   const submitOrder = useSubmitPurchaseOrder();
