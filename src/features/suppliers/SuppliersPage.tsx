@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { TableSkeleton } from '@/shared/components/ui/Skeleton';
 import { useTranslations } from 'next-intl';
 import { Plus } from 'lucide-react';
 import { useSuppliers, useCreateSupplier, useUpdateSupplier, useDeleteSupplier } from './hooks/useSuppliers';
@@ -82,7 +83,7 @@ export function SuppliersPage() {
       <SupplierFiltersBar filters={filters} onChange={setFilters} />
 
       {isLoading ? (
-        <div className="text-center py-16 text-slate-500">{t('loading')}</div>
+        <TableSkeleton />
       ) : (
         <SuppliersTable
           suppliers={filtered}

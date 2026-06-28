@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { PageHeaderSkeleton, CardListSkeleton, TableSkeleton } from '@/shared/components/ui/Skeleton';
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
@@ -35,7 +36,13 @@ export function GoodsReceiptDetailPage({ id }: Props) {
   const [cancelOpen, setCancelOpen] = useState(false);
 
   if (isLoading) {
-    return <div className="text-center py-16 text-slate-500">{t('loading')}</div>;
+    return (
+      <div className="space-y-6">
+        <PageHeaderSkeleton />
+        <CardListSkeleton />
+        <TableSkeleton />
+      </div>
+    );
   }
 
   if (!receipt) {

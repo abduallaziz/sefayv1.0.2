@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { TableSkeleton } from '@/shared/components/ui/Skeleton';
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { Plus, PackageCheck } from 'lucide-react';
@@ -58,7 +59,7 @@ export function GoodsReceiptsPage() {
       <GoodsReceiptFiltersBar filters={filters} onChange={setFilters} />
 
       {isLoading ? (
-        <div className="text-center py-16 text-slate-500">{t('loading')}</div>
+        <TableSkeleton />
       ) : (
         <GoodsReceiptsTable receipts={receipts} onView={handleView} />
       )}

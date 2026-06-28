@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { TableSkeleton } from '@/shared/components/ui/Skeleton';
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { Plus, ArrowLeftRight } from 'lucide-react';
@@ -58,7 +59,7 @@ export function TransfersPage() {
       <TransferFiltersBar filters={filters} onChange={setFilters} />
 
       {isLoading ? (
-        <div className="text-center py-16 text-slate-500">{t('loading')}</div>
+        <TableSkeleton />
       ) : (
         <TransfersTable transfers={transfers} onView={handleView} />
       )}

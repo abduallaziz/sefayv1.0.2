@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { TableSkeleton } from '@/shared/components/ui/Skeleton';
 import { useTranslations } from 'next-intl';
 import { Boxes, Download } from 'lucide-react';
 import { useStockLevelsEnriched } from '../hooks/useStock';
@@ -73,7 +74,7 @@ export function StockPage() {
       <StockLevelsFiltersBar filters={filters} onChange={setFilters} />
 
       {isLoading ? (
-        <div className="text-center py-16 text-slate-500">{t('loading')}</div>
+        <TableSkeleton />
       ) : (
         <StockLevelsEnrichedTable levels={levels} />
       )}

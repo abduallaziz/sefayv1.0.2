@@ -26,7 +26,7 @@ export function StockCountItemsTable({ items, editable, onSubmitCount, isSubmitt
   return (
     <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-gray-800">
       <table className="w-full text-sm">
-        <thead className="bg-slate-50 dark:bg-gray-800/50 border-b border-slate-200 dark:border-gray-800">
+        <thead className="bg-slate-50 dark:bg-gray-800/50 border-b border-slate-200 dark:border-gray-800 sticky top-0 z-10">
           <tr>
             <th className="text-start px-3 py-3 font-medium text-slate-500">{t('item')}</th>
             <th className="text-start px-3 py-3 font-medium text-slate-500">{t('expectedQuantity')}</th>

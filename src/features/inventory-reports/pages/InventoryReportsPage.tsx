@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { FileBarChart, Warehouse, AlertTriangle } from 'lucide-react';
 import { useInventoryReports } from '../hooks/useInventoryReports';
+import { CardListSkeleton } from '@/shared/components/ui/Skeleton';
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(value ?? 0);
@@ -42,7 +43,9 @@ export function InventoryReportsPage() {
           </div>
           <h1 className="text-xl font-bold text-slate-800 dark:text-white">{t('title')}</h1>
         </div>
-        <div className="text-center py-16 text-slate-500">{t('loading')}</div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {Array.from({ length: 7 }).map((_, i) => <CardListSkeleton key={i} />)}
+        </div>
       </div>
     );
   }

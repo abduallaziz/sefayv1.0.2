@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { TableSkeleton } from '@/shared/components/ui/Skeleton';
 import { useTranslations } from 'next-intl';
 import { Activity, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useMovementsLedger } from '../hooks/useMovements';
@@ -34,7 +35,7 @@ export function MovementsPage() {
       <MovementsFiltersBar filters={filters} onChange={setFilters} />
 
       {isLoading ? (
-        <div className="text-center py-16 text-slate-500">{t('loading')}</div>
+        <TableSkeleton />
       ) : (
         <>
           <MovementsLedgerTable rows={data?.data ?? []} />

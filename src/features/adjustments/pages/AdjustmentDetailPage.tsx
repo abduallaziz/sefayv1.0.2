@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations, useLocale } from 'next-intl';
+import { PageHeaderSkeleton, CardListSkeleton, TableSkeleton } from '@/shared/components/ui/Skeleton';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { useAuthStore } from '@/core/auth/stores/auth.store';
@@ -44,7 +45,13 @@ export function AdjustmentDetailPage({ id }: Props) {
   const postAdjustment = usePostAdjustment();
 
   if (isLoading) {
-    return <div className="text-center py-16 text-slate-500">{t('loading')}</div>;
+    return (
+      <div className="space-y-6">
+        <PageHeaderSkeleton />
+        <CardListSkeleton />
+        <TableSkeleton />
+      </div>
+    );
   }
 
   if (!adjustment) {

@@ -48,10 +48,10 @@ export function WarehousesTable({ warehouses, onEdit, onDelete, onToggleActive, 
                 <p className="text-xs text-slate-500 truncate">{warehouse.code}</p>
               </div>
               <div className="flex items-center gap-1 shrink-0">
-                <button onClick={() => onEdit(warehouse)} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-700 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors">
+                <button onClick={() => onEdit(warehouse)} aria-label={t('editWarehouse')} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-700 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0C447C]">
                   <Edit className="w-3.5 h-3.5" />
                 </button>
-                <button onClick={() => onDelete(warehouse)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors">
+                <button onClick={() => onDelete(warehouse)} aria-label={t('deleteWarehouse')} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500">
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -77,7 +77,7 @@ export function WarehousesTable({ warehouses, onEdit, onDelete, onToggleActive, 
       {/* Desktop table */}
       <div className="hidden md:block overflow-x-auto rounded-xl border border-slate-200 dark:border-gray-800">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 dark:bg-gray-800/50 border-b border-slate-200 dark:border-gray-800">
+          <thead className="bg-slate-50 dark:bg-gray-800/50 border-b border-slate-200 dark:border-gray-800 sticky top-0 z-10">
             <tr>
               <th className="text-start px-3 py-3 font-medium text-slate-500">{t('code')}</th>
               <th className="text-start px-3 py-3 font-medium text-slate-500">{t('name')}</th>
@@ -109,13 +109,15 @@ export function WarehousesTable({ warehouses, onEdit, onDelete, onToggleActive, 
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => onEdit(warehouse)}
-                      className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-700 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors"
+                      aria-label={t('editWarehouse')}
+                      className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-700 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0C447C]"
                     >
                       <Edit className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={() => onDelete(warehouse)}
-                      className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                      aria-label={t('deleteWarehouse')}
+                      className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>

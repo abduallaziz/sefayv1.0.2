@@ -14,6 +14,7 @@ import {
   ListChecks,
 } from 'lucide-react';
 import { useInventoryDashboard } from '../hooks/useInventoryDashboard';
+import { KpiCardSkeleton, CardListSkeleton } from '@/shared/components/ui/Skeleton';
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(value ?? 0);
@@ -74,7 +75,12 @@ export function InventoryDashboardPage() {
           </div>
           <h1 className="text-xl font-bold text-slate-800 dark:text-white">{t('title')}</h1>
         </div>
-        <div className="text-center py-16 text-slate-500">{t('loading')}</div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+          {Array.from({ length: 10 }).map((_, i) => <KpiCardSkeleton key={i} />)}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => <CardListSkeleton key={i} />)}
+        </div>
       </div>
     );
   }
