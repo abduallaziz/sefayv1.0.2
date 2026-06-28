@@ -1,4 +1,10 @@
-export type PurchaseOrderStatus = 'draft' | 'submitted' | 'approved' | 'cancelled';
+export type PurchaseOrderStatus =
+  | 'draft'
+  | 'submitted'
+  | 'approved'
+  | 'partially_received'
+  | 'received'
+  | 'cancelled';
 
 export interface PurchaseOrderItem {
   id: string;
@@ -7,6 +13,7 @@ export interface PurchaseOrderItem {
   variant_id: string | null;
   variant_name?: string | null;
   quantity_ordered: number;
+  quantity_received: number;
   unit_cost: number;
 }
 

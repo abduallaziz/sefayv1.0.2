@@ -57,6 +57,10 @@
     "submitted": "Submitted",
     "approved": "Approved",
     "cancelled": "Cancelled",
-    "posted": "Posted"
-  }
+    "posted": "Posted",
+    "partially_received": "Partially Received",
+    "received": "Received"
+  },
+  "received": "Received",
+  "receivingProgress": "Receiving Progress"
 }

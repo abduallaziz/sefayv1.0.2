@@ -12,6 +12,8 @@ const statusColors: Record<string, string> = {
   draft: 'bg-slate-100 dark:bg-gray-800 text-slate-500 dark:text-slate-400',
   submitted: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
   approved: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+  partially_received: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
+  received: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
   cancelled: 'bg-red-500/10 text-red-600 dark:text-red-400',
 };
 
@@ -19,6 +21,8 @@ const statusLabelKeys = {
   draft: 'status.draft',
   submitted: 'status.submitted',
   approved: 'status.approved',
+  partially_received: 'status.partially_received',
+  received: 'status.received',
   cancelled: 'status.cancelled',
 } as const;
 

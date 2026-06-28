@@ -12,6 +12,7 @@ import {
   useCancelPurchaseOrder,
 } from '../hooks/usePurchaseOrders';
 import { CancelPurchaseOrderModal } from '../components/CancelPurchaseOrderModal';
+import { PurchaseOrderWorkflowTimeline } from '../components/PurchaseOrderWorkflowTimeline';
 
 interface Props {
   id: string;
@@ -21,6 +22,8 @@ const statusColors: Record<string, string> = {
   draft: 'bg-slate-100 dark:bg-gray-800 text-slate-500 dark:text-slate-400',
   submitted: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
   approved: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+  partially_received: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
+  received: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
   cancelled: 'bg-red-500/10 text-red-600 dark:text-red-400',
 };
 
@@ -28,6 +31,8 @@ const statusLabelKeys = {
   draft: 'status.draft',
   submitted: 'status.submitted',
   approved: 'status.approved',
+  partially_received: 'status.partially_received',
+  received: 'status.received',
   cancelled: 'status.cancelled',
 } as const;
 
@@ -55,6 +60,9 @@ export function PurchaseOrderDetailPage({ id }: Props) {
   }
 
   const lineTotal = (order.items ?? []).reduce((sum, i) => sum + i.quantity_ordered * i.unit_cost, 0);
+  const totalOrdered = (order.items ?? []).reduce((sum, i) => sum + i.quantity_ordered, 0);
+  const totalReceived = (order.items ?? []).reduce((sum, i) => sum + i.quantity_received, 0);
+  const receivingPct = totalOrdered > 0 ? Math.round((totalReceived / totalOrdered) * 100) : 0;
 
   return (
     <div className="space-y-6">
@@ -73,6 +81,27 @@ export function PurchaseOrderDetailPage({ id }: Props) {
           {t(statusLabelKeys[order.status])}
         </span>
       </div>
+
+      <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-5">
+        <PurchaseOrderWorkflowTimeline status={order.status} />
+      </div>
+
+      {(order.status === 'partially_received' || order.status === 'received') && (
+        <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-4">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs text-slate-500">{t('receivingProgress')}</p>
+            <p className="text-xs font-medium text-slate-700 dark:text-gray-300">
+              {totalReceived} / {totalOrdered} ({receivingPct}%)
+            </p>
+          </div>
+          <div className="h-2 rounded-full bg-slate-100 dark:bg-gray-800 overflow-hidden">
+            <div
+              className="h-full bg-[#0C447C] rounded-full"
+              style={{ width: `${receivingPct}%` }}
+            />
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-4">
@@ -110,6 +139,7 @@ export function PurchaseOrderDetailPage({ id }: Props) {
             <tr>
               <th className="text-start px-3 py-3 font-medium text-slate-500">{t('item')}</th>
               <th className="text-start px-3 py-3 font-medium text-slate-500">{t('quantity')}</th>
+              <th className="text-start px-3 py-3 font-medium text-slate-500">{t('received')}</th>
               <th className="text-start px-3 py-3 font-medium text-slate-500">{t('unitCost')}</th>
               <th className="text-start px-3 py-3 font-medium text-slate-500">{t('lineTotal')}</th>
             </tr>
@@ -122,6 +152,19 @@ export function PurchaseOrderDetailPage({ id }: Props) {
                   {item.variant_name && <span className="text-slate-400 text-xs ms-1">({item.variant_name})</span>}
                 </td>
                 <td className="px-3 py-3 text-slate-500">{item.quantity_ordered}</td>
+                <td className="px-3 py-3">
+                  <span
+                    className={
+                      item.quantity_received >= item.quantity_ordered
+                        ? 'text-emerald-600 dark:text-emerald-400'
+                        : item.quantity_received > 0
+                          ? 'text-amber-600 dark:text-amber-400'
+                          : 'text-slate-400'
+                    }
+                  >
+                    {item.quantity_received}
+                  </span>
+                </td>
                 <td className="px-3 py-3 text-slate-500">{item.unit_cost.toLocaleString('en-US')}</td>
                 <td className="px-3 py-3 font-medium text-slate-800 dark:text-white">
                   {(item.quantity_ordered * item.unit_cost).toLocaleString('en-US')}
@@ -131,7 +174,7 @@ export function PurchaseOrderDetailPage({ id }: Props) {
           </tbody>
           <tfoot>
             <tr className="border-t border-slate-200 dark:border-gray-800">
-              <td colSpan={3} className="px-3 py-3 text-end font-semibold text-slate-800 dark:text-white">{t('total')}</td>
+              <td colSpan={4} className="px-3 py-3 text-end font-semibold text-slate-800 dark:text-white">{t('total')}</td>
               <td className="px-3 py-3 font-bold text-slate-800 dark:text-white">{lineTotal.toLocaleString('en-US')}</td>
             </tr>
           </tfoot>

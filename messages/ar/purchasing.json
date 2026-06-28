@@ -57,6 +57,10 @@
     "submitted": "مُرسل",
     "approved": "مُعتمد",
     "cancelled": "ملغي",
-    "posted": "مُرحّل"
-  }
+    "posted": "مُرحّل",
+    "partially_received": "مستلم جزئياً",
+    "received": "مُستلم بالكامل"
+  },
+  "received": "المستلم",
+  "receivingProgress": "تقدم الاستلام"
 }

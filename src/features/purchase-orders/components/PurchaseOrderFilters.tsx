@@ -16,6 +16,8 @@ export function PurchaseOrderFiltersBar({ filters, onChange }: Props) {
     { value: 'draft', labelKey: 'status.draft' },
     { value: 'submitted', labelKey: 'status.submitted' },
     { value: 'approved', labelKey: 'status.approved' },
+    { value: 'partially_received', labelKey: 'status.partially_received' },
+    { value: 'received', labelKey: 'status.received' },
     { value: 'cancelled', labelKey: 'status.cancelled' },
   ];
 
