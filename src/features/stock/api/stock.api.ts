@@ -2,6 +2,8 @@ import { apiClient } from '@/lib/api';
 import type {
   StockLevel,
   StockLevelFilters,
+  StockLevelEnriched,
+  StockLevelEnrichedFilters,
   StockMovementFilters,
   StockMovementsResponse,
 } from '../types/stock.types';
@@ -22,6 +24,19 @@ export const stockApi = {
         warehouse_id: filters.warehouse_id,
         item_id: filters.item_id,
         variant_id: filters.variant_id,
+      })}`
+    ),
+
+  getLevelsEnriched: (filters: StockLevelEnrichedFilters = {}) =>
+    apiClient.get<StockLevelEnriched[]>(
+      `/inventory/stock/levels/enriched${buildQuery({
+        warehouse_id: filters.warehouse_id,
+        item_id: filters.item_id,
+        category_id: filters.category_id,
+        location_id: filters.location_id,
+        batch_id: filters.batch_id,
+        supplier_id: filters.supplier_id,
+        status: filters.status,
       })}`
     ),
 

@@ -35,6 +35,39 @@ export interface StockLevelFilters {
   variant_id?: string;
 }
 
+export interface StockLevelEnriched {
+  stock_level_id: string;
+  item_id: string;
+  variant_id: string | null;
+  warehouse_id: string;
+  location_id: string | null;
+  batch_id: string | null;
+  item_name: string;
+  item_sku: string;
+  variant_name: string | null;
+  warehouse_name: string;
+  location_name: string | null;
+  batch_number: string | null;
+  quantity_on_hand: number;
+  quantity_reserved: number;
+  quantity_available: number;
+  quantity_incoming: number;
+  reorder_min: number | null;
+  status: 'in_stock' | 'low_stock' | 'out_of_stock';
+  inventory_value: number;
+  last_movement_at: string | null;
+}
+
+export interface StockLevelEnrichedFilters {
+  warehouse_id?: string;
+  item_id?: string;
+  category_id?: string;
+  location_id?: string;
+  batch_id?: string;
+  supplier_id?: string;
+  status?: string;
+}
+
 export interface StockMovementFilters extends StockLevelFilters {
   reference_type?: string;
   reference_id?: string;

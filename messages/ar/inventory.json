@@ -53,7 +53,22 @@
     "loading": "جارٍ التحميل...",
     "page": "صفحة",
     "previous": "السابق",
-    "next": "التالي"
+    "next": "التالي",
+    "sku": "رمز SKU",
+    "location": "الموقع",
+    "batch": "الدفعة",
+    "incoming": "الوارد",
+    "reorderPoint": "نقطة إعادة الطلب",
+    "inventoryValue": "قيمة المخزون",
+    "lastMovement": "آخر حركة",
+    "allStatus": "كل الحالات",
+    "statusInStock": "متوفر",
+    "statusLowStock": "مخزون منخفض",
+    "statusOutOfStock": "نفذ المخزون",
+    "export": "تصدير",
+    "totalOnHand": "إجمالي الكمية",
+    "lowStockItems": "مخزون منخفض",
+    "outOfStockItems": "نفذ المخزون"
   },
   "adjustments": {
     "title": "تسويات المخزون",

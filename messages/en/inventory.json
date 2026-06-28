@@ -53,7 +53,22 @@
     "loading": "Loading...",
     "page": "Page",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "sku": "SKU",
+    "location": "Location",
+    "batch": "Batch",
+    "incoming": "Incoming",
+    "reorderPoint": "Reorder Point",
+    "inventoryValue": "Inventory Value",
+    "lastMovement": "Last Movement",
+    "allStatus": "All Status",
+    "statusInStock": "In Stock",
+    "statusLowStock": "Low Stock",
+    "statusOutOfStock": "Out of Stock",
+    "export": "Export",
+    "totalOnHand": "Total On Hand",
+    "lowStockItems": "Low Stock",
+    "outOfStockItems": "Out of Stock"
   },
   "adjustments": {
     "title": "Stock Adjustments",
