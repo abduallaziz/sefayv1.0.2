@@ -13,18 +13,25 @@ import { createOrder } from '@/features/orders/api/orders.api'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { apiClient } from '@/lib/api'
 import { useTranslations } from 'next-intl'
-import { ShoppingCart, Grid } from 'lucide-react'
+import { ShoppingCart, Grid, X, AlertTriangle } from 'lucide-react'
 import type { Customer } from '@/features/customers/types/customer.types'
+import { useWarehouses, useAdjustStock } from '@/features/inventory/hooks/useInventory'
 
 export function POSPage() {
   const { user } = useAuthStore()
   const t = useTranslations('pos')
+  const tInventory = useTranslations('inventory')
   const [showPayment, setShowPayment] = useState(false)
   const [receipt, setReceipt] = useState<{ payment: PaymentData; invoiceNumber: string; taxRate: number } | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [mobileTab, setMobileTab] = useState<'items' | 'cart'>('items')
   const [showCustomerPicker, setShowCustomerPicker] = useState(false)
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
+  const [lowStockWarnings, setLowStockWarnings] = useState<string[]>([])
+
+  const { data: warehouses } = useWarehouses()
+  const adjustStock = useAdjustStock()
+  const defaultWarehouseId = warehouses?.find((w) => w.is_default)?.id ?? warehouses?.[0]?.id ?? ''
 
   const { data: branches } = useQuery({
     queryKey: ['branches'],
@@ -78,6 +85,38 @@ export function POSPage() {
             }
           : undefined,
       })
+
+      setLowStockWarnings([])
+      if (defaultWarehouseId) {
+        const warnings: string[] = []
+        for (const item of cart.items) {
+          try {
+            const { stockLevel } = await adjustStock.mutateAsync({
+              item_id: item.item_id,
+              item_name: item.name,
+              variant_id: item.variant_id ?? null,
+              variant_name: item.variant_name ?? null,
+              warehouse_id: defaultWarehouseId,
+              quantity_change: -item.quantity,
+              type: 'sale',
+              reference: order.id,
+            })
+            if (stockLevel.quantity <= stockLevel.low_stock_threshold) {
+              warnings.push(
+                tInventory('lowStockAlert', {
+                  item: stockLevel.item_name,
+                  warehouse: stockLevel.warehouse_name,
+                  quantity: stockLevel.quantity,
+                })
+              )
+            }
+          } catch (stockError) {
+            console.error('Failed to adjust stock for sale:', stockError)
+          }
+        }
+        setLowStockWarnings(warnings)
+      }
+
       setShowPayment(false)
       setReceipt({
         payment: data,
@@ -103,10 +142,25 @@ export function POSPage() {
     clearCart()
     setReceipt(null)
     setSelectedCustomer(null)
+    setLowStockWarnings([])
   }
 
   return (
     <div className="flex flex-col h-full min-h-0 overflow-hidden">
+
+      {lowStockWarnings.length > 0 && (
+        <div className="flex items-start gap-3 px-4 py-2.5 bg-amber-50 dark:bg-amber-500/10 border-b border-amber-200 dark:border-amber-500/20 shrink-0">
+          <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
+          <div className="flex-1 space-y-0.5 text-sm text-amber-700 dark:text-amber-400">
+            {lowStockWarnings.map((msg, i) => (
+              <p key={i}>{msg}</p>
+            ))}
+          </div>
+          <button onClick={() => setLowStockWarnings([])} className="text-amber-500 hover:text-amber-700 shrink-0">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Mobile Tabs */}
       <div className="flex lg:hidden border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shrink-0">

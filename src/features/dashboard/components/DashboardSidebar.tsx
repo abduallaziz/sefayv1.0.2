@@ -6,7 +6,7 @@ import { useLocale, useTranslations } from 'next-intl'
 import {
   LayoutDashboard, ShoppingCart, Package, Users,
   Receipt, Clock, BarChart3, Settings, UserCog,
-  X, Zap,
+  X, Zap, Warehouse,
 } from 'lucide-react'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { useThemeStore } from '@/core/theme/stores/theme.store'
@@ -32,6 +32,7 @@ const ALL_NAV_ITEMS: NavItem[] = [
   { key: 'pos',       href: '/dashboard/pos',        icon: ShoppingCart,    section: 'sales' },
   { key: 'orders',    href: '/dashboard/orders',     icon: Receipt,         section: 'sales' },
   { key: 'items',     href: '/dashboard/items',      icon: Package,         section: 'inventory' },
+  { key: 'inventory', href: '/dashboard/inventory',  icon: Warehouse,       section: 'inventory' },
   { key: 'customers', href: '/dashboard/customers',  icon: Users,           section: 'customers' },
   { key: 'expenses',  href: '/dashboard/expenses',   icon: Receipt,         section: 'finance', roles: ['owner', 'manager'] },
   { key: 'shifts',    href: '/dashboard/shifts',     icon: Clock,           section: 'hr' },
