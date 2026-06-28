@@ -256,5 +256,23 @@
       "completed": "مكتمل",
       "cancelled": "ملغي"
     }
+  },
+  "reports": {
+    "title": "تقارير المخزون",
+    "loading": "جارٍ التحميل...",
+    "noData": "لا توجد بيانات",
+    "warehouseValuation": "قيمة المخزون بالمستودعات",
+    "lowStock": "مخزون منخفض / إعادة طلب",
+    "purchaseOrders": "ملخص أوامر الشراء",
+    "orders": "أوامر",
+    "goodsReceipts": "ملخص إيصالات الاستلام",
+    "receipts": "إيصالات",
+    "adjustments": "ملخص التسويات",
+    "adjustmentsCount": "تسويات",
+    "netQty": "صافي الكمية",
+    "transfers": "ملخص التحويلات",
+    "stockCountVariance": "فرق جرد المخزون",
+    "itemsCounted": "معدودة",
+    "itemsWithVariance": "بها فرق"
   }
 }

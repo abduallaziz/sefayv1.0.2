@@ -93,6 +93,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
       movements: inventory?.movements,
       transfers: inventory?.transfers,
       stockCounts: inventory?.stockCounts,
+      inventoryReports: inventory?.reports,
     }
   }
 })

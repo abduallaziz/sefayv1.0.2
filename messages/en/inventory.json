@@ -256,5 +256,23 @@
       "completed": "Completed",
       "cancelled": "Cancelled"
     }
+  },
+  "reports": {
+    "title": "Inventory Reports",
+    "loading": "Loading...",
+    "noData": "No data available",
+    "warehouseValuation": "Warehouse Valuation",
+    "lowStock": "Low Stock / Reorder",
+    "purchaseOrders": "Purchase Orders Summary",
+    "orders": "orders",
+    "goodsReceipts": "Goods Receipts Summary",
+    "receipts": "receipts",
+    "adjustments": "Adjustments Summary",
+    "adjustmentsCount": "adjustments",
+    "netQty": "net qty",
+    "transfers": "Transfers Summary",
+    "stockCountVariance": "Stock Count Variance",
+    "itemsCounted": "counted",
+    "itemsWithVariance": "with variance"
   }
 }
