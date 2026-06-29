@@ -2,17 +2,18 @@
 
 import { useTranslations } from 'next-intl';
 import { StockAdjustment } from '../types/adjustment.types';
+import { StatusBadge, type StatusTone } from '@/shared/ui/status-badge';
 
 interface Props {
   adjustments: StockAdjustment[];
   onView: (adjustment: StockAdjustment) => void;
 }
 
-const statusColors: Record<string, string> = {
-  pending_approval: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
-  approved: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-  rejected: 'bg-red-500/10 text-red-600 dark:text-red-400',
-  posted: 'bg-[#0C447C]/10 text-[#0C447C] dark:text-[#5B9BD5]',
+const statusTones: Record<string, StatusTone> = {
+  pending_approval: 'warning',
+  approved: 'success',
+  rejected: 'danger',
+  posted: 'brand',
 };
 
 const statusLabelKeys = {
@@ -48,9 +49,7 @@ export function AdjustmentsTable({ adjustments, onView }: Props) {
                 <p className="font-medium text-slate-800 dark:text-white truncate">{adj.items?.name ?? adj.item_id}</p>
                 <p className="text-xs text-slate-500 truncate">{adj.warehouses?.name ?? adj.warehouse_id}</p>
               </div>
-              <span className={`px-2 py-0.5 rounded-full text-xs font-medium shrink-0 ${statusColors[adj.status]}`}>
-                {t(statusLabelKeys[adj.status])}
-              </span>
+              <StatusBadge tone={statusTones[adj.status]} label={t(statusLabelKeys[adj.status])} className="shrink-0" />
             </div>
             <p className="text-xs text-slate-500 mt-1">{t('quantityDelta')}: {adj.quantity_delta}</p>
           </div>
@@ -81,9 +80,7 @@ export function AdjustmentsTable({ adjustments, onView }: Props) {
                 <td className="px-3 py-3 text-slate-500">{adj.quantity_delta}</td>
                 <td className="px-3 py-3 text-slate-500 truncate max-w-xs">{adj.reason}</td>
                 <td className="px-3 py-3 w-32">
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[adj.status]}`}>
-                    {t(statusLabelKeys[adj.status])}
-                  </span>
+                  <StatusBadge tone={statusTones[adj.status]} label={t(statusLabelKeys[adj.status])} />
                 </td>
               </tr>
             ))}

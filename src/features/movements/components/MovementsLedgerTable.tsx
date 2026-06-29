@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { MovementLedgerRow } from '../types/movements.types';
+import { StatusBadge } from '@/shared/ui/status-badge';
 
 interface Props {
   rows: MovementLedgerRow[];
@@ -45,15 +46,7 @@ export function MovementsLedgerTable({ rows }: Props) {
             <tr key={row.id} className={`hover:bg-slate-50 dark:hover:bg-gray-800/30 transition-colors ${i % 2 === 1 ? 'bg-slate-50/40 dark:bg-gray-800/10' : ''}`}>
               <td className="px-3 py-3 text-slate-500 whitespace-nowrap">{formatDate(row.occurred_at)}</td>
               <td className="px-3 py-3">
-                <span
-                  className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                    row.direction === 'in'
-                      ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400'
-                      : 'bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-400'
-                  }`}
-                >
-                  {t(`type.${row.movement_type}`)}
-                </span>
+                <StatusBadge tone={row.direction === 'in' ? 'success' : 'danger'} label={t(`type.${row.movement_type}`)} />
               </td>
               <td className="px-3 py-3 text-slate-500">{row.reference_type}</td>
               <td className="px-3 py-3 text-slate-800 dark:text-white max-w-[160px] truncate">

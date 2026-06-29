@@ -4,17 +4,14 @@ import { useTranslations } from 'next-intl';
 import { FileBarChart, Warehouse, AlertTriangle } from 'lucide-react';
 import { useInventoryReports } from '../hooks/useInventoryReports';
 import { CardListSkeleton } from '@/shared/components/ui/Skeleton';
+import { StatusBadge } from '@/shared/ui/status-badge';
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(value ?? 0);
 }
 
-function StatusBadge({ status }: { status: string }) {
-  return (
-    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[#E8F1FB] dark:bg-[#0C447C]/10 text-[#0C447C] dark:text-[#5B9BD5] capitalize">
-      {status.replace(/_/g, ' ')}
-    </span>
-  );
+function ReportStatusBadge({ status }: { status: string }) {
+  return <StatusBadge tone="brand" label={status.replace(/_/g, ' ')} className="capitalize" />;
 }
 
 function ReportCard({ title, children }: { title: string; children: React.ReactNode }) {
@@ -107,15 +104,10 @@ export function InventoryReportsPage() {
                       <p className="text-xs text-slate-500">{row.warehouse_name}</p>
                     </div>
                   </div>
-                  <span
-                    className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                      row.status === 'out_of_stock'
-                        ? 'bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-400'
-                        : 'bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400'
-                    }`}
-                  >
-                    {row.quantity_on_hand} / {row.min_quantity}
-                  </span>
+                  <StatusBadge
+                    tone={row.status === 'out_of_stock' ? 'danger' : 'warning'}
+                    label={`${row.quantity_on_hand} / ${row.min_quantity}`}
+                  />
                 </div>
               ))}
             </div>
@@ -129,7 +121,7 @@ export function InventoryReportsPage() {
             <div className="space-y-2">
               {purchaseOrders.map((row) => (
                 <div key={row.status} className="flex items-center justify-between text-sm border-b border-slate-100 dark:border-gray-800 pb-2 last:border-0 last:pb-0">
-                  <StatusBadge status={row.status} />
+                  <ReportStatusBadge status={row.status} />
                   <div className="text-right">
                     <p className="font-semibold text-slate-700 dark:text-gray-200">{formatCurrency(row.total_value)}</p>
                     <p className="text-xs text-slate-500">{row.order_count} {t('orders')}</p>
@@ -147,7 +139,7 @@ export function InventoryReportsPage() {
             <div className="space-y-2">
               {goodsReceipts.map((row) => (
                 <div key={row.status} className="flex items-center justify-between text-sm border-b border-slate-100 dark:border-gray-800 pb-2 last:border-0 last:pb-0">
-                  <StatusBadge status={row.status} />
+                  <ReportStatusBadge status={row.status} />
                   <div className="text-right">
                     <p className="font-semibold text-slate-700 dark:text-gray-200">{formatCurrency(row.total_value)}</p>
                     <p className="text-xs text-slate-500">{row.receipt_count} {t('receipts')}</p>
@@ -165,7 +157,7 @@ export function InventoryReportsPage() {
             <div className="space-y-2">
               {adjustments.map((row) => (
                 <div key={row.status} className="flex items-center justify-between text-sm border-b border-slate-100 dark:border-gray-800 pb-2 last:border-0 last:pb-0">
-                  <StatusBadge status={row.status} />
+                  <ReportStatusBadge status={row.status} />
                   <div className="text-right">
                     <p className={`font-semibold ${row.net_value < 0 ? 'text-red-600' : 'text-emerald-600'}`}>
                       {formatCurrency(row.net_value)}
@@ -185,7 +177,7 @@ export function InventoryReportsPage() {
             <div className="space-y-2">
               {transfers.map((row) => (
                 <div key={row.status} className="flex items-center justify-between text-sm border-b border-slate-100 dark:border-gray-800 pb-2 last:border-0 last:pb-0">
-                  <StatusBadge status={row.status} />
+                  <ReportStatusBadge status={row.status} />
                   <span className="font-semibold text-slate-700 dark:text-gray-200">{row.transfer_count}</span>
                 </div>
               ))}

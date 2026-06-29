@@ -2,16 +2,17 @@
 
 import { useTranslations } from 'next-intl';
 import { GoodsReceipt } from '../types/goods-receipt.types';
+import { StatusBadge, type StatusTone } from '@/shared/ui/status-badge';
 
 interface Props {
   receipts: GoodsReceipt[];
   onView: (receipt: GoodsReceipt) => void;
 }
 
-const statusColors: Record<string, string> = {
-  draft: 'bg-slate-100 dark:bg-gray-800 text-slate-500 dark:text-slate-400',
-  posted: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-  cancelled: 'bg-red-500/10 text-red-600 dark:text-red-400',
+const statusTones: Record<string, StatusTone> = {
+  draft: 'neutral',
+  posted: 'success',
+  cancelled: 'danger',
 };
 
 export function GoodsReceiptsTable({ receipts, onView }: Props) {
@@ -42,9 +43,7 @@ export function GoodsReceiptsTable({ receipts, onView }: Props) {
                   {receipt.supplier_name ?? '-'} · {receipt.warehouse_name ?? receipt.warehouse_id}
                 </p>
               </div>
-              <span className={`px-2 py-0.5 rounded-full text-xs font-medium shrink-0 ${statusColors[receipt.status]}`}>
-                {t(`status.${receipt.status}`)}
-              </span>
+              <StatusBadge tone={statusTones[receipt.status]} label={t(`status.${receipt.status}`)} className="shrink-0" />
             </div>
             <div className="flex items-center justify-between mt-2 text-xs text-slate-500">
               <span>{receipt.purchase_order_number ?? t('noPurchaseOrder')}</span>
@@ -80,9 +79,7 @@ export function GoodsReceiptsTable({ receipts, onView }: Props) {
                 <td className="px-3 py-3 text-slate-500">{receipt.purchase_order_number ?? t('noPurchaseOrder')}</td>
                 <td className="px-3 py-3 text-end text-slate-500">{receipt.items_count ?? 0}</td>
                 <td className="px-3 py-3 w-24">
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[receipt.status]}`}>
-                    {t(`status.${receipt.status}`)}
-                  </span>
+                  <StatusBadge tone={statusTones[receipt.status]} label={t(`status.${receipt.status}`)} />
                 </td>
               </tr>
             ))}

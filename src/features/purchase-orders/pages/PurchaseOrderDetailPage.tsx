@@ -14,18 +14,19 @@ import {
 } from '../hooks/usePurchaseOrders';
 import { CancelPurchaseOrderModal } from '../components/CancelPurchaseOrderModal';
 import { PurchaseOrderWorkflowTimeline } from '../components/PurchaseOrderWorkflowTimeline';
+import { StatusBadge, type StatusTone } from '@/shared/ui/status-badge';
 
 interface Props {
   id: string;
 }
 
-const statusColors: Record<string, string> = {
-  draft: 'bg-slate-100 dark:bg-gray-800 text-slate-500 dark:text-slate-400',
-  submitted: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
-  approved: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-  partially_received: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
-  received: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-  cancelled: 'bg-red-500/10 text-red-600 dark:text-red-400',
+const statusTones: Record<string, StatusTone> = {
+  draft: 'neutral',
+  submitted: 'warning',
+  approved: 'success',
+  partially_received: 'info',
+  received: 'success',
+  cancelled: 'danger',
 };
 
 const statusLabelKeys = {
@@ -84,9 +85,7 @@ export function PurchaseOrderDetailPage({ id }: Props) {
           <h1 className="text-xl font-bold text-slate-800 dark:text-white">{order.order_number}</h1>
           <p className="text-sm text-slate-500">#{order.id}</p>
         </div>
-        <span className={`ms-auto px-3 py-1 rounded-full text-xs font-medium ${statusColors[order.status]}`}>
-          {t(statusLabelKeys[order.status])}
-        </span>
+        <StatusBadge tone={statusTones[order.status]} label={t(statusLabelKeys[order.status])} className="ms-auto px-3 py-1" />
       </div>
 
       <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-5">
