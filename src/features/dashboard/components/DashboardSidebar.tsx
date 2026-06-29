@@ -3,10 +3,12 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useLocale, useTranslations } from 'next-intl'
+import { useEffect, useState } from 'react'
 import {
   LayoutDashboard, ShoppingCart, Package, Users,
   Receipt, Clock, BarChart3, Settings, UserCog,
-  X, Zap,
+  X, Zap, Truck, Warehouse, ClipboardList, PackageCheck, Boxes, SlidersHorizontal,
+  ChevronDown, ArrowLeftRight, FileBarChart, Layers, ClipboardCheck,
 } from 'lucide-react'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { useThemeStore } from '@/core/theme/stores/theme.store'
@@ -27,6 +29,8 @@ interface NavItem {
   section: string
 }
 
+const INVENTORY_ROLES = ['superadmin', 'owner', 'manager', 'inventory_clerk']
+
 const ALL_NAV_ITEMS: NavItem[] = [
   { key: 'dashboard', href: '/dashboard',           icon: LayoutDashboard, section: 'general' },
   { key: 'pos',       href: '/dashboard/pos',        icon: ShoppingCart,    section: 'sales' },
@@ -39,6 +43,24 @@ const ALL_NAV_ITEMS: NavItem[] = [
   { key: 'users',     href: '/dashboard/users',      icon: UserCog,         section: 'hr',       roles: ['owner', 'manager'] },
   { key: 'settings',  href: '/dashboard/settings',   icon: Settings,        section: 'admin',    roles: ['owner'] },
 ]
+
+// Children of the single collapsible "Inventory" sidebar group. Kept out of
+// ALL_NAV_ITEMS so they never render as separate top-level rows.
+const INVENTORY_GROUP_ITEMS: NavItem[] = [
+  { key: 'inventoryDashboard', href: '/dashboard/inventory',         icon: LayoutDashboard,   section: 'inventory-group' },
+  { key: 'warehouses',         href: '/dashboard/warehouses',        icon: Warehouse,         section: 'inventory-group' },
+  { key: 'stock',              href: '/dashboard/stock',             icon: Boxes,             section: 'inventory-group' },
+  { key: 'movements',          href: '/dashboard/movements',         icon: ArrowLeftRight,    section: 'inventory-group' },
+  { key: 'transfers',          href: '/dashboard/transfers',         icon: Layers,            section: 'inventory-group', roles: INVENTORY_ROLES },
+  { key: 'adjustments',        href: '/dashboard/adjustments',       icon: SlidersHorizontal, section: 'inventory-group', roles: INVENTORY_ROLES },
+  { key: 'stockCounts',        href: '/dashboard/stock-counts',      icon: ClipboardCheck,    section: 'inventory-group', roles: INVENTORY_ROLES },
+  { key: 'suppliers',          href: '/dashboard/suppliers',         icon: Truck,             section: 'inventory-group', roles: INVENTORY_ROLES },
+  { key: 'purchaseOrders',     href: '/dashboard/purchase-orders',   icon: ClipboardList,     section: 'inventory-group', roles: INVENTORY_ROLES },
+  { key: 'goodsReceipts',      href: '/dashboard/goods-receipts',    icon: PackageCheck,      section: 'inventory-group', roles: INVENTORY_ROLES },
+  { key: 'inventoryReports',   href: '/dashboard/inventory/reports', icon: FileBarChart,      section: 'inventory-group', roles: INVENTORY_ROLES },
+]
+
+const INVENTORY_GROUP_STORAGE_KEY = 'sidebar.inventoryGroupExpanded'
 
 export function DashboardSidebar({ open, onClose }: SidebarProps) {
   const t = useTranslations('sidebar')
@@ -61,9 +83,41 @@ export function DashboardSidebar({ open, onClose }: SidebarProps) {
     return inBusinessType && hasRole
   })
 
+  const visibleInventoryItems = INVENTORY_GROUP_ITEMS.filter((item) => {
+    const inBusinessType = config.sidebar.includes(item.key)
+    const hasRole = !item.roles || item.roles.includes(userRole)
+    return inBusinessType && hasRole
+  })
+
   const isActive = (href: string) => {
     if (href === '/dashboard') return pathname === `/${locale}/dashboard`
     return pathname.startsWith(`/${locale}${href}`)
+  }
+
+  const inventoryGroupActive = visibleInventoryItems.some((item) => isActive(item.href))
+
+  const [inventoryExpanded, setInventoryExpanded] = useState(inventoryGroupActive)
+
+  useEffect(() => {
+    const stored = window.localStorage.getItem(INVENTORY_GROUP_STORAGE_KEY)
+    if (stored !== null) {
+      setInventoryExpanded(stored === 'true')
+    } else if (inventoryGroupActive) {
+      setInventoryExpanded(true)
+    }
+    // Only read the persisted preference once on mount; active-route detection
+    // below keeps the group open while navigating its own children.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    if (inventoryGroupActive) setInventoryExpanded(true)
+  }, [inventoryGroupActive])
+
+  const toggleInventoryGroup = () => {
+    const next = !inventoryExpanded
+    setInventoryExpanded(next)
+    window.localStorage.setItem(INVENTORY_GROUP_STORAGE_KEY, String(next))
   }
 
   return (
@@ -114,59 +168,101 @@ export function DashboardSidebar({ open, onClose }: SidebarProps) {
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto" style={{ padding: '13px 13px 3px' }}>
           {visibleItems.map((item) => {
-            const Icon = item.icon
             const active = isActive(item.href)
-
             return (
-              <Link
+              <NavLink
                 key={item.key}
                 href={`/${locale}${item.href}`}
+                label={t(item.key)}
+                icon={item.icon}
+                active={active}
                 onClick={onClose}
+                isDark={isDark}
+                textMuted={textMuted}
+                iconMuted={iconMuted}
+                hoverBg={hoverBg}
+                hoverText={hoverText}
+              />
+            )
+          })}
+
+          {visibleInventoryItems.length > 0 && (
+            <div style={{ marginBottom: '2px' }}>
+              <button
+                type="button"
+                onClick={toggleInventoryGroup}
+                aria-expanded={inventoryExpanded}
                 style={{
-                  display: 'flex', alignItems: 'center', gap: '12px',
+                  width: '100%', display: 'flex', alignItems: 'center', gap: '12px',
                   padding: '11px 12px', borderRadius: '13px',
-                  fontSize: '13px', fontWeight: active ? 600 : 500,
-                  marginBottom: '2px', textDecoration: 'none',
+                  fontSize: '13px', fontWeight: inventoryGroupActive ? 600 : 500,
+                  cursor: 'pointer',
                   transition: 'all 0.22s cubic-bezier(0.4,0,0.2,1)',
-                  position: 'relative',
-                  ...(active
+                  ...(inventoryGroupActive
                     ? {
                         background: isDark
                           ? 'linear-gradient(135deg, #161D29, #1C2433)'
                           : 'linear-gradient(135deg, #0C447C, #1761B8)',
                         color: isDark ? '#5B9BD5' : '#fff',
                         border: isDark ? '1px solid rgba(91,155,213,0.28)' : 'none',
-                        boxShadow: isDark
-                          ? '0 4px 14px rgba(0,0,0,0.45)'
-                          : '0 6px 18px rgba(12,68,124,0.32), 0 2px 6px rgba(12,68,124,0.24)',
                       }
-                    : {
-                        color: textMuted,
-                        background: 'transparent',
-                      }),
+                    : { color: textMuted, background: 'transparent', border: 'none' }),
                 }}
                 onMouseEnter={(e) => {
-                  if (!active) {
+                  if (!inventoryGroupActive) {
                     e.currentTarget.style.background = hoverBg
                     e.currentTarget.style.color = hoverText
                   }
                 }}
                 onMouseLeave={(e) => {
-                  if (!active) {
+                  if (!inventoryGroupActive) {
                     e.currentTarget.style.background = 'transparent'
                     e.currentTarget.style.color = textMuted
                   }
                 }}
               >
-                <Icon
+                <Layers
                   size={18}
                   strokeWidth={2}
-                  style={{ color: active ? (isDark ? '#5B9BD5' : '#fff') : iconMuted, flexShrink: 0 }}
+                  style={{ color: inventoryGroupActive ? (isDark ? '#5B9BD5' : '#fff') : iconMuted, flexShrink: 0 }}
                 />
-                <span style={{ flex: 1 }}>{t(item.key)}</span>
-              </Link>
-            )
-          })}
+                <span style={{ flex: 1, textAlign: 'start' }}>{t('inventory')}</span>
+                <ChevronDown
+                  size={16}
+                  style={{
+                    color: inventoryGroupActive ? (isDark ? '#5B9BD5' : '#fff') : iconMuted,
+                    transform: inventoryExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.2s ease',
+                    flexShrink: 0,
+                  }}
+                />
+              </button>
+
+              {inventoryExpanded && (
+                <div style={{ paddingInlineStart: '14px', marginTop: '2px' }}>
+                  {visibleInventoryItems.map((item) => {
+                    const active = isActive(item.href)
+                    return (
+                      <NavLink
+                        key={item.key}
+                        href={`/${locale}${item.href}`}
+                        label={t(item.key)}
+                        icon={item.icon}
+                        active={active}
+                        onClick={onClose}
+                        isDark={isDark}
+                        textMuted={textMuted}
+                        iconMuted={iconMuted}
+                        hoverBg={hoverBg}
+                        hoverText={hoverText}
+                        compact
+                      />
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          )}
         </nav>
 
         {/* Subscription card */}
@@ -254,5 +350,72 @@ export function DashboardSidebar({ open, onClose }: SidebarProps) {
         </div>
       </aside>
     </>
+  )
+}
+
+interface NavLinkProps {
+  href: string
+  label: string
+  icon: React.ElementType
+  active: boolean
+  onClick: () => void
+  isDark: boolean
+  textMuted: string
+  iconMuted: string
+  hoverBg: string
+  hoverText: string
+  compact?: boolean
+}
+
+function NavLink({
+  href, label, icon: Icon, active, onClick, isDark, textMuted, iconMuted, hoverBg, hoverText, compact,
+}: NavLinkProps) {
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      style={{
+        display: 'flex', alignItems: 'center', gap: '12px',
+        padding: compact ? '9px 12px' : '11px 12px', borderRadius: '13px',
+        fontSize: compact ? '12.5px' : '13px', fontWeight: active ? 600 : 500,
+        marginBottom: '2px', textDecoration: 'none',
+        transition: 'all 0.22s cubic-bezier(0.4,0,0.2,1)',
+        position: 'relative',
+        ...(active
+          ? {
+              background: isDark
+                ? 'linear-gradient(135deg, #161D29, #1C2433)'
+                : 'linear-gradient(135deg, #0C447C, #1761B8)',
+              color: isDark ? '#5B9BD5' : '#fff',
+              border: isDark ? '1px solid rgba(91,155,213,0.28)' : 'none',
+              boxShadow: isDark
+                ? '0 4px 14px rgba(0,0,0,0.45)'
+                : '0 6px 18px rgba(12,68,124,0.32), 0 2px 6px rgba(12,68,124,0.24)',
+            }
+          : {
+              color: textMuted,
+              background: 'transparent',
+            }),
+      }}
+      onMouseEnter={(e) => {
+        if (!active) {
+          e.currentTarget.style.background = hoverBg
+          e.currentTarget.style.color = hoverText
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!active) {
+          e.currentTarget.style.background = 'transparent'
+          e.currentTarget.style.color = textMuted
+        }
+      }}
+    >
+      <Icon
+        size={compact ? 16 : 18}
+        strokeWidth={2}
+        style={{ color: active ? (isDark ? '#5B9BD5' : '#fff') : iconMuted, flexShrink: 0 }}
+      />
+      <span style={{ flex: 1 }}>{label}</span>
+    </Link>
   )
 }
