@@ -193,11 +193,11 @@ export function DateRangePicker({ value, onChange, placeholder }: Props) {
           ref={panelRef}
           dir="rtl"
           style={{ position: 'fixed', top: pos?.top ?? -9999, left: pos?.left ?? -9999, visibility: pos ? 'visible' : 'hidden', zIndex: 9999 }}
-          className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 rounded-xl shadow-xl flex"
+          className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 rounded-xl shadow-xl flex flex-col sm:flex-row max-w-[calc(100vw-16px)] max-h-[85vh] overflow-y-auto"
         >
 
           {/* Presets */}
-          <div className="w-36 border-l border-slate-100 dark:border-gray-800 p-2 flex flex-col gap-0.5">
+          <div className="w-full sm:w-36 border-b sm:border-b-0 sm:border-l border-slate-100 dark:border-gray-800 p-2 flex flex-col gap-0.5">
             {PRESETS.map(p => (
               <button key={p.key} onClick={() => handlePreset(p)}
                 className="text-right text-sm px-3 py-1.5 rounded-lg hover:bg-[#E8F1FB] dark:hover:bg-blue-500/10 text-slate-700 dark:text-slate-300 hover:text-[#0C447C] dark:hover:text-blue-400 transition-colors">
@@ -207,7 +207,7 @@ export function DateRangePicker({ value, onChange, placeholder }: Props) {
           </div>
 
           {/* Calendar */}
-          <div className="p-4 w-72 flex flex-col gap-3">
+          <div className="p-4 w-full sm:w-72 flex flex-col gap-3">
 
             {/* From / To */}
             <div className="flex gap-2 items-center">
