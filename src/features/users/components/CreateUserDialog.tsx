@@ -10,7 +10,7 @@ interface Props {
   onClose: () => void
 }
 
-const ROLES = ['owner', 'manager', 'cashier', 'worker']
+const ROLES = ['owner', 'manager', 'cashier', 'worker', 'inventory_clerk']
 
 export function CreateUserDialog({ open, onClose }: Props) {
   const t = useTranslations('users')

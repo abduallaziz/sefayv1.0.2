@@ -2,7 +2,7 @@ export interface TenantUser {
   id: string;
   name: string;
   email: string;
-  role: 'owner' | 'manager' | 'cashier' | 'worker';
+  role: 'owner' | 'manager' | 'cashier' | 'worker' | 'inventory_clerk';
   is_active: boolean;
   created_at: string;
   deleted_at: string | null;

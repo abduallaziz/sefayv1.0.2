@@ -6,7 +6,7 @@ import { Button } from '@/shared/ui/button';
 import { ResetPasswordDialog } from './ResetPasswordDialog';
 import type { TenantUser } from './types';
 
-const ROLES = ['owner', 'manager', 'cashier', 'worker'] as const;
+const ROLES = ['owner', 'manager', 'cashier', 'worker', 'inventory_clerk'] as const;
 
 interface Props {
   users: TenantUser[];
