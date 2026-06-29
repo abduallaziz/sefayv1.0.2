@@ -37,12 +37,12 @@ export function StockCountItemsTable({ items, editable, onSubmitCount, isSubmitt
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100 dark:divide-gray-800">
-          {items.map((item) => {
+          {items.map((item, i) => {
             const hasCount = item.counted_quantity !== null;
             const variance = hasCount ? (item.counted_quantity as number) - item.expected_quantity : 0;
             const draft = drafts[item.id] ?? '';
             return (
-              <tr key={item.id}>
+              <tr key={item.id} className={i % 2 === 1 ? 'bg-slate-50/40 dark:bg-gray-800/10' : ''}>
                 <td className="px-3 py-3 text-slate-800 dark:text-white">{item.item_name ?? item.item_id}</td>
                 <td className="px-3 py-3 text-slate-500">{item.location_name ?? '-'}</td>
                 <td className="px-3 py-3 text-slate-500">{item.expected_quantity}</td>

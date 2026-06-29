@@ -55,7 +55,15 @@ export function StockCountsTable({ counts, onView }: Props) {
             <div className="flex items-center justify-between mt-2 text-xs text-slate-500">
               <span>{count.items_counted ?? 0}/{count.items_count ?? 0} {t('itemsCount').toLowerCase()}</span>
               {(count.items_with_variance ?? 0) > 0 && (
-                <span className="text-amber-600 dark:text-amber-400 font-medium">
+                <span
+                  className={`font-medium ${
+                    (count.net_variance_quantity ?? 0) > 0
+                      ? 'text-emerald-600 dark:text-emerald-400'
+                      : (count.net_variance_quantity ?? 0) < 0
+                        ? 'text-red-600 dark:text-red-400'
+                        : 'text-amber-600 dark:text-amber-400'
+                  }`}
+                >
                   {count.items_with_variance} {t('itemsWithVariance').toLowerCase()}
                 </span>
               )}
@@ -92,7 +100,17 @@ export function StockCountsTable({ counts, onView }: Props) {
                     {count.items_with_variance ?? 0}
                   </span>
                 </td>
-                <td className="px-3 py-3 text-end text-slate-500">{count.net_variance_quantity ?? 0}</td>
+                <td
+                  className={`px-3 py-3 text-end font-medium ${
+                    (count.net_variance_quantity ?? 0) === 0
+                      ? 'text-slate-500'
+                      : (count.net_variance_quantity ?? 0) > 0
+                        ? 'text-emerald-600 dark:text-emerald-400'
+                        : 'text-red-600 dark:text-red-400'
+                  }`}
+                >
+                  {(count.net_variance_quantity ?? 0) > 0 ? `+${count.net_variance_quantity}` : count.net_variance_quantity ?? 0}
+                </td>
                 <td className="px-3 py-3 w-24">
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[count.status]}`}>
                     {t(statusLabelKeys[count.status])}
