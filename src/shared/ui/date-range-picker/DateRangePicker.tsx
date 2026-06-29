@@ -46,7 +46,7 @@ function formatLabel(s: string, locale: string) {
 type ActiveField = 'from' | 'to' | null;
 type CalView = 'days' | 'months' | 'years';
 
-export function DateRangePicker({ value, onChange, placeholder, align = 'right' }: Props) {
+export function DateRangePicker({ value, onChange, placeholder }: Props) {
   const t = useTranslations('datePicker');
   const locale = useLocale();
 
@@ -201,7 +201,7 @@ export function DateRangePicker({ value, onChange, placeholder, align = 'right' 
             {PRESETS.map(p => (
               <button key={p.key} onClick={() => handlePreset(p)}
                 className="text-right text-sm px-3 py-1.5 rounded-lg hover:bg-[#E8F1FB] dark:hover:bg-blue-500/10 text-slate-700 dark:text-slate-300 hover:text-[#0C447C] dark:hover:text-blue-400 transition-colors">
-                {t(`presets.${p.key}` as any)}
+                {t(`presets.${p.key}` as Parameters<typeof t>[0])}
               </button>
             ))}
           </div>

@@ -29,7 +29,7 @@ function formatLabel(s: string, locale: string) {
 
 type CalView = 'days' | 'months' | 'years';
 
-export function SingleDatePicker({ value, onChange, placeholder, align = 'right', className }: Props) {
+export function SingleDatePicker({ value, onChange, placeholder, className }: Props) {
   const t = useTranslations('datePicker');
   const locale = useLocale();
 
