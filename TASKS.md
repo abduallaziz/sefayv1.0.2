@@ -255,3 +255,97 @@ All of the above are inputs/assets that the Document & Print Designer (Phase 10)
 - **Template Marketplace (future)** — explicitly out of scope for the initial engine; noted here only so it isn't lost — a later phase where pre-built templates (possibly from other tenants or Sefay-provided) can be browsed/installed, which implies a template-sharing/versioning data model not needed for the first release.
 
 **Why standalone:** every other roadmap phase that produces a physical or digital document (barcode labels in Phase 3, invoices/POs across existing Sales/Purchasing, warehouse paperwork in Phase 6) depends on this engine existing rather than building its own renderer — this phase should be scoped and resourced as core platform infrastructure, not as a sub-task of any one feature module.
+
+### Phase 11 — Storage Abstraction
+
+**Goal:** Decouple all file/asset storage from any single provider so that the platform can serve company branding assets (Phase 9), document attachments, barcode label images (Phase 3), and print-ready PDFs (Phase 10) through a unified interface — and switch providers (or run multiple providers per tenant) without touching business logic.
+
+**Why now (before it's urgent):** Phase 9 will introduce the first tenant-uploaded binary assets (logos, stamps, signatures). If those assets are written directly to Supabase Storage calls in Phase 9, every future provider migration must touch every upload/read call site. Establishing the abstraction layer alongside or immediately before Phase 9 avoids that accumulation of provider-coupled code.
+
+**Architecture — StorageProvider interface:**
+
+A single `StorageProvider` interface (e.g. `src/shared/storage/StorageProvider.ts`) that all upload/download/delete/signed-URL call sites depend on instead of the Supabase SDK directly:
+
+```ts
+interface StorageProvider {
+  upload(path: string, file: Buffer | Blob, options?: UploadOptions): Promise<StorageObject>;
+  download(path: string): Promise<Buffer>;
+  delete(path: string): Promise<void>;
+  signedUrl(path: string, expiresInSeconds: number): Promise<string>;
+  exists(path: string): Promise<boolean>;
+  list(prefix: string): Promise<StorageObject[]>;
+  copy(srcPath: string, destPath: string): Promise<void>;
+}
+```
+
+All application code imports `getStorageProvider()` (a factory that reads config) rather than instantiating any SDK directly.
+
+**Provider adapters (planned):**
+
+- **Supabase Storage** — the current/default provider; the adapter wraps the existing Supabase Storage SDK so that Phase 9 code written against the interface automatically works on Supabase without a separate migration step.
+- **Amazon S3** — primary alternative for tenants requiring AWS infrastructure or for Sefay's own multi-region hosting; the adapter handles S3 presigned URL generation (AWS SigV4), bucket-level ACLs, and server-side encryption.
+- **MinIO** — S3-compatible self-hosted option for on-premises or air-gapped deployments; shares the S3 adapter's core with an endpoint override.
+- **Local (filesystem)** — a simple `fs`-based adapter for local development/testing so developers don't need a Supabase project or cloud credentials to upload files during feature development.
+- **Additional providers** — Cloudflare R2, Google Cloud Storage, Azure Blob Storage — added as adapters over time without any business-logic changes, since all code targets the interface.
+
+**Tenant-aware paths:**
+
+Every path passed to a provider must be namespaced by tenant (`company_id`) to prevent cross-tenant data access:
+
+```
+{company_id}/{category}/{filename}
+// e.g.
+acme-corp/branding/logo.png
+acme-corp/documents/invoice-2025-001.pdf
+acme-corp/barcodes/SKU-1234.png
+```
+
+Path construction is centralized in a `buildStoragePath(companyId, category, filename)` helper — never concatenated inline — so the namespace policy is enforced consistently and auditable.
+
+**Signed URLs:**
+
+All asset reads from the frontend must go through signed (time-limited) URLs rather than public/permanent URLs, to enforce access control per tenant even when assets are served from a CDN:
+
+- Default expiry: 15 minutes for inline preview, 60 minutes for print/PDF download contexts.
+- Signing is always performed server-side (API route or Server Action); the client receives only the resolved URL, never storage credentials.
+- Provider adapters must expose a `signedUrl()` method that maps to the provider's native signing mechanism (Supabase `createSignedUrl`, AWS SigV4 presign, MinIO presign, local-adapter returns a short-lived internal API route URL).
+
+**Image optimization:**
+
+- Logos, stamps, and signatures uploaded in Phase 9 should be stored in their original resolution and separately processed into web-display variants (e.g. 256px thumbnail, 1024px display) on upload — either via the provider's own optimization service (Supabase image transformations, Cloudflare Images) or a sharp-based pipeline on the server.
+- The StorageProvider interface exposes a `transform()` option on `signedUrl()` / `download()` for providers that support it natively, falling back to server-side sharp processing for adapters that don't.
+
+**Versioning:**
+
+- Certain assets (company stamp, manager signature) may be updated over time; older versions should be retained so that historical documents (invoices printed before the update) can be re-rendered correctly without displaying the current asset.
+- Implementation approach: append a version/timestamp suffix to the stored path (e.g. `acme-corp/branding/logo_v3.png`) rather than overwriting in place, plus a metadata record tracking which version is current. The Document & Print Designer (Phase 10) stores the versioned path in the template, not a symbolic current-version reference, so archived documents always resolve to the asset that existed when they were created.
+
+**Soft delete:**
+
+- Deleting an asset marks it as deleted in metadata (a `deleted_at` timestamp column in an asset-registry table) but does not immediately remove the file from the storage provider, to allow recovery and to preserve historical references.
+- A scheduled cleanup job permanently removes provider objects for assets whose `deleted_at` is older than the configured retention window (e.g. 30 days) and that have no live document references.
+
+**Background migration / zero-downtime provider switching:**
+
+When a tenant's storage provider is changed (e.g. moving from Supabase to S3), the migration must be non-blocking:
+
+1. A background migration job (triggered by a settings change, runnable as a Supabase Edge Function or a standalone worker) iterates over the tenant's asset registry and copies each object from the old provider to the new one using the respective adapters, writing the new path to the asset record once confirmed.
+2. During migration, the asset resolver checks both providers: if the new path is not yet written, it falls back to the old provider — so the app remains fully functional throughout.
+3. Once the migration job completes and confirms all objects are present in the new provider, a final flag switches reads exclusively to the new provider and the old objects can be cleaned up on the retention schedule.
+4. Zero-downtime is guaranteed by the dual-read fallback; no maintenance window or read-only period is required.
+
+**CDN compatibility:**
+
+- Provider adapters must support returning a CDN-fronted URL when the provider has CDN integration configured (e.g. CloudFront in front of S3, Cloudflare R2's public bucket, Supabase's built-in CDN).
+- The `signedUrl()` method accepts a `cdn: true` option that, when supported by the adapter, returns a CDN URL signed at the CDN layer rather than at the storage layer, enabling edge caching of signed assets without per-request origin hits.
+- Assets served through the CDN must still be tenant-scoped (CDN path or signed-token must encode the `company_id`) so that CDN caching does not bleed assets across tenants.
+
+**Future provider switching without business logic changes:**
+
+The explicit architectural guarantee of this phase: after the `StorageProvider` interface is in place, adding a new provider or switching a tenant's provider is achieved by:
+
+1. Writing a new adapter implementing `StorageProvider`.
+2. Updating the provider-selection config (per-tenant or global).
+3. Running the background migration job if an existing tenant's data needs to move.
+
+No upload call site, no document template, no barcode generation path, and no Phase 9 branding asset field touches provider-specific code — ever. This is the single enforced invariant of the abstraction layer.
