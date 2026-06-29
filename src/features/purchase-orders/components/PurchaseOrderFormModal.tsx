@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { X } from 'lucide-react';
 import { RequiredMark } from '@/shared/components/ui/RequiredMark';
+import { SingleDatePicker } from '@/shared/ui/date-range-picker';
 import { useSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { useWarehouses } from '@/features/warehouses/hooks/useWarehouses';
 import { useItems } from '@/features/items/hooks/useItems';
@@ -113,11 +114,11 @@ export function PurchaseOrderFormModal({ open, onClose, onSubmit, isLoading }: P
             </div>
             <div>
               <label className={labelClass}>{t('orderDate')}</label>
-              <input type="date" value={orderDate} onChange={(e) => setOrderDate(e.target.value)} className={inputClass} />
+              <SingleDatePicker value={orderDate || undefined} onChange={(v) => setOrderDate(v ?? '')} className={inputClass} />
             </div>
             <div>
               <label className={labelClass}>{t('expectedDate')}</label>
-              <input type="date" value={expectedDate} onChange={(e) => setExpectedDate(e.target.value)} className={inputClass} />
+              <SingleDatePicker value={expectedDate || undefined} onChange={(v) => setExpectedDate(v ?? '')} className={inputClass} />
             </div>
           </div>
 

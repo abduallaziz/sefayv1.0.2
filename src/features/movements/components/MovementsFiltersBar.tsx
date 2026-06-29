@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { useWarehouses } from '@/features/warehouses/hooks/useWarehouses';
 import { useItems } from '@/features/items/hooks/useItems';
+import { SingleDatePicker } from '@/shared/ui/date-range-picker';
 import { MovementsLedgerFilters, MovementType } from '../types/movements.types';
 
 interface Props {
@@ -55,16 +56,14 @@ export function MovementsFiltersBar({ filters, onChange }: Props) {
           <option key={mt} value={mt}>{t(`type.${mt}`)}</option>
         ))}
       </select>
-      <input
-        type="date"
-        value={filters.date_from ?? ''}
-        onChange={(e) => onChange({ ...filters, date_from: e.target.value || undefined, page: 1 })}
+      <SingleDatePicker
+        value={filters.date_from}
+        onChange={(v) => onChange({ ...filters, date_from: v, page: 1 })}
         className={inputClass}
       />
-      <input
-        type="date"
-        value={filters.date_to ?? ''}
-        onChange={(e) => onChange({ ...filters, date_to: e.target.value || undefined, page: 1 })}
+      <SingleDatePicker
+        value={filters.date_to}
+        onChange={(v) => onChange({ ...filters, date_to: v, page: 1 })}
         className={inputClass}
       />
     </div>
