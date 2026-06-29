@@ -1,14 +1,8 @@
-# Backlog
+# Tasks
 
-Tracks proposed features and their status. New ideas go under **Deferred** until prioritized.
+Detailed specs for proposed and active work. Current high-level status lives in `STATUS.md`.
 
-## Status
-
-| Feature | Status | Notes |
-| --- | --- | --- |
-| Company Factory Reset | Deferred | Full spec below. Owner-only, multi-step confirmation, transactional wipe + onboarding wizard. |
-
-## Deferred Tasks
+## Deferred
 
 ### Company Factory Reset
 
