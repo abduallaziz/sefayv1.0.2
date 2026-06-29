@@ -1,5 +1,6 @@
 {
   "title": "Locations",
+  "selectLocationOptional": "Select Location (optional)",
   "totalLocations": "locations",
   "addLocation": "Add Location",
   "editLocation": "Edit Location",

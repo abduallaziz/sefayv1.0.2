@@ -26,6 +26,7 @@
   "unitCost": "تكلفة الوحدة",
   "lineTotal": "إجمالي البند",
   "item": "العنصر",
+  "location": "الموقع",
   "batchNumber": "رقم التشغيلة",
   "serialNumber": "الرقم التسلسلي",
   "expirationDate": "تاريخ الانتهاء",

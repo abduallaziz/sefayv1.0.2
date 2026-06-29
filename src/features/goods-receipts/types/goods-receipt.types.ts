@@ -13,6 +13,7 @@ export interface GoodsReceiptItem {
   batch_number: string | null;
   serial_number: string | null;
   expiration_date: string | null;
+  location_id?: string | null;
 }
 
 export interface GoodsReceipt {
@@ -42,6 +43,7 @@ export interface CreateGoodsReceiptItemDTO {
   batch_number?: string;
   serial_number?: string;
   expiration_date?: string;
+  location_id?: string;
 }
 
 export interface CreateGoodsReceiptDTO {

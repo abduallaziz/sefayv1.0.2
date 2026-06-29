@@ -9,6 +9,7 @@ export interface StockAdjustment {
   quantity_delta: number;
   unit_cost: number | null;
   reason: string;
+  location_id?: string | null;
   status: AdjustmentStatus;
   requires_approval: boolean;
   requested_by: string;
@@ -34,4 +35,5 @@ export interface CreateAdjustmentDTO {
   quantity_delta: number;
   unit_cost?: number;
   reason: string;
+  location_id?: string;
 }

@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Plus, Trash2 } from 'lucide-react';
 import type { Item } from '@/features/items/api/items.api';
+import { LocationSelect } from '@/features/locations/components/LocationSelect';
 
 export interface GRLineRow {
   purchase_order_item_id: string;
@@ -13,22 +14,24 @@ export interface GRLineRow {
   batch_number: string;
   serial_number: string;
   expiration_date: string;
+  location_id: string;
 }
 
 interface Props {
   rows: GRLineRow[];
   items: Item[];
+  warehouseId: string;
   onChange: (rows: GRLineRow[]) => void;
 }
 
 const inputClass = "w-full px-2 py-1.5 text-sm bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 text-slate-800 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C] dark:focus:border-[#0C447C]";
 
-export function GoodsReceiptLineItems({ rows, items, onChange }: Props) {
+export function GoodsReceiptLineItems({ rows, items, warehouseId, onChange }: Props) {
   const t = useTranslations('purchasing');
 
   const addRow = () => onChange([...rows, {
     purchase_order_item_id: '', item_id: '', variant_id: '',
-    quantity_received: 1, unit_cost: 0, batch_number: '', serial_number: '', expiration_date: '',
+    quantity_received: 1, unit_cost: 0, batch_number: '', serial_number: '', expiration_date: '', location_id: '',
   }]);
   const removeRow = (i: number) => onChange(rows.filter((_, idx) => idx !== i));
   const updateRow = (i: number, field: keyof GRLineRow, value: string | number) =>
@@ -98,6 +101,12 @@ export function GoodsReceiptLineItems({ rows, items, onChange }: Props) {
               className={inputClass}
             />
           </div>
+          <LocationSelect
+            warehouseId={warehouseId || null}
+            value={row.location_id}
+            onChange={(v) => updateRow(i, 'location_id', v)}
+            className={inputClass}
+          />
         </div>
       ))}
     </div>
