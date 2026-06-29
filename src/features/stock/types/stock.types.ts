@@ -47,6 +47,7 @@ export interface StockLevelEnriched {
   variant_name: string | null;
   warehouse_name: string;
   location_name: string | null;
+  location_code: string | null;
   batch_number: string | null;
   quantity_on_hand: number;
   quantity_reserved: number;
