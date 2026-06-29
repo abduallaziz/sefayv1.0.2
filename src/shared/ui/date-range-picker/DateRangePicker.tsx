@@ -145,7 +145,6 @@ export function DateRangePicker({ value, onChange, placeholder }: Props) {
             <div className="flex items-center gap-1.5">
               <input
                 type="date"
-                dir="ltr"
                 value={customFrom}
                 onChange={(e) => setCustomFrom(e.target.value)}
                 aria-label={t('from')}
@@ -154,7 +153,6 @@ export function DateRangePicker({ value, onChange, placeholder }: Props) {
               <span className="text-slate-300 text-xs shrink-0">—</span>
               <input
                 type="date"
-                dir="ltr"
                 value={customTo}
                 onChange={(e) => setCustomTo(e.target.value)}
                 aria-label={t('to')}
