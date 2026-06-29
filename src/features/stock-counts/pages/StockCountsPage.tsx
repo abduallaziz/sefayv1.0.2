@@ -4,12 +4,13 @@ import { useState } from 'react';
 import { TableSkeleton } from '@/shared/components/ui/Skeleton';
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { Plus, ClipboardCheck } from 'lucide-react';
+import { Plus, ClipboardCheck, Download } from 'lucide-react';
 import { useStockCounts, useCreateStockCount } from '../hooks/useStockCounts';
 import { StockCountFiltersBar } from '../components/StockCountFilters';
 import { StockCountsTable } from '../components/StockCountsTable';
 import { StockCountFormModal } from '../components/StockCountFormModal';
 import { StockCount, StockCountFilters, CreateStockCountDTO } from '../types/stock-count.types';
+import { exportStockCountsToCsv } from '../utils/exportStockCounts';
 
 export function StockCountsPage() {
   const t = useTranslations('stockCounts');
@@ -47,13 +48,23 @@ export function StockCountsPage() {
             <p className="text-sm text-slate-500">{counts.length} {t('totalCounts')}</p>
           </div>
         </div>
-        <button
-          onClick={() => setFormOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] text-white rounded-lg text-sm font-medium transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          {t('createCount')}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => exportStockCountsToCsv(counts)}
+            disabled={counts.length === 0}
+            className="flex items-center gap-2 px-4 py-2 border border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-800 text-slate-700 dark:text-gray-200 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+          >
+            <Download className="w-4 h-4" />
+            {t('export')}
+          </button>
+          <button
+            onClick={() => setFormOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] text-white rounded-lg text-sm font-medium transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            {t('createCount')}
+          </button>
+        </div>
       </div>
 
       <StockCountFiltersBar filters={filters} onChange={setFilters} />
