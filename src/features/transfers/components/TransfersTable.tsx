@@ -1,8 +1,10 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { ArrowLeftRight } from 'lucide-react';
 import { Transfer } from '../types/transfer.types';
 import { StatusBadge, type StatusTone } from '@/shared/ui/status-badge';
+import { EmptyState } from '@/shared/ui/empty-state';
 
 interface Props {
   transfers: Transfer[];
@@ -27,11 +29,7 @@ export function TransfersTable({ transfers, onView }: Props) {
   const t = useTranslations('transfers');
 
   if (transfers.length === 0) {
-    return (
-      <div className="text-center py-16 text-slate-500">
-        <p className="text-lg">{t('noTransfers')}</p>
-      </div>
-    );
+    return <EmptyState theme="inventory" icon={ArrowLeftRight} title={t('noTransfers')} />;
   }
 
   return (

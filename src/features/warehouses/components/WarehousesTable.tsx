@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Edit, Trash2, ToggleLeft, ToggleRight, Warehouse as WarehouseIcon, Plus } from 'lucide-react';
 import { Warehouse } from '../types/warehouse.types';
+import { EmptyState } from '@/shared/ui/empty-state';
 
 interface Props {
   warehouses: Warehouse[];
@@ -17,22 +18,23 @@ export function WarehousesTable({ warehouses, onEdit, onDelete, onToggleActive, 
 
   if (warehouses.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center text-center py-16 px-4 bg-white dark:bg-gray-900 border border-dashed border-slate-200 dark:border-gray-800 rounded-xl">
-        <div className="p-4 rounded-full bg-[#E8F1FB] dark:bg-[#0C447C]/10 mb-4">
-          <WarehouseIcon size={32} className="text-[#0C447C] dark:text-[#5B9BD5]" />
-        </div>
-        <p className="text-base font-semibold text-slate-700 dark:text-gray-200">{t('noWarehouses')}</p>
-        <p className="text-sm text-slate-500 mt-1 max-w-sm">{t('noWarehousesHint')}</p>
-        {onCreate && (
-          <button
-            onClick={onCreate}
-            className="mt-4 flex items-center gap-2 px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] text-white rounded-lg text-sm font-medium transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            {t('addWarehouse')}
-          </button>
-        )}
-      </div>
+      <EmptyState
+        theme="inventory"
+        icon={WarehouseIcon}
+        title={t('noWarehouses')}
+        description={t('noWarehousesHint')}
+        action={
+          onCreate && (
+            <button
+              onClick={onCreate}
+              className="flex items-center gap-2 px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] text-white rounded-lg text-sm font-medium transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              {t('addWarehouse')}
+            </button>
+          )
+        }
+      />
     );
   }
 

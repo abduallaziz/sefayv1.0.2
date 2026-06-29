@@ -1,8 +1,10 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { PackageCheck } from 'lucide-react';
 import { GoodsReceipt } from '../types/goods-receipt.types';
 import { StatusBadge, type StatusTone } from '@/shared/ui/status-badge';
+import { EmptyState } from '@/shared/ui/empty-state';
 
 interface Props {
   receipts: GoodsReceipt[];
@@ -19,11 +21,7 @@ export function GoodsReceiptsTable({ receipts, onView }: Props) {
   const t = useTranslations('purchasing');
 
   if (receipts.length === 0) {
-    return (
-      <div className="text-center py-16 text-slate-500">
-        <p className="text-lg">{t('noGoodsReceipts')}</p>
-      </div>
-    );
+    return <EmptyState theme="inventory" icon={PackageCheck} title={t('noGoodsReceipts')} />;
   }
 
   return (

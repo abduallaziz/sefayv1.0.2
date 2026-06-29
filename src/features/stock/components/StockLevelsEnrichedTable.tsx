@@ -2,9 +2,10 @@
 
 import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Package } from 'lucide-react';
 import { StockLevelEnriched } from '../types/stock.types';
 import { StatusBadge } from '@/shared/ui/status-badge';
+import { EmptyState } from '@/shared/ui/empty-state';
 
 interface Props {
   levels: StockLevelEnriched[];
@@ -104,11 +105,7 @@ export function StockLevelsEnrichedTable({ levels }: Props) {
   };
 
   if (groups.length === 0) {
-    return (
-      <div className="text-center py-16 text-slate-500">
-        <p className="text-lg">{t('noStockLevels')}</p>
-      </div>
-    );
+    return <EmptyState theme="inventory" icon={Package} title={t('noStockLevels')} />;
   }
 
   return (

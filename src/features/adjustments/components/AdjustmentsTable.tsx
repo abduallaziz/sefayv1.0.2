@@ -1,8 +1,10 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { SlidersHorizontal } from 'lucide-react';
 import { StockAdjustment } from '../types/adjustment.types';
 import { StatusBadge, type StatusTone } from '@/shared/ui/status-badge';
+import { EmptyState } from '@/shared/ui/empty-state';
 
 interface Props {
   adjustments: StockAdjustment[];
@@ -27,11 +29,7 @@ export function AdjustmentsTable({ adjustments, onView }: Props) {
   const t = useTranslations('adjustments');
 
   if (adjustments.length === 0) {
-    return (
-      <div className="text-center py-16 text-slate-500">
-        <p className="text-lg">{t('noAdjustments')}</p>
-      </div>
-    );
+    return <EmptyState theme="inventory" icon={SlidersHorizontal} title={t('noAdjustments')} />;
   }
 
   return (
