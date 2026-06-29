@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { X } from 'lucide-react';
+import { RequiredMark } from '@/shared/components/ui/RequiredMark';
 import { useSuppliers } from '@/features/suppliers/hooks/useSuppliers';
 import { useWarehouses } from '@/features/warehouses/hooks/useWarehouses';
 import { useItems } from '@/features/items/hooks/useItems';
@@ -86,7 +87,7 @@ export function PurchaseOrderFormModal({ open, onClose, onSubmit, isLoading }: P
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className={labelClass}>{t('supplier')}</label>
+              <label className={labelClass}>{t('supplier')}<RequiredMark /></label>
               <select value={supplierId} onChange={(e) => setSupplierId(e.target.value)} className={inputClass}>
                 <option value="">{t('selectSupplier')}</option>
                 {suppliers.map((s) => (
@@ -95,7 +96,7 @@ export function PurchaseOrderFormModal({ open, onClose, onSubmit, isLoading }: P
               </select>
             </div>
             <div>
-              <label className={labelClass}>{t('warehouse')}</label>
+              <label className={labelClass}>{t('warehouse')}<RequiredMark /></label>
               <select value={warehouseId} onChange={(e) => setWarehouseId(e.target.value)} className={inputClass}>
                 <option value="">{t('selectWarehouse')}</option>
                 {warehouses.map((w) => (
@@ -107,7 +108,7 @@ export function PurchaseOrderFormModal({ open, onClose, onSubmit, isLoading }: P
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className={labelClass}>{t('orderNumber')}</label>
+              <label className={labelClass}>{t('orderNumber')}<RequiredMark /></label>
               <input value={orderNumber} onChange={(e) => setOrderNumber(e.target.value)} className={inputClass} />
             </div>
             <div>

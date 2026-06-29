@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { X } from 'lucide-react';
+import { RequiredMark } from '@/shared/components/ui/RequiredMark';
 import { useWarehouses } from '@/features/warehouses/hooks/useWarehouses';
 import type { CreateStockCountDTO } from '../types/stock-count.types';
 
@@ -59,7 +60,7 @@ export function StockCountFormModal({ open, onClose, onSubmit, isLoading }: Prop
 
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div>
-            <label className={labelClass}>{t('warehouse')}</label>
+            <label className={labelClass}>{t('warehouse')}<RequiredMark /></label>
             <select value={warehouseId} onChange={(e) => setWarehouseId(e.target.value)} className={inputClass}>
               <option value="">{t('selectWarehouse')}</option>
               {warehouses.map((w) => (
@@ -69,7 +70,7 @@ export function StockCountFormModal({ open, onClose, onSubmit, isLoading }: Prop
           </div>
 
           <div>
-            <label className={labelClass}>{t('countNumber')}</label>
+            <label className={labelClass}>{t('countNumber')}<RequiredMark /></label>
             <input value={countNumber} onChange={(e) => setCountNumber(e.target.value)} className={inputClass} />
           </div>
 

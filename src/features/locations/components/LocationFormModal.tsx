@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { X } from 'lucide-react';
+import { RequiredMark } from '@/shared/components/ui/RequiredMark';
 import type { Location, CreateLocationDTO } from '../types/location.types';
 
 const schema = z.object({
@@ -75,12 +76,12 @@ export function LocationFormModal({ open, onClose, onSubmit, location, isLoading
         <form onSubmit={handleSubmit(handleFormSubmit)} className="p-5 space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className={labelClass}>{t('code')}</label>
+              <label className={labelClass}>{t('code')}<RequiredMark /></label>
               <input {...register('code')} className={inputClass} />
               {errors.code && <p className="text-xs text-red-500 mt-1">{t('required')}</p>}
             </div>
             <div>
-              <label className={labelClass}>{t('name')}</label>
+              <label className={labelClass}>{t('name')}<RequiredMark /></label>
               <input {...register('name')} className={inputClass} />
               {errors.name && <p className="text-xs text-red-500 mt-1">{t('required')}</p>}
             </div>

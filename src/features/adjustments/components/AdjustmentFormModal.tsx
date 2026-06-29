@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { X } from 'lucide-react';
+import { RequiredMark } from '@/shared/components/ui/RequiredMark';
 import { useWarehouses } from '@/features/warehouses/hooks/useWarehouses';
 import { useItems } from '@/features/items/hooks/useItems';
 import { LocationSelect } from '@/features/locations/components/LocationSelect';
@@ -77,7 +78,7 @@ export function AdjustmentFormModal({ open, onClose, onSubmit, isLoading }: Prop
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className={labelClass}>{t('warehouse')}</label>
+              <label className={labelClass}>{t('warehouse')}<RequiredMark /></label>
               <select
                 value={warehouseId}
                 onChange={(e) => { setWarehouseId(e.target.value); setLocationId(''); }}
@@ -90,7 +91,7 @@ export function AdjustmentFormModal({ open, onClose, onSubmit, isLoading }: Prop
               </select>
             </div>
             <div>
-              <label className={labelClass}>{t('item')}</label>
+              <label className={labelClass}>{t('item')}<RequiredMark /></label>
               <select value={itemId} onChange={(e) => setItemId(e.target.value)} className={inputClass}>
                 <option value="">{t('selectItem')}</option>
                 {items.map((it) => (
@@ -112,7 +113,7 @@ export function AdjustmentFormModal({ open, onClose, onSubmit, isLoading }: Prop
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className={labelClass}>{t('quantityDelta')}</label>
+              <label className={labelClass}>{t('quantityDelta')}<RequiredMark /></label>
               <input
                 type="text" inputMode="decimal" placeholder={t('quantityDeltaHint')}
                 value={quantityDelta} onChange={(e) => setQuantityDelta(e.target.value)}
@@ -130,7 +131,7 @@ export function AdjustmentFormModal({ open, onClose, onSubmit, isLoading }: Prop
           </div>
 
           <div>
-            <label className={labelClass}>{t('reason')}</label>
+            <label className={labelClass}>{t('reason')}<RequiredMark /></label>
             <textarea value={reason} onChange={(e) => setReason(e.target.value)} className={inputClass} rows={3} />
           </div>
 

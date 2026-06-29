@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { X } from 'lucide-react';
+import { RequiredMark } from '@/shared/components/ui/RequiredMark';
 import { useWarehouses } from '@/features/warehouses/hooks/useWarehouses';
 import { useItems } from '@/features/items/hooks/useItems';
 import { purchaseOrdersApi } from '@/features/purchase-orders/api/purchase-orders.api';
@@ -118,7 +119,7 @@ export function GoodsReceiptFormModal({ open, onClose, onSubmit, isLoading }: Pr
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className={labelClass}>{t('warehouse')}</label>
+              <label className={labelClass}>{t('warehouse')}<RequiredMark /></label>
               <select
                 value={warehouseId}
                 onChange={(e) => {
@@ -134,7 +135,7 @@ export function GoodsReceiptFormModal({ open, onClose, onSubmit, isLoading }: Pr
               </select>
             </div>
             <div>
-              <label className={labelClass}>{t('receiptNumber')}</label>
+              <label className={labelClass}>{t('receiptNumber')}<RequiredMark /></label>
               <input value={receiptNumber} onChange={(e) => setReceiptNumber(e.target.value)} className={inputClass} />
             </div>
           </div>
