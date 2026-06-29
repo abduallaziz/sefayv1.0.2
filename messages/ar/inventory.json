@@ -241,6 +241,7 @@
     "notFound": "غير موجود",
     "startedAt": "تاريخ البدء",
     "item": "المنتج",
+    "location": "الموقع",
     "expectedQuantity": "المتوقع",
     "countedQuantity": "المعدود",
     "variance": "الفرق",
