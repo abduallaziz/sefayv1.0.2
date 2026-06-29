@@ -16,7 +16,21 @@ Detailed specs for proposed and active work. Current high-level status lives in 
 - Added `datePicker.apply` translation key to `messages/en.json` and `messages/ar.json` for the new Apply button.
 - Verified via `tsc --noEmit`, `npm run lint` (no new warnings/errors introduced — pre-existing unrelated lint issues untouched), `npm run build`, and a local `next dev` smoke check (Orders/Reports pages render correctly with the new compact picker).
 
-**Note:** `SingleDatePicker` (used in `CustomerPickerModal`, `CustomerFormModal`) still uses the older full month/year-zoom calendar grid — it is a separate component and was out of scope for this date-*range* picker redesign. Left untouched; candidate for a future, similar simplification pass if desired.
+**✅ Follow-up completed:** `SingleDatePicker` (used in `CustomerPickerModal`, `CustomerFormModal`) previously still used the older full month/year-zoom calendar grid. It has now been replaced with a lightweight native `<input type="date">`, styled to match the rest of the filter/form inputs — consistent with `DateRangePicker`'s own custom-range fields, which already use native date inputs. Same external props (`value`, `onChange`, `placeholder`, `align`); no consumer changes needed. Verified via `tsc --noEmit`, `npm run lint`, `npm run build`. Merged via PR #22. Every date-picking control in the app is now compact and visually consistent — no large calendar popups remain.
+
+---
+
+### Confirmation Dialog Consolidation — App-Wide
+
+**Goal:** Ensure every delete/cancel confirmation dialog in the project — not just Inventory — uses the shared, polished `ConfirmDialog` component, so the design is consistent across all modules.
+
+**✅ Completed:**
+- Audited the whole project (not just Inventory) for any modal matching the old bespoke confirmation-dialog pattern (`fixed inset-0 ... bg-black/50` overlay + `AlertTriangle` icon + red confirm button).
+- Found 4 additional dialogs outside Inventory still using the old pattern: `DeleteSupplierModal`, `DeleteItemModal`, `DeleteCustomerModal`, `CancelOrderModal`. All 4 migrated onto `ConfirmDialog`, preserving each file's existing external prop interface.
+- `CancelOrderModal`'s cancellation-reason `<textarea>` is now embedded directly in `ConfirmDialog`'s `message` slot (which accepts `ReactNode`) — same `onConfirm(id, reason)` behavior, no functional change.
+- Confirmed via project-wide search that no other delete/cancel/confirmation dialogs remain on the old pattern; the only remaining `fixed inset-0 ... bg-black` matches are create/edit **form** modals (7 in Inventory plus a few elsewhere), which are a separate, already-tracked future milestone, not confirmation dialogs.
+- All 9 delete/cancel confirmation dialogs in the app (5 Inventory + Suppliers, Items, Customers, Orders) now share one visually consistent, accessible design.
+- Verified via `tsc --noEmit`, `npm run lint`, `npm run build`. Merged via PR #22.
 
 ---
 
@@ -31,7 +45,7 @@ Detailed specs for proposed and active work. Current high-level status lives in 
 - Required-field asterisk indicator (`RequiredMark` shared component) added to Warehouse, Location, Adjustment, Transfer, Goods Receipt, Purchase Order, and Stock Count forms so required fields are visible before submission, not only after a failed submit.
 - Status badge logic consolidated: new shared `StatusBadge` component (`src/shared/ui/status-badge.tsx`, tone-based: neutral/info/success/warning/danger/brand) replacing 8 previously duplicated per-feature badge-color implementations across Purchase Orders (list + detail), Goods Receipts, Transfers, Stock Counts, Adjustments, Movements ledger (direction badge), Stock Levels enriched table, and Inventory Reports. Each feature keeps only its small status→tone mapping; rendering/markup is now centralized. Merged via PR #16.
 - Empty states consolidated: existing-but-previously-unused shared `EmptyState` component (`src/shared/ui/empty-state.tsx`) extended with a new `inventory` theme (dashed border + brand-tinted icon circle), then wired into all 9 Inventory list tables — Locations and Warehouses (replacing their duplicated inline JSX) plus Purchase Orders, Goods Receipts, Transfers, Stock Counts, Adjustments, Movements ledger, and Stock Levels (list + enriched table) which previously showed plain text-only empty messages. Merged via PR #18.
-- Delete/Cancel confirmation dialogs consolidated: new shared `ConfirmDialog` component (`src/shared/ui/confirm-dialog.tsx`) — portal-rendered to `document.body`, `role="alertdialog"`/`aria-modal`/`aria-labelledby`, ESC-to-close (disabled while loading), body scroll-lock, centered icon/title/message layout matching the Sefay design system (`rounded-2xl`, `shadow-2xl`, brand-consistent spacing/typography), with `danger`/`warning` variants driving icon/title/confirm-button color. Wired into all 5 previously-duplicated bespoke modals — `DeleteLocationModal`, `DeleteWarehouseModal`, `CancelPurchaseOrderModal`, `CancelGoodsReceiptModal`, `CancelTransferModal` — each keeping its existing external prop interface so no consumer call sites changed. Merged via PR #20.
+- Delete/Cancel confirmation dialogs consolidated: new shared `ConfirmDialog` component (`src/shared/ui/confirm-dialog.tsx`) — portal-rendered to `document.body`, `role="alertdialog"`/`aria-modal`/`aria-labelledby`, ESC-to-close (disabled while loading), body scroll-lock, centered icon/title/message layout matching the Sefay design system (`rounded-2xl`, `shadow-2xl`, brand-consistent spacing/typography), with `danger`/`warning` variants driving icon/title/confirm-button color. Wired into all 5 previously-duplicated bespoke modals — `DeleteLocationModal`, `DeleteWarehouseModal`, `CancelPurchaseOrderModal`, `CancelGoodsReceiptModal`, `CancelTransferModal` — each keeping its existing external prop interface so no consumer call sites changed. Merged via PR #20. Subsequently extended app-wide to the 4 remaining non-Inventory confirmation dialogs (Suppliers, Items, Customers, Orders) — see "Confirmation Dialog Consolidation — App-Wide" below. Merged via PR #22.
 - Verified via `tsc --noEmit`, `npm run lint`, `npm run build`, and a local `next dev` smoke check that all changed pages render without errors.
 
 **⚠️ Remaining (from code-level audit, not yet fixed):**
