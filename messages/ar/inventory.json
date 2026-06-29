@@ -133,6 +133,8 @@
     "title": "لوحة المخزون",
     "loading": "جارٍ التحميل...",
     "noData": "لا توجد بيانات",
+    "keyMetrics": "المؤشرات الرئيسية",
+    "statusAlerts": "الحالة والتنبيهات",
     "inventoryValue": "قيمة المخزون",
     "totalWarehouses": "إجمالي المستودعات",
     "productsInStock": "المنتجات المتوفرة",

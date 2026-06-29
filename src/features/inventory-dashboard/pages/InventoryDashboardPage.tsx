@@ -30,15 +30,30 @@ interface KpiCardProps {
   value: string | number;
   icon: React.ElementType;
   tone?: 'default' | 'warning' | 'danger';
+  size?: 'lg' | 'sm';
 }
 
-function KpiCard({ label, value, icon: Icon, tone = 'default' }: KpiCardProps) {
+function KpiCard({ label, value, icon: Icon, tone = 'default', size = 'lg' }: KpiCardProps) {
   const toneClasses =
     tone === 'danger'
       ? 'bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400'
       : tone === 'warning'
         ? 'bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400'
         : 'bg-[#E8F1FB] dark:bg-[#0C447C]/10 text-[#0C447C] dark:text-[#5B9BD5]';
+
+  if (size === 'sm') {
+    return (
+      <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-3 flex items-center gap-2.5">
+        <div className={`p-2 rounded-lg ${toneClasses}`}>
+          <Icon size={16} />
+        </div>
+        <div>
+          <p className="text-[11px] text-slate-500 leading-tight">{label}</p>
+          <p className="text-sm font-semibold text-slate-800 dark:text-white">{value}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-4 flex items-center gap-3">
@@ -51,6 +66,10 @@ function KpiCard({ label, value, icon: Icon, tone = 'default' }: KpiCardProps) {
       </div>
     </div>
   );
+}
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500 mb-2">{children}</h2>;
 }
 
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
@@ -96,17 +115,26 @@ export function InventoryDashboardPage() {
         <h1 className="text-xl font-bold text-slate-800 dark:text-white">{t('title')}</h1>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-        <KpiCard label={t('inventoryValue')} value={formatCurrency(summary.inventory_value)} icon={Package} />
-        <KpiCard label={t('totalWarehouses')} value={summary.total_warehouses} icon={Warehouse} />
-        <KpiCard label={t('productsInStock')} value={summary.products_in_stock} icon={ListChecks} />
-        <KpiCard label={t('lowStockItems')} value={summary.low_stock_items} icon={AlertTriangle} tone="warning" />
-        <KpiCard label={t('outOfStockItems')} value={summary.out_of_stock_items} icon={XCircle} tone="danger" />
-        <KpiCard label={t('reservedStock')} value={formatCurrency(summary.reserved_stock)} icon={Lock} />
-        <KpiCard label={t('pendingPurchaseOrders')} value={summary.pending_purchase_orders} icon={ClipboardList} />
-        <KpiCard label={t('pendingGoodsReceipts')} value={summary.pending_goods_receipts} icon={Truck} />
-        <KpiCard label={t('movementsToday')} value={summary.movements_today} icon={Activity} />
-        <KpiCard label={t('adjustmentsToday')} value={summary.adjustments_today} icon={ListChecks} />
+      <div>
+        <SectionLabel>{t('keyMetrics')}</SectionLabel>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <KpiCard label={t('inventoryValue')} value={formatCurrency(summary.inventory_value)} icon={Package} />
+          <KpiCard label={t('productsInStock')} value={summary.products_in_stock} icon={ListChecks} />
+          <KpiCard label={t('totalWarehouses')} value={summary.total_warehouses} icon={Warehouse} />
+          <KpiCard label={t('reservedStock')} value={formatCurrency(summary.reserved_stock)} icon={Lock} />
+        </div>
+      </div>
+
+      <div>
+        <SectionLabel>{t('statusAlerts')}</SectionLabel>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5">
+          <KpiCard size="sm" label={t('lowStockItems')} value={summary.low_stock_items} icon={AlertTriangle} tone="warning" />
+          <KpiCard size="sm" label={t('outOfStockItems')} value={summary.out_of_stock_items} icon={XCircle} tone="danger" />
+          <KpiCard size="sm" label={t('pendingPurchaseOrders')} value={summary.pending_purchase_orders} icon={ClipboardList} />
+          <KpiCard size="sm" label={t('pendingGoodsReceipts')} value={summary.pending_goods_receipts} icon={Truck} />
+          <KpiCard size="sm" label={t('movementsToday')} value={summary.movements_today} icon={Activity} />
+          <KpiCard size="sm" label={t('adjustmentsToday')} value={summary.adjustments_today} icon={ListChecks} />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -114,19 +142,20 @@ export function InventoryDashboardPage() {
           {recentMovements.length === 0 ? (
             <p className="text-sm text-slate-500 py-6 text-center">{t('noData')}</p>
           ) : (
-            <div className="space-y-2">
+            <div className="relative ms-1.5 ps-4 border-s-2 border-slate-100 dark:border-gray-800 space-y-3">
               {recentMovements.map((m) => (
-                <div key={m.id} className="flex items-center justify-between text-sm border-b border-slate-100 dark:border-gray-800 pb-2 last:border-0 last:pb-0">
-                  <div>
+                <div key={m.id} className="relative text-sm">
+                  <span className="absolute -start-[21px] top-1 w-2.5 h-2.5 rounded-full bg-[#0C447C] dark:bg-[#5B9BD5] ring-2 ring-white dark:ring-gray-900" />
+                  <div className="flex items-center justify-between">
                     <p className="font-medium text-slate-700 dark:text-gray-200">
                       {m.items?.name ?? '-'}
                       {m.item_variants?.name ? ` / ${m.item_variants.name}` : ''}
                     </p>
-                    <p className="text-xs text-slate-500">
-                      {m.warehouses?.name ?? '-'} · {m.movement_type} · {formatDate(m.occurred_at)}
-                    </p>
+                    <span className="font-semibold text-slate-700 dark:text-gray-200">{m.quantity}</span>
                   </div>
-                  <span className="font-semibold text-slate-700 dark:text-gray-200">{m.quantity}</span>
+                  <p className="text-xs text-slate-500">
+                    {m.warehouses?.name ?? '-'} · {m.movement_type} · {formatDate(m.occurred_at)}
+                  </p>
                 </div>
               ))}
             </div>
