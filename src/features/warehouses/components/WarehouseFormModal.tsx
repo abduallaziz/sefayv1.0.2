@@ -6,12 +6,13 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { X } from 'lucide-react';
+import { useBranches } from '../hooks/useWarehouses';
 import type { Warehouse, CreateWarehouseDTO } from '../types/warehouse.types';
 
 const schema = z.object({
   code: z.string().min(1),
   name: z.string().min(1),
-  branch_id: z.string().optional(),
+  branch_id: z.string().uuid().optional().or(z.literal('')),
   address: z.string().optional(),
 });
 
@@ -28,8 +29,9 @@ const labelClass = "block text-xs font-medium text-slate-600 dark:text-slate-400
 
 export function WarehouseFormModal({ open, onClose, onSubmit, warehouse, isLoading }: Props) {
   const t = useTranslations('warehouses');
+  const { data: branches = [] } = useBranches();
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm({
+  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm({
     resolver: zodResolver(schema),
     defaultValues: { code: '', name: '', branch_id: '', address: '' },
   });
@@ -46,6 +48,13 @@ export function WarehouseFormModal({ open, onClose, onSubmit, warehouse, isLoadi
       reset({ code: '', name: '', branch_id: '', address: '' });
     }
   }, [warehouse, reset]);
+
+  // Single-branch tenants: skip the selection step entirely, bind the UUID directly.
+  useEffect(() => {
+    if (!warehouse && branches.length === 1) {
+      setValue('branch_id', branches[0].id);
+    }
+  }, [warehouse, branches, setValue]);
 
   if (!open) return null;
 
@@ -87,7 +96,13 @@ export function WarehouseFormModal({ open, onClose, onSubmit, warehouse, isLoadi
 
           <div>
             <label className={labelClass}>{t('branchId')}</label>
-            <input {...register('branch_id')} className={inputClass} />
+            <select {...register('branch_id')} className={inputClass}>
+              <option value="">{t('noBranch')}</option>
+              {branches.map((b) => (
+                <option key={b.id} value={b.id}>{b.name}</option>
+              ))}
+            </select>
+            {errors.branch_id && <p className="text-xs text-red-500 mt-1">{errors.branch_id.message}</p>}
           </div>
 
           <div>
