@@ -27,6 +27,7 @@ export interface GoodsReceipt {
   notes: string | null;
   status: GoodsReceiptStatus;
   items?: GoodsReceiptItem[];
+  items_count?: number;
   created_at: string;
 }
 

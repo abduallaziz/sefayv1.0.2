@@ -94,8 +94,8 @@ export function LocationsTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-gray-800">
-            {locations.map((location) => (
-              <tr key={location.id} className="hover:bg-slate-50 dark:hover:bg-gray-800/30 transition-colors">
+            {locations.map((location, i) => (
+              <tr key={location.id} className={`hover:bg-slate-50 dark:hover:bg-gray-800/30 transition-colors ${i % 2 === 1 ? 'bg-slate-50/40 dark:bg-gray-800/10' : ''}`}>
                 <td className="px-3 py-3 font-medium text-slate-800 dark:text-white">{location.code}</td>
                 <td className="px-3 py-3 text-slate-800 dark:text-white max-w-[160px] truncate">{location.name}</td>
                 <td className="px-3 py-3 text-slate-500 max-w-[240px] truncate">{location.description ?? '—'}</td>

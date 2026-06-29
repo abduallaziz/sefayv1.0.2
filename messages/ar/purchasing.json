@@ -64,5 +64,8 @@
   },
   "received": "المستلم",
   "receivingProgress": "تقدم الاستلام",
-  "ordered": "مطلوب"
+  "ordered": "مطلوب",
+  "itemsCount": "العناصر",
+  "totalValue": "القيمة الإجمالية",
+  "completion": "نسبة الاستلام"
 }

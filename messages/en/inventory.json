@@ -218,6 +218,7 @@
     "cancelling": "Cancelling...",
     "cancelConfirm": "Are you sure you want to cancel this transfer?",
     "back": "Back",
+    "itemsCount": "Items",
     "status": {
       "label": "Status",
       "all": "All Status",
@@ -252,6 +253,7 @@
     "variance": "Variance",
     "enterCount": "Qty",
     "countingProgress": "Counting Progress",
+    "itemsCount": "Items",
     "itemsWithVariance": "Items with Variance",
     "netVariance": "Net Variance",
     "finalize": "Finalize Count",

@@ -70,11 +70,11 @@ export function AdjustmentsTable({ adjustments, onView }: Props) {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-gray-800">
-            {adjustments.map((adj) => (
+            {adjustments.map((adj, i) => (
               <tr
                 key={adj.id}
                 onClick={() => onView(adj)}
-                className="hover:bg-slate-50 dark:hover:bg-gray-800/30 transition-colors cursor-pointer"
+                className={`hover:bg-slate-50 dark:hover:bg-gray-800/30 transition-colors cursor-pointer ${i % 2 === 1 ? 'bg-slate-50/40 dark:bg-gray-800/10' : ''}`}
               >
                 <td className="px-3 py-3 font-medium text-slate-800 dark:text-white">{adj.items?.name ?? adj.item_id}</td>
                 <td className="px-3 py-3 text-slate-500">{adj.warehouses?.name ?? adj.warehouse_id}</td>

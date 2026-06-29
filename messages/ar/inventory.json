@@ -218,6 +218,7 @@
     "cancelling": "جارٍ الإلغاء...",
     "cancelConfirm": "هل أنت متأكد من إلغاء هذا التحويل؟",
     "back": "رجوع",
+    "itemsCount": "العناصر",
     "status": {
       "label": "الحالة",
       "all": "كل الحالات",
@@ -252,6 +253,7 @@
     "variance": "الفرق",
     "enterCount": "الكمية",
     "countingProgress": "تقدم الجرد",
+    "itemsCount": "العناصر",
     "itemsWithVariance": "عناصر بها فرق",
     "netVariance": "صافي الفرق",
     "finalize": "إنهاء الجرد",
