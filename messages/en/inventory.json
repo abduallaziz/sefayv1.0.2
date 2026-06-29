@@ -68,7 +68,12 @@
     "export": "Export",
     "totalOnHand": "Total On Hand",
     "lowStockItems": "Low Stock",
-    "outOfStockItems": "Out of Stock"
+    "outOfStockItems": "Out of Stock",
+    "totalStock": "Total Stock",
+    "locationsBreakdown": "Locations",
+    "expandLocations": "Show locations",
+    "collapseLocations": "Hide locations",
+    "noLocations": "No location"
   },
   "adjustments": {
     "title": "Stock Adjustments",

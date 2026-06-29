@@ -68,7 +68,12 @@
     "export": "تصدير",
     "totalOnHand": "إجمالي الكمية",
     "lowStockItems": "مخزون منخفض",
-    "outOfStockItems": "نفذ المخزون"
+    "outOfStockItems": "نفذ المخزون",
+    "totalStock": "إجمالي المخزون",
+    "locationsBreakdown": "المواقع",
+    "expandLocations": "إظهار المواقع",
+    "collapseLocations": "إخفاء المواقع",
+    "noLocations": "بدون موقع"
   },
   "adjustments": {
     "title": "تسويات المخزون",
