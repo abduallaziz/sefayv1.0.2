@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { ChevronDown } from 'lucide-react';
 import { StockLevelEnriched } from '../types/stock.types';
+import { StatusBadge } from '@/shared/ui/status-badge';
 
 interface Props {
   levels: StockLevelEnriched[];
@@ -32,17 +33,12 @@ function statusRank(status: StockLevelEnriched['status']) {
   return status === 'out_of_stock' ? 2 : status === 'low_stock' ? 1 : 0;
 }
 
-function StatusBadge({ status }: { status: StockLevelEnriched['status'] }) {
+function StockStatusBadge({ status }: { status: StockLevelEnriched['status'] }) {
   const t = useTranslations('stock');
-  const classes =
-    status === 'out_of_stock'
-      ? 'bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-400'
-      : status === 'low_stock'
-        ? 'bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400'
-        : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400';
+  const tone = status === 'out_of_stock' ? 'danger' : status === 'low_stock' ? 'warning' : 'success';
   const label =
     status === 'out_of_stock' ? t('statusOutOfStock') : status === 'low_stock' ? t('statusLowStock') : t('statusInStock');
-  return <span className={`text-xs font-semibold px-2 py-0.5 rounded-full whitespace-nowrap ${classes}`}>{label}</span>;
+  return <StatusBadge tone={tone} label={label} />;
 }
 
 function groupLevels(levels: StockLevelEnriched[]): ProductGroup[] {
@@ -161,7 +157,7 @@ export function StockLevelsEnrichedTable({ levels }: Props) {
                   <p className="text-xs text-slate-500">{t('totalStock')}</p>
                   <p className="text-base font-bold text-slate-800 dark:text-white">{group.totalOnHand}</p>
                 </div>
-                <StatusBadge status={group.status} />
+                <StockStatusBadge status={group.status} />
               </div>
             </button>
 
@@ -185,7 +181,7 @@ export function StockLevelsEnrichedTable({ levels }: Props) {
                       </div>
                       <div className="text-end flex-shrink-0">
                         <p className="text-sm font-semibold text-slate-800 dark:text-white">{row.quantity_on_hand}</p>
-                        <StatusBadge status={row.status} />
+                        <StockStatusBadge status={row.status} />
                       </div>
                     </div>
                   ))}
@@ -225,7 +221,7 @@ export function StockLevelsEnrichedTable({ levels }: Props) {
                           <td className="px-4 py-2.5 text-end text-slate-500">{row.quantity_reserved}</td>
                           <td className="px-4 py-2.5 text-end text-slate-500">{row.quantity_available}</td>
                           <td className="px-4 py-2.5 text-end text-slate-500">{row.quantity_incoming}</td>
-                          <td className="px-4 py-2.5"><StatusBadge status={row.status} /></td>
+                          <td className="px-4 py-2.5"><StockStatusBadge status={row.status} /></td>
                           <td className="px-4 py-2.5 text-end text-slate-500">{row.inventory_value.toLocaleString()}</td>
                           <td className="px-4 py-2.5 text-slate-500">{formatDate(row.last_movement_at)}</td>
                         </tr>

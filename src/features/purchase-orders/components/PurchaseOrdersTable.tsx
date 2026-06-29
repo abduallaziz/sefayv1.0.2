@@ -2,19 +2,20 @@
 
 import { useTranslations } from 'next-intl';
 import { PurchaseOrder } from '../types/purchase-order.types';
+import { StatusBadge, type StatusTone } from '@/shared/ui/status-badge';
 
 interface Props {
   orders: PurchaseOrder[];
   onView: (order: PurchaseOrder) => void;
 }
 
-const statusColors: Record<string, string> = {
-  draft: 'bg-slate-100 dark:bg-gray-800 text-slate-500 dark:text-slate-400',
-  submitted: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
-  approved: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-  partially_received: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
-  received: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-  cancelled: 'bg-red-500/10 text-red-600 dark:text-red-400',
+const statusTones: Record<string, StatusTone> = {
+  draft: 'neutral',
+  submitted: 'warning',
+  approved: 'success',
+  partially_received: 'info',
+  received: 'success',
+  cancelled: 'danger',
 };
 
 const statusLabelKeys = {
@@ -52,9 +53,7 @@ export function PurchaseOrdersTable({ orders, onView }: Props) {
                 <p className="font-medium text-slate-800 dark:text-white truncate">{order.order_number}</p>
                 <p className="text-xs text-slate-500 truncate">{order.supplier_name ?? order.supplier_id}</p>
               </div>
-              <span className={`px-2 py-0.5 rounded-full text-xs font-medium shrink-0 ${statusColors[order.status]}`}>
-                {t(statusLabelKeys[order.status])}
-              </span>
+              <StatusBadge tone={statusTones[order.status]} label={t(statusLabelKeys[order.status])} className="shrink-0" />
             </div>
             <div className="flex items-center justify-between mt-2 text-xs text-slate-500">
               <span>{order.items_count ?? 0} {t('itemsCount').toLowerCase()}</span>
@@ -100,9 +99,7 @@ export function PurchaseOrdersTable({ orders, onView }: Props) {
                 </td>
                 <td className="px-3 py-3 text-end text-slate-500">{order.completion_pct ?? 0}%</td>
                 <td className="px-3 py-3 w-24">
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[order.status]}`}>
-                    {t(statusLabelKeys[order.status])}
-                  </span>
+                  <StatusBadge tone={statusTones[order.status]} label={t(statusLabelKeys[order.status])} />
                 </td>
               </tr>
             ))}

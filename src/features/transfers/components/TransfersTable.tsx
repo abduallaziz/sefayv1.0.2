@@ -2,17 +2,18 @@
 
 import { useTranslations } from 'next-intl';
 import { Transfer } from '../types/transfer.types';
+import { StatusBadge, type StatusTone } from '@/shared/ui/status-badge';
 
 interface Props {
   transfers: Transfer[];
   onView: (transfer: Transfer) => void;
 }
 
-const statusColors: Record<string, string> = {
-  draft: 'bg-slate-100 dark:bg-gray-800 text-slate-500 dark:text-slate-400',
-  in_transit: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
-  completed: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-  cancelled: 'bg-red-500/10 text-red-600 dark:text-red-400',
+const statusTones: Record<string, StatusTone> = {
+  draft: 'neutral',
+  in_transit: 'warning',
+  completed: 'success',
+  cancelled: 'danger',
 };
 
 const statusLabelKeys = {
@@ -50,9 +51,7 @@ export function TransfersTable({ transfers, onView }: Props) {
                   {transfer.from_warehouse_name ?? transfer.from_warehouse_id} → {transfer.to_warehouse_name ?? transfer.to_warehouse_id}
                 </p>
               </div>
-              <span className={`px-2 py-0.5 rounded-full text-xs font-medium shrink-0 ${statusColors[transfer.status]}`}>
-                {t(statusLabelKeys[transfer.status])}
-              </span>
+              <StatusBadge tone={statusTones[transfer.status]} label={t(statusLabelKeys[transfer.status])} className="shrink-0" />
             </div>
             <p className="text-xs text-slate-500 mt-2">{transfer.items_count ?? 0} {t('itemsCount').toLowerCase()}</p>
           </div>
@@ -83,9 +82,7 @@ export function TransfersTable({ transfers, onView }: Props) {
                 <td className="px-3 py-3 text-slate-500">{transfer.to_warehouse_name ?? transfer.to_warehouse_id}</td>
                 <td className="px-3 py-3 text-end text-slate-500">{transfer.items_count ?? 0}</td>
                 <td className="px-3 py-3 w-24">
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[transfer.status]}`}>
-                    {t(statusLabelKeys[transfer.status])}
-                  </span>
+                  <StatusBadge tone={statusTones[transfer.status]} label={t(statusLabelKeys[transfer.status])} />
                 </td>
               </tr>
             ))}
