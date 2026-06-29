@@ -7,6 +7,7 @@ export interface StockCountItem {
   variant_id: string | null;
   batch_id: string | null;
   location_id: string | null;
+  location_name?: string | null;
   expected_quantity: number;
   counted_quantity: number | null;
 }

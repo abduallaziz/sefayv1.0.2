@@ -241,6 +241,7 @@
     "notFound": "Not found",
     "startedAt": "Started At",
     "item": "Item",
+    "location": "Location",
     "expectedQuantity": "Expected",
     "countedQuantity": "Counted",
     "variance": "Variance",

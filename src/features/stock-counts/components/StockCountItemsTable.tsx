@@ -29,6 +29,7 @@ export function StockCountItemsTable({ items, editable, onSubmitCount, isSubmitt
         <thead className="bg-slate-50 dark:bg-gray-800/50 border-b border-slate-200 dark:border-gray-800 sticky top-0 z-10">
           <tr>
             <th className="text-start px-3 py-3 font-medium text-slate-500">{t('item')}</th>
+            <th className="text-start px-3 py-3 font-medium text-slate-500">{t('location')}</th>
             <th className="text-start px-3 py-3 font-medium text-slate-500">{t('expectedQuantity')}</th>
             <th className="text-start px-3 py-3 font-medium text-slate-500">{t('countedQuantity')}</th>
             <th className="text-start px-3 py-3 font-medium text-slate-500">{t('variance')}</th>
@@ -43,6 +44,7 @@ export function StockCountItemsTable({ items, editable, onSubmitCount, isSubmitt
             return (
               <tr key={item.id}>
                 <td className="px-3 py-3 text-slate-800 dark:text-white">{item.item_name ?? item.item_id}</td>
+                <td className="px-3 py-3 text-slate-500">{item.location_name ?? '-'}</td>
                 <td className="px-3 py-3 text-slate-500">{item.expected_quantity}</td>
                 <td className="px-3 py-3 text-slate-500">{hasCount ? item.counted_quantity : '—'}</td>
                 <td className={`px-3 py-3 font-medium ${varianceClass(variance)}`}>
