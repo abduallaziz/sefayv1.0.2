@@ -16,6 +16,7 @@ import { LocationsTable } from './components/LocationsTable';
 import { LocationFormModal } from './components/LocationFormModal';
 import { DeleteLocationModal } from './components/DeleteLocationModal';
 import { Location, CreateLocationDTO } from './types/location.types';
+import { ApiError } from '@/lib/api';
 
 const LIMIT = 20;
 
@@ -29,6 +30,7 @@ export function LocationsPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const effectiveWarehouseId = warehouseId ?? warehouses[0]?.id ?? null;
 
@@ -48,13 +50,17 @@ export function LocationsPage() {
   const deleteLocation = useDeleteLocation(effectiveWarehouseId);
 
   const handleSubmit = (data: CreateLocationDTO) => {
+    setFormError(null);
+    const onError = (error: unknown) => {
+      setFormError(error instanceof ApiError ? error.message : t('saveError'));
+    };
     if (selectedLocation) {
       updateLocation.mutate(
         { id: selectedLocation.id, data },
-        { onSuccess: () => { setFormOpen(false); setSelectedLocation(null); } }
+        { onSuccess: () => { setFormOpen(false); setSelectedLocation(null); }, onError }
       );
     } else {
-      createLocation.mutate(data, { onSuccess: () => setFormOpen(false) });
+      createLocation.mutate(data, { onSuccess: () => setFormOpen(false), onError });
     }
   };
 
@@ -77,7 +83,7 @@ export function LocationsPage() {
           <p className="text-sm text-slate-500 mt-1">{total} {t('totalLocations')}</p>
         </div>
         <button
-          onClick={() => { setSelectedLocation(null); setFormOpen(true); }}
+          onClick={() => { setSelectedLocation(null); setFormError(null); setFormOpen(true); }}
           disabled={!effectiveWarehouseId}
           className="flex items-center gap-2 px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
         >
@@ -115,19 +121,20 @@ export function LocationsPage() {
           page={page}
           limit={LIMIT}
           onPageChange={setPage}
-          onEdit={(location) => { setSelectedLocation(location); setFormOpen(true); }}
+          onEdit={(location) => { setSelectedLocation(location); setFormError(null); setFormOpen(true); }}
           onDelete={(location) => { setSelectedLocation(location); setDeleteOpen(true); }}
           onToggleActive={handleToggleActive}
-          onCreate={() => { setSelectedLocation(null); setFormOpen(true); }}
+          onCreate={() => { setSelectedLocation(null); setFormError(null); setFormOpen(true); }}
         />
       )}
 
       <LocationFormModal
         open={formOpen}
-        onClose={() => { setFormOpen(false); setSelectedLocation(null); }}
+        onClose={() => { setFormOpen(false); setSelectedLocation(null); setFormError(null); }}
         onSubmit={handleSubmit}
         location={selectedLocation}
         isLoading={createLocation.isPending || updateLocation.isPending}
+        submitError={formError}
       />
       <DeleteLocationModal
         open={deleteOpen}

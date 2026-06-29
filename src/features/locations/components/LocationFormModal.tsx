@@ -21,12 +21,13 @@ interface Props {
   onSubmit: (data: CreateLocationDTO) => void;
   location?: Location | null;
   isLoading?: boolean;
+  submitError?: string | null;
 }
 
 const inputClass = "w-full px-3 py-2 text-sm bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 text-slate-800 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C] dark:focus:border-[#0C447C]";
 const labelClass = "block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1";
 
-export function LocationFormModal({ open, onClose, onSubmit, location, isLoading }: Props) {
+export function LocationFormModal({ open, onClose, onSubmit, location, isLoading, submitError }: Props) {
   const t = useTranslations('locations');
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm({
@@ -94,6 +95,10 @@ export function LocationFormModal({ open, onClose, onSubmit, location, isLoading
             <input type="checkbox" id="is_active" {...register('is_active')} className="w-4 h-4 rounded border-slate-300 text-[#0C447C] focus:ring-[#0C447C]" />
             <label htmlFor="is_active" className="text-sm text-slate-700 dark:text-slate-300">{t('active')}</label>
           </div>
+
+          {submitError && (
+            <p className="text-xs text-red-500 -mt-1">{submitError}</p>
+          )}
 
           <div className="flex gap-3 pt-2">
             <button type="submit" disabled={isLoading} className="flex-1 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] text-white rounded-lg text-sm font-medium disabled:opacity-50">

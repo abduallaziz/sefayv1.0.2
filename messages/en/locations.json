@@ -25,5 +25,6 @@
   "deleting": "Deleting...",
   "deleteConfirm": "Are you sure you want to delete",
   "required": "This field is required",
-  "loading": "Loading..."
+  "loading": "Loading...",
+  "saveError": "Failed to save location. Please try again."
 }
