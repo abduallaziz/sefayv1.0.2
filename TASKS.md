@@ -4,6 +4,22 @@ Detailed specs for proposed and active work. Current high-level status lives in 
 
 ## In Progress
 
+### Date-Range Picker Redesign — Compact UI
+
+**Goal:** Replace the heavy two-pane calendar popup (presets sidebar + full month/year-zoomable calendar grid, ~430px wide) used by the shared `DateRangePicker` with a compact, single-column control that visually matches the rest of the ERP's filter inputs.
+
+**✅ Completed:**
+- Rebuilt `src/shared/ui/date-range-picker/DateRangePicker.tsx`: popup is now a single 224px-wide dropdown (`w-56`) listing the existing 8 presets (Today/Yesterday/Last 7 Days/Last 30 Days/This Month/Last Month/Last 3 Months/This Year) plus a compact custom-range row using two native `<input type="date">` fields and an Apply button — replacing the custom-built day/month/year calendar grid entirely.
+- Trigger button restyled to match the standard Inventory/filter-bar input convention (`border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-slate-50 dark:bg-gray-950`, `#0C447C` focus border) instead of its previous bespoke style.
+- Kept the exact same `DateRangePicker` props (`value`, `onChange`, `placeholder`) and the `DateRange` type, so all 5 consumers (`OrderFilters`, `ReportsPage`, `DashboardOverview`, `ReportsAuditPage`, `revenue-chart`) needed no changes — confirmed via `grep` that every usage imports from the same barrel and passes the same shape.
+- No external date-picker library was introduced; the codebase had none already in use for this control (`date-fns` is present but unused by this component), so a lighter custom implementation was the correct fit per the requirement to use a library's compact mode only if one was already in place.
+- Added `datePicker.apply` translation key to `messages/en.json` and `messages/ar.json` for the new Apply button.
+- Verified via `tsc --noEmit`, `npm run lint` (no new warnings/errors introduced — pre-existing unrelated lint issues untouched), `npm run build`, and a local `next dev` smoke check (Orders/Reports pages render correctly with the new compact picker).
+
+**Note:** `SingleDatePicker` (used in `CustomerPickerModal`, `CustomerFormModal`) still uses the older full month/year-zoom calendar grid — it is a separate component and was out of scope for this date-*range* picker redesign. Left untouched; candidate for a future, similar simplification pass if desired.
+
+---
+
 ### Phase 2 Inventory UX Production-Readiness Audit
 
 **Goal:** Bring every Inventory module page (Dashboard, Warehouses, Locations, Stock Levels, Movements, Purchase Orders, Goods Receipts, Transfers, Stock Counts, Adjustments, Reports) to production-ready quality across both UX and business-logic correctness.
