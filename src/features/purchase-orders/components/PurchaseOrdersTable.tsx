@@ -1,8 +1,10 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { ClipboardList } from 'lucide-react';
 import { PurchaseOrder } from '../types/purchase-order.types';
 import { StatusBadge, type StatusTone } from '@/shared/ui/status-badge';
+import { EmptyState } from '@/shared/ui/empty-state';
 
 interface Props {
   orders: PurchaseOrder[];
@@ -31,11 +33,7 @@ export function PurchaseOrdersTable({ orders, onView }: Props) {
   const t = useTranslations('purchasing');
 
   if (orders.length === 0) {
-    return (
-      <div className="text-center py-16 text-slate-500">
-        <p className="text-lg">{t('noPurchaseOrders')}</p>
-      </div>
-    );
+    return <EmptyState theme="inventory" icon={ClipboardList} title={t('noPurchaseOrders')} />;
   }
 
   return (

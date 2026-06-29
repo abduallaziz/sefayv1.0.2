@@ -1,7 +1,9 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { Package } from 'lucide-react';
 import { StockLevel } from '../types/stock.types';
+import { EmptyState } from '@/shared/ui/empty-state';
 
 interface Props {
   levels: StockLevel[];
@@ -11,11 +13,7 @@ export function StockLevelsTable({ levels }: Props) {
   const t = useTranslations('stock');
 
   if (levels.length === 0) {
-    return (
-      <div className="text-center py-16 text-slate-500">
-        <p className="text-lg">{t('noStockLevels')}</p>
-      </div>
-    );
+    return <EmptyState theme="inventory" icon={Package} title={t('noStockLevels')} />;
   }
 
   return (

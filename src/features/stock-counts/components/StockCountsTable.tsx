@@ -1,8 +1,10 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { ClipboardCheck } from 'lucide-react';
 import { StockCount } from '../types/stock-count.types';
 import { StatusBadge, type StatusTone } from '@/shared/ui/status-badge';
+import { EmptyState } from '@/shared/ui/empty-state';
 
 interface Props {
   counts: StockCount[];
@@ -27,11 +29,7 @@ export function StockCountsTable({ counts, onView }: Props) {
   const t = useTranslations('stockCounts');
 
   if (counts.length === 0) {
-    return (
-      <div className="text-center py-16 text-slate-500">
-        <p className="text-lg">{t('noCounts')}</p>
-      </div>
-    );
+    return <EmptyState theme="inventory" icon={ClipboardCheck} title={t('noCounts')} />;
   }
 
   return (

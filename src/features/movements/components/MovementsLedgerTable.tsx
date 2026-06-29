@@ -1,8 +1,10 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { Activity } from 'lucide-react';
 import { MovementLedgerRow } from '../types/movements.types';
 import { StatusBadge } from '@/shared/ui/status-badge';
+import { EmptyState } from '@/shared/ui/empty-state';
 
 interface Props {
   rows: MovementLedgerRow[];
@@ -16,11 +18,7 @@ export function MovementsLedgerTable({ rows }: Props) {
   const t = useTranslations('movements');
 
   if (rows.length === 0) {
-    return (
-      <div className="text-center py-16 text-slate-500">
-        <p className="text-lg">{t('noMovements')}</p>
-      </div>
-    );
+    return <EmptyState theme="inventory" icon={Activity} title={t('noMovements')} />;
   }
 
   return (
