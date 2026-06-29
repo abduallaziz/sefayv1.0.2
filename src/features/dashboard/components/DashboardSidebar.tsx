@@ -8,7 +8,7 @@ import {
   LayoutDashboard, ShoppingCart, Package, Users,
   Receipt, Clock, BarChart3, Settings, UserCog,
   X, Zap, Truck, Warehouse, ClipboardList, PackageCheck, Boxes, SlidersHorizontal,
-  ChevronDown, ArrowLeftRight, FileBarChart, Layers, ClipboardCheck,
+  ChevronDown, ArrowLeftRight, FileBarChart, Layers, ClipboardCheck, MapPin,
 } from 'lucide-react'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { useThemeStore } from '@/core/theme/stores/theme.store'
@@ -49,6 +49,7 @@ const ALL_NAV_ITEMS: NavItem[] = [
 const INVENTORY_GROUP_ITEMS: NavItem[] = [
   { key: 'inventoryDashboard', href: '/dashboard/inventory',         icon: LayoutDashboard,   section: 'inventory-group' },
   { key: 'warehouses',         href: '/dashboard/warehouses',        icon: Warehouse,         section: 'inventory-group' },
+  { key: 'locations',          href: '/dashboard/locations',         icon: MapPin,            section: 'inventory-group' },
   { key: 'stock',              href: '/dashboard/stock',             icon: Boxes,             section: 'inventory-group' },
   { key: 'movements',          href: '/dashboard/movements',         icon: ArrowLeftRight,    section: 'inventory-group' },
   { key: 'transfers',          href: '/dashboard/transfers',         icon: Layers,            section: 'inventory-group', roles: INVENTORY_ROLES },

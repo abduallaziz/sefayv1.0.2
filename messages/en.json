@@ -21,6 +21,7 @@
     "settings": "Settings",
     "suppliers": "Suppliers",
     "warehouses": "Warehouses",
+    "locations": "Locations",
     "purchaseOrders": "Purchase Orders",
     "goodsReceipts": "Goods Receipts",
     "stock": "Stock",
