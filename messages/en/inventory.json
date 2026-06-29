@@ -133,6 +133,8 @@
     "title": "Inventory Dashboard",
     "loading": "Loading...",
     "noData": "No data available",
+    "keyMetrics": "Key Metrics",
+    "statusAlerts": "Status & Alerts",
     "inventoryValue": "Inventory Value",
     "totalWarehouses": "Total Warehouses",
     "productsInStock": "Products in Stock",
