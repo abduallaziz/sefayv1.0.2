@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { Plus, Trash2 } from 'lucide-react';
 import type { Item } from '@/features/items/api/items.api';
 import { LocationSelect } from '@/features/locations/components/LocationSelect';
+import { SingleDatePicker } from '@/shared/ui/date-range-picker';
 
 export interface GRLineRow {
   purchase_order_item_id: string;
@@ -93,11 +94,10 @@ export function GoodsReceiptLineItems({ rows, items, warehouseId, onChange }: Pr
               onChange={(e) => updateRow(i, 'serial_number', e.target.value)}
               className={inputClass}
             />
-            <input
-              type="date"
+            <SingleDatePicker
               placeholder={t('expirationDate')}
-              value={row.expiration_date}
-              onChange={(e) => updateRow(i, 'expiration_date', e.target.value)}
+              value={row.expiration_date || undefined}
+              onChange={(v) => updateRow(i, 'expiration_date', v ?? '')}
               className={inputClass}
             />
           </div>
