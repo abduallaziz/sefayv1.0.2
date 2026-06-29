@@ -87,8 +87,8 @@ export function WarehousesTable({ warehouses, onEdit, onDelete, onToggleActive, 
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-gray-800">
-            {warehouses.map((warehouse) => (
-              <tr key={warehouse.id} className="hover:bg-slate-50 dark:hover:bg-gray-800/30 transition-colors">
+            {warehouses.map((warehouse, i) => (
+              <tr key={warehouse.id} className={`hover:bg-slate-50 dark:hover:bg-gray-800/30 transition-colors ${i % 2 === 1 ? 'bg-slate-50/40 dark:bg-gray-800/10' : ''}`}>
                 <td className="px-3 py-3 font-medium text-slate-800 dark:text-white">{warehouse.code}</td>
                 <td className="px-3 py-3 text-slate-800 dark:text-white max-w-[160px] truncate">{warehouse.name}</td>
                 <td className="px-3 py-3 text-slate-500 max-w-[200px] truncate">{warehouse.address ?? '—'}</td>

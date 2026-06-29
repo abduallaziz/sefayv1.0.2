@@ -54,6 +54,7 @@ export function TransfersTable({ transfers, onView }: Props) {
                 {t(statusLabelKeys[transfer.status])}
               </span>
             </div>
+            <p className="text-xs text-slate-500 mt-2">{transfer.items_count ?? 0} {t('itemsCount').toLowerCase()}</p>
           </div>
         ))}
       </div>
@@ -66,19 +67,21 @@ export function TransfersTable({ transfers, onView }: Props) {
               <th className="text-start px-3 py-3 font-medium text-slate-500">{t('transferNumber')}</th>
               <th className="text-start px-3 py-3 font-medium text-slate-500">{t('fromWarehouse')}</th>
               <th className="text-start px-3 py-3 font-medium text-slate-500">{t('toWarehouse')}</th>
+              <th className="text-end px-3 py-3 font-medium text-slate-500">{t('itemsCount')}</th>
               <th className="text-start px-3 py-3 font-medium text-slate-500 w-24">{t('status.label')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-gray-800">
-            {transfers.map((transfer) => (
+            {transfers.map((transfer, i) => (
               <tr
                 key={transfer.id}
                 onClick={() => onView(transfer)}
-                className="hover:bg-slate-50 dark:hover:bg-gray-800/30 transition-colors cursor-pointer"
+                className={`hover:bg-slate-50 dark:hover:bg-gray-800/30 transition-colors cursor-pointer ${i % 2 === 1 ? 'bg-slate-50/40 dark:bg-gray-800/10' : ''}`}
               >
                 <td className="px-3 py-3 font-medium text-slate-800 dark:text-white">{transfer.transfer_number}</td>
                 <td className="px-3 py-3 text-slate-500">{transfer.from_warehouse_name ?? transfer.from_warehouse_id}</td>
                 <td className="px-3 py-3 text-slate-500">{transfer.to_warehouse_name ?? transfer.to_warehouse_id}</td>
+                <td className="px-3 py-3 text-end text-slate-500">{transfer.items_count ?? 0}</td>
                 <td className="px-3 py-3 w-24">
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[transfer.status]}`}>
                     {t(statusLabelKeys[transfer.status])}

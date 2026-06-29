@@ -29,6 +29,11 @@ export interface PurchaseOrder {
   notes: string | null;
   status: PurchaseOrderStatus;
   items?: PurchaseOrderItem[];
+  items_count?: number;
+  quantity_ordered?: number;
+  quantity_received?: number;
+  total_value?: number;
+  completion_pct?: number;
   created_at: string;
 }
 

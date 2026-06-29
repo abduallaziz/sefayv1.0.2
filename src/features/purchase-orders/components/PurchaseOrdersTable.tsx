@@ -56,6 +56,12 @@ export function PurchaseOrdersTable({ orders, onView }: Props) {
                 {t(statusLabelKeys[order.status])}
               </span>
             </div>
+            <div className="flex items-center justify-between mt-2 text-xs text-slate-500">
+              <span>{order.items_count ?? 0} {t('itemsCount').toLowerCase()}</span>
+              <span className="font-medium text-slate-700 dark:text-slate-300">
+                {(order.total_value ?? 0).toLocaleString()}
+              </span>
+            </div>
           </div>
         ))}
       </div>
@@ -69,15 +75,18 @@ export function PurchaseOrdersTable({ orders, onView }: Props) {
               <th className="text-start px-3 py-3 font-medium text-slate-500">{t('supplier')}</th>
               <th className="text-start px-3 py-3 font-medium text-slate-500">{t('warehouse')}</th>
               <th className="text-start px-3 py-3 font-medium text-slate-500">{t('orderDate')}</th>
+              <th className="text-end px-3 py-3 font-medium text-slate-500">{t('itemsCount')}</th>
+              <th className="text-end px-3 py-3 font-medium text-slate-500">{t('totalValue')}</th>
+              <th className="text-end px-3 py-3 font-medium text-slate-500">{t('completion')}</th>
               <th className="text-start px-3 py-3 font-medium text-slate-500 w-24">{t('status.label')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-gray-800">
-            {orders.map((order) => (
+            {orders.map((order, i) => (
               <tr
                 key={order.id}
                 onClick={() => onView(order)}
-                className="hover:bg-slate-50 dark:hover:bg-gray-800/30 transition-colors cursor-pointer"
+                className={`hover:bg-slate-50 dark:hover:bg-gray-800/30 transition-colors cursor-pointer ${i % 2 === 1 ? 'bg-slate-50/40 dark:bg-gray-800/10' : ''}`}
               >
                 <td className="px-3 py-3 font-medium text-slate-800 dark:text-white">{order.order_number}</td>
                 <td className="px-3 py-3 text-slate-500">{order.supplier_name ?? order.supplier_id}</td>
@@ -85,6 +94,11 @@ export function PurchaseOrdersTable({ orders, onView }: Props) {
                 <td className="px-3 py-3 text-slate-500">
                   {order.order_date ? new Date(order.order_date).toLocaleDateString('en-US') : '—'}
                 </td>
+                <td className="px-3 py-3 text-end text-slate-500">{order.items_count ?? 0}</td>
+                <td className="px-3 py-3 text-end font-medium text-slate-700 dark:text-slate-300">
+                  {(order.total_value ?? 0).toLocaleString()}
+                </td>
+                <td className="px-3 py-3 text-end text-slate-500">{order.completion_pct ?? 0}%</td>
                 <td className="px-3 py-3 w-24">
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[order.status]}`}>
                     {t(statusLabelKeys[order.status])}

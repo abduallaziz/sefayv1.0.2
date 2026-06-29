@@ -52,6 +52,14 @@ export function StockCountsTable({ counts, onView }: Props) {
                 {t(statusLabelKeys[count.status])}
               </span>
             </div>
+            <div className="flex items-center justify-between mt-2 text-xs text-slate-500">
+              <span>{count.items_counted ?? 0}/{count.items_count ?? 0} {t('itemsCount').toLowerCase()}</span>
+              {(count.items_with_variance ?? 0) > 0 && (
+                <span className="text-amber-600 dark:text-amber-400 font-medium">
+                  {count.items_with_variance} {t('itemsWithVariance').toLowerCase()}
+                </span>
+              )}
+            </div>
           </div>
         ))}
       </div>
@@ -63,18 +71,28 @@ export function StockCountsTable({ counts, onView }: Props) {
             <tr>
               <th className="text-start px-3 py-3 font-medium text-slate-500">{t('countNumber')}</th>
               <th className="text-start px-3 py-3 font-medium text-slate-500">{t('warehouse')}</th>
+              <th className="text-end px-3 py-3 font-medium text-slate-500">{t('itemsCount')}</th>
+              <th className="text-end px-3 py-3 font-medium text-slate-500">{t('itemsWithVariance')}</th>
+              <th className="text-end px-3 py-3 font-medium text-slate-500">{t('netVariance')}</th>
               <th className="text-start px-3 py-3 font-medium text-slate-500 w-24">{t('status.label')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-gray-800">
-            {counts.map((count) => (
+            {counts.map((count, i) => (
               <tr
                 key={count.id}
                 onClick={() => onView(count)}
-                className="hover:bg-slate-50 dark:hover:bg-gray-800/30 transition-colors cursor-pointer"
+                className={`hover:bg-slate-50 dark:hover:bg-gray-800/30 transition-colors cursor-pointer ${i % 2 === 1 ? 'bg-slate-50/40 dark:bg-gray-800/10' : ''}`}
               >
                 <td className="px-3 py-3 font-medium text-slate-800 dark:text-white">{count.count_number}</td>
                 <td className="px-3 py-3 text-slate-500">{count.warehouse_name ?? count.warehouse_id}</td>
+                <td className="px-3 py-3 text-end text-slate-500">{count.items_counted ?? 0}/{count.items_count ?? 0}</td>
+                <td className="px-3 py-3 text-end">
+                  <span className={(count.items_with_variance ?? 0) > 0 ? 'text-amber-600 dark:text-amber-400 font-medium' : 'text-slate-500'}>
+                    {count.items_with_variance ?? 0}
+                  </span>
+                </td>
+                <td className="px-3 py-3 text-end text-slate-500">{count.net_variance_quantity ?? 0}</td>
                 <td className="px-3 py-3 w-24">
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[count.status]}`}>
                     {t(statusLabelKeys[count.status])}

@@ -64,5 +64,8 @@
   },
   "received": "Received",
   "receivingProgress": "Receiving Progress",
-  "ordered": "Ordered"
+  "ordered": "Ordered",
+  "itemsCount": "Items",
+  "totalValue": "Total Value",
+  "completion": "Completion"
 }

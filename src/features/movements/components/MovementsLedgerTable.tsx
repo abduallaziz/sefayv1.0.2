@@ -41,8 +41,8 @@ export function MovementsLedgerTable({ rows }: Props) {
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100 dark:divide-gray-800">
-          {rows.map((row) => (
-            <tr key={row.id} className="hover:bg-slate-50 dark:hover:bg-gray-800/30 transition-colors">
+          {rows.map((row, i) => (
+            <tr key={row.id} className={`hover:bg-slate-50 dark:hover:bg-gray-800/30 transition-colors ${i % 2 === 1 ? 'bg-slate-50/40 dark:bg-gray-800/10' : ''}`}>
               <td className="px-3 py-3 text-slate-500 whitespace-nowrap">{formatDate(row.occurred_at)}</td>
               <td className="px-3 py-3">
                 <span

@@ -21,6 +21,9 @@ export interface Transfer {
   notes: string | null;
   status: TransferStatus;
   items?: TransferItem[];
+  items_count?: number;
+  dispatched_at?: string | null;
+  received_at?: string | null;
   created_at: string;
 }
 

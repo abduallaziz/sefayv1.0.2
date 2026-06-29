@@ -24,6 +24,10 @@ export interface StockCount {
   completed_at: string | null;
   notes: string | null;
   items?: StockCountItem[];
+  items_count?: number;
+  items_counted?: number;
+  items_with_variance?: number;
+  net_variance_quantity?: number;
   created_at: string;
 }
 
