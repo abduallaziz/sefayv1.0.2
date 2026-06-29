@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { X } from 'lucide-react';
+import { RequiredMark } from '@/shared/components/ui/RequiredMark';
 import { useWarehouses } from '@/features/warehouses/hooks/useWarehouses';
 import { useItems } from '@/features/items/hooks/useItems';
 import { TransferLineItems, TransferLineRow } from './TransferLineItems';
@@ -85,7 +86,7 @@ export function TransferFormModal({ open, onClose, onSubmit, isLoading }: Props)
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className={labelClass}>{t('fromWarehouse')}</label>
+              <label className={labelClass}>{t('fromWarehouse')}<RequiredMark /></label>
               <select value={fromWarehouseId} onChange={(e) => setFromWarehouseId(e.target.value)} className={inputClass}>
                 <option value="">{t('selectWarehouse')}</option>
                 {warehouses.map((w) => (
@@ -94,7 +95,7 @@ export function TransferFormModal({ open, onClose, onSubmit, isLoading }: Props)
               </select>
             </div>
             <div>
-              <label className={labelClass}>{t('toWarehouse')}</label>
+              <label className={labelClass}>{t('toWarehouse')}<RequiredMark /></label>
               <select value={toWarehouseId} onChange={(e) => setToWarehouseId(e.target.value)} className={inputClass}>
                 <option value="">{t('selectWarehouse')}</option>
                 {warehouses.map((w) => (
@@ -105,7 +106,7 @@ export function TransferFormModal({ open, onClose, onSubmit, isLoading }: Props)
           </div>
 
           <div>
-            <label className={labelClass}>{t('transferNumber')}</label>
+            <label className={labelClass}>{t('transferNumber')}<RequiredMark /></label>
             <input value={transferNumber} onChange={(e) => setTransferNumber(e.target.value)} className={inputClass} />
           </div>
 

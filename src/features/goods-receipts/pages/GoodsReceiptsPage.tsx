@@ -4,12 +4,13 @@ import { useState } from 'react';
 import { TableSkeleton } from '@/shared/components/ui/Skeleton';
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { Plus, PackageCheck } from 'lucide-react';
+import { Plus, PackageCheck, Download } from 'lucide-react';
 import { useGoodsReceipts, useCreateGoodsReceipt } from '../hooks/useGoodsReceipts';
 import { GoodsReceiptFiltersBar } from '../components/GoodsReceiptFilters';
 import { GoodsReceiptsTable } from '../components/GoodsReceiptsTable';
 import { GoodsReceiptFormModal } from '../components/GoodsReceiptFormModal';
 import { GoodsReceipt, GoodsReceiptFilters, CreateGoodsReceiptDTO } from '../types/goods-receipt.types';
+import { exportGoodsReceiptsToCsv } from '../utils/exportGoodsReceipts';
 
 export function GoodsReceiptsPage() {
   const t = useTranslations('purchasing');
@@ -47,13 +48,23 @@ export function GoodsReceiptsPage() {
             <p className="text-sm text-slate-500">{receipts.length} {t('totalReceipts')}</p>
           </div>
         </div>
-        <button
-          onClick={() => setFormOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] text-white rounded-lg text-sm font-medium transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          {t('createGoodsReceipt')}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => exportGoodsReceiptsToCsv(receipts)}
+            disabled={receipts.length === 0}
+            className="flex items-center gap-2 px-4 py-2 border border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-800 text-slate-700 dark:text-gray-200 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+          >
+            <Download className="w-4 h-4" />
+            {t('export')}
+          </button>
+          <button
+            onClick={() => setFormOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] text-white rounded-lg text-sm font-medium transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            {t('createGoodsReceipt')}
+          </button>
+        </div>
       </div>
 
       <GoodsReceiptFiltersBar filters={filters} onChange={setFilters} />

@@ -6,6 +6,7 @@
   "totalReceipts": "إيصالات",
   "createPurchaseOrder": "إنشاء أمر شراء",
   "createGoodsReceipt": "إنشاء إيصال استلام",
+  "export": "تصدير",
   "orderNumber": "رقم الأمر",
   "receiptNumber": "رقم الإيصال",
   "supplier": "المورد",

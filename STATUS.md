@@ -5,3 +5,4 @@ High-level status of proposed/in-progress features. Details and acceptance crite
 | Feature | Status | Notes |
 | --- | --- | --- |
 | Company Factory Reset | Deferred | Owner-only, multi-step confirmation, transactional wipe + onboarding wizard. Spec in TASKS.md. |
+| Phase 2 Inventory UX audit | In Progress | Code-level audit of all Inventory pages completed (Warehouses, Locations, Stock, Movements, Purchase Orders, Goods Receipts, Transfers, Stock Counts, Adjustments, Dashboard, Reports). CSV export and required-field indicators now consistent across all transaction list pages/forms. Remaining gaps tracked in TASKS.md. Live end-to-end workflow execution (create/approve/post) was **not** performed in this session — the API is hard-wired to a specific Supabase project and requires SUPABASE_URL/SERVICE_ROLE_KEY/SUPABASE_ACCESS_TOKEN that were not available in the working environment. |

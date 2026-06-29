@@ -6,6 +6,7 @@
   "totalReceipts": "receipts",
   "createPurchaseOrder": "Create Purchase Order",
   "createGoodsReceipt": "Create Goods Receipt",
+  "export": "Export",
   "orderNumber": "Order #",
   "receiptNumber": "Receipt #",
   "supplier": "Supplier",

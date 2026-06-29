@@ -4,12 +4,13 @@ import { useState } from 'react';
 import { TableSkeleton } from '@/shared/components/ui/Skeleton';
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { Plus, SlidersHorizontal } from 'lucide-react';
+import { Plus, SlidersHorizontal, Download } from 'lucide-react';
 import { useAdjustments, useCreateAdjustment } from '../hooks/useAdjustments';
 import { AdjustmentFiltersBar } from '../components/AdjustmentFilters';
 import { AdjustmentsTable } from '../components/AdjustmentsTable';
 import { AdjustmentFormModal } from '../components/AdjustmentFormModal';
 import { StockAdjustment, AdjustmentFilters, CreateAdjustmentDTO } from '../types/adjustment.types';
+import { exportAdjustmentsToCsv } from '../utils/exportAdjustments';
 
 export function AdjustmentsPage() {
   const t = useTranslations('adjustments');
@@ -47,13 +48,23 @@ export function AdjustmentsPage() {
             <p className="text-sm text-slate-500">{adjustments.length} {t('totalAdjustments')}</p>
           </div>
         </div>
-        <button
-          onClick={() => setFormOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] text-white rounded-lg text-sm font-medium transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          {t('createAdjustment')}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => exportAdjustmentsToCsv(adjustments)}
+            disabled={adjustments.length === 0}
+            className="flex items-center gap-2 px-4 py-2 border border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-800 text-slate-700 dark:text-gray-200 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+          >
+            <Download className="w-4 h-4" />
+            {t('export')}
+          </button>
+          <button
+            onClick={() => setFormOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] text-white rounded-lg text-sm font-medium transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            {t('createAdjustment')}
+          </button>
+        </div>
       </div>
 
       <AdjustmentFiltersBar filters={filters} onChange={setFilters} />
