@@ -16,12 +16,16 @@ const buildQuery = (params: Record<string, string | number | undefined>) => {
 };
 
 export const locationsApi = {
-  getAll: (warehouseId: string, params: { search?: string; page?: number; limit?: number } = {}) =>
+  getAll: (
+    warehouseId: string,
+    params: { search?: string; page?: number; limit?: number; isActive?: boolean } = {},
+  ) =>
     apiClient.get<LocationsResponse>(
       `/inventory/warehouses/${warehouseId}/locations${buildQuery({
         search: params.search,
         page: params.page,
         limit: params.limit,
+        isActive: params.isActive === undefined ? undefined : String(params.isActive),
       })}`
     ),
   getById: (warehouseId: string, id: string) =>

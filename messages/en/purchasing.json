@@ -26,6 +26,7 @@
   "unitCost": "Unit Cost",
   "lineTotal": "Line Total",
   "item": "Item",
+  "location": "Location",
   "batchNumber": "Batch Number",
   "serialNumber": "Serial Number",
   "expirationDate": "Expiration Date",

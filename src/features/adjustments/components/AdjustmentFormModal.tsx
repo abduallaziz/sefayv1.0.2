@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { X } from 'lucide-react';
 import { useWarehouses } from '@/features/warehouses/hooks/useWarehouses';
 import { useItems } from '@/features/items/hooks/useItems';
+import { LocationSelect } from '@/features/locations/components/LocationSelect';
 import type { CreateAdjustmentDTO } from '../types/adjustment.types';
 
 interface Props {
@@ -27,11 +28,12 @@ export function AdjustmentFormModal({ open, onClose, onSubmit, isLoading }: Prop
   const [quantityDelta, setQuantityDelta] = useState('');
   const [unitCost, setUnitCost] = useState('');
   const [reason, setReason] = useState('');
+  const [locationId, setLocationId] = useState('');
   const [error, setError] = useState('');
 
   const resetForm = () => {
     setWarehouseId(''); setItemId(''); setQuantityDelta('');
-    setUnitCost(''); setReason(''); setError('');
+    setUnitCost(''); setReason(''); setLocationId(''); setError('');
   };
 
   if (!open) return null;
@@ -56,6 +58,7 @@ export function AdjustmentFormModal({ open, onClose, onSubmit, isLoading }: Prop
       quantity_delta: delta,
       unit_cost: unitCost ? Number(unitCost) : undefined,
       reason: reason.trim(),
+      location_id: locationId || undefined,
     };
 
     onSubmit(dto);
@@ -75,7 +78,11 @@ export function AdjustmentFormModal({ open, onClose, onSubmit, isLoading }: Prop
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={labelClass}>{t('warehouse')}</label>
-              <select value={warehouseId} onChange={(e) => setWarehouseId(e.target.value)} className={inputClass}>
+              <select
+                value={warehouseId}
+                onChange={(e) => { setWarehouseId(e.target.value); setLocationId(''); }}
+                className={inputClass}
+              >
                 <option value="">{t('selectWarehouse')}</option>
                 {warehouses.map((w) => (
                   <option key={w.id} value={w.id}>{w.name}</option>
@@ -91,6 +98,16 @@ export function AdjustmentFormModal({ open, onClose, onSubmit, isLoading }: Prop
                 ))}
               </select>
             </div>
+          </div>
+
+          <div>
+            <label className={labelClass}>{t('location')}</label>
+            <LocationSelect
+              warehouseId={warehouseId || null}
+              value={locationId}
+              onChange={setLocationId}
+              className={inputClass}
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-3">

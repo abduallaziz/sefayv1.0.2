@@ -64,6 +64,8 @@ export function TransferFormModal({ open, onClose, onSubmit, isLoading }: Props)
         item_id: r.item_id,
         variant_id: r.variant_id || undefined,
         quantity: r.quantity,
+        from_location_id: r.from_location_id || undefined,
+        to_location_id: r.to_location_id || undefined,
       })),
     };
 
@@ -112,7 +114,13 @@ export function TransferFormModal({ open, onClose, onSubmit, isLoading }: Props)
             <textarea value={notes} onChange={(e) => setNotes(e.target.value)} className={inputClass} rows={2} />
           </div>
 
-          <TransferLineItems rows={rows} items={items} onChange={setRows} />
+          <TransferLineItems
+            rows={rows}
+            items={items}
+            fromWarehouseId={fromWarehouseId}
+            toWarehouseId={toWarehouseId}
+            onChange={setRows}
+          />
 
           {error && <p className="text-xs text-red-500">{error}</p>}
 

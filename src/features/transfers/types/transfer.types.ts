@@ -7,6 +7,8 @@ export interface TransferItem {
   variant_id: string | null;
   batch_id: string | null;
   quantity: number;
+  from_location_id?: string | null;
+  to_location_id?: string | null;
 }
 
 export interface Transfer {
@@ -31,6 +33,8 @@ export interface CreateTransferItemDTO {
   variant_id?: string;
   batch_id?: string;
   quantity: number;
+  from_location_id?: string;
+  to_location_id?: string;
 }
 
 export interface CreateTransferDTO {

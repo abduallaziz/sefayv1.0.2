@@ -48,6 +48,7 @@ export function GoodsReceiptFormModal({ open, onClose, onSubmit, isLoading }: Pr
         batch_number: '',
         serial_number: '',
         expiration_date: '',
+        location_id: '',
       }))
     );
   };
@@ -87,6 +88,7 @@ export function GoodsReceiptFormModal({ open, onClose, onSubmit, isLoading }: Pr
         batch_number: r.batch_number || undefined,
         serial_number: r.serial_number || undefined,
         expiration_date: r.expiration_date || undefined,
+        location_id: r.location_id || undefined,
       })),
     };
 
@@ -117,7 +119,14 @@ export function GoodsReceiptFormModal({ open, onClose, onSubmit, isLoading }: Pr
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={labelClass}>{t('warehouse')}</label>
-              <select value={warehouseId} onChange={(e) => setWarehouseId(e.target.value)} className={inputClass}>
+              <select
+                value={warehouseId}
+                onChange={(e) => {
+                  setWarehouseId(e.target.value);
+                  setRows((prev) => prev.map((r) => ({ ...r, location_id: '' })));
+                }}
+                className={inputClass}
+              >
                 <option value="">{t('selectWarehouse')}</option>
                 {warehouses.map((w) => (
                   <option key={w.id} value={w.id}>{w.name}</option>
@@ -135,7 +144,7 @@ export function GoodsReceiptFormModal({ open, onClose, onSubmit, isLoading }: Pr
             <textarea value={notes} onChange={(e) => setNotes(e.target.value)} className={inputClass} rows={2} />
           </div>
 
-          <GoodsReceiptLineItems rows={rows} items={items} onChange={setRows} />
+          <GoodsReceiptLineItems rows={rows} items={items} warehouseId={warehouseId} onChange={setRows} />
 
           {error && <p className="text-xs text-red-500">{error}</p>}
 
