@@ -1,19 +1,79 @@
 # Status
 
-High-level status of proposed/in-progress features. Details and acceptance criteria live in `TASKS.md`.
+High-level project state. Detailed specs and engineering history live in `TASKS.md` and `docs/`.
 
-| Feature | Status | Notes |
+> **Documentation:** Architecture docs → `docs/architecture/` · Future initiatives → `docs/future/` · Roadmap planning → `docs/roadmap/`
+
+---
+
+## Current Phase
+
+**Phase 2 — Inventory UX Production-Readiness** (In Progress)
+
+Core Inventory modules are functional. UX consistency work is ongoing. Live end-to-end workflow verification requires backend credentials (SUPABASE_URL / SERVICE_ROLE_KEY) not available in the current environment.
+
+---
+
+## Recently Completed
+
+| What | PR | Notes |
 | --- | --- | --- |
-| Date-Range Picker Redesign | Completed (superseded by later follow-up) | Originally replaced the heavy two-pane calendar popup with a compact single-column dropdown (presets + native date inputs). **Follow-up:** fixed RTL rendering of native date inputs and removed the last 4 raw `<input type="date">` instances app-wide. **Later follow-up (current state):** design direction changed back to a full day/month/year-zoomable calendar grid for both `SingleDatePicker` and `DateRangePicker`, now portal-rendered (`createPortal`) and positioned via a new shared `useFloatingPosition` hook to fix popup clipping inside scrollable containers and RTL/LTR off-screen positioning bugs. Also fixed a mobile-viewport overflow bug in `DateRangePicker` (presets+calendar now stack vertically below `sm`). Same consumers, no call-site changes beyond an additive `className` prop on `SingleDatePicker`. Full history in TASKS.md. |
-| Company Factory Reset | Deferred | Owner-only, multi-step confirmation, transactional wipe + onboarding wizard. Spec in TASKS.md. |
-| Confirmation Dialog Consolidation | Completed | All 9 delete/cancel confirmation dialogs app-wide (Locations, Warehouses, Purchase Orders, Goods Receipts, Transfers, Suppliers, Items, Customers, Orders) now render the shared `ConfirmDialog` component — one consistent, polished, accessible design across every module, not just Inventory. Details in TASKS.md. |
-| Phase 2 Inventory UX audit | In Progress | Code-level audit of all Inventory pages completed (Warehouses, Locations, Stock, Movements, Purchase Orders, Goods Receipts, Transfers, Stock Counts, Adjustments, Dashboard, Reports). CSV export and required-field indicators now consistent across all transaction list pages/forms. Shared `StatusBadge` (PR #16) and shared `EmptyState` (PR #18) now consolidate previously-duplicated badge and empty-state implementations across all 9 Inventory list tables. Shared `ConfirmDialog` (PR #20, extended app-wide in PR #22) now consolidates every delete/cancel confirmation modal in the project into one polished, accessible component. Next milestone: shared form-modal wrapper for the 7 create/edit form modals. Remaining gaps tracked in TASKS.md. Live end-to-end workflow execution (create/approve/post) was **not** performed in this session — the API is hard-wired to a specific Supabase project and requires SUPABASE_URL/SERVICE_ROLE_KEY/SUPABASE_ACCESS_TOKEN that were not available in the working environment. |
-| Phase 3 — Barcode & Scanning | Planned | Scan-driven Counts/Receipts/Transfers/Adjustments, multi-barcode-per-product data model, unknown-barcode assistant, mobile camera + offline scan modes, GS1/Code128/EAN13/UPC/QR label templates. Full scope in TASKS.md. |
-| Phase 4 — Smart Product Creation | Planned | Create-or-link flow triggered by an unrecognized barcode scan; AI-assisted field suggestions and external barcode-database lookup as fill options. Depends on Phase 3's Unknown Barcode Assistant. Full scope in TASKS.md. |
-| Phase 5 — Inventory Intelligence | Planned | Product activity timeline, inventory health score, point-in-time snapshots, undo-last-operation, Smart Dashboard, Smart Alerts/Reorder Suggestions, Dead/Fast/Slow-Moving, Overstock, ABC Analysis. Full scope in TASKS.md. |
-| Phase 6 — Warehouse Management | Planned | Cycle counting, warehouse heatmap, shelf capacity, smart picking/receiving, drag-and-drop + tree-view locations, product stock card, on-hand/reserved/available split, reservation management. Full scope in TASKS.md. |
-| Phase 7 — Productivity | Planned | Quick product creation, quick/bulk actions, global search, saved/recent filters, favorite products, column manager, keyboard shortcuts. UX-layer only, no new data models. Full scope in TASKS.md. |
-| Phase 8 — AI Features | Planned | AI inventory assistant, AI-generated analysis/recommendations, natural-language inventory queries (ar/en) — shares one LLM provider integration with Phase 4's AI-assisted product creation. Full scope in TASKS.md. |
-| Phase 9 — Company Branding & Information | Planned | Logo/secondary logo/stamp/signatures/QR/watermark assets and legal/tax/contact/banking fields — none of this exists in `SettingsPage` or the profile model yet. Prerequisite data-entry phase for Phase 10's template variables. Full scope in TASKS.md. |
-| Phase 10 — Document & Print Designer | Planned | Standalone, reusable drag-and-drop document engine (Canva/PowerPoint-style) shared by every module needing printed/PDF/email output — invoices, POs, warehouse documents, labels, kitchen/service tickets. Core engine (dynamic fields, conditional printing, multi-paper-size, multi-language) plus a template library built on top. Full scope in TASKS.md. |
-| Phase 11 — Storage Abstraction | Planned | Platform-level architecture that decouples all file/asset storage from any single provider via a `StorageProvider` interface with adapters for Supabase Storage, Amazon S3, MinIO, and Local filesystem. Covers tenant-aware paths, signed URLs, background/zero-downtime provider migration, CDN compatibility, image optimization, asset versioning, and soft delete. Must land alongside or before Phase 9 (Company Branding) since that phase introduces the first tenant-uploaded binary assets. Full scope in TASKS.md. |
+| Date-Range Picker — full calendar-grid redesign + portal positioning | — | Both `SingleDatePicker` and `DateRangePicker` rewritten to portal-rendered calendar grid via `useFloatingPosition`. Mobile overflow fixed. Full history in TASKS.md. |
+| RTL native date-input fix + raw `<input type="date">` removal | — | All 4 raw date inputs replaced with shared pickers. `dir="ltr"` fix centralized in components. |
+| Shared `StatusBadge` | #16 | Replaces 8 per-feature badge implementations across Inventory. |
+| Shared `EmptyState` | #18 | Wired into all 9 Inventory list tables. |
+| Shared `ConfirmDialog` — Inventory | #20 | All Inventory delete/cancel dialogs. |
+| Shared `ConfirmDialog` — App-wide | #22 | Extended to Suppliers, Items, Customers, Orders. 9 dialogs total. |
+| Documentation system (`docs/`) | #27+ | Architecture docs, future initiative specs, roadmap and decision records. |
+
+---
+
+## Active Work
+
+| Area | Status |
+| --- | --- |
+| Phase 2 Inventory UX — form-modal consolidation | Next milestone (7 create/edit modals) |
+| Phase 2 Inventory UX — pagination for 5 modules | Planned (data-layer change required) |
+| Documentation foundation | In progress |
+
+---
+
+## Architecture State
+
+| Layer | Current State |
+| --- | --- |
+| Frontend | Next.js 16.2.6 (App Router), React 19, TypeScript strict, Tailwind CSS, next-intl (ar/en) |
+| Backend | Supabase (PostgreSQL + Auth + Storage + Edge Functions) |
+| Shared UI | StatusBadge, EmptyState, ConfirmDialog, SingleDatePicker, DateRangePicker, useFloatingPosition |
+| Storage | Supabase Storage (direct) — StorageProvider abstraction planned (Phase 11) |
+| Accounting | Not yet started — see `docs/future/advanced-accounting.md` |
+
+→ Full architecture details: `docs/architecture/`
+
+---
+
+## Roadmap Summary
+
+| Phase | Name | Status |
+| --- | --- | --- |
+| 2 | Inventory UX Production-Readiness | In Progress |
+| 3 | Barcode & Scanning | Planned |
+| 4 | Smart Product Creation | Planned |
+| 5 | Inventory Intelligence | Planned |
+| 6 | Warehouse Management | Planned |
+| 7 | Productivity | Planned |
+| 8 | AI Features | Planned |
+| 9 | Company Branding & Information | Planned |
+| 10 | Document & Print Designer | Planned |
+| 11 | Storage Abstraction | Planned |
+| — | Advanced Accounting & Financial Management | Planned (independent) |
+
+→ Full roadmap specs: `TASKS.md` (Phases 3–11) · `docs/future/advanced-accounting.md`
+
+---
+
+## Deferred
+
+| Feature | Notes |
+| --- | --- |
+| Company Factory Reset | Owner-only, multi-step, transactional wipe. Full spec in TASKS.md. |
