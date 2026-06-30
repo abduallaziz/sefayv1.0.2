@@ -1,6 +1,8 @@
 # Tasks
 
-Detailed specs for proposed and active work. Current high-level status lives in `STATUS.md`.
+Detailed specs for active work, history, and high-level roadmap. Current project state lives in `STATUS.md`.
+
+> **Documentation system:** Architecture → `docs/architecture/` · Future initiatives → `docs/future/` · Decisions → `docs/decisions/` · See `docs/README.md` for full structure.
 
 ## In Progress
 
@@ -349,3 +351,19 @@ The explicit architectural guarantee of this phase: after the `StorageProvider` 
 3. Running the background migration job if an existing tenant's data needs to move.
 
 No upload call site, no document template, no barcode generation path, and no Phase 9 branding asset field touches provider-specific code — ever. This is the single enforced invariant of the abstraction layer.
+
+> **Architecture doc:** See `docs/architecture/storage-abstraction.md` for the full technical specification of this phase.
+
+---
+
+## Future Initiatives (Independent of Numbered Roadmap)
+
+These initiatives are not assigned a phase number — they are parallel engineering tracks that may be developed alongside or after the numbered roadmap phases.
+
+### Advanced Accounting & Financial Management
+
+A complete enterprise-grade double-entry accounting engine covering: Chart of Accounts, Journal Entries, General Ledger, Accounts Receivable/Payable, Tax Engine (ZATCA-compliant), Financial Reporting (Trial Balance, Balance Sheet, P&L, Cash Flow), Cost Centers & Financial Dimensions, Fixed Assets, Inventory Costing, Budget & Forecasting, Treasury Management, centralized **Posting Engine** (the most critical architectural component), Workflow & Approvals, Reconciliation Center, Audit & Compliance (IFRS/GAAP/ZATCA/SAF-T/XBRL), Advanced Finance, Enterprise Finance (multi-currency, multi-company), Financial Workspaces, Financial Closing Center, Journal Import, Accounting Templates, Financial API, Financial Analytics, and AI Finance.
+
+**Architecture invariant:** every ERP module must generate accounting entries exclusively through the centralized Posting Engine — business modules must never contain journal logic directly.
+
+> **Full specification:** `docs/future/advanced-accounting.md`
