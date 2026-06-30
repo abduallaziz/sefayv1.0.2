@@ -40,7 +40,7 @@ A document belongs in `roadmap/` when:
 
 | Document | Description |
 |---|---|
-| *(No documents yet)* | *This folder is newly created. Planning documents will be added as phases are analyzed and retrospected.* |
+| `master-roadmap.md` | The single authoritative long-term vision for the Sefay ERP platform. Covers all planned phases, future initiatives, platform services, infrastructure investments, enterprise features, and the complete dependency map. This is the stable reference that prevents the roadmap from re-expanding in every session. |
 
 ---
 

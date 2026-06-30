@@ -54,6 +54,8 @@ Core Inventory modules are functional. UX consistency work is ongoing. Live end-
 
 ## Roadmap Summary
 
+### Active Phases
+
 | Phase | Name | Status |
 | --- | --- | --- |
 | 2 | Inventory UX Production-Readiness | In Progress |
@@ -66,9 +68,45 @@ Core Inventory modules are functional. UX consistency work is ongoing. Live end-
 | 9 | Company Branding & Information | Planned |
 | 10 | Document & Print Designer | Planned |
 | 11 | Storage Abstraction | Planned |
-| — | Advanced Accounting & Financial Management | Planned (independent) |
 
-→ Full roadmap specs: `TASKS.md` (Phases 3–11) · `docs/future/advanced-accounting.md`
+### Future Initiatives (post Phase 11)
+
+| Initiative | Category | Spec |
+| --- | --- | --- |
+| Advanced Accounting & Financial Management | Business Module | `docs/future/advanced-accounting.md` |
+| SaaS Licensing Platform (extended) | Platform Service | `docs/future/saas-licensing-platform.md` |
+| Marketplace & Extension Platform | Platform Service | `docs/future/marketplace-extension-platform.md` |
+| Public API & Developer Platform | Platform Service | `docs/future/` — spec pending |
+| Webhook Delivery System | Platform Service | `docs/future/` — spec pending |
+| Notification Center | Infrastructure | `docs/future/` — spec pending |
+| Approval Workflow Engine | Platform Service | `docs/future/` — spec pending |
+| CRM | Business Module | `docs/future/` — spec pending |
+| HR & Payroll | Business Module | `docs/future/` — spec pending |
+| Manufacturing & MRP | Business Module | `docs/future/` — spec pending |
+| Payment Gateway Integration | Integration | `docs/future/` — spec pending |
+| E-commerce Integration | Integration | `docs/future/` — spec pending |
+| WhatsApp Business Integration | Integration | `docs/future/` — spec pending |
+| ZATCA Phase 2 Integration | Compliance | `docs/future/` — spec pending |
+| PWA / Mobile App | Mobile | `docs/future/` — spec pending |
+| Custom Report Builder | Analytics | `docs/future/` — spec pending |
+| 2FA, SSO & Security Hardening | Security | `docs/future/` — spec pending |
+| Multi-Branch Management | Platform | `docs/future/` — spec pending |
+| Multi-Company & Consolidation | Enterprise | `docs/future/` — spec pending |
+| Granular Permissions & Custom Roles | Platform | `docs/future/` — spec pending |
+| Pricing Engine & Discount Management | Commerce | `docs/future/` — spec pending |
+| UOM & Conversion | Commerce | `docs/future/` — spec pending |
+| Data Import & Migration Tools | Platform | `docs/future/` — spec pending |
+| Quality Control | Business Module | `docs/future/` — spec pending |
+| Project Management | Business Module | `docs/future/` — spec pending |
+| Collaboration & Activity Feed | Platform | `docs/future/` — spec pending |
+| Subscription & Recurring Billing | Business Module | `docs/future/` — spec pending |
+| White-Labeling & Reseller Program | Enterprise | `docs/future/` — spec pending |
+| Executive KPI Dashboard | Analytics | `docs/future/` — spec pending |
+| Field Service & Maintenance | Business Module | `docs/future/` — spec pending |
+| Fleet Management | Business Module | `docs/future/` — spec pending |
+
+→ **Master Roadmap (dependency map + implementation sequence):** `docs/roadmap/master-roadmap.md`
+→ **Phase specs:** `TASKS.md` · **Initiative specs:** `docs/future/`
 
 ---
 

@@ -358,12 +358,279 @@ No upload call site, no document template, no barcode generation path, and no Ph
 
 ## Future Initiatives (Independent of Numbered Roadmap)
 
-These initiatives are not assigned a phase number — they are parallel engineering tracks that may be developed alongside or after the numbered roadmap phases.
+These initiatives are not assigned a phase number. They represent the long-term platform vision beyond Phases 2–11. Each initiative has a dependency order — see `docs/roadmap/master-roadmap.md` for the complete dependency map and recommended implementation sequence.
 
-### Advanced Accounting & Financial Management
+> **Master Roadmap:** `docs/roadmap/master-roadmap.md` — the single authoritative long-term vision. Consult it before proposing new initiatives.
 
-A complete enterprise-grade double-entry accounting engine covering: Chart of Accounts, Journal Entries, General Ledger, Accounts Receivable/Payable, Tax Engine (ZATCA-compliant), Financial Reporting (Trial Balance, Balance Sheet, P&L, Cash Flow), Cost Centers & Financial Dimensions, Fixed Assets, Inventory Costing, Budget & Forecasting, Treasury Management, centralized **Posting Engine** (the most critical architectural component), Workflow & Approvals, Reconciliation Center, Audit & Compliance (IFRS/GAAP/ZATCA/SAF-T/XBRL), Advanced Finance, Enterprise Finance (multi-currency, multi-company), Financial Workspaces, Financial Closing Center, Journal Import, Accounting Templates, Financial API, Financial Analytics, and AI Finance.
+---
 
-**Architecture invariant:** every ERP module must generate accounting entries exclusively through the centralized Posting Engine — business modules must never contain journal logic directly.
+### Platform Services
+
+#### Advanced Accounting & Financial Management
+
+A complete enterprise-grade double-entry accounting engine: Chart of Accounts, General Ledger, AR/AP, Tax Engine (ZATCA Phase 1 + 2), Financial Reporting (Trial Balance, Balance Sheet, P&L, Cash Flow), Financial Dimensions, Fixed Assets, Inventory Costing, Budget & Forecasting, Treasury Management, centralized **Posting Engine**, Workflow & Approvals, Reconciliation, Audit & Compliance (IFRS/GAAP/ZATCA/SAF-T/XBRL), multi-currency, intercompany accounting, financial consolidation, AI Finance.
+
+**Architecture invariant:** every ERP module generates accounting entries exclusively through the centralized Posting Engine.
+
+**Dependencies:** UOM & Conversion, Notification Center, Approval Workflow Engine.
 
 > **Full specification:** `docs/future/advanced-accounting.md`
+
+---
+
+#### SaaS Licensing & Subscription Platform (Extended)
+
+The SuperAdmin subscription layer already exists (Plans, Subscriptions, Feature Entitlements with `limit_value`). What is missing: extended plan limits (warehouses, storage, AI tokens, API calls), usage metering infrastructure, tenant self-service billing portal, coupon system, subscription analytics dashboard, and grace period enforcement logic.
+
+**Dependencies:** Phase 11 (storage quota), Phase 8 (AI token quota), Phase 13 (API call quota).
+
+> **Full specification:** `docs/future/saas-licensing-platform.md`
+
+---
+
+#### Marketplace & Extension Platform
+
+A governed ecosystem for third-party extensions: installable modules, integrations, themes, report templates, document templates, AI plugins, and data connectors. Includes the Extension SDK, extension manifest format, developer portal, marketplace catalogue, review system, and governance model.
+
+**Dependencies:** Phase 10 (Document Templates), Public API & Developer Platform, Custom Report Builder, Custom Fields Platform.
+
+> **Full specification:** `docs/future/marketplace-extension-platform.md`
+
+---
+
+#### Public API & Developer Platform
+
+Publicly documented, versioned REST API with API key management, OpenAPI/Swagger docs, developer sandbox, Zapier/Make connectors, and a webhook management UI for tenants.
+
+**Dependencies:** Existing versioned internal API, Webhook Delivery System, SaaS Licensing (API call quotas).
+
+> Spec: `docs/future/` — document to be created before implementation.
+
+---
+
+#### Webhook Delivery System
+
+Event-driven webhook delivery: tenants register HTTP endpoints and subscribe to platform events. HMAC-signed payloads, retry logic, dead-letter queues, delivery log UI.
+
+**Dependencies:** Background Job System.
+**Required by:** E-commerce Integration, Payment Gateways, WhatsApp Integration, ZATCA.
+
+> Spec: `docs/future/` — document to be created.
+
+---
+
+#### Near-Term Cross-Cutting Infrastructure
+
+The following are platform investments that must be completed before new business modules begin. They are not assigned phase numbers but must be sequenced appropriately:
+
+| Initiative | Priority | Unblocks |
+|---|---|---|
+| Security: 2FA, CSP, Password Policy | 🔴 High | All future phases |
+| Notification Center | 🔴 High | Phase 5 Alerts, Approval Workflows, CRM |
+| Background Job System | 🔴 High | Phase 5, 8, 10, Email |
+| Email Delivery Service | 🔴 High | Phase 10, Smart Alerts, Invoicing |
+| Observability: Error Tracking | 🔴 High | All phases |
+| UOM & Conversion | 🟠 Medium | Phase 3, Manufacturing, Accounting |
+| Document Attachments (add to Phase 11) | 🟠 Medium | QC, Procurement, CRM, HR |
+| Bulk Data Import Tools | 🟠 Medium | Customer onboarding |
+| Custom Fields Platform | 🟠 Medium | CRM, HR, QC |
+| Tenant Audit Log (add to Settings) | 🟠 Medium | Compliance, enterprise sales |
+| Feature Flags: Formalized | 🟠 Medium | All gradual rollouts |
+| SaaS Licensing: Extended Limits + Metering | 🟠 Medium | Phase 8, Phase 13 |
+| Caching Strategy | 🟡 Lower | Phase 5, Phase 8 |
+
+---
+
+### Business Modules
+
+#### CRM (Customer Relationship Management)
+Lead and opportunity tracking, sales pipeline, follow-up activities, communication history, sales rep performance, deal forecasting.
+**Dependencies:** Advanced Accounting, Pricing Engine, Notification Center, Task System.
+> Spec: `docs/future/` — document to be created.
+
+#### HR & Payroll
+Employee records, org chart, departments, leave management, attendance, payroll with GOSI + WPS compliance. Payroll posting via Posting Engine.
+**Dependencies:** Advanced Accounting, Approval Workflow Engine, Multi-Branch Management.
+> Spec: `docs/future/` — document to be created.
+
+#### Manufacturing & MRP
+Bill of Materials, Work Orders, Production Planning, MRP, routing, capacity planning, shop floor control.
+**Dependencies:** Phase 5, Phase 6, Advanced Accounting, Pricing Engine, UOM.
+> Spec: `docs/future/` — document to be created.
+
+#### Quality Control
+Inspection checklists, quality hold states, non-conformance reports, supplier quality ratings, incoming inspection on Goods Receipts.
+**Dependencies:** Phase 6, Phase 3, Advanced Accounting, Document Attachments.
+> Spec: `docs/future/` — document to be created.
+
+#### Multi-Branch Management
+Dedicated Branch module with branch-level P&L, inter-branch stock transfers, branch-scoped user access.
+**Dependencies:** Phase 6, Advanced Accounting, Granular Permissions.
+> Spec: `docs/future/` — document to be created.
+
+#### Project Management
+Projects, tasks, milestones, time tracking, project-based costing, resource allocation.
+**Dependencies:** CRM, Advanced Accounting, HR.
+> Spec: `docs/future/` — document to be created.
+
+#### Field Service & Maintenance
+Service orders, technician dispatch, maintenance schedules, asset tracking, SLA management.
+**Dependencies:** CRM, Project Management, Mobile App, Phase 6 Inventory.
+> Spec: `docs/future/` — document to be created.
+
+#### Subscription & Recurring Billing (customer-facing)
+Customer subscription contracts, recurring invoice generation, proration, dunning. Distinct from Sefay's own SaaS Licensing Platform.
+**Dependencies:** Advanced Accounting (revenue recognition), Phase 10, Payment Gateways.
+> Spec: `docs/future/` — document to be created.
+
+#### Fleet Management
+Vehicle records, maintenance schedules, fuel tracking, driver assignment, vehicle cost allocation.
+**Dependencies:** HR, Advanced Accounting.
+> Spec: `docs/future/` — document to be created.
+
+---
+
+### Integration Initiatives
+
+#### Payment Gateway Integration
+POS terminal integration (Mada, STC Pay) and online payment links (Tamara, Tabby, Moyasar, Stripe).
+**Dependencies:** Phase 10, Advanced Accounting, Webhook System.
+> Spec: `docs/future/` — document to be created.
+
+#### E-commerce Integration Platform
+Bidirectional sync with Salla, Zid, Shopify, WooCommerce.
+**Dependencies:** Public API, Webhook System, Pricing Engine, Payment Gateways.
+> Spec: `docs/future/` — document to be created.
+
+#### WhatsApp Business Integration
+Send invoices, receipts, PO confirmations, and alerts via WhatsApp Business API. Saudi/GCC market differentiator.
+**Dependencies:** Phase 10, Webhook System, Notification Center.
+> Spec: `docs/future/` — document to be created.
+
+#### ZATCA Phase 2 Integration
+Direct API integration with Saudi Tax Authority for Phase 2 e-invoicing: cryptographic signing, clearance/reporting submission.
+**Dependencies:** Advanced Accounting, Phase 10, Phase 9.
+> Spec: `docs/future/` — document to be created.
+
+#### Accounting Software Bridge (QuickBooks / Xero)
+Interim bridge for tenants continuing to use external accounting software until Advanced Accounting matures.
+**Dependencies:** Public API.
+> Spec: `docs/future/` — interim initiative, to be deprecated.
+
+---
+
+### Mobile
+
+#### Progressive Web App (PWA)
+Service worker, install-to-homescreen, push notifications, selective offline caching.
+**Dependencies:** Notification Center, Phase 3 (offline scan mode).
+> Spec: `docs/future/` — document to be created.
+
+#### Native Mobile App (React Native)
+iOS + Android app: barcode scanning, stock counting, POS, delivery confirmation, field service.
+**Dependencies:** PWA, Phase 3, Phase 6, Payment Gateways.
+> Spec: `docs/future/` — document to be created.
+
+---
+
+### Reporting & Analytics
+
+#### Custom Report Builder
+Drag-and-drop report builder for business users. Scheduled email delivery. BI tool export connectors.
+**Dependencies:** Advanced Accounting, CRM, HR, Background Job System, Email Service.
+> Spec: `docs/future/` — document to be created.
+
+#### Executive KPI Dashboard
+Financial + operational KPIs in one view for company owners.
+**Dependencies:** Advanced Accounting, Phase 5.
+> Spec: `docs/future/` — document to be created.
+
+#### Sales Analytics
+Revenue by product/customer/rep/period. Cohort analysis, basket analysis, profitability per order.
+**Dependencies:** Advanced Accounting, Phase 5, Custom Report Builder.
+> Spec: `docs/future/` — document to be created.
+
+---
+
+### Security Initiatives
+
+#### 2FA, SSO & Password Policy
+TOTP 2FA (Supabase Auth native), SAML/OAuth SSO (Azure AD, Google Workspace, Okta), password complexity/expiry, IP whitelisting, session timeout.
+**Note:** 2FA is high priority and should be implemented as near-term work via Supabase Auth's built-in TOTP support.
+> Spec: `docs/future/` — document to be created.
+
+#### Granular Permissions & Custom Roles
+Individual permissions independent of role, company-defined custom roles, branch/warehouse-scoped permissions.
+**Dependencies:** Multi-Branch Management, Approval Workflow Engine.
+> Spec: `docs/future/` — document to be created.
+
+---
+
+### Enterprise Features
+
+#### Multi-Company & Financial Consolidation
+Parent company with multiple subsidiaries, intercompany transactions, elimination journals, consolidated reporting.
+**Dependencies:** Advanced Accounting (complete + stable), Multi-Branch Management.
+> Spec: `docs/future/` — document to be created.
+
+#### White-Labeling & Reseller Program
+Custom logo, custom domain, custom color scheme, custom login page for reseller partners.
+**Dependencies:** Phase 9, SaaS Licensing.
+> Spec: `docs/future/` — document to be created.
+
+#### Tenant Sandbox Environment
+Isolated copy of a tenant's environment for safe testing and training.
+**Dependencies:** Data Import Tools, SaaS Licensing.
+> Spec: `docs/future/` — document to be created.
+
+#### Data Privacy & GDPR Compliance Tools
+Full data export for portability, right-to-erasure with PII anonymization on historical invoices, retention policy enforcement.
+**Dependencies:** Background Job System, Phase 11, Advanced Accounting.
+> Spec: `docs/future/` — document to be created.
+
+---
+
+### Commerce Platform
+
+#### Pricing Engine & Discount Management
+Multiple price lists, customer-group pricing, promotional pricing, quantity breaks, discount rules.
+**Dependencies:** Customer module, Product Catalogue.
+**Required by:** CRM, POS, E-commerce Integration.
+> Spec: `docs/future/` — document to be created.
+
+#### UOM & Conversion (Unit of Measure)
+Multiple units per product, configurable conversion factors, UOM-based pricing.
+**Required by:** Phase 3, Manufacturing, Advanced Accounting (inventory costing).
+> Spec: `docs/future/` — document to be created.
+
+#### Data Import & Migration Tools
+CSV/Excel import for products, customers, suppliers, opening stock, and accounting balances. Row-level validation, rollback on failure.
+**Dependencies:** Phase 11, Background Job System.
+> Spec: `docs/future/` — document to be created.
+
+#### Collaboration & Activity Feed
+Per-record comment threads, @mentions, activity timeline per document (equivalent to Odoo chatter).
+**Dependencies:** Notification Center, Document Attachments.
+> Spec: `docs/future/` — document to be created.
+
+#### Calendar & Scheduling
+Shared calendar: delivery schedules, PO deadlines, shift schedules, stock count sessions, task due dates.
+**Dependencies:** Task System, Shifts (existing), Purchase Orders.
+> Spec: `docs/future/` — document to be created.
+
+#### Task & Reminder System
+Internal task assignment, due dates, record linkage, personal task inbox, recurring tasks.
+**Dependencies:** Notification Center.
+**Required by:** CRM, HR, Field Service, Approval Workflow Engine.
+> Spec: `docs/future/` — document to be created.
+
+#### Approval Workflow Engine
+Configurable multi-level approval chains for any document type, rules-based conditions.
+**Dependencies:** Notification Center.
+**Required by:** CRM, HR, Advanced Accounting, Manufacturing.
+> Spec: `docs/future/` — document to be created.
+
+#### Automation Rules Engine
+No-code rules engine: "when X event, if Y condition, do Z action."
+**Dependencies:** Notification Center, Webhook System, Task System.
+> Spec: `docs/future/` — document to be created.
