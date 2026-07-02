@@ -6,7 +6,7 @@
 
 ## Overview
 
-The Sefay ERP frontend is built on **Next.js 15** using the App Router *(note: an earlier version of this document stated 16.2.6 — the correct version per RUNBOOK.md is Next.js 15)*, **React 19**, **TypeScript** in strict mode, **Tailwind CSS v3** for styling, and **next-intl** for Arabic/English internationalization. It runs inside the `sefayv1.0.2` project and communicates with the NestJS backend (`apiv1.0.2`) via authenticated REST API calls to `/api/v1/...`.
+The Sefay ERP frontend is built on **Next.js 16.2.6** using the App Router (confirmed directly against `web/package.json` — a prior draft of this document "corrected" the version to 15, which was itself wrong; `RUNBOOK.md` does not mention a Next.js version at all, so that correction cited a source that didn't actually support it), **React 19**, **TypeScript** in strict mode, **Tailwind CSS v3** for styling, and **next-intl** for Arabic/English internationalization. It runs inside the `sefayv1.0.2` project and communicates with the NestJS backend (`apiv1.0.2`) via authenticated REST API calls to `/api/v1/...`.
 
 The frontend is an ERP application, not a marketing site — it prioritizes data density, keyboard accessibility, and operational correctness over visual novelty. Component decisions are biased toward reuse and toward matching the established Sefay design language (`rounded-2xl`, `shadow-2xl`, brand color `#0C447C`, slate/gray dark-mode palette).
 
