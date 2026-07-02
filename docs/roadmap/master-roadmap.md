@@ -381,7 +381,7 @@ Beyond the current four hardcoded roles (Owner, Admin, Employee, Cashier): indiv
 A parent company that owns multiple legal entities (subsidiaries) with inter-company transactions, elimination journals, and consolidated financial reporting across subsidiaries.
 
 **Dependencies:** Advanced Accounting (must be complete and stable before consolidation is built), Multi-Branch Management (branches are the simpler step before multi-entity).
-**Note:** significant architecture change — requires a "company group" concept above the existing `companies` table. Must be scoped as a standalone ADR before implementation.
+**Note:** significant architecture change — requires a "company group" concept above the existing `tenants` table. Must be scoped as a standalone ADR before implementation.
 
 ---
 

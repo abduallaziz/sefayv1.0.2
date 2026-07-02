@@ -143,7 +143,7 @@ The accounting system is implemented as a distinct route group (`/accounting`) a
 External integrations (storage for financial attachments, LLM provider for AI Finance, banking API providers) use the abstraction interfaces already defined in the architecture documents. The accounting module never calls Supabase Storage directly — it calls the `StorageProvider` interface. It never calls a specific LLM provider directly — it calls the AI provider abstraction.
 
 ### Future Compatibility
-Design decisions anticipate multi-company, multi-currency, and multi-ledger from the beginning, even if these are delivered in later milestones. Adding a `company_id` foreign key to all financial tables from the start, for example, avoids a costly migration later.
+Design decisions anticipate multi-company, multi-currency, and multi-ledger from the beginning, even if these are delivered in later milestones. Adding a `tenant_id` foreign key to all financial tables from the start, for example, avoids a costly migration later.
 
 ---
 
@@ -638,9 +638,9 @@ Business modules raise events. The Posting Engine consumes events. Journal entri
 - Multi-Ledger — maintain multiple accounting ledgers per company (e.g., statutory ledger + management ledger with different accounting treatments)
 
 **Architecture Notes:**
-- `company_id` on every financial table (established from Milestone 1) is the foundation for multi-company; no retroactive migration needed
+- `tenant_id` on every financial table (established from Milestone 1) is the foundation for multi-company; no retroactive migration needed
 - Exchange rate storage: `exchange_rates` table with `(from_currency, to_currency, rate_type, effective_date, rate)` — queried by date proximity for any historical transaction
-- Intercompany transactions require a `intercompany_partner_company_id` field on documents; the Posting Engine generates journal entries in both the originating and receiving company's ledger in a distributed transaction (or a saga pattern if cross-database)
+- Intercompany transactions require an `intercompany_partner_tenant_id` field on documents; the Posting Engine generates journal entries in both the originating and receiving company's ledger in a distributed transaction (or a saga pattern if cross-database)
 - Consolidation runs as a batch job; consolidation journal entries are stored in a separate consolidation ledger that is not mixed with statutory ledger entries
 - This milestone depends on the multi-company model described in `docs/architecture/tenant-architecture.md`
 
@@ -841,7 +841,7 @@ Business modules raise events. The Posting Engine consumes events. Journal entri
 
 **Architecture Notes:**
 - The Financial API does not bypass the Posting Engine or service layer — it calls the same services used by the UI
-- API responses for financial data always include the `company_id` context; cross-company data access is not permitted via the API without explicit multi-company authorization
+- API responses for financial data always include the `tenant_id` context; cross-company data access is not permitted via the API without explicit multi-company authorization
 - ZATCA API integration uses the cryptographic signing infrastructure from Milestone 13 (Audit & Compliance)
 
 **Dependencies:** Milestone 10 (Posting Engine), Milestone 3 (Tax Engine/ZATCA), Milestone 13 (Audit & Compliance)
@@ -965,7 +965,7 @@ The following is a high-level description of the core tables. Column lists are i
 -- Chart of Accounts
 chart_of_accounts (
   id UUID PRIMARY KEY,
-  company_id UUID NOT NULL REFERENCES companies(id),
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
   account_code VARCHAR(20) NOT NULL,
   account_name_ar TEXT NOT NULL,
   account_name_en TEXT NOT NULL,
@@ -976,13 +976,13 @@ chart_of_accounts (
   allow_direct_posting BOOLEAN DEFAULT TRUE,  -- false for group/header accounts
   currency_code CHAR(3) DEFAULT 'SAR',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  UNIQUE(company_id, account_code)
+  UNIQUE(tenant_id, account_code)
 )
 
 -- Fiscal Years
 fiscal_years (
   id UUID PRIMARY KEY,
-  company_id UUID NOT NULL REFERENCES companies(id),
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
   name VARCHAR(50) NOT NULL,
   start_date DATE NOT NULL,
   end_date DATE NOT NULL,
@@ -995,7 +995,7 @@ fiscal_years (
 fiscal_periods (
   id UUID PRIMARY KEY,
   fiscal_year_id UUID NOT NULL REFERENCES fiscal_years(id),
-  company_id UUID NOT NULL REFERENCES companies(id),
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
   period_number INT NOT NULL,
   name VARCHAR(50) NOT NULL,
   start_date DATE NOT NULL,
@@ -1009,7 +1009,7 @@ fiscal_periods (
 -- Journal Entries (header)
 journal_entries (
   id UUID PRIMARY KEY,
-  company_id UUID NOT NULL REFERENCES companies(id),
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
   fiscal_period_id UUID NOT NULL REFERENCES fiscal_periods(id),
   entry_date DATE NOT NULL,
   entry_number VARCHAR(30) NOT NULL,  -- formatted, e.g. JE-2026-001234
@@ -1026,8 +1026,8 @@ journal_entries (
   posted_at TIMESTAMPTZ,
   posted_by_user_id UUID REFERENCES users(id),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  UNIQUE(company_id, entry_number),
-  UNIQUE(company_id, source_document_type, source_document_id, source_event_type)  -- idempotency
+  UNIQUE(tenant_id, entry_number),
+  UNIQUE(tenant_id, source_document_type, source_document_id, source_event_type)  -- idempotency
 )
 
 -- Journal Lines (debit/credit entries)
@@ -1058,12 +1058,12 @@ journal_lines (
 -- Dimension Type Definitions
 financial_dimensions (
   id UUID PRIMARY KEY,
-  company_id UUID NOT NULL REFERENCES companies(id),
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
   dimension_code VARCHAR(30) NOT NULL,  -- e.g. 'cost_center', 'department', 'project'
   dimension_name_ar TEXT NOT NULL,
   dimension_name_en TEXT NOT NULL,
   is_active BOOLEAN DEFAULT TRUE,
-  UNIQUE(company_id, dimension_code)
+  UNIQUE(tenant_id, dimension_code)
 )
 
 -- Dimension Values
@@ -1093,7 +1093,7 @@ transaction_dimension_tags (
 ```sql
 bank_accounts (
   id UUID PRIMARY KEY,
-  company_id UUID NOT NULL REFERENCES companies(id),
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
   bank_name_ar TEXT NOT NULL,
   bank_name_en TEXT,
   account_number VARCHAR(50),
@@ -1122,7 +1122,7 @@ bank_transactions (
 ```sql
 budget_headers (
   id UUID PRIMARY KEY,
-  company_id UUID NOT NULL REFERENCES companies(id),
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
   fiscal_year_id UUID NOT NULL REFERENCES fiscal_years(id),
   version_name VARCHAR(50) NOT NULL,
   version_number INT NOT NULL,
@@ -1145,7 +1145,7 @@ budget_lines (
 ```sql
 assets (
   id UUID PRIMARY KEY,
-  company_id UUID NOT NULL REFERENCES companies(id),
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
   asset_code VARCHAR(30) NOT NULL,
   asset_name_ar TEXT NOT NULL,
   asset_name_en TEXT,
@@ -1178,7 +1178,7 @@ asset_depreciation_schedules (
 ```sql
 posting_rules (
   id UUID PRIMARY KEY,
-  company_id UUID,  -- NULL = system-wide rule
+  tenant_id UUID,  -- NULL = system-wide rule
   rule_code VARCHAR(50) NOT NULL,
   rule_name_ar TEXT NOT NULL,
   trigger_event_type VARCHAR(100) NOT NULL,
@@ -1264,7 +1264,7 @@ Business modules emit domain events. The Posting Engine subscribes to these even
 // In the Sales module (example)
 await eventEmitter.emit('SalesInvoicePosted', {
   invoice_id: invoice.id,
-  company_id: invoice.company_id,
+  tenant_id: invoice.tenant_id,
   customer_id: invoice.customer_id,
   invoice_date: invoice.invoice_date,
   subtotal: invoice.subtotal,
@@ -1287,7 +1287,7 @@ The event payload is strongly typed via a shared schema. The Posting Engine reso
 -- Materialized view for Trial Balance (refreshed hourly or on demand)
 CREATE MATERIALIZED VIEW mv_trial_balance AS
 SELECT
-  je.company_id,
+  je.tenant_id,
   je.fiscal_period_id,
   jl.account_id,
   coa.account_code,
@@ -1301,9 +1301,9 @@ FROM journal_lines jl
 JOIN journal_entries je ON jl.journal_entry_id = je.id
 JOIN chart_of_accounts coa ON jl.account_id = coa.id
 WHERE je.status = 'posted'
-GROUP BY je.company_id, je.fiscal_period_id, jl.account_id, coa.account_code, coa.account_name_ar, coa.account_name_en, coa.account_type;
+GROUP BY je.tenant_id, je.fiscal_period_id, jl.account_id, coa.account_code, coa.account_name_ar, coa.account_name_en, coa.account_type;
 
-CREATE UNIQUE INDEX ON mv_trial_balance (company_id, fiscal_period_id, account_id);
+CREATE UNIQUE INDEX ON mv_trial_balance (tenant_id, fiscal_period_id, account_id);
 ```
 
 ---
@@ -1433,7 +1433,7 @@ Each financial persona receives a workspace optimized for their daily tasks:
 ## Security Considerations
 
 ### Row-Level Security (RLS)
-All accounting tables have RLS policies enforced at the Supabase/PostgreSQL level. The `company_id` column on every table is the primary isolation boundary. Users can only access data belonging to their company. Auditors have read-only RLS policies that grant SELECT but deny INSERT/UPDATE/DELETE.
+All accounting tables have RLS policies enforced at the Supabase/PostgreSQL level. The `tenant_id` column on every table is the primary isolation boundary. Users can only access data belonging to their tenant. Auditors have read-only RLS policies that grant SELECT but deny INSERT/UPDATE/DELETE.
 
 ### Role-Based Access Control
 | Role | Permissions |
@@ -1470,9 +1470,9 @@ CREATE INDEX idx_jl_account_id     ON journal_lines(account_id);
 CREATE INDEX idx_jl_account_period ON journal_lines(account_id, fiscal_period_id);  -- via join to journal_entries
 
 -- Critical indexes on journal_entries
-CREATE INDEX idx_je_company_period ON journal_entries(company_id, fiscal_period_id);
+CREATE INDEX idx_je_tenant_period  ON journal_entries(tenant_id, fiscal_period_id);
 CREATE INDEX idx_je_source         ON journal_entries(source_document_type, source_document_id);
-CREATE INDEX idx_je_status         ON journal_entries(company_id, status);
+CREATE INDEX idx_je_status         ON journal_entries(tenant_id, status);
 ```
 
 ### Materialized Views
@@ -1496,7 +1496,7 @@ For high-volume posting scenarios (end-of-period depreciation run posting thousa
 ## Scalability Considerations
 
 ### Table Partitioning
-`journal_entries` and `journal_lines` are partitioned by `(company_id, fiscal_year_id)`. This ensures that large enterprises with many years of data do not experience query performance degradation. Partition pruning means that queries scoped to a single fiscal year only scan the relevant partition.
+`journal_entries` and `journal_lines` are partitioned by `(tenant_id, fiscal_year_id)`. This ensures that large enterprises with many years of data do not experience query performance degradation. Partition pruning means that queries scoped to a single fiscal year only scan the relevant partition.
 
 ```sql
 -- Range partitioning by fiscal year (example)
@@ -1515,7 +1515,7 @@ CREATE TABLE journal_entries (
 High-volume posting scenarios use PgBouncer (Supabase's built-in connection pooler) to prevent connection exhaustion. The Posting Engine uses transaction-mode pooling for its posting operations.
 
 ### Multi-Tenant Scaling
-As the number of tenants grows, the `company_id` column on every table combined with RLS ensures that data isolation is maintained without separate databases per tenant. For very large enterprise customers with extreme volume requirements, a dedicated database deployment option can be considered without changing the application's data model.
+As the number of tenants grows, the `tenant_id` column on every table combined with RLS ensures that data isolation is maintained without separate databases per tenant. For very large enterprise customers with extreme volume requirements, a dedicated database deployment option can be considered without changing the application's data model.
 
 ---
 

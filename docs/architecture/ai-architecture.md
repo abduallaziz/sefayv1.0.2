@@ -156,7 +156,7 @@ The future Advanced Accounting initiative (referenced in `docs/future/README.md`
 Phase 8's natural language query feature requires translating a free-text question into a structured Inventory API query and presenting the result conversationally. The architecture:
 
 1. **User input:** the user enters a question in Arabic or English in the AI assistant panel.
-2. **Context assembly (server-side):** a Server Action assembles a minimal structured context: the user's `company_id`, the current date, and a description of the available query parameters for the relevant Inventory API endpoints. No raw table data is included in the context.
+2. **Context assembly (server-side):** a Server Action assembles a minimal structured context: the user's `tenant_id`, the current date, and a description of the available query parameters for the relevant Inventory API endpoints. No raw table data is included in the context.
 3. **LLM call:** the assembled prompt (system instructions + context + user question) is sent to the `AIProvider`. The system prompt instructs the model to produce a structured JSON query (e.g. `{ "entity": "stock_levels", "filters": { "product_id": "...", "warehouse_id": "..." } }`).
 4. **Query execution:** the Server Action parses the LLM's structured output and executes the corresponding Inventory API call using the authenticated tenant's credentials.
 5. **Result summarization:** the query result (raw data) and the original user question are sent back to the `AIProvider` to generate a natural language summary.

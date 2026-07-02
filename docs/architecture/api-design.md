@@ -1,6 +1,7 @@
 # API Design
 
 *Added: 2026-06-30*
+*Note: This document was originally written in the context of Next.js API routes and Supabase Edge Functions. The actual V1.02 API is a NestJS 11 application on Railway. All API routes are NestJS controllers under `/api/v1/`. There are no Supabase Edge Functions in the current implementation. The conventions in this document apply to the NestJS REST API surface.*
 
 ---
 
@@ -58,7 +59,7 @@ All requests and responses use `Content-Type: application/json`.
 }
 ```
 
-- `company_id` is never included in the request body. It is derived from the authenticated session. See Tenant Isolation below.
+- `tenant_id` is never included in the request body. It is derived from the authenticated session. See Tenant Isolation below.
 - `id` is never included in the request body for create operations. It is assigned by the server.
 
 ### Response body (success)
@@ -70,7 +71,7 @@ Single resource:
   "data": {
     "id": "uuid-here",
     "name": "Warehouse A",
-    "company_id": "company-uuid",
+    "tenant_id": "tenant-uuid",
     "created_at": "2026-06-30T08:00:00Z",
     "updated_at": "2026-06-30T08:00:00Z"
   }
@@ -209,9 +210,9 @@ Multi-column sort is not supported in the initial implementation.
 
 ## Tenant Isolation
 
-Tenant isolation is **always implicit from the authenticated session**. The `company_id` associated with the authenticated user's JWT is used to scope every database query. It is never passed as a query parameter, a path segment, or a request body field.
+Tenant isolation is **always implicit from the authenticated session**. The `tenant_id` associated with the authenticated user's JWT is used to scope every database query. It is never passed as a query parameter, a path segment, or a request body field.
 
-A client that supplies a `company_id` in the request body has it silently ignored. The service layer always uses the JWT-derived value.
+A client that supplies a `tenant_id` in the request body has it silently ignored. The service layer always uses the JWT-derived value.
 
 This means that the same API route serves all tenants — the route does not need to know which tenant it is serving, because the service layer handles scoping automatically.
 
@@ -221,9 +222,10 @@ See [`security-architecture.md`](./security-architecture.md#api-security) for th
 
 ## Rate Limiting
 
-Rate limiting is applied at the API gateway or middleware layer. Current planned limits (to be finalized before the public API is opened):
+Rate limiting is applied at the NestJS throttler middleware layer (two-tier, Redis-backed):
 
-- **Authenticated API requests:** 1000 requests per minute per `company_id`.
+- **Global throttler:** 100 requests per 60 seconds per tenant (keyed by `tenant:{tenantId}`). *(Earlier drafts of this document stated 1000/min — the correct deployed limit is 100/60s.)*
+- **Auth throttler:** 10 requests per 60 seconds per IP address — applied to `/auth/*` only via `@Throttle({ auth: { limit: 10, ttl: 60000 } })` on the Auth controller.
 - **Edge Functions:** subject to Supabase Edge Function invocation limits per project tier.
 - **AI provider calls:** rate-limited separately at the `AIProvider` layer to avoid exceeding the LLM provider's per-minute token limits. See [`ai-architecture.md`](./ai-architecture.md).
 

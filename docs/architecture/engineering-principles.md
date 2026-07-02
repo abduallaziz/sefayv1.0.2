@@ -6,99 +6,125 @@
 
 ## Overview
 
-This document defines the engineering principles, code quality standards, testing pipeline, git workflow, and cross-cutting technical rules that apply to all development on the Sefay ERP platform. Every engineer contributing to the project is expected to be familiar with and to apply these principles consistently. Individual feature decisions should be traceable to these principles.
-
-These principles are not aspirational guidelines — they are standing rules enforced through the verification pipeline described below. A change that violates them is not ready to merge.
+This document records the engineering principles, standing rules, and code quality standards that apply to all work on the Sefay ERP platform. These are not aspirational goals — they are enforced rules. When a rule is established after discovering a bug or pattern, it is recorded here along with the date and context so that future engineers understand why the rule exists.
 
 ---
 
-## Core Engineering Principles
+## Separation of Concerns
 
-### Separation of Concerns
+Responsibilities are divided across distinct layers with strictly enforced boundaries:
 
-Each module, component, and service has a single, well-defined responsibility. UI rendering logic does not perform data fetching. Business logic does not directly reference UI primitives. Service functions do not contain routing or presentation logic. When a file grows ambiguous in its purpose, it is a signal that it needs to be split.
-
-### Modular Architecture
-
-The project is organized around features (`src/features/`) that own their internal implementation details, and a shared layer (`src/shared/`) that provides primitives reused across features. Features do not import from each other's internals. Cross-feature coordination happens through shared services, shared types, or navigation, never through direct component imports between feature folders.
-
-### Reusable Services
-
-Business logic that is needed by more than one feature lives in a shared service or utility, not duplicated in each feature. The history of shared components in this project — `StatusBadge`, `EmptyState`, `ConfirmDialog`, `SingleDatePicker`, `DateRangePicker`, `exportToCsv` — illustrates this rule in action: each was extracted from duplicate implementations found in multiple features and promoted to a single canonical location.
-
-### Provider Abstraction
-
-Infrastructure dependencies (storage, AI providers, external APIs) are accessed through interface-typed abstractions rather than SDK calls at call sites. This allows providers to be swapped without touching business logic. See [`storage-abstraction.md`](./storage-abstraction.md) and [`ai-architecture.md`](./ai-architecture.md) for current applications of this principle.
-
-### Future Compatibility
-
-Design choices are evaluated not just for today's requirements but for the planned evolution of the system described in `TASKS.md`. A decision that solves today's problem but forecloses a planned Phase 6 or Phase 11 capability is reconsidered before it is merged. The roadmap is not a constraint on creativity, but it is an input to every significant design decision.
+- **Controllers** handle HTTP: accept requests, delegate to services, return responses. No business logic.
+- **Services** own business rules, orchestrate operations, call repositories.
+- **Repositories** own all database access. All queries extend `ScopedRepository` for automatic tenant isolation.
+- **Engines** are pure TypeScript — no DB, no NestJS, no HTTP. They receive data and return results. Designed to run from both the API and a future mobile client.
+- **Frontend features** own their components, hooks, and API calls. Feature internals do not cross module boundaries.
+- **Shared modules** are promoted only when a component is used in two or more features or is clearly destined for reuse.
 
 ---
 
-## Code Quality Standards
+## Modular Architecture
 
-### TypeScript Strict Mode
+The backend is a **Modular Monolith** — modules are well-isolated but deployed as one service. This is an intentional choice: no microservices until scaling requirements prove the need. (See ADR record in `docs/decisions/README.md`.)
 
-The project runs TypeScript in strict mode (`tsconfig.json`). Every file must compile clean under `tsc --noEmit` with no suppressions or `any` casts that are not explicitly justified in a comment. Type-level correctness is not optional.
-
-### No Raw `<input type="date">`
-
-All date fields in the application must use the shared `SingleDatePicker` or `DateRangePicker` components (`src/shared/ui/`). Raw `<input type="date">` elements are prohibited in application code because they render incorrectly in RTL contexts without an explicit `dir="ltr"` override, and that override must be managed centrally in the shared components, not at each call site. This rule was established after fixing the RTL rendering bug in `PurchaseOrderFormModal.tsx`, `MovementsFiltersBar.tsx`, and `GoodsReceiptLineItems.tsx`. The only permitted occurrences of `type="date"` in `src/` are inside the shared date-picker components themselves.
-
-### Shared Components Over Duplication
-
-Before writing a new component or utility, search for an existing shared primitive that can be extended. Before shipping a feature-specific component, evaluate whether it belongs in `src/shared/`. Duplication is a code smell that is tracked and eliminated as part of routine audits (see Phase 2 Inventory UX audit in `TASKS.md`).
-
-### Zero Net-New Lint Regressions
-
-Every change must be lint-clean or, where pre-existing lint issues exist in unrelated files, must not increase the count of lint errors or warnings. The baseline at the time of the Phase 2 audit was 95 problems (77 errors, 18 warnings). Any change that introduces new lint issues in files it touches must resolve them before merging.
+- No microservices before proven scaling requirement.
+- No Redis / no materialized views before the query volume warrants it.
+- No NestJS rewrites of stable, working modules.
+- Module boundaries are enforced at the repository level: one module may not query another module's tables directly.
 
 ---
 
-## Testing and Verification Pipeline
+## Reusable Services and Provider Abstraction
 
-Every change must pass the full verification pipeline before it is considered complete. The steps are sequential — a failure at any step stops the pipeline.
+Shared services follow a provider-abstraction pattern, making infrastructure choices swappable:
 
-### Step 1 — TypeScript Compilation
+- **Payment:** `PaymentProvider` interface → `StripePaymentProvider` / `MockPaymentProvider`. Switched via `PAYMENT_PROVIDER` env.
+- **Storage:** `StorageProvider` interface (Phase 11) → `SupabaseStorageAdapter` / `S3StorageAdapter` / `MinIOStorageAdapter` / `LocalStorageAdapter`. Switched via configuration.
+- **AI:** `AIProvider` interface (Phase 4) → provider adapters. Switched via configuration.
+- **Email:** Resend email service. Silent mock mode if `RESEND_API_KEY` is unset.
 
+Every new infrastructure dependency should be wrapped behind a provider interface. No SDK-specific code in business logic.
+
+---
+
+## TypeScript Strict Mode
+
+TypeScript strict mode is enabled in both the API (`api/`) and web (`web/`) projects.
+
+- No `any` — in either project. TypeScript strict, no exceptions.
+- All controller methods require explicit DTO classes.
+- All service functions have typed parameters and return types.
+- No implicit `any` from missing type annotations.
+- `noEmit` compilation (`tsc --noEmit`) must pass with zero errors before merge.
+
+---
+
+## No Raw `<input type="date">`
+
+**Established:** June 26, 2026 (STATUS.md §48), after fixing an RTL bug caused by the browser's native date input rendering incorrectly in Arabic context.
+
+Raw `<input type="date">` is **prohibited** in all application code. Always use:
+
+- `SingleDatePicker` (from `src/shared/ui/date-range-picker/SingleDatePicker.tsx`) for single-date fields.
+- `DateRangePicker` (from `src/shared/ui/date-range-picker/DateRangePicker.tsx`) for date range fields.
+
+**Why this rule exists:** The browser's native date input does not provide consistent RTL/LTR rendering across browsers. The custom `SingleDatePicker` and `DateRangePicker` components render through `createPortal` with `useFloatingPosition`, providing consistent cross-browser RTL/LTR behavior and correct viewport positioning in scrollable containers.
+
+Code review must reject any PR that introduces a raw `<input type="date">`.
+
+---
+
+## Shared Components Over Duplication
+
+When a UI pattern is needed in more than one feature, a shared component is built. Duplication of implementation logic across feature modules is not permitted.
+
+Current shared components that replaced per-feature duplication:
+- `StatusBadge` — replaced 8 per-feature badge implementations.
+- `ConfirmDialog` — replaced per-feature confirmation modal patterns.
+- `EmptyState` — replaced inline plain-text empty states.
+- `SingleDatePicker` / `DateRangePicker` / `useFloatingPosition` — replaced raw `<input type="date">` and inline popup positioning.
+
+When adding a shared component:
+1. Add it to `src/shared/ui/` with a `kebab-case.tsx` filename.
+2. Add it to the shared UI component list in [`frontend-architecture.md`](./frontend-architecture.md).
+3. Update all existing feature implementations to use the new shared component.
+
+---
+
+## Zero Net-New Lint Regressions
+
+Every change must leave the lint and TypeScript error counts equal to or better than before. Specifically:
+- `tsc --noEmit` must pass with zero errors.
+- `npm run lint` must pass with no new errors or warnings introduced.
+- If lint errors exist in the codebase before your change, you are not required to fix all of them — but you must not add new ones.
+
+---
+
+## Testing Pipeline
+
+Before any merge, the full verification pipeline must pass:
+
+1. `tsc --noEmit` — TypeScript compilation check (zero errors)
+2. `npm run lint` — ESLint (no new regressions)
+3. `npm run build` — production build must succeed
+4. Playwright screenshots — visual regression check on key pages
+5. Smoke check — key API endpoints verified
+
+**API-specific test commands:**
 ```bash
-tsc --noEmit
+npm run test        # Jest unit tests
+npm run test:watch  # Jest watch mode
+npm run test:cov    # With coverage report
+npm run test:e2e    # E2E tests
 ```
 
-Must exit with zero errors. No exceptions.
-
-### Step 2 — Lint Baseline Preservation
-
-```bash
-npm run lint
-```
-
-Must not introduce new lint problems in files touched by the change. The total problem count must not increase beyond the established baseline.
-
-### Step 3 — Production Build
-
-```bash
-npm run build
-```
-
-Must complete successfully. A change that passes TypeScript and lint but fails the Next.js build pipeline is not ready.
-
-### Step 4 — UI Verification (Playwright)
-
-For changes that affect visual rendering — component redesigns, popup positioning, responsive layout, RTL/LTR behavior — Playwright screenshots are taken at the relevant breakpoints and locales to confirm correct behavior. Minimum viewports for responsive work: 320px (mobile portrait), 375px (mobile standard), 768px (tablet), 1280px (desktop). Both `ar` and `en` locales must be verified when a change affects direction-sensitive layout.
-
-### Step 5 — Smoke Check
-
-For changes that affect interactive behavior (date pickers, modals, filters, forms), a `next dev` smoke check confirms that the relevant pages render and interactive flows complete without console errors.
-
 ---
 
-## Documentation Standards
+## Documentation Sync
 
-Every significant engineering decision made during implementation must be recorded. This means:
+Documentation must stay synchronized with the codebase:
 
-- If a design was considered and rejected, note why in the relevant `TASKS.md` entry or in a new ADR in [`docs/decisions/`](../decisions/README.md).
+- If a design was considered and rejected, note why in the relevant `TASKS.md` entry or in a new ADR in `docs/decisions/`.
 - If a shared component is created, update the relevant architecture document.
 - If a standing rule is established (such as the no-raw-date-input rule above), record it here and in the relevant architecture document.
 - If a phase is completed, update `STATUS.md` and ensure `TASKS.md` reflects the final as-built state, not only the original plan.
@@ -115,15 +141,20 @@ The full Documentation Policy is described in [`docs/README.md`](../README.md#do
 4. **Push** — push the merged result to the remote. Do not force-push to shared branches.
 5. **PR description** — pull request descriptions reference the relevant `TASKS.md` section, list what was changed, and confirm which verification steps were run and passed.
 
+**GitHub Actions CI:** TypeScript build check runs on push. Auto-deploy on push to `main` for both Railway (API) and Vercel (Frontend).
+
 ---
 
 ## Security Principles
 
 - Authentication is enforced at the API boundary. Frontend gating (hiding buttons, navigation guards) is a UX convenience only — it is not a security control.
-- Every database operation that touches tenant data must be scoped by `company_id`. Row-Level Security policies in Supabase enforce this at the database layer. See [`security-architecture.md`](./security-architecture.md).
+- Every database operation that touches tenant data must be scoped by `tenant_id`. Row-Level Security policies in Supabase enforce this at the database layer. See [`security-architecture.md`](./security-architecture.md).
 - Signed URLs for asset access are generated server-side only. The client never receives storage credentials. Default expiry: 15 minutes for previews, 60 minutes for print/download contexts.
 - Tenant data is not sent to external AI providers without an explicit data-privacy review. See [`ai-architecture.md`](./ai-architecture.md).
 - Input validation is performed on both the frontend (immediate user feedback) and the backend (the authoritative gate). Frontend validation is never the sole line of defense.
+- Financial records are immutable. No hard deletes, no mutations after creation. Reverse transactions only.
+- All audit-required operations use the `@Audit()` decorator.
+- The guard pipeline order (`JwtAuthGuard → TenantGuard → PermissionGuard → FeatureGuard`) is non-negotiable.
 
 ---
 
@@ -132,7 +163,8 @@ The full Documentation Policy is described in [`docs/README.md`](../README.md#do
 - List tables that may grow large (Stock Levels, Movements, Purchase Orders) require server-side pagination. The current known gap — five Inventory modules lacking pagination entirely — is tracked in `TASKS.md` Phase 2 remaining items.
 - Expensive derived computations (inventory health scores, ABC analysis, snapshot reconstructions) are performed server-side and cached, not computed inline per render.
 - Portal-rendered popups (`createPortal`) use `useFloatingPosition` for viewport-aware positioning to avoid layout reflows caused by incorrect size assumptions in scrollable containers.
-- Image assets (company logos, stamps, signatures) are stored in original resolution and served through optimized variants via the `StorageProvider` interface. See [`storage-abstraction.md`](./storage-abstraction.md).
+- Image assets (company logos, stamps, signatures) are stored in original resolution and served through optimized variants via the `StorageProvider` interface.
+- No N+1 queries: cross-module data lookups use parallel queries where possible (e.g. usage computation = 3 parallel queries by design).
 
 ---
 
@@ -155,5 +187,38 @@ The full Documentation Policy is described in [`docs/README.md`](../README.md#do
 
 - The application uses `next-intl` for all user-visible strings. Hard-coded English (or Arabic) strings in component JSX are not permitted.
 - Translation keys are added to both `messages/en.json` and `messages/ar.json` in the same commit. A key that exists in one locale file but not the other is a bug.
-- The supported locales are `ar` and `en`. The routing pattern is `app/[locale]/`. See [`frontend-architecture.md`](./frontend-architecture.md) for the routing detail.
-- Pluralization must use `next-intl`'s plural form support, not string concatenation (e.g. `"1 items"` is incorrect; the singular/plural distinction must be handled through the translation system).
+- The supported locales are `ar` and `en`. The routing pattern is `app/[locale]/`.
+- Pluralization must use `next-intl`'s plural form support, not string concatenation (e.g. `"1 items"` is incorrect).
+- **Backend I18n:** `I18nService` is used for all user-facing text in the backend (notifications, emails, error messages). Language resolution chain: `user.language → tenant.defaultLanguage → system default 'en'`.
+- **I18N is mandatory:** no user-facing text is hardcoded anywhere. This applies to both frontend and backend.
+
+---
+
+## Working Rules (Language)
+
+- Arabic is the conversation language (Claude agent communication).
+- English is the code language (all code, variable names, comments, documentation files).
+- Full files are always provided — never partial snippets.
+- Windows full paths for all file references: `C:\Fp\api\src\...`, never relative paths.
+- Filesystem first: create folders → files → install packages → write code.
+- No assumptions: if a DTO, enum, module, or provider is needed, create it in the same task.
+
+---
+
+## Mandatory Rules Summary (From CLAUDE.md)
+
+1. **Full files always** — never send partial snippets. Every modified file must be complete and final.
+2. **Windows full paths** — `C:\Fp\api\src\...`, never relative paths.
+3. **Filesystem first** — create folders → files → install packages → write code.
+4. **No assumptions** — if a DTO, enum, module, or provider is needed, create it in the same task.
+5. **Guard order** — `JwtAuthGuard → TenantGuard → PermissionGuard → FeatureGuard`. Never register tenant/permission guards as `APP_GUARD`.
+6. **Tenant isolation** — every query must have `tenant_id`. Use `ScopedRepository`. Double-lock updates.
+7. **No `any`** — TypeScript strict, no `any` in either project.
+8. **No business logic in controllers** — controllers call services only.
+9. **No direct Supabase outside repositories** — all DB access goes through repositories.
+10. **Engines are pure** — no DB, no NestJS, no HTTP in engines.
+11. **Financial records immutable** — no hard delete, no mutation after creation.
+12. **Audit required** — use `@Audit()` decorator on sensitive operations.
+13. **I18n mandatory** — no user-facing text hardcoded. All through `I18nService`.
+14. **Soft delete** — `deleted_at` pattern on all sensitive tables. ScopedRepository filters it automatically.
+15. **`x-branch-id` header is temporary** — Phase A only. Phase B requires validated branch ownership.
