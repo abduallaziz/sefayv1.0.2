@@ -57,13 +57,14 @@ For the full capability matrix, see [`permission-system.md`](./permission-system
 The exact guard order is non-negotiable:
 
 ```
-JwtAuthGuard → TenantGuard → PermissionGuard → FeatureGuard
+JwtAuthGuard → TenantGuard → PermissionGuard
 ```
 
 - `TenantGuard` reads `tenant_id` from the validated JWT and sets `request.tenantContext`.
 - `PermissionGuard` checks the `role_permissions` table using the `@RequirePermission` decorator.
-- `FeatureGuard` resolves feature flags using the three-table resolution chain.
 - `TenantGuard` and `PermissionGuard` must never be registered as `APP_GUARD`.
+
+**`FeatureGuard` status:** the class exists (`core/feature-flags/feature.guard.ts`, resolves feature flags via the three-table resolution chain) but is **not currently applied** to any controller — there is no `@UseGuards(...FeatureGuard)` anywhere in `src/modules`. It is not part of the active guard pipeline today, despite being designed as its fourth stage.
 
 ---
 
