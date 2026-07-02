@@ -6,7 +6,7 @@
 
 ## Overview
 
-Security in Sefay is layered: the database enforces tenant isolation and access policies independent of the application, the application layer enforces role-based authorization, and the frontend provides UX gating that improves usability but is not a security boundary. No single layer is relied upon alone. A failure or bypass in the application layer must not expose another tenant's data, because the database layer enforces isolation independently.
+Security in Sefay is layered: the application layer enforces tenant isolation (via `ScopedRepository`'s mandatory `tenant_id` filter) and role-based authorization, and the frontend provides UX gating that improves usability but is not a security boundary. **Row-Level Security is enabled on tenant tables but has no policies and is bypassed by the `service_role` key — it is not currently an independent database-level backstop.** A bug that omits the `tenant_id` filter in application code is therefore a direct data leak today, with no database safety net; see [Row-Level Security](#row-level-security) below for the current state and the planned hardening path.
 
 This document covers authentication, role-based authorization, Row-Level Security, API security, storage security, input validation, XSS and CSRF prevention, audit trail, compliance considerations, and future AI data-privacy requirements.
 

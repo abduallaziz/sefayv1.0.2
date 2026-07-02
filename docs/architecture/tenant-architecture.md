@@ -7,9 +7,9 @@
 
 ## Overview
 
-Sefay is a multi-tenant SaaS ERP. All tenants share a single Supabase (PostgreSQL) database. Tenant isolation is achieved through `tenant_id` scoping: every table that contains tenant-owned business data has a `tenant_id` column, and Supabase Row-Level Security (RLS) policies enforce that authenticated users can only access rows belonging to their own tenant.
+Sefay is a multi-tenant SaaS ERP. All tenants share a single Supabase (PostgreSQL) database. Tenant isolation is achieved through `tenant_id` scoping: every table that contains tenant-owned business data has a `tenant_id` column, and every repository extends `ScopedRepository`, which automatically adds a `.eq('tenant_id', tenantId)` filter derived from the authenticated JWT. **Row-Level Security (RLS) is not currently an active isolation mechanism** — see Rule 2 below and [`security-architecture.md`](./security-architecture.md#row-level-security) for the full explanation.
 
-This is a **shared-database, shared-schema** multi-tenancy model. There is no database-per-tenant or schema-per-tenant arrangement. Isolation is enforced entirely through column-level scoping and database-enforced access policies.
+This is a **shared-database, shared-schema** multi-tenancy model. There is no database-per-tenant or schema-per-tenant arrangement. Isolation is enforced entirely through application-layer column-level scoping — there is currently no independent database-level backstop.
 
 ---
 
@@ -19,11 +19,11 @@ These rules are non-negotiable. Violating any of them is a security vulnerabilit
 
 1. **Every table containing tenant data has a `tenant_id` column** referencing the `tenants` table. No exceptions. A table without `tenant_id` either contains global reference data (e.g. currency codes) or is a cross-tenant system table.
 
-2. **RLS is enabled on every tenant data table.** The RLS policy for each table permits read and write only where `tenant_id` matches the `tenant_id` derived from the authenticated user's JWT.
+2. **RLS is technically enabled but not functionally active.** `ENABLE ROW LEVEL SECURITY` is set on tenant data tables, but no `CREATE POLICY` statements exist anywhere in the schema, and the Supabase client uses the `service_role` key, which bypasses RLS entirely regardless of policies. RLS currently provides **zero actual isolation** — see [`security-architecture.md`](./security-architecture.md#row-level-security). Adding real RLS policies as a database-level backstop is a planned hardening step, not the current state.
 
 3. **The `tenant_id` used in service queries is always derived from the authenticated session** (the JWT). It is never supplied by the client in a query parameter or request body.
 
-4. **Application-layer `WHERE tenant_id = ?` filters are defense-in-depth**, not the primary isolation mechanism. The database enforces isolation regardless of application behavior.
+4. **Application-layer `WHERE tenant_id = ?` filters (via `ScopedRepository`) are the primary — and currently only — isolation mechanism.** There is no database-level backstop today: a bug that omits the `tenant_id` filter in a repository method is a direct cross-tenant data leak. This is exactly why `ScopedRepository` usage is mandatory and every new repository method must be reviewed for the filter.
 
 5. **New tables must have RLS enabled before deployment.** A new table without RLS that stores tenant data is a security vulnerability and must not be deployed to production.
 
@@ -94,7 +94,7 @@ Sefay provides the following explicit isolation guarantee:
 > No authenticated user can read, write, or infer the existence of data belonging to any company other than their own, through any application surface or API endpoint.
 
 This guarantee is upheld by:
-- RLS policies that use the JWT-derived `tenant_id` as the isolation key.
+- `ScopedRepository`'s mandatory `tenant_id` filter on every query, derived from the JWT — the primary (and currently only) isolation mechanism. RLS is not an active backstop today; see Rule 2 above.
 - Tenant-scoped storage paths (`tenant_id/` prefix on all asset paths).
 - 404 responses (not 403) for resources that exist but belong to a different tenant — preventing enumeration attacks.
 - Signed URLs that encode the tenant-scoped path and cannot be used for cross-tenant asset access.

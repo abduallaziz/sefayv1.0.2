@@ -148,7 +148,7 @@ The full Documentation Policy is described in [`docs/README.md`](../README.md#do
 ## Security Principles
 
 - Authentication is enforced at the API boundary. Frontend gating (hiding buttons, navigation guards) is a UX convenience only — it is not a security control.
-- Every database operation that touches tenant data must be scoped by `tenant_id`. Row-Level Security policies in Supabase enforce this at the database layer. See [`security-architecture.md`](./security-architecture.md).
+- Every database operation that touches tenant data must be scoped by `tenant_id` via `ScopedRepository`. **Row-Level Security is not currently an active enforcement layer** (enabled but policy-less, and bypassed by the `service_role` key) — the application layer is the sole isolation boundary today. See [`security-architecture.md`](./security-architecture.md#row-level-security).
 - Signed URLs for asset access are generated server-side only. The client never receives storage credentials. Default expiry: 15 minutes for previews, 60 minutes for print/download contexts.
 - Tenant data is not sent to external AI providers without an explicit data-privacy review. See [`ai-architecture.md`](./ai-architecture.md).
 - Input validation is performed on both the frontend (immediate user feedback) and the backend (the authoritative gate). Frontend validation is never the sole line of defense.
