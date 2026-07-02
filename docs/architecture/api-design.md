@@ -7,7 +7,7 @@
 
 ## Overview
 
-This document defines the conventions governing all API surfaces in Sefay: request and response formats, versioning, error structures, authentication headers, pagination, filtering, sorting, tenant isolation, and rate limiting. These conventions apply to Next.js API routes, Server Actions, and Supabase Edge Functions alike.
+This document defines the conventions governing the Sefay API surface: request and response formats, versioning, error structures, authentication headers, pagination, filtering, sorting, tenant isolation, and rate limiting. The API is a NestJS 11 application on Railway; all routes are NestJS controllers under `/api/v1/`. There are no Next.js API routes, Supabase Edge Functions, or Server Actions acting as the API surface — the Next.js frontend calls this NestJS API over HTTP like any other client.
 
 Consistency across the API surface is important not only for the current frontend but for the planned future public API and webhook delivery system (see Future: Public API and Webhooks below). APIs that deviate from these conventions create maintenance debt and client integration problems.
 
@@ -32,11 +32,9 @@ All API routes are versioned with a `/v1/` prefix in the path. This allows break
 
 Current version: **v1**.
 
-Versioning applies to:
-- Next.js API routes: `app/api/v1/...`
-- Supabase Edge Functions: `functions/v1/...`
+Versioning applies to all NestJS controllers, mounted under the global prefix set in `main.ts` (`app.setGlobalPrefix('api/v1')`).
 
-Server Actions (used for page-local mutations) are not versioned because they are internal to the Next.js application and are not consumed by external clients. If a Server Action evolves into a reusable API endpoint, it is promoted to a versioned route.
+If the frontend uses any Next.js Server Actions for page-local mutations, they are thin wrappers that call this same versioned NestJS API — they are not a separate, independently versioned API surface.
 
 A version is deprecated by:
 1. Announcing the deprecation date in the API changelog (to be maintained in `docs/reference/`).
@@ -139,12 +137,12 @@ HTTP status codes used:
 All authenticated requests include:
 
 ```
-Authorization: Bearer <supabase-jwt>
+Authorization: Bearer <jwt>
 ```
 
-The JWT is issued by Supabase Auth. All API routes validate the JWT before executing any logic. An invalid or expired JWT returns `401 Unauthorized`.
+**The JWT is issued by a custom NestJS auth implementation — Supabase Auth is not used anywhere in this system.** `JwtAuthGuard` validates the token via `jsonwebtoken.verify()` against `JWT_SECRET` before any business logic executes. An invalid or expired JWT returns `401 Unauthorized`. See [`security-architecture.md`](./security-architecture.md#authentication) for the full authentication design.
 
-Server Actions validate the session through the Supabase server client, which reads the session from the `httpOnly` cookie set by Supabase Auth. No `Authorization` header is needed for Server Action calls from the browser.
+If the frontend uses Server Actions, they attach the same NestJS-issued JWT (from wherever the frontend session is held — see [`security-architecture.md`](./security-architecture.md#authentication) for the current token storage state) when calling the NestJS API; there is no Supabase-managed session cookie involved.
 
 ---
 
@@ -226,7 +224,6 @@ Rate limiting is applied at the NestJS throttler middleware layer (two-tier, Red
 
 - **Global throttler:** 100 requests per 60 seconds per tenant (keyed by `tenant:{tenantId}`). *(Earlier drafts of this document stated 1000/min — the correct deployed limit is 100/60s.)*
 - **Auth throttler:** 10 requests per 60 seconds per IP address — applied to `/auth/*` only via `@Throttle({ auth: { limit: 10, ttl: 60000 } })` on the Auth controller.
-- **Edge Functions:** subject to Supabase Edge Function invocation limits per project tier.
 - **AI provider calls:** rate-limited separately at the `AIProvider` layer to avoid exceeding the LLM provider's per-minute token limits. See [`ai-architecture.md`](./ai-architecture.md).
 
 When a rate limit is exceeded, the response is:
@@ -244,7 +241,7 @@ The `Retry-After` header value is in seconds.
 
 The current API surface is an internal API used exclusively by the Sefay frontend. Future plans (referenced in `docs/future/README.md`) include:
 
-- **Public/external API:** a versioned, publicly documented API that third-party applications can use to integrate with Sefay data (read product catalogues, create purchase orders, query stock levels). This requires an API key management system separate from Supabase Auth JWTs, a stricter rate limiting tier for external callers, and a public API reference document in `docs/reference/`.
+- **Public/external API:** a versioned, publicly documented API that third-party applications can use to integrate with Sefay data (read product catalogues, create purchase orders, query stock levels). This requires an API key management system separate from the current NestJS-issued JWTs, a stricter rate limiting tier for external callers, and a public API reference document in `docs/reference/`.
 - **Webhooks:** event-driven notifications delivered to tenant-configured HTTP endpoints when significant events occur (e.g. a purchase order is approved, a stock level falls below reorder point, an invoice is created). Requires a webhook registry (tenant configures endpoint URLs and selects event types), a delivery queue with retry logic, and a delivery log for debugging.
 - **Integration platform:** a broader initiative (see `docs/future/`) that may include pre-built integrations with e-commerce platforms, accounting software, and logistics providers, building on the public API and webhook foundation.
 
