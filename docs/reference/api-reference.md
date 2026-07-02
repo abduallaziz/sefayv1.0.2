@@ -125,15 +125,15 @@ Authorization: Bearer <jwt>      ← issued by the custom NestJS auth system, no
 
 | Method | Endpoint | Permission |
 |---|---|---|
-| GET | `/expenses/stats` | no permission check |
-| GET | `/expenses` | no permission check |
-| GET | `/expenses/:id` | no permission check |
-| POST | `/expenses` | no permission check (`@Audit('expense.request')` only) |
-| PATCH | `/expenses/:id/approve` | no permission check (`@Audit('expense.approve')` only) |
-| PATCH | `/expenses/:id/reject` | no permission check (`@Audit('expense.reject')` only) |
-| PATCH | `/expenses/:id/cancel` | no permission check (`@Audit('expense.cancel')` only) |
+| GET | `/expenses/stats` | `expenses.view` |
+| GET | `/expenses` | `expenses.view` |
+| GET | `/expenses/:id` | `expenses.view` |
+| POST | `/expenses` | `expense.request` |
+| PATCH | `/expenses/:id/approve` | `expense.approve` |
+| PATCH | `/expenses/:id/reject` | `expense.reject` |
+| PATCH | `/expenses/:id/cancel` | `expense.request` |
 
-> ⚠️ **Known gap:** `ExpensesController` has `PermissionGuard` applied at the class level but no `@RequirePermission` decorator on any individual route — every route above is reachable by any authenticated user of the tenant regardless of role, including expense approval/rejection. Every comparable CRUD controller in this API (branches, items, customers, etc.) has per-route `@RequirePermission`; this one does not. Flagged for a follow-up fix, not yet remediated as of this writing.
+*Fixed 2026-07-03: this controller previously had `PermissionGuard` applied at the class level but no `@RequirePermission` on any individual route, so every route was reachable by any authenticated tenant user regardless of role. Note the access-control side effect of the fix: `expense.request` is currently granted only to `cashier` (and `superadmin`, which bypasses all permission checks) in `permissions.seed.ts` — `owner` and `manager` do not hold it, so they can no longer create or cancel expense requests through this endpoint, only view (`expenses.view`) and approve/reject (`expense.approve`/`expense.reject`, both owner-only). If owner/manager self-service expense submission is actually required, `expense.request` needs to be added to their grants in the seed file — that is a role-grant decision, not a guard-wiring bug, and was left unchanged here.
 
 ### Query Params — GET `/expenses`
 | Param | Type | Description |
