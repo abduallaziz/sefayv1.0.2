@@ -35,19 +35,18 @@ Sessions are managed by the frontend via TanStack Query and token refresh logic.
 
 ## Authorization / Roles
 
-Sefay defines the following roles (plus `superadmin` for platform operations):
+Sefay defines 6 roles, verified directly against `src/database/seeds/permissions.seed.ts` (the authoritative source — not this document):
 
 | Role | Description |
 |---|---|
-| **Owner** | The company's primary account holder. Has all permissions including those that affect the company's existence (factory reset, subscription management). There is exactly one Owner per company. |
-| **manager** | Company-level admin. Broad operational access across all business modules. Cannot perform Owner-only operations. |
-| **cashier** | Restricted to point-of-sale operations. Access to sales and customer-facing workflows only. |
-| **inventory** | Inventory management. Can view/adjust/transfer/count/reserve stock; can manage and receive purchase orders but cannot approve them. |
-| **accountant** | Read access to financial reports and accounts. Cannot perform write operations on most business data. |
-| **viewer** | Read-only access across the platform. |
-| **superadmin** | Platform operator. Cross-tenant access. Only via shared analytics/tenant-management modules. |
+| **owner** | The company's primary account holder. Has all permissions including those that affect the company's existence (factory reset, subscription management). There is exactly one Owner per company. |
+| **manager** | Company-level admin. Broad operational access across most business modules (same inventory/purchasing/customer breadth as owner), but `users.view` and `settings.view` only (not `manage`), and no `expense.approve`/`reports.view.all`. |
+| **inventory_clerk** | Inventory and purchasing operations: view/adjust/transfer/count/reserve stock, manage and receive purchase orders — but cannot approve stock adjustments or purchase orders. |
+| **cashier** | Restricted to point-of-sale operations: invoice create/view (own), customer records, stock view/reserve. No purchasing or settings access. |
+| **worker** | Minimal read-only role: own invoices, own shifts, item and inventory view. No write permissions on any resource. |
+| **superadmin** | Platform operator. Cross-tenant access via shared analytics/tenant-management modules plus platform-level queue/health/backup permissions. |
 
-*Note: Earlier versions of this document used the role names `Admin`, `Employee`, and `inventory_clerk`. These map to `manager`, `cashier/viewer`, and `inventory` respectively in the current SECURITY.md. The `role_permissions` table is the authoritative source — see `src/database/seeds/permissions.seed.ts`.*
+*There is no `accountant` or `viewer` role and no role literally named `inventory` — these do not exist in the seed file or the database, despite appearing in earlier drafts of this document.*
 
 For the full capability matrix, see [`permission-system.md`](./permission-system.md).
 

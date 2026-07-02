@@ -367,7 +367,7 @@ Two-factor authentication (TOTP via Supabase Auth's built-in support), Single Si
 #### Granular Permissions & Custom Roles
 *Spec: `docs/future/` — document to be created*
 
-Beyond the current four hardcoded roles (Owner, Admin, Employee, Cashier): individual permissions assignable independently of role ("can approve purchase orders" without being Admin), company-defined custom roles, and branch/warehouse-scoped permissions.
+Beyond the current six hardcoded roles (Owner, Manager, Inventory Clerk, Cashier, Worker, Superadmin): individual permissions assignable independently of role ("can approve purchase orders" without being Manager), company-defined custom roles, and branch/warehouse-scoped permissions.
 
 **Dependencies:** Multi-Branch Management (branch-scoped permissions require the branch model), Approval Workflow Engine (approver roles are the most common custom role use case).
 
