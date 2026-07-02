@@ -14,7 +14,7 @@ The frontend communicates with the backend through authenticated REST API calls 
 **Key infrastructure components:**
 - NestJS 11 + TypeScript (strict mode)
 - Supabase PostgreSQL (direct service-role client — no Supabase Auth)
-- BullMQ + Redis (job queues: dunning, notifications, audit-cleanup, domain-events)
+- BullMQ + Redis (job queues: dunning, notifications, audit-cleanup, domain-events, ai, analytics)
 - Stripe / Mock Payment Provider (config-switched via `PAYMENT_PROVIDER` env)
 - Resend (email delivery — silent mock mode if `RESEND_API_KEY` unset)
 - Winston (structured logging)
@@ -173,7 +173,7 @@ All notification text goes through `I18nService` — never hardcode user-facing 
 
 ## Queue Infrastructure
 
-Five BullMQ queues with prefix `sefay`:
+Six BullMQ queues with prefix `sefay` (see `queue.constants.ts`):
 
 | Queue | Purpose | Concurrency |
 |---|---|---|
@@ -182,6 +182,7 @@ Five BullMQ queues with prefix `sefay`:
 | `sefay:notifications` | Outbound notification delivery | default |
 | `sefay:audit-cleanup` | Periodic audit log retention | default |
 | `sefay:domain-events` | Outbox relay for inventory/purchasing events (OutboxRelayScheduler) | default |
+| `sefay:analytics` | Hourly platform analytics cache refresh (PlatformAnalyticsScheduler/Processor) — precomputes usage and cohort analytics into Redis so the superadmin analytics endpoints never compute on the request path | default |
 
 **AI queue rules:** Every AI job payload must include `tenant_id` (enforced at TypeScript level by `AiJobData` type). `AiProcessor` records start / complete / fail via `AiUsageTrackingService`. Redis writes are fire-and-forget and do not block job completion.
 
