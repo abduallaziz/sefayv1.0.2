@@ -1,0 +1,88 @@
+'use client'
+import { useState } from 'react'
+import { useTranslations } from 'next-intl'
+import { useLocale } from 'next-intl'
+import { FeatureCategoryBadge } from './FeatureCategoryBadge'
+import { OverrideLimitDialog } from './OverrideLimitDialog'
+import { useUpsertOverride } from '../hooks/useFeatureFlags'
+import type { FeatureWithOverride } from '../types/feature-flags.types'
+
+interface Props {
+  tenantId: string
+  feature: FeatureWithOverride
+}
+
+export function FeatureRow({ tenantId, feature }: Props) {
+  const t = useTranslations('superadmin.featureFlags')
+  const locale = useLocale()
+  const [limitOpen, setLimitOpen] = useState(false)
+  const { mutate: upsert, isPending: upserting } = useUpsertOverride()
+
+  const hasOverride = !!feature.tenant_override
+  const isEnabled = feature.effective_enabled
+  const displayName = locale === 'ar' && (feature as any).name_ar ? (feature as any).name_ar : feature.name
+
+  function handleToggle() {
+    upsert({
+      tenant_id: tenantId,
+      feature_key: feature.key,
+      is_enabled: !isEnabled,
+      limit_value: feature.effective_limit,
+    })
+  }
+
+  return (
+    <>
+      <div className="flex items-center gap-4 rounded-lg border border-slate-200 dark:border-[#1e2130] bg-white dark:bg-[#141720] px-4 py-3 hover:border-slate-300 dark:hover:border-[#2a3050] transition-colors">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-0.5">
+            <span className="text-sm font-medium text-slate-800 dark:text-white truncate">{displayName}</span>
+            <FeatureCategoryBadge category={feature.category} />
+            {hasOverride && (
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">
+                {t('overridden')}
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-slate-500 dark:text-gray-500 truncate">{feature.description}</p>
+        </div>
+        {feature.plan_limit !== null && (
+          <div className="text-center w-20">
+            <p className="text-xs text-slate-500 dark:text-gray-500 mb-0.5">{t('limit')}</p>
+            <button
+              onClick={() => setLimitOpen(true)}
+              className="text-sm font-medium text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 transition-colors"
+            >
+              {feature.effective_limit ?? '∞'}
+            </button>
+          </div>
+        )}
+        <div className="text-center w-24">
+          <p className="text-xs text-slate-500 dark:text-gray-500 mb-0.5">{t('planDefault')}</p>
+          <span className={`text-xs font-medium ${feature.plan_default ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500 dark:text-red-400'}`}>
+            {feature.plan_default ? t('on') : t('off')}
+          </span>
+        </div>
+        <button
+          onClick={handleToggle}
+          disabled={upserting}
+          className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none disabled:opacity-50 ${
+            isEnabled ? 'bg-violet-600' : 'bg-slate-300 dark:bg-gray-700'
+          }`}
+        >
+          <span
+            className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+            isEnabled ? 'ltr:translate-x-4 rtl:-translate-x-4' : 'translate-x-0'
+          }`}
+          />
+        </button>
+      </div>
+      <OverrideLimitDialog
+        tenantId={tenantId}
+        feature={feature}
+        open={limitOpen}
+        onClose={() => setLimitOpen(false)}
+      />
+    </>
+  )
+}

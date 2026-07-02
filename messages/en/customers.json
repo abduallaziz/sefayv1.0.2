@@ -1,0 +1,121 @@
+{
+  "title": "Customers",
+  "subtitle": "Manage your customers and their order history",
+  "add_customer": "Add Customer",
+  "loading": "Loading...",
+  "search_placeholder": "Search by name, phone, or email...",
+  "count": "{count} customers",
+  "stats": {
+    "total": "Total Customers",
+    "new_month": "New this month",
+    "total_points": "Total Loyalty Points"
+  },
+  "table": {
+    "customer": "Customer",
+    "contact": "Contact",
+    "vehicle": "Vehicle",
+    "orders": "Orders",
+    "spent": "Spent",
+    "points": "Points"
+  },
+  "sort": {
+    "newest": "Newest",
+    "name": "Name",
+    "points": "Points",
+    "spent": "Amount Spent",
+    "asc": "Ascending",
+    "desc": "Descending"
+  },
+  "empty": {
+    "title": "No customers yet",
+    "desc": "Add your first customer to get started"
+  },
+  "status": {
+    "completed": "Completed",
+    "pending": "Pending",
+    "cancelled": "Cancelled"
+  },
+  "actions": {
+    "view": "View Details",
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "form": {
+    "title_add": "Add New Customer",
+    "title_edit": "Edit Customer",
+    "name": "Name",
+    "phone": "Phone Number",
+    "email": "Email (optional)",
+    "cancel": "Cancel",
+    "save": "Save",
+    "add": "Add",
+    "saving": "Saving...",
+    "errors": {
+      "name": "Name is required (at least 2 characters)",
+      "phone": "Phone number is required",
+      "email": "Invalid email address"
+    }
+  },
+  "details": {
+    "since": "Customer since",
+    "orders": "orders",
+    "points": "points",
+    "history": "Order History",
+    "no_orders": "No orders yet",
+    "items": "items"
+  },
+  "delete": {
+    "title": "Delete Customer",
+    "message": "Are you sure you want to delete {name}? This action cannot be undone.",
+    "cancel": "Cancel",
+    "confirm": "Delete",
+    "deleting": "Deleting..."
+  },
+  "fields": {
+    "key_hint": "To show phone or email correctly in the customers list, set the contact link below (phone or email). Unlinked fields are saved as regular custom fields and won't appear in the contact column.",
+    "contact_role_label": "Link to contact column",
+    "contact_role_none": "No link",
+    "contact_role_phone": "Phone number",
+    "contact_role_email": "Email address",
+    "contact_role_plate_number": "Plate number",
+    "contact_role_visit_date": "Visit date",
+    "contact_role_odometer": "Odometer",
+    "types": {
+      "text": "Text",
+      "number": "Number",
+      "date": "Date",
+      "select": "Select list",
+      "boolean": "Yes/No"
+    },
+    "name_row": {
+      "label": "Name",
+      "label_en": "Name",
+      "hint_enabled": "Cashier must enter the name",
+      "hint_disabled": "Name is generated automatically (Customer 1, Customer 2, ...)"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "required": "Required",
+      "optional": "Optional"
+    },
+    "empty": "No custom fields yet",
+    "add_field": "Add custom field",
+    "key_label": "Key (English, no spaces) *",
+    "key_placeholder": "national_id",
+    "type_label": "Type",
+    "label_ar_label": "Arabic label *",
+    "label_ar_placeholder": "National ID",
+    "label_en_label": "English label *",
+    "label_en_placeholder": "National ID",
+    "options_label": "Options (comma-separated)",
+    "options_placeholder": "Male, Female",
+    "required_checkbox": "Required field",
+    "key_readonly_label": "Key",
+    "cancel": "Cancel",
+    "add": "Add",
+    "saving": "...",
+    "save_edit": "Save changes",
+    "delete_confirm": "Confirm"
+  }
+}

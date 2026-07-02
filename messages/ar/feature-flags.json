@@ -1,0 +1,34 @@
+{
+  "featureFlags": {
+    "title": "Feature Flags",
+    "subtitle": "تحكم في الميزات لكل tenant أو عالمياً",
+    "globalView": "عرض عام",
+    "tenantView": "عرض per tenant",
+    "selectTenant": "اختر tenant",
+    "allFeatures": "كل الميزات",
+    "allFeaturesDesc": "القائمة الكاملة للميزات المتاحة في النظام",
+    "category": {
+      "all": "الكل",
+      "core": "أساسية",
+      "advanced": "متقدمة",
+      "premium": "بريميوم"
+    },
+    "overridden": "مُعدَّل",
+    "overriddenCount": "{count} تعديلات نشطة",
+    "noOverrides": "لا يوجد تعديلات — يتبع الخطة",
+    "limit": "الحد",
+    "planDefault": "افتراضي الخطة",
+    "on": "مفعّل",
+    "off": "معطّل",
+    "resetOverride": "إعادة تعيين للخطة",
+    "overrideLimit": "تعديل الحد",
+    "limitValue": "القيمة",
+    "unlimited": "بلا حد",
+    "note": "ملاحظة",
+    "notePlaceholder": "سبب التعديل...",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "saving": "جاري الحفظ...",
+    "noFeatures": "لا يوجد ميزات في هذا التصنيف"
+  }
+}

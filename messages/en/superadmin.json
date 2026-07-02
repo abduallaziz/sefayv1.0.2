@@ -1,0 +1,372 @@
+{
+  "console": {
+    "title": "Operations Console",
+    "subtitle": "Sefay Platform — Real-time monitoring",
+    "production": "Production"
+  },
+  "overview": {
+    "totalTenants": "Total Tenants",
+    "monthlyRevenue": "Monthly Revenue",
+    "totalUsers": "Total Users",
+    "activeTenants": "Active Tenants",
+    "annualRevenue": "Annual Revenue"
+  },
+  "systemHealth": {
+    "overall": {
+      "healthy": "All Systems Operational",
+      "warning": "Degraded Performance",
+      "critical": "Incident Detected"
+    },
+    "status": {
+      "healthy": "Healthy",
+      "warning": "Warning",
+      "critical": "Critical",
+      "offline": "Offline"
+    },
+    "incident": {
+      "title": "Incident detected:",
+      "detail": "Payment failure spike — 22% increase in the last 15 minutes.",
+      "action": "Investigate →"
+    },
+    "services": {
+      "api": "API",
+      "database": "Database",
+      "queue": "Queue",
+      "ai": "AI",
+      "storage": "Storage",
+      "payments": "Payments",
+      "apiSub": "99.99% uptime",
+      "dbSub": "43 connections",
+      "queueSub": "48 failed jobs",
+      "aiSub": "8 workers active",
+      "storageSub": "68% capacity",
+      "paymentsSub": "Failure spike"
+    }
+  },
+  "tenants": {
+    "title": "Tenants",
+    "subtitle": "Manage all tenants on the platform",
+    "search": "Search tenants...",
+    "allStatus": "All Status",
+    "status": {
+      "active": "Active",
+      "trial": "Trial",
+      "suspended": "Suspended",
+      "cancelled": "Cancelled"
+    },
+    "actions": {
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "extendTrial": "Extend Trial",
+      "delete": "Delete"
+    },
+    "extendTrial": {
+      "days": "Number of days to extend:",
+      "confirm": "Confirm Extension",
+      "submitting": "Extending..."
+    },
+    "col": {
+      "name": "Name",
+      "businessType": "Business Type",
+      "status": "Status",
+      "plan": "Plan",
+      "branches": "Branches",
+      "users": "Users",
+      "createdAt": "Created At",
+      "actions": "Actions"
+    },
+    "empty": "No results found"
+  },
+  "subscriptions": {
+    "title": "Subscriptions & Plans",
+    "subtitle": "Manage subscriptions and billing plans",
+    "tabs": {
+      "subscriptions": "Subscriptions",
+      "plans": "Plans"
+    },
+    "filters": {
+      "search": "Search subscriptions...",
+      "allStatus": "All Status"
+    },
+    "status": {
+      "active": "Active",
+      "trial": "Trial",
+      "cancelled": "Cancelled",
+      "expired": "Expired",
+      "suspended": "Suspended"
+    },
+    "interval": {
+      "monthly": "Monthly",
+      "yearly": "Yearly"
+    },
+    "table": {
+      "tenant": "Tenant",
+      "plan": "Plan",
+      "status": "Status",
+      "interval": "Interval",
+      "endsAt": "Ends At",
+      "amount": "Amount",
+      "empty": "No subscriptions found"
+    },
+    "planForm": {
+      "titleCreate": "Create Plan",
+      "titleEdit": "Edit Plan",
+      "name": "Plan Name",
+      "namePlaceholder": "e.g. Pro",
+      "priceMonthly": "Monthly Price ($)",
+      "priceYearly": "Yearly Price ($)",
+      "maxUsers": "Max Users",
+      "maxBranches": "Max Branches"
+    },
+    "payment": {
+      "title": "Manual Payment",
+      "tenant": "Tenant",
+      "tenantPlaceholder": "Select tenant",
+      "plan": "Plan",
+      "planPlaceholder": "Select plan",
+      "interval": "Interval",
+      "amount": "Amount ($)",
+      "note": "Note",
+      "notePlaceholder": "Optional note..."
+    }
+  },
+  "featureFlags": {
+    "title": "Feature Flags",
+    "subtitle": "Control features per tenant",
+    "search": "Search features...",
+    "allTenants": "All Tenants",
+    "selectTenant": "Select Tenant",
+    "allFeatures": "All Features",
+    "allFeaturesDesc": "Global feature flags applied to all tenants by default",
+    "noOverrides": "No overrides — using plan defaults",
+    "overriddenCount": "{count} overrides active",
+    "noFeatures": "No features found",
+    "planDefault": "Plan Default",
+    "resetOverride": "Reset Override",
+    "overrideLimit": "Override Limit",
+    "limitValue": "Limit Value",
+    "unlimited": "Unlimited",
+    "notePlaceholder": "Reason for override...",
+    "globalView": "Global",
+    "tenantView": "Per Tenant",
+    "overridden": "Overridden",
+    "limit": "Limit",
+    "on": "On",
+    "off": "Off",
+    "category": {
+    "all": "All",
+    "core": "Core",
+    "advanced": "Advanced",
+    "premium": "Premium"
+    }
+  },
+  "authControl": {
+    "title": "Auth Control",
+    "subtitle": "Manage users, roles, passwords, and sessions",
+    "allTenants": "All Tenants",
+    "selectTenant": "Select a tenant to view users",
+    "noSessions": "No sessions found",
+    "resetPassword": {
+      "title": "Reset Password",
+      "newPassword": "New Password",
+      "placeholder": "Min 8 characters",
+      "confirm": "Confirm Password",
+      "confirmPlaceholder": "Repeat password"
+    },
+    "col": {
+      "user": "User",
+      "role": "Role",
+      "status": "Status",
+      "device": "Device",
+      "ip": "IP Address",
+      "lastActive": "Last Active"
+    },
+    "actions": {
+      "revokeAll": "Revoke All Sessions",
+      "revoke": "Revoke",
+      "changeRole": "Change Role"
+    }
+  },
+  "reports": {
+    "title": "Reports & Audit",
+    "subtitle": "Platform analytics and security audit trail",
+    "export": "Export",
+    "overview": "Overview",
+    "revenue": "Revenue",
+    "tenants": "Tenants",
+    "mrr": "MRR",
+    "arr": "ARR",
+    "activeTenants": "Active Tenants",
+    "churnRate": "Churn Rate",
+    "mrrGrowth": "MRR Growth",
+    "last6months": "Last 6 Months",
+    "tenantsByPlan": "Tenants by Plan",
+    "churnTrend": "Churn Trend",
+    "improving": "Improving",
+    "currentMrr": "Current MRR",
+    "currentArr": "Current ARR",
+    "totalOrders": "Total Orders",
+    "totalRevenue": "Total Revenue",
+    "mrrVsArr": "MRR vs ARR",
+    "revenueByPlan": "Revenue by Plan",
+    "totalTenants": "Total Tenants",
+    "newThisMonth": "New This Month",
+    "churned": "Churned",
+    "growthRate": "Growth Rate",
+    "newPerMonth": "New Per Month",
+    "planDist": "Plan Distribution",
+    "monthlyRecurring": "Monthly Recurring Revenue",
+    "annualRunRate": "Annual Run Rate",
+    "totalUsersCount": "{count} users",
+    "churnedCount": "{count} churned",
+    "newTenants": "New tenants",
+    "thisPeriod": "This period",
+    "periodGrowth": "Period growth",
+    "allTime": "All time",
+    "fromOrders": "From orders",
+    "auditLogTab": "Audit Log",
+    "tabs": {
+      "overview": "Overview",
+      "revenue": "Revenue",
+      "tenants": "Tenants",
+      "auditLog": "Audit Log"
+    },
+    "metrics": {
+      "mrr": "MRR",
+      "arr": "ARR",
+      "activeTenants": "Active Tenants",
+      "churnRate": "Churn Rate",
+      "newThisMonth": "New This Month",
+      "avgRevenue": "Avg Revenue/Tenant"
+    },
+    "auditLog": {
+      "searchPlaceholder": "Search by actor, tenant, action...",
+      "allSeverity": "All Severity",
+      "allActions": "All Actions",
+      "noResults": "No audit logs match your filters",
+      "severity": {
+        "info": "Info",
+        "warning": "Warning",
+        "critical": "Critical"
+      },
+      "col": {
+        "actor": "Actor",
+        "tenant": "Tenant",
+        "ip": "IP Address",
+        "device": "Device",
+        "action": "Action",
+        "resource": "Resource",
+        "timestamp": "Timestamp",
+        "severity": "Severity"
+      }
+    }
+  },
+  "activity": {
+    "title": "Live Activity",
+    "resume": "Resume",
+    "pause": "Pause",
+    "new": "New",
+    "severity": {
+      "info": "INFO",
+      "ok": "OK",
+      "warn": "WARN",
+      "crit": "CRIT"
+    },
+    "filters": {
+      "all": "All",
+      "critical": "Critical",
+      "billing": "Billing",
+      "security": "Security",
+      "system": "System",
+      "ai": "AI"
+    }
+  },
+  "aiInsights": {
+    "title": "AI Intelligence",
+    "updated": "Updated 2 min ago",
+    "critical": "critical",
+    "aiConfidence": "AI confidence"
+  },
+  "revenueChart": {
+    "title": "Revenue Overview",
+    "subtitle": "Monthly performance metrics",
+    "revenue": "Revenue",
+    "tenants": "Tenants"
+  },
+"sidebar": {
+  "general": "General",
+  "management": "Management",
+  "reportsSection": "Reports",
+  "overview": "Dashboard",
+  "tenants": "Tenants",
+  "subscriptions": "Subscriptions",
+  "featureFlags": "Feature Flags",
+  "authControl": "Auth Control",
+  "reports": "Reports",
+  "settings": "Settings"
+},
+"settings": {
+  "title": "Settings",
+  "subtitle": "Manage your SuperAdmin account settings",
+  "tabs": {
+    "profile": "Profile",
+    "security": "Security",
+    "notifications": "Notifications",
+    "system": "System"
+  },
+  "profile": {
+    "title": "Profile",
+    "description": "Your basic SuperAdmin info",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone Number"
+  },
+  "security": {
+    "changePasswordTitle": "Change Password",
+    "changePasswordDesc": "Recommended every 90 days",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "updatePassword": "Update Password",
+    "apiKeyTitle": "API Key",
+    "apiKeyDesc": "For accessing the SuperAdmin API",
+    "sessionsTitle": "Active Sessions",
+    "sessionsDesc": "Devices currently signed in",
+    "now": "Now",
+    "daysAgo": "{count} days ago",
+    "currentSession": "Current session",
+    "revoke": "Revoke"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "description": "Choose when you receive notifications",
+    "newTenant": "New tenant registered",
+    "newTenantDesc": "When a new customer registers",
+    "trialExpiring": "Trial expiring",
+    "trialExpiringDesc": "3 days before trial ends",
+    "paymentFailed": "Payment failed",
+    "paymentFailedDesc": "When a payment fails",
+    "systemAlert": "System alerts",
+    "systemAlertDesc": "System errors and warnings",
+    "weeklyReport": "Weekly report",
+    "weeklyReportDesc": "Weekly summary with figures"
+  },
+  "system": {
+    "infoTitle": "System Information",
+    "infoDesc": "Current environment data",
+    "version": "Version",
+    "environment": "Environment",
+    "database": "Database",
+    "hosting": "Hosting",
+    "lastDeploy": "Last Deploy",
+    "today": "Today {time}",
+    "generalTitle": "General Settings",
+    "generalDesc": "Applies to all tenants",
+    "defaultTrialDays": "Default trial period (days)",
+    "gracePeriod": "Grace period after subscription ends (days)",
+    "maxLoginAttempts": "Max login attempts"
+  },
+  "save": "Save Changes",
+  "saved": "Saved"
+}
+}

@@ -1,0 +1,121 @@
+{
+  "title": "العملاء",
+  "subtitle": "إدارة عملاء البزنس وتاريخ طلباتهم",
+  "add_customer": "إضافة عميل",
+  "loading": "جاري التحميل...",
+  "search_placeholder": "ابحث باسم أو رقم جوال أو إيميل...",
+  "count": "{count} عميل",
+  "stats": {
+    "total": "إجمالي العملاء",
+    "new_month": "عميل جديد هذا الشهر",
+    "total_points": "إجمالي نقاط الولاء"
+  },
+  "table": {
+    "customer": "العميل",
+    "contact": "التواصل",
+    "vehicle": "المركبة",
+    "orders": "الطلبات",
+    "spent": "المصروف",
+    "points": "النقاط"
+  },
+  "sort": {
+    "newest": "الأحدث",
+    "name": "الاسم",
+    "points": "النقاط",
+    "spent": "المصروف",
+    "asc": "تصاعدي",
+    "desc": "تنازلي"
+  },
+  "empty": {
+    "title": "لا يوجد عملاء",
+    "desc": "أضف أول عميل للبدء"
+  },
+  "status": {
+    "completed": "مكتمل",
+    "pending": "معلق",
+    "cancelled": "ملغي"
+  },
+  "actions": {
+    "view": "عرض التفاصيل",
+    "edit": "تعديل",
+    "delete": "حذف"
+  },
+  "form": {
+    "title_add": "إضافة عميل جديد",
+    "title_edit": "تعديل بيانات العميل",
+    "name": "الاسم",
+    "phone": "رقم الجوال",
+    "email": "البريد الإلكتروني (اختياري)",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "add": "إضافة",
+    "saving": "جاري الحفظ...",
+    "errors": {
+      "name": "الاسم مطلوب (حرفين على الأقل)",
+      "phone": "رقم الجوال مطلوب",
+      "email": "البريد الإلكتروني غير صحيح"
+    }
+  },
+  "details": {
+    "since": "عميل منذ",
+    "orders": "طلب",
+    "points": "نقطة",
+    "history": "سجل الطلبات",
+    "no_orders": "لا يوجد طلبات بعد",
+    "items": "صنف"
+  },
+  "delete": {
+    "title": "حذف العميل",
+    "message": "هل أنت متأكد من حذف {name}؟ هذا الإجراء لا يمكن التراجع عنه.",
+    "cancel": "إلغاء",
+    "confirm": "حذف",
+    "deleting": "جاري الحذف..."
+  },
+  "fields": {
+    "key_hint": "لعرض الجوال أو البريد بشكل صحيح في قائمة العملاء، حدد ربط الحقل أدناه (جوال أو بريد). الحقول غير المرتبطة تُحفظ كحقول مخصصة عادية ولا تظهر في عمود التواصل.",
+    "contact_role_label": "ربط بعمود التواصل",
+    "contact_role_none": "بدون ربط",
+    "contact_role_phone": "رقم الجوال",
+    "contact_role_email": "البريد الإلكتروني",
+    "contact_role_plate_number": "رقم اللوحة",
+    "contact_role_visit_date": "تاريخ الزيارة",
+    "contact_role_odometer": "العداد",
+    "types": {
+      "text": "نص",
+      "number": "رقم",
+      "date": "تاريخ",
+      "select": "قائمة اختيار",
+      "boolean": "نعم/لا"
+    },
+    "name_row": {
+      "label": "الاسم",
+      "label_en": "Name",
+      "hint_enabled": "إدخال الاسم إلزامي من الكاشير",
+      "hint_disabled": "يُنشأ الاسم تلقائيًا (عميل 1، عميل 2، ...)"
+    },
+    "status": {
+      "active": "نشط",
+      "inactive": "معطّل",
+      "required": "إلزامي",
+      "optional": "اختياري"
+    },
+    "empty": "لا توجد حقول مخصصة بعد",
+    "add_field": "إضافة حقل مخصص",
+    "key_label": "المفتاح (إنجليزي، بدون مسافات) *",
+    "key_placeholder": "national_id",
+    "type_label": "النوع",
+    "label_ar_label": "التسمية بالعربي *",
+    "label_ar_placeholder": "رقم الهوية",
+    "label_en_label": "التسمية بالإنجليزي *",
+    "label_en_placeholder": "National ID",
+    "options_label": "الخيارات (مفصولة بفاصلة)",
+    "options_placeholder": "ذكر, أنثى",
+    "required_checkbox": "حقل إلزامي",
+    "key_readonly_label": "المفتاح",
+    "cancel": "إلغاء",
+    "add": "إضافة",
+    "saving": "...",
+    "save_edit": "حفظ التعديلات",
+    "delete_confirm": "تأكيد"
+  }
+}

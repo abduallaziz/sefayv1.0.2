@@ -1,0 +1,55 @@
+{
+  "title": "الفواتير",
+  "subtitle": "إدارة وتتبع جميع الفواتير",
+  "invoiceNumber": "رقم الفاتورة",
+  "cashier": "الكاشير",
+  "customer": "العميل",
+  "total": "الإجمالي",
+  "payment": "الدفع",
+  "date": "التاريخ",
+  "notes": "ملاحظات",
+  "searchPlaceholder": "بحث...",
+  "noOrders": "لا توجد فواتير",
+  "tryFilters": "جرّب تغيير الفلاتر",
+  "loading": "جاري التحميل...",
+  "totalInvoices": "إجمالي الفواتير",
+  "completedCount": "مكتملة",
+  "pendingCount": "معلقة",
+  "cancelledCount": "ملغاة",
+  "todayRevenue": "الإيراد اليوم",
+  "status": {
+    "all": "الكل",
+    "completed": "مكتملة",
+    "pending": "معلقة",
+    "cancelled": "ملغاة"
+  },
+  "payment_method": {
+    "cash": "نقد",
+    "card": "بطاقة",
+    "split": "مقسم"
+  },
+  "details": {
+    "title": "تفاصيل الفاتورة",
+    "items": "الأصناف",
+    "subtotal": "المجموع الفرعي",
+    "discount": "الخصم",
+    "tax": "الضريبة (15%)"
+  },
+  "cancel": {
+    "action": "إلغاء الفاتورة",
+    "title": "إلغاء الفاتورة",
+    "confirm": "هل أنت متأكد من إلغاء هذه الفاتورة؟",
+    "reason": "سبب الإلغاء",
+    "reasonOptional": "(اختياري)",
+    "reasonPlaceholder": "اكتب سبب الإلغاء...",
+    "submitting": "جاري الإلغاء...",
+    "submit": "تأكيد الإلغاء"
+  },
+  "stats": {
+    "total": "إجمالي الفواتير",
+    "completed": "مكتملة",
+    "pending": "معلقة",
+    "cancelled": "ملغاة",
+    "todayRevenue": "الإيراد اليوم"
+  }
+}

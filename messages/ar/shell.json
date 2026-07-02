@@ -1,0 +1,28 @@
+{
+  "nav": {
+    "general": "عام",
+    "mainBranch": "الفرع الرئيسي",
+    "sales": "المبيعات",
+    "operations": "العمليات",
+    "management": "الإدارة",
+    "overview": "الرئيسية",
+    "pos": "نقطة البيع",
+    "invoices": "الفواتير",
+    "customers": "العملاء",
+    "items": "المنتجات",
+    "users": "المستخدمون",
+    "expenses": "المصروفات",
+    "shifts": "الورديات",
+    "reports": "التقارير",
+    "settings": "الإعدادات",
+    "superadmin": {
+      "overview": "الرئيسية",
+      "tenants": "المستأجرون",
+      "subscriptions": "الاشتراكات",
+      "featureFlags": "المميزات",
+      "authControl": "المستخدمون",
+      "reports": "التقارير",
+      "settings": "الإعدادات"
+    }
+  }
+}

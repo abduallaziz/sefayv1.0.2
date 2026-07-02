@@ -1,0 +1,18 @@
+{
+  "title": "Users",
+  "count": "{count} users",
+  "addUser": "Add User",
+  "name": "Name",
+  "email": "Email",
+  "role": "Role",
+  "status": "Status",
+  "active": "Active",
+  "inactive": "Inactive",
+  "delete": "Delete",
+  "empty": "No users found",
+  "password": "Password",
+  "cancel": "Cancel",
+  "create": "Create",
+  "creating": "Creating...",
+  "passwordHint": "At least 8 characters"
+}

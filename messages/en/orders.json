@@ -1,0 +1,49 @@
+{
+  "title": "Orders",
+  "subtitle": "Manage and track all orders",
+  "invoiceNumber": "Invoice #",
+  "cashier": "Cashier",
+  "customer": "Customer",
+  "total": "Total",
+  "payment": "Payment",
+  "date": "Date",
+  "notes": "Notes",
+  "searchPlaceholder": "Search...",
+  "noOrders": "No orders found",
+  "tryFilters": "Try changing the filters",
+  "status": {
+    "all": "All",
+    "completed": "Completed",
+    "pending": "Pending",
+    "cancelled": "Cancelled"
+  },
+  "payment_method": {
+    "cash": "Cash",
+    "card": "Card",
+    "split": "Split"
+  },
+  "details": {
+    "title": "Order Details",
+    "items": "Items",
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "tax": "Tax (15%)"
+  },
+  "cancel": {
+    "action": "Cancel Order",
+    "title": "Cancel Order",
+    "confirm": "Are you sure you want to cancel this order?",
+    "reason": "Reason",
+    "reasonOptional": "(optional)",
+    "reasonPlaceholder": "Enter reason...",
+    "submitting": "Cancelling...",
+    "submit": "Confirm Cancel"
+  },
+  "stats": {
+    "total": "Total Orders",
+    "completed": "Completed",
+    "pending": "Pending",
+    "cancelled": "Cancelled",
+    "todayRevenue": "Today's Revenue"
+  }
+}

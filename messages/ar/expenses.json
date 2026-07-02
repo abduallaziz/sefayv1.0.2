@@ -1,0 +1,132 @@
+{
+  "title": "المصروفات",
+  "subtitle": "إدارة طلبات المصروفات والقوالب",
+  "tabs": {
+    "requests": "الطلبات",
+    "templates": "القوالب",
+    "recurring": "المتكررة"
+  },
+  "stats": {
+    "pending": "طلبات معلقة",
+    "approvedToday": "موافق عليها اليوم",
+    "totalToday": "إجمالي اليوم",
+    "expired": "منتهية الصلاحية"
+  },
+  "status": {
+    "pending": "معلق",
+    "approved": "موافق",
+    "rejected": "مرفوض",
+    "expired": "منتهي",
+    "cancelled": "ملغي",
+    "reverse": "تراجع عن الموافقة"
+  },
+  "actions": {
+    "newRequest": "طلب جديد",
+    "new": "جديد",
+    "newTemplate": "قالب جديد",
+    "approve": "موافقة",
+    "reject": "رفض",
+    "cancel": "إلغاء",
+    "back": "رجوع",
+    "reverse": "تراجع عن الموافقة",
+    "add": "إضافة",
+    "delete": "حذف"
+
+  },
+  "table": {
+    "type": "النوع",
+    "requestedBy": "مقدم الطلب",
+    "amount": "المبلغ",
+    "note": "الملاحظة",
+    "expires": "ينتهي",
+    "actions": "الإجراءات"
+  },
+  "request": {
+    "title": "طلب مصروف جديد",
+    "template": "نوع المصروف",
+    "selectTemplate": "اختر نوع المصروف",
+    "amount": "المبلغ",
+    "note": "ملاحظة",
+    "notePlaceholder": "سبب المصروف..."
+  },
+  "reject": {
+    "title": "رفض الطلب",
+    "reason": "سبب الرفض",
+    "reasonPlaceholder": "اكتب سبب الرفض...",
+    "submit": "تأكيد الرفض"
+  },
+  "cancel": {
+    "title": "إلغاء الطلب",
+    "confirm": "هل أنت متأكد من إلغاء طلب المصروف؟",
+    "submit": "إلغاء الطلب"
+  },
+  "template": {
+    "title": "قالب جديد",
+    "name": "اسم القالب",
+    "defaultAmount": "المبلغ الافتراضي",
+    "requiresPhoto": "يتطلب صورة",
+    "expiryHours": "مدة الصلاحية (ساعات)",
+    "addTitle": "إضافة قالب متكرر",
+    "addButton": "إضافة قالب",
+    "nameLabel": "الاسم",
+    "namePlaceholder": "مثال: إيجار شهري",
+    "defaultAmountOptional": "المبلغ الافتراضي (اختياري)",
+    "empty": "لا توجد قوالب — أضف قالباً جديداً",
+    "preApproved": "موافقة مسبقة",
+    "notPreApproved": "بدون موافقة",
+    "deleteConfirm": "حذف \"{name}\"؟ لا يمكن التراجع.",
+    "recurrence": {
+      "none": "بدون تكرار",
+      "daily": "يومي",
+      "weekly": "أسبوعي",
+      "monthly": "شهري"
+    },
+    "weekdays": ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"],
+    "dayOfMonth": "يوم {day}",
+    "nextRunPrefix": "التشغيل التالي: ",
+    "col": {
+      "name": "القالب",
+      "recurrence": "التكرار",
+      "day": "اليوم",
+      "nextRun": "التشغيل التالي",
+      "status": "الحالة",
+      "approval": "الموافقة"
+    }
+  },
+  "category": {
+    "addTitle": "إضافة فئة",
+    "name": "اسم الفئة",
+    "namePlaceholder": "مثال: وقود، قرطاسية...",
+    "empty": "لا توجد فئات — أضف فئة جديدة",
+    "active": "نشط",
+    "inactive": "معطّل",
+    "activate": "تفعيل",
+    "deactivate": "تعطيل",
+    "col": {
+      "name": "الاسم",
+      "status": "الحالة"
+    }
+  },
+  "addExpense": {
+    "title": "إضافة مصروف",
+    "category": "الفئة",
+    "selectCategory": "— اختر الفئة —",
+    "amount": "المبلغ",
+    "description": "الوصف (اختياري)",
+    "descriptionPlaceholder": "سبب المصروف...",
+    "addedBy": "أضيف بواسطة"
+  },
+  "empty": {
+    "requests": "لا توجد طلبات مصروفات",
+    "templates": "لا توجد قوالب مصروفات"
+  },
+  "validation": {
+    "templateRequired": "اختر نوع المصروف",
+    "amountRequired": "أدخل المبلغ",
+    "amountMin": "المبلغ يجب أن يكون أكبر من 0",
+    "nameRequired": "أدخل اسم القالب",
+    "expiryRequired": "أدخل مدة الصلاحية"
+  },
+  "expiresIn": "ينتهي بعد",
+  "hours": "ساعة"
+}
