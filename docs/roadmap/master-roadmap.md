@@ -31,24 +31,26 @@ This document is intentionally stable. Its purpose is to stop the roadmap from e
 
 ---
 
-## Part 1 — Confirmed Active Phases (2–11)
+## Part 1 — Future Business-Feature Phases (roadmap-only numbering)
 
-These phases are fully specified in `TASKS.md`. Do not modify their numbering or content here.
+> ⚠️ **Numbering disclaimer (added 2026-07-03):** this table's "Phase 2–11" numbering is this roadmap document's own independent scheme and is **not currently reconciled with `TASKS.md`'s actual phase headers**. As of this writing, `TASKS.md` uses `PHASE A`, `B`, `C`, `D` (backend foundation, complete) followed by `PHASE 9` (Production Readiness, mostly complete), `PHASE 9F`, `PHASE 10` (ميزات V1 الجديدة — new V1 features, not Document & Print Designer), `PHASE 11` (Mobile POS, not Storage Abstraction), `PHASE 12`, `PHASE 13` (Production/Manufacturing), `PHASE 14` (Smart Data Import Center), and `PHASE 15` (Storage Infrastructure & Abstraction — this is where Storage Abstraction actually lives, not Phase 11). None of `TASKS.md`'s numbered phases currently correspond to "Barcode & Scanning," "Smart Product Creation," "Inventory Intelligence," "Warehouse Management," "Productivity," "AI Features," "Company Branding," or "Document & Print Designer" under matching numbers — those business features are planned here but have not yet been assigned real `TASKS.md` phase numbers. Do not assume "Phase 9" (or any number below) means the same thing in both documents until this is reconciled.
 
-| Phase | Name | Status |
+These business features are planned but not yet scheduled into `TASKS.md` under these numbers:
+
+| Roadmap Item | Name | Status |
 |---|---|---|
-| 2 | Inventory UX Production-Readiness | In Progress |
-| 3 | Barcode & Scanning | Planned |
-| 4 | Smart Product Creation | Planned |
-| 5 | Inventory Intelligence | Planned |
-| 6 | Warehouse Management | Planned |
-| 7 | Productivity | Planned |
-| 8 | AI Features | Planned |
-| 9 | Company Branding & Information | Planned |
-| 10 | Document & Print Designer | Planned |
-| 11 | Storage Abstraction | Planned |
+| — | Inventory UX Production-Readiness | In Progress (tracked informally as "Inventory Phase 2/3" in `TASKS.md`, not under a dedicated phase header) |
+| — | Barcode & Scanning | Planned |
+| — | Smart Product Creation | Planned |
+| — | Inventory Intelligence | Planned |
+| — | Warehouse Management | Planned |
+| — | Productivity | Planned |
+| — | AI Features | Planned |
+| — | Company Branding & Information | Planned |
+| — | Document & Print Designer | Planned |
+| — | Storage Abstraction | Planned (real implementation, when it starts, is tracked as `TASKS.md` `PHASE 15`) |
 
-Phase dependency chain: `2 → 3 → 4 → 5 → 6` and `9 → 10 ← 3`, `11 → 9`, `4 → 8 ← 5`. Full dependency reasoning in `docs/roadmap/README.md`.
+Dependency chain among these roadmap items (independent of `TASKS.md` numbering): Inventory UX → Barcode & Scanning → Smart Product Creation → Inventory Intelligence → Warehouse Management, and Company Branding → Document & Print Designer ← Barcode & Scanning, Storage Abstraction → Company Branding, Smart Product Creation → AI Features ← Inventory Intelligence. Full dependency reasoning in `docs/roadmap/README.md`.
 
 ---
 
