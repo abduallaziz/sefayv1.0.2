@@ -4,22 +4,28 @@ import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
 import { Cart, PaymentData, PaymentMethod } from '../types/pos.types'
+import type { Customer } from '@/features/customers/types/customer.types'
 
 interface Props {
   cart: Cart
+  customer?: Customer | null
   onConfirm: (data: PaymentData) => void
   onClose: () => void
   isSubmitting?: boolean
 }
 
-export function PaymentModal({ cart, onConfirm, onClose, isSubmitting }: Props) {
+export function PaymentModal({ cart, customer, onConfirm, onClose, isSubmitting }: Props) {
   const t = useTranslations('pos')
   const currency = useTenantStore((s) => s.currency_symbol)
   const [method, setMethod] = useState<PaymentMethod>('cash')
   const [cashTendered, setCashTendered] = useState(cart.total.toFixed(2))
   const [splitCash, setSplitCash] = useState('')
+  const [redeemPoints, setRedeemPoints] = useState('')
 
   const fmt = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+
+  const availablePoints = customer?.loyalty_points ?? 0
+  const redeemPointsNum = Math.min(parseInt(redeemPoints || '0', 10) || 0, availablePoints)
 
   const change =
     method === 'cash' && parseFloat(cashTendered) >= cart.total
@@ -48,6 +54,7 @@ export function PaymentModal({ cart, onConfirm, onClose, isSubmitting }: Props) 
       change: method === 'cash' ? change : undefined,
       split_cash: method === 'split' ? parseFloat(splitCash) : undefined,
       split_card: method === 'split' ? splitCard : undefined,
+      redeem_points: redeemPointsNum > 0 ? redeemPointsNum : undefined,
     }
     onConfirm(data)
   }
@@ -71,6 +78,26 @@ export function PaymentModal({ cart, onConfirm, onClose, isSubmitting }: Props) 
             <p className="text-sm text-gray-500 dark:text-gray-400">{t('payment.due')}</p>
             <p className="text-3xl font-bold text-[#0C447C] dark:text-[#5B9BD5] mt-1">{fmt(cart.total)} {currency}</p>
           </div>
+
+          {customer && availablePoints > 0 && (
+            <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-amber-700 dark:text-amber-400 font-medium">{t('payment.redeemPoints')}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  {t('payment.availablePoints', { points: availablePoints })}
+                </span>
+              </div>
+              <input
+                type="number"
+                min={0}
+                max={availablePoints}
+                placeholder="0"
+                value={redeemPoints}
+                onChange={(e) => setRedeemPoints(e.target.value)}
+                className="w-full h-10 text-center bg-white dark:bg-gray-900 border border-amber-500/30 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-amber-500"
+              />
+            </div>
+          )}
 
           <div className="grid grid-cols-3 gap-2">
             {methods.map((m) => (

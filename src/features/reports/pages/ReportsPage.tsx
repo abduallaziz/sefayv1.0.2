@@ -3,9 +3,9 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
-import { useRevenueReport, useShiftsReport, useExpensesReport, useEmployeesReport, useTaxReport } from '../hooks/useReports'
+import { useRevenueReport, useShiftsReport, useExpensesReport, useEmployeesReport, useTaxReport, useComparisonReport, useBranchComparisonReport, useCustomerChurnReport } from '../hooks/useReports'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { TrendingUp, Clock, TrendingDown, CreditCard, Users, Receipt } from 'lucide-react'
+import { TrendingUp, Clock, TrendingDown, CreditCard, Users, Receipt, GitCompareArrows, Building2, UserMinus, ArrowUp, ArrowDown } from 'lucide-react'
 import { DateRangePicker, type DateRange } from '@/shared/ui/date-range-picker'
 
 function toYMD(d: Date) {
@@ -16,6 +16,18 @@ function defaultRange(): DateRange {
   const from = new Date()
   from.setMonth(from.getMonth() - 1)
   return { from: toYMD(from), to: toYMD(to) }
+}
+
+function ChangeBadge({ pct }: { pct: number | null }) {
+  if (pct === null) return <span className="text-xs text-gray-400">—</span>
+  const positive = pct >= 0
+  const Icon = positive ? ArrowUp : ArrowDown
+  return (
+    <span className={`inline-flex items-center gap-0.5 text-xs font-medium ${positive ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+      <Icon className="w-3 h-3" />
+      {Math.abs(pct)}%
+    </span>
+  )
 }
 
 function StatCard({ label, value, icon: Icon, color }: {
@@ -48,6 +60,9 @@ export function ReportsPage() {
   const { data: expenses, isLoading: expLoading } = useExpensesReport(query)
   const { data: employees, isLoading: employeesLoading } = useEmployeesReport(query)
   const { data: tax, isLoading: taxLoading } = useTaxReport(query)
+  const { data: comparison, isLoading: comparisonLoading } = useComparisonReport(query)
+  const { data: byBranch, isLoading: byBranchLoading, error: byBranchError } = useBranchComparisonReport(query)
+  const { data: churn, isLoading: churnLoading } = useCustomerChurnReport(query)
 
   const summary = (revenue as any)?.summary
   const dailyBreakdown = (revenue as any)?.daily_breakdown ?? []
@@ -197,6 +212,89 @@ export function ReportsPage() {
             <div>
               <p className="text-xs text-gray-500">{t('totalRevenue')}</p>
               <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{tax?.summary.grand_total.toLocaleString('en-US')} {currency}</p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Period Comparison */}
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <GitCompareArrows className="w-4 h-4 text-gray-400" />
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{t('periodComparison')}</h2>
+        </div>
+        {comparisonLoading ? (
+          <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
+        ) : (
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <p className="text-xs text-gray-500 mb-1">{t('totalRevenue')}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">{comparison?.current_period.revenue.toLocaleString('en-US')} {currency}</p>
+              <ChangeBadge pct={comparison?.change.revenue_pct ?? null} />
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 mb-1">{t('totalOrders')}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">{comparison?.current_period.order_count}</p>
+              <ChangeBadge pct={comparison?.change.order_count_pct ?? null} />
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 mb-1">{t('avgOrder')}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">{comparison?.current_period.avg_order_value.toLocaleString('en-US')} {currency}</p>
+              <ChangeBadge pct={comparison?.change.avg_order_value_pct ?? null} />
+            </div>
+          </div>
+        )}
+        <p className="text-xs text-gray-400 mt-3">{t('vsPreviousPeriod')}</p>
+      </div>
+
+      {/* Branch Comparison — only visible with reports.view.all */}
+      {!byBranchError && (
+        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <Building2 className="w-4 h-4 text-gray-400" />
+            <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{t('branchComparison')}</h2>
+          </div>
+          {byBranchLoading ? (
+            <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
+          ) : (byBranch?.branches ?? []).length === 0 ? (
+            <p className="text-sm text-gray-500 dark:text-gray-400 py-4 text-center">{t('noBranches')}</p>
+          ) : (
+            <div className="space-y-2">
+              {(byBranch?.branches ?? []).map((b) => (
+                <div key={b.branch_id} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">{b.branch_name}</span>
+                  <div className="flex items-center gap-4 text-xs">
+                    <span className="text-gray-500 dark:text-gray-500">{b.order_count} {t('orders')}</span>
+                    <span className="text-gray-900 dark:text-white font-medium">{b.revenue.toLocaleString('en-US')} {currency}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Customer Churn */}
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <UserMinus className="w-4 h-4 text-gray-400" />
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{t('customerChurn')}</h2>
+        </div>
+        {churnLoading ? (
+          <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
+        ) : (
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <p className="text-xs text-gray-500">{t('previousCustomers')}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{churn?.previous_period_customers ?? 0}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">{t('churnedCustomers')}</p>
+              <p className="text-sm font-medium text-red-600 dark:text-red-400 mt-1">{churn?.churned_customers ?? 0}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">{t('churnRate')}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{churn?.churn_rate_pct ?? 0}%</p>
             </div>
           </div>
         )}

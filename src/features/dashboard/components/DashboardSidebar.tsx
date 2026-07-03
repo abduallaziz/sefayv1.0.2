@@ -9,6 +9,7 @@ import {
   Receipt, Clock, BarChart3, Settings, UserCog,
   X, Zap, Truck, Warehouse, ClipboardList, PackageCheck, Boxes, SlidersHorizontal,
   ChevronDown, ArrowLeftRight, FileBarChart, Layers, ClipboardCheck, MapPin,
+  Utensils, ChefHat, CalendarClock, CalendarDays,
 } from 'lucide-react'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { useThemeStore } from '@/core/theme/stores/theme.store'
@@ -39,8 +40,12 @@ const ALL_NAV_ITEMS: NavItem[] = [
   { key: 'customers', href: '/dashboard/customers',  icon: Users,           section: 'customers' },
   { key: 'expenses',  href: '/dashboard/expenses',   icon: Receipt,         section: 'finance', roles: ['owner', 'manager'] },
   { key: 'shifts',    href: '/dashboard/shifts',     icon: Clock,           section: 'hr' },
+  { key: 'tables',    href: '/dashboard/tables',     icon: Utensils,        section: 'sales' },
+  { key: 'kitchen',   href: '/dashboard/kitchen',    icon: ChefHat,         section: 'sales' },
   { key: 'reports',   href: '/dashboard/reports',    icon: BarChart3,       section: 'reports',  roles: ['owner', 'manager'] },
   { key: 'users',     href: '/dashboard/users',      icon: UserCog,         section: 'hr',       roles: ['owner', 'manager'] },
+  { key: 'attendance', href: '/dashboard/attendance', icon: CalendarClock, section: 'hr' },
+  { key: 'schedules', href: '/dashboard/schedules',  icon: CalendarDays,    section: 'hr',       roles: ['owner', 'manager'] },
   { key: 'settings',  href: '/dashboard/settings',   icon: Settings,        section: 'admin',    roles: ['owner'] },
 ]
 

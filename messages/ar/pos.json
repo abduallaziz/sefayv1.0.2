@@ -42,7 +42,9 @@
     "splitCard": "المتبقي على البطاقة",
     "cardInstruction": "وجّه العميل للطرفية وأكّد الدفع",
     "confirm": "تأكيد الدفع",
-    "cancel": "إلغاء"
+    "cancel": "إلغاء",
+    "redeemPoints": "استرداد نقاط الولاء",
+    "availablePoints": "{points} نقطة متاحة"
   },
   "receipt": {
     "success": "تم الدفع بنجاح",
