@@ -20,5 +20,19 @@
   "currency": "العملة",
   "invoicesThisMonth": "الفواتير هذا الشهر",
   "customFields": "حقول العميل المخصصة",
-  "customFieldsHint": "عند التفعيل، يظهر للكاشير خيار البحث عن عميل أو تسجيل عميل جديد عند البيع (POS)."
+  "customFieldsHint": "عند التفعيل، يظهر للكاشير خيار البحث عن عميل أو تسجيل عميل جديد عند البيع (POS).",
+  "invoiceCustomization": "تخصيص الفاتورة",
+  "logoUrl": "رابط الشعار",
+  "taxNumber": "الرقم الضريبي",
+  "invoiceFooter": "تذييل الفاتورة",
+  "printerSettings": "إعدادات الطابعة",
+  "paperWidth": "عرض الورق",
+  "autoPrint": "طباعة تلقائية بعد كل فاتورة",
+  "notificationPreferences": "إعدادات التنبيهات",
+  "notificationPreferencesHint": "اختر أي التنبيهات تريد استلامها عبر البريد الإلكتروني. تبقى تنبيهات الأمان (تسجيل الدخول والجلسات) مفعّلة دائمًا.",
+  "notifications": {
+    "subscription_expired": "انتهاء الاشتراك",
+    "payment_failed": "فشل عملية دفع",
+    "payment_success": "نجاح عملية دفع"
+  }
 }
