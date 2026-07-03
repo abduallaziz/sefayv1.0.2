@@ -150,7 +150,7 @@ If the frontend uses Server Actions, they attach the same NestJS-issued JWT (fro
 
 Pagination is required for every endpoint that returns a list of resources that may grow unbounded. List endpoints that do not have pagination are considered incomplete until pagination is added.
 
-**Known gap:** As identified in the Phase 2 Inventory UX audit, five Inventory list endpoints — Purchase Orders, Goods Receipts, Transfers, Stock Counts, and Adjustments — currently have no pagination plumbing at all (no `page`/`pageSize` fields in their types, hooks, or API layers). These must be remediated as a data-layer change before the list pages can scale to large datasets.
+**Resolved 2026-07-03:** the five Inventory/Purchasing list endpoints previously flagged as missing pagination (Purchase Orders, Goods Receipts, Transfers, Stock Counts, Adjustments) are now all paginated at the API layer, verified directly against code: Adjustments filters via `ScopedRepository`'s `.range()`; Purchase Orders, Transfers, and Stock Counts already had `p_limit`/`p_offset` on their `fn_*_list_enriched` RPC functions since migration `036`; Goods Receipts was the one genuine gap (its sibling RPC function from migration `034` never got the same treatment) — fixed in migration `039` plus the corresponding controller/service/repository changes. Frontend UI pager controls (page/pageSize wired into the actual list pages' hooks and types) were not verified in this pass — the API defaulting to 50 rows per page unconditionally is already a major improvement over the prior unbounded-result-set state, independent of whether the UI exposes page navigation yet.
 
 **Pagination convention:**
 

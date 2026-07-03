@@ -160,7 +160,7 @@ The full Documentation Policy is described in [`docs/README.md`](../README.md#do
 
 ## Performance Principles
 
-- List tables that may grow large (Stock Levels, Movements, Purchase Orders) require server-side pagination. The current known gap — five Inventory modules lacking pagination entirely — is tracked in `TASKS.md` Phase 2 remaining items.
+- List tables that may grow large (Stock Levels, Movements, Purchase Orders) require server-side pagination. The five Inventory/Purchasing modules previously missing this (Purchase Orders, Goods Receipts, Transfers, Stock Counts, Adjustments) are now all paginated at the API layer as of 2026-07-03 — see the note in [`api-design.md`](./api-design.md#pagination-pattern). *(Note: `TASKS.md` does not actually contain a tracked pagination item under Phase 2 or elsewhere — the prior reference to it here was itself inaccurate.)*
 - Expensive derived computations (inventory health scores, ABC analysis, snapshot reconstructions) are performed server-side and cached, not computed inline per render.
 - Portal-rendered popups (`createPortal`) use `useFloatingPosition` for viewport-aware positioning to avoid layout reflows caused by incorrect size assumptions in scrollable containers.
 - Image assets (company logos, stamps, signatures) are stored in original resolution and served through optimized variants via the `StorageProvider` interface.
