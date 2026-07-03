@@ -3,9 +3,9 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
-import { useRevenueReport, useShiftsReport, useExpensesReport } from '../hooks/useReports'
+import { useRevenueReport, useShiftsReport, useExpensesReport, useEmployeesReport, useTaxReport } from '../hooks/useReports'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { TrendingUp, Clock, TrendingDown, CreditCard } from 'lucide-react'
+import { TrendingUp, Clock, TrendingDown, CreditCard, Users, Receipt } from 'lucide-react'
 import { DateRangePicker, type DateRange } from '@/shared/ui/date-range-picker'
 
 function toYMD(d: Date) {
@@ -46,6 +46,8 @@ export function ReportsPage() {
   const { data: revenue, isLoading: revLoading } = useRevenueReport(query)
   const { data: shifts, isLoading: shiftsLoading } = useShiftsReport(query)
   const { data: expenses, isLoading: expLoading } = useExpensesReport(query)
+  const { data: employees, isLoading: employeesLoading } = useEmployeesReport(query)
+  const { data: tax, isLoading: taxLoading } = useTaxReport(query)
 
   const summary = (revenue as any)?.summary
   const dailyBreakdown = (revenue as any)?.daily_breakdown ?? []
@@ -148,6 +150,54 @@ export function ReportsPage() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+      </div>
+
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <Users className="w-4 h-4 text-gray-400" />
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{t('employeePerformance')}</h2>
+        </div>
+        {employeesLoading ? (
+          <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
+        ) : (
+          <div className="space-y-2">
+            {(employees?.employees ?? []).map((e) => (
+              <div key={e.cashier_id} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
+                <span className="text-sm text-gray-600 dark:text-gray-400">{e.name}</span>
+                <div className="flex items-center gap-4 text-xs">
+                  <span className="text-gray-500 dark:text-gray-500">{e.order_count} {t('orders')}</span>
+                  <span className="text-gray-500 dark:text-gray-500">{t('avgOrder')}: {e.avg_order_value.toLocaleString('en-US')} {currency}</span>
+                  <span className="text-gray-900 dark:text-white font-medium">{e.total_sales.toLocaleString('en-US')} {currency}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <Receipt className="w-4 h-4 text-gray-400" />
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{t('taxSummary')}</h2>
+        </div>
+        {taxLoading ? (
+          <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
+        ) : (
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <p className="text-xs text-gray-500">{t('subtotalBeforeTax')}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{tax?.summary.total_subtotal.toLocaleString('en-US')} {currency}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">{t('taxCollected')} ({((tax?.tax_rate ?? 0) * 100).toFixed(0)}%)</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{tax?.summary.total_tax_collected.toLocaleString('en-US')} {currency}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">{t('totalRevenue')}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{tax?.summary.grand_total.toLocaleString('en-US')} {currency}</p>
+            </div>
           </div>
         )}
       </div>
