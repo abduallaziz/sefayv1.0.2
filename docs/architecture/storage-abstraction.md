@@ -114,12 +114,12 @@ The following providers are planned as future adapters, requiring no application
 
 ## Tenant-Aware Paths
 
-Every path passed to a `StorageProvider` method must be namespaced by the tenant's `company_id`. Cross-tenant path collisions and data leakage are prevented by the path structure itself as an additional layer on top of access control.
+Every path passed to a `StorageProvider` method must be namespaced by the tenant's `tenant_id`. Cross-tenant path collisions and data leakage are prevented by the path structure itself as an additional layer on top of access control.
 
 Path format:
 
 ```
-{company_id}/{category}/{filename}
+{tenant_id}/{category}/{filename}
 ```
 
 Examples:
@@ -155,7 +155,7 @@ Rules governing signed URL generation:
 - **Default expiry:** 15 minutes for inline preview contexts; 60 minutes for print/PDF download contexts.
 - **Expiry must be appropriate for the context.** A signed URL passed to a background PDF rendering job must have a longer expiry than one used for an immediate inline image preview.
 - **CDN-layer signing.** When `cdn: true` is passed to `signedUrl()` and the adapter supports it, the adapter returns a CDN-layer signed URL (e.g. a CloudFront signed URL) rather than an origin-layer presigned URL. CDN-layer signing enables edge caching of signed assets without per-request origin hits.
-- **URL opacity.** Signed URLs generated for one tenant must not be usable by another tenant. This is guaranteed by the tenant-scoped path (`company_id` prefix) combined with the signing mechanism — even if a URL leaks, it only grants access to the specific path it was signed for, which is already namespaced to one tenant.
+- **URL opacity.** Signed URLs generated for one tenant must not be usable by another tenant. This is guaranteed by the tenant-scoped path (`tenant_id` prefix) combined with the signing mechanism — even if a URL leaks, it only grants access to the specific path it was signed for, which is already namespaced to one tenant.
 
 ---
 
@@ -182,7 +182,7 @@ Certain assets (company stamp, manager and accountant signatures) may be replace
 Versioning approach:
 
 - When an asset is replaced, the new file is uploaded to a new versioned path (e.g. `acme-corp/branding/stamp_v4.png`) rather than overwriting the existing path.
-- An asset metadata record in the database (`company_assets` table) tracks: `company_id`, `category`, `current_version`, `current_path`, and the full version history.
+- An asset metadata record in the database (`tenant_assets` table) tracks: `tenant_id`, `category`, `current_version`, `current_path`, and the full version history.
 - Document templates (Phase 10) store the **versioned path** at the time the document was generated, not a symbolic "current" reference. This guarantees that a re-print of an archived invoice displays the same signature image as the original.
 - The current asset is resolved through the metadata record, not by reconstructing the path.
 
@@ -228,7 +228,7 @@ Provider adapters must support returning a CDN-fronted URL when CDN integration 
 
 - When `cdn: true` is passed to `signedUrl()`, the adapter returns a CDN-layer URL signed at the CDN edge (e.g. a CloudFront signed URL for S3, a Cloudflare-signed URL for R2).
 - CDN-layer signed URLs enable edge caching of assets: once cached at the edge, subsequent requests for the same URL are served from the edge without hitting the origin storage.
-- All CDN URLs must still be tenant-scoped. The path prefix (`company_id/...`) is part of the CDN URL, so CDN cache keys are inherently tenant-partitioned. A CDN cache hit for one tenant's asset cannot serve another tenant's request.
+- All CDN URLs must still be tenant-scoped. The path prefix (`tenant_id/...`) is part of the CDN URL, so CDN cache keys are inherently tenant-partitioned. A CDN cache hit for one tenant's asset cannot serve another tenant's request.
 - For adapters that do not support CDN integration, the `cdn` option is silently ignored and an origin-layer signed URL is returned.
 
 ---

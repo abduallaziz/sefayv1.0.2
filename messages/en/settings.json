@@ -20,5 +20,19 @@
   "currency": "Currency",
   "invoicesThisMonth": "Invoices This Month",
   "customFields": "Custom Customer Fields",
-  "customFieldsHint": "When enabled, the cashier can search for a customer or register a new one during a sale (POS)."
+  "customFieldsHint": "When enabled, the cashier can search for a customer or register a new one during a sale (POS).",
+  "invoiceCustomization": "Invoice Customization",
+  "logoUrl": "Logo URL",
+  "taxNumber": "Tax Registration Number",
+  "invoiceFooter": "Invoice Footer",
+  "printerSettings": "Printer Settings",
+  "paperWidth": "Paper Width",
+  "autoPrint": "Auto-print after every invoice",
+  "notificationPreferences": "Notification Preferences",
+  "notificationPreferencesHint": "Choose which notifications you want to receive by email. Security notifications (login and sessions) always stay on.",
+  "notifications": {
+    "subscription_expired": "Subscription expired",
+    "payment_failed": "Payment failed",
+    "payment_success": "Payment succeeded"
+  }
 }

@@ -14,5 +14,13 @@
   "revenue": "الإيرادات",
   "orders": "طلب",
   "items": "عنصر",
-  "loading": "جاري التحميل..."
+  "loading": "جاري التحميل...",
+  "employeePerformance": "أداء الموظفين",
+  "employee": "الموظف",
+  "sales": "المبيعات",
+  "avgOrder": "متوسط الفاتورة",
+  "taxSummary": "ملخص الضريبة",
+  "taxCollected": "الضريبة المحصّلة",
+  "subtotalBeforeTax": "الإجمالي قبل الضريبة",
+  "taxRate": "نسبة الضريبة"
 }

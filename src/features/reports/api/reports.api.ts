@@ -53,8 +53,62 @@ export interface PaymentsReport {
     grand_total: number
     cash: { count: number; total: number }
     card: { count: number; total: number }
+    wallet: { count: number; total: number }
     split: { count: number; total: number }
+    tab: { count: number; total: number }
   }
+  by_method: Record<string, { count: number; total: number }>
+}
+
+export interface EmployeesReport {
+  period: { from: string; to: string }
+  employees: {
+    cashier_id: string
+    name: string
+    order_count: number
+    total_sales: number
+    avg_order_value: number
+  }[]
+}
+
+export interface CustomersReport {
+  period: { from: string; to: string }
+  summary: { unique_customers: number }
+  customers: {
+    customer_id: string
+    name: string
+    order_count: number
+    total_spent: number
+    avg_order_value: number
+  }[]
+}
+
+export interface TaxReport {
+  period: { from: string; to: string }
+  tax_rate: number
+  summary: {
+    total_orders: number
+    total_subtotal: number
+    total_tax_collected: number
+    grand_total: number
+  }
+  daily_breakdown: { date: string; subtotal: number; tax: number; total: number; order_count: number }[]
+}
+
+export interface InventoryReport {
+  summary: {
+    total_sku_count: number
+    total_inventory_value: number
+    low_stock_count: number
+    out_of_stock_count: number
+  }
+  top_by_value: {
+    item_name: string
+    warehouse_name: string
+    quantity_on_hand: number
+    inventory_value: number
+    status: string
+  }[]
 }
 
 export interface TopItemsReport {
@@ -129,4 +183,34 @@ export const reportsApi = {
 
   getSparklines: (): Promise<SparklinesReport> =>
     apiClient.get('/reports/sparklines'),
+
+  getEmployees: (query?: ReportQuery): Promise<EmployeesReport> => {
+    const params = new URLSearchParams()
+    if (query?.period) params.set('period', query.period)
+    if (query?.from) params.set('from', query.from)
+    if (query?.to) params.set('to', query.to)
+    const qs = params.toString()
+    return apiClient.get(`/reports/employees${qs ? `?${qs}` : ''}`)
+  },
+
+  getCustomersReport: (query?: ReportQuery): Promise<CustomersReport> => {
+    const params = new URLSearchParams()
+    if (query?.period) params.set('period', query.period)
+    if (query?.from) params.set('from', query.from)
+    if (query?.to) params.set('to', query.to)
+    const qs = params.toString()
+    return apiClient.get(`/reports/customers${qs ? `?${qs}` : ''}`)
+  },
+
+  getTax: (query?: ReportQuery): Promise<TaxReport> => {
+    const params = new URLSearchParams()
+    if (query?.period) params.set('period', query.period)
+    if (query?.from) params.set('from', query.from)
+    if (query?.to) params.set('to', query.to)
+    const qs = params.toString()
+    return apiClient.get(`/reports/tax${qs ? `?${qs}` : ''}`)
+  },
+
+  getInventory: (warehouseId?: string): Promise<InventoryReport> =>
+    apiClient.get(`/reports/inventory${warehouseId ? `?warehouse_id=${warehouseId}` : ''}`),
 }

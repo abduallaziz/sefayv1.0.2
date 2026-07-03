@@ -4,9 +4,16 @@ import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useProfile, useSubscription, useUsage, useUpdateProfile } from '../hooks/useSettings';
 import { useTenantStore } from '@/core/tenant/stores/tenant.store';
-import { Building2, CreditCard, BarChart3, Save, Coins, Users, Percent } from 'lucide-react';
+import { Building2, CreditCard, BarChart3, Save, Coins, Users, Percent, Receipt, Printer, Bell } from 'lucide-react';
 import { CustomFieldsManager } from '@/features/customers/components/CustomFieldsManager';
 import { NumberInput } from '@/shared/ui/number-input';
+import type { NotificationPreferences } from '../api/settings.api';
+
+const NOTIFICATION_KEYS: (keyof NotificationPreferences)[] = [
+  'subscription_expired',
+  'payment_failed',
+  'payment_success',
+];
 
 const CURRENCIES = [
   { code: 'SAR', symbol: 'ر.س', label: 'ريال سعودي' },
@@ -31,6 +38,11 @@ export function SettingsPage() {
   const [selectedCurrency, setSelectedCurrency] = useState(currency_code);
   const [taxRatePercent, setTaxRatePercent] = useState('');
   const [taxRateError, setTaxRateError] = useState(false);
+  const [logoUrl, setLogoUrl] = useState('');
+  const [taxNumber, setTaxNumber] = useState('');
+  const [invoiceFooter, setInvoiceFooter] = useState('');
+  const [paperWidth, setPaperWidth] = useState<'58mm' | '80mm'>('80mm');
+  const [autoPrint, setAutoPrint] = useState(false);
 
   const sub = (subscriptionData as any)?.subscription;
 
@@ -39,6 +51,16 @@ export function SettingsPage() {
       setTaxRatePercent(String(Math.round(profile.tax_rate * 100 * 100) / 100));
     }
   }, [profile?.tax_rate]);
+
+  useEffect(() => {
+    if (profile) {
+      setLogoUrl(profile.logo_url ?? '');
+      setTaxNumber(profile.tax_number ?? '');
+      setInvoiceFooter(profile.invoice_footer ?? '');
+      setPaperWidth(profile.printer_settings?.paper_width ?? '80mm');
+      setAutoPrint(profile.printer_settings?.auto_print ?? false);
+    }
+  }, [profile]);
 
   function handleSaveName() {
     if (!name.trim()) return;
@@ -68,6 +90,24 @@ export function SettingsPage() {
     }
     setTaxRateError(false);
     updateProfile({ tax_rate: value / 100 });
+  }
+
+  function handleSaveInvoiceCustomization() {
+    updateProfile({
+      ...(logoUrl.trim() ? { logo_url: logoUrl.trim() } : {}),
+      tax_number: taxNumber.trim(),
+      invoice_footer: invoiceFooter.trim(),
+    });
+  }
+
+  function handleSavePrinterSettings() {
+    updateProfile({ printer_settings: { paper_width: paperWidth, auto_print: autoPrint } });
+  }
+
+  function handleToggleNotification(key: keyof NotificationPreferences, enabled: boolean) {
+    updateProfile({
+      notification_preferences: { ...profile?.notification_preferences, [key]: enabled },
+    });
   }
 
   return (
@@ -177,6 +217,148 @@ export function SettingsPage() {
               <Save className="w-4 h-4" />
               {isPending ? t('saving') : t('save')}
             </button>
+          </div>
+        )}
+      </div>
+
+      {/* Invoice Customization */}
+      <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-5 space-y-4">
+        <div className="flex items-center gap-2 mb-2">
+          <Receipt className="w-4 h-4 text-slate-400" />
+          <h2 className="text-sm font-semibold text-slate-700 dark:text-white">{t('invoiceCustomization')}</h2>
+        </div>
+        {profileLoading ? (
+          <div className="h-10 bg-slate-100 dark:bg-gray-800 rounded-lg animate-pulse" />
+        ) : (
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs text-slate-500 mb-1 block">{t('logoUrl')}</label>
+              <input
+                type="text"
+                value={logoUrl}
+                onChange={(e) => setLogoUrl(e.target.value)}
+                placeholder="https://..."
+                className="w-full bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-[#0C447C] dark:focus:border-[#0C447C]"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-slate-500 mb-1 block">{t('taxNumber')}</label>
+              <input
+                type="text"
+                value={taxNumber}
+                onChange={(e) => setTaxNumber(e.target.value)}
+                className="w-full bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-[#0C447C] dark:focus:border-[#0C447C]"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-slate-500 mb-1 block">{t('invoiceFooter')}</label>
+              <textarea
+                value={invoiceFooter}
+                onChange={(e) => setInvoiceFooter(e.target.value)}
+                rows={2}
+                maxLength={500}
+                className="w-full bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-[#0C447C] dark:focus:border-[#0C447C]"
+              />
+            </div>
+            <button
+              onClick={handleSaveInvoiceCustomization}
+              disabled={isPending}
+              className="flex items-center gap-2 px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 rounded-lg text-sm text-white transition-colors"
+            >
+              <Save className="w-4 h-4" />
+              {isPending ? t('saving') : t('save')}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Printer Settings */}
+      <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-5 space-y-4">
+        <div className="flex items-center gap-2 mb-2">
+          <Printer className="w-4 h-4 text-slate-400" />
+          <h2 className="text-sm font-semibold text-slate-700 dark:text-white">{t('printerSettings')}</h2>
+        </div>
+        {profileLoading ? (
+          <div className="h-10 bg-slate-100 dark:bg-gray-800 rounded-lg animate-pulse" />
+        ) : (
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs text-slate-500 mb-1 block">{t('paperWidth')}</label>
+              <div className="flex gap-2">
+                {(['58mm', '80mm'] as const).map((width) => (
+                  <button
+                    key={width}
+                    onClick={() => setPaperWidth(width)}
+                    className={`px-4 py-2 rounded-lg border text-sm transition-all ${
+                      paperWidth === width
+                        ? 'border-[#0C447C] bg-[#E8F1FB] dark:bg-[#0C447C]/20 text-[#0C447C] dark:text-[#B5D4F4]'
+                        : 'border-slate-200 dark:border-gray-700 text-slate-500 dark:text-slate-400 hover:border-[#0C447C]/50'
+                    }`}
+                  >
+                    {width}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-slate-500">{t('autoPrint')}</span>
+              <button
+                onClick={() => setAutoPrint(!autoPrint)}
+                className={`relative w-12 h-6 rounded-full transition-colors ${
+                  autoPrint ? 'bg-[#0C447C]' : 'bg-slate-200 dark:bg-gray-700'
+                }`}
+              >
+                <span
+                  className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
+                    autoPrint ? 'translate-x-6 rtl:-translate-x-6' : 'translate-x-0.5 rtl:-translate-x-0.5'
+                  }`}
+                />
+              </button>
+            </div>
+            <button
+              onClick={handleSavePrinterSettings}
+              disabled={isPending}
+              className="flex items-center gap-2 px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 rounded-lg text-sm text-white transition-colors"
+            >
+              <Save className="w-4 h-4" />
+              {isPending ? t('saving') : t('save')}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Notification Preferences */}
+      <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-5 space-y-4">
+        <div className="flex items-center gap-2 mb-2">
+          <Bell className="w-4 h-4 text-slate-400" />
+          <h2 className="text-sm font-semibold text-slate-700 dark:text-white">{t('notificationPreferences')}</h2>
+        </div>
+        <p className="text-xs text-slate-500">{t('notificationPreferencesHint')}</p>
+        {profileLoading ? (
+          <div className="h-10 bg-slate-100 dark:bg-gray-800 rounded-lg animate-pulse" />
+        ) : (
+          <div className="space-y-2">
+            {NOTIFICATION_KEYS.map((key) => {
+              const enabled = profile?.notification_preferences?.[key] !== false;
+              return (
+                <div key={key} className="flex items-center justify-between">
+                  <span className="text-xs text-slate-600 dark:text-slate-300">{t(`notifications.${key}`)}</span>
+                  <button
+                    onClick={() => handleToggleNotification(key, !enabled)}
+                    disabled={isPending}
+                    className={`relative w-12 h-6 rounded-full transition-colors disabled:opacity-50 ${
+                      enabled ? 'bg-[#0C447C]' : 'bg-slate-200 dark:bg-gray-700'
+                    }`}
+                  >
+                    <span
+                      className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
+                        enabled ? 'translate-x-6 rtl:-translate-x-6' : 'translate-x-0.5 rtl:-translate-x-0.5'
+                      }`}
+                    />
+                  </button>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

@@ -77,8 +77,8 @@ The `limit_value` field exists on `PlanFeature` and `TenantFeatureOverride` but 
 - Surface current usage vs. limit to the tenant in their own settings.
 
 **Required components:**
-- A `usage_snapshots` table (or real-time computed metrics from existing tables) tracking current usage per `company_id` per resource type.
-- A `checkLimit(companyId, featureKey)` service function called before any resource-creating operation.
+- A `usage_snapshots` table (or real-time computed metrics from existing tables) tracking current usage per `tenant_id` per resource type.
+- A `checkLimit(tenantId, featureKey)` service function called before any resource-creating operation.
 - A usage dashboard in SuperAdmin Tenant Detail.
 - A usage summary in the tenant's own Settings → Subscription page.
 
@@ -192,7 +192,7 @@ CREATE TABLE coupons (
 ```sql
 CREATE TABLE usage_snapshots (
   id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  company_id      uuid NOT NULL REFERENCES companies(id),
+  tenant_id       uuid NOT NULL REFERENCES tenants(id),
   snapshot_date   date NOT NULL DEFAULT CURRENT_DATE,
   users_count     integer NOT NULL DEFAULT 0,
   branches_count  integer NOT NULL DEFAULT 0,
@@ -203,7 +203,7 @@ CREATE TABLE usage_snapshots (
   ai_tokens_month integer NOT NULL DEFAULT 0,
   api_calls_month integer NOT NULL DEFAULT 0,
   created_at      timestamptz NOT NULL DEFAULT now(),
-  UNIQUE (company_id, snapshot_date)
+  UNIQUE (tenant_id, snapshot_date)
 );
 ```
 
@@ -211,7 +211,7 @@ CREATE TABLE usage_snapshots (
 
 ## Security Considerations
 
-- The tenant self-service portal must enforce that a tenant can only view and modify their own subscription. `company_id` scoping via RLS applies.
+- The tenant self-service portal must enforce that a tenant can only view and modify their own subscription. `tenant_id` scoping via RLS applies.
 - Upgrade/downgrade operations that involve payment must require re-authentication (password confirmation), following the same pattern as Company Factory Reset.
 - Coupon codes must not be enumerable — brute-force coupon discovery must be rate-limited.
 - Limit enforcement must occur at the backend service layer, not only in the frontend UI. A tenant cannot bypass a seat limit by calling the API directly.

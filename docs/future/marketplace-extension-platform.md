@@ -77,7 +77,7 @@ The most critical architectural decision for the marketplace is how extensions a
 
 - Extensions do not import from or directly call core platform code.
 - Extensions interact with Sefay exclusively through a versioned Extension API (server-side hooks, UI slot injection, event subscriptions).
-- Extensions cannot modify core database tables directly. They can add their own tables (namespaced by extension ID + company_id) and read core data through the Extension API.
+- Extensions cannot modify core database tables directly. They can add their own tables (namespaced by extension ID + tenant_id) and read core data through the Extension API.
 - Extensions run in the same process (no sandboxed VMs) but are restricted to the Extension API surface by convention and code review, not by runtime isolation.
 
 This is the same model used by Odoo modules and ERPNext apps. It is simpler than full runtime isolation but requires rigorous API review during marketplace publishing.
@@ -110,14 +110,14 @@ The Extension API exposes:
 -- Registry of installed extensions per tenant
 CREATE TABLE tenant_extensions (
   id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  company_id      uuid NOT NULL REFERENCES companies(id),
+  tenant_id       uuid NOT NULL REFERENCES tenants(id),
   extension_id    text NOT NULL,    -- matches sefay-extension.json id
   version         text NOT NULL,
   status          text NOT NULL,    -- active | disabled | update_available
   installed_at    timestamptz NOT NULL DEFAULT now(),
   updated_at      timestamptz NOT NULL DEFAULT now(),
   settings        jsonb,            -- extension-specific settings blob
-  UNIQUE (company_id, extension_id)
+  UNIQUE (tenant_id, extension_id)
 );
 
 -- Marketplace catalogue (global, not per-tenant)
@@ -156,7 +156,7 @@ CREATE TABLE marketplace_extension_versions (
 ## Security Considerations
 
 - **Permission scope enforcement**: the Extension API must validate that each data access call is within the extension's declared permissions. An extension that declared `customers:read` cannot call an orders write endpoint.
-- **Tenant data isolation**: extensions can only access data for the tenant in whose context they are running. Cross-tenant access through extensions is structurally impossible because all Extension API calls are scoped by the authenticated `company_id`.
+- **Tenant data isolation**: extensions can only access data for the tenant in whose context they are running. Cross-tenant access through extensions is structurally impossible because all Extension API calls are scoped by the authenticated `tenant_id`.
 - **Publishing security review**: all extensions submitted to the marketplace must pass automated scanning for known patterns of data exfiltration, excessive data access, and permission scope violations.
 - **No raw SQL**: extensions cannot execute raw SQL. All data access goes through the Extension API, which enforces RLS and tenant scoping.
 - **Extension settings encryption**: if an extension stores API keys or credentials in its settings blob, those values must be encrypted at rest using a per-tenant encryption key, not stored as plaintext in `tenant_extensions.settings`.

@@ -46,18 +46,18 @@ A document belongs in `roadmap/` when:
 
 ## Phase Dependency Summary
 
-For reference, the current phase ordering in `TASKS.md` and the key dependency relationships between them:
+> ⚠️ **Numbering disclaimer (added 2026-07-03):** the "Phase" numbers below are `master-roadmap.md`'s own roadmap-only numbering for future business features that are **not yet scheduled into `TASKS.md`**. They do not correspond to `TASKS.md`'s actual phase headers (which are `PHASE A`–`D`, then `9`–`15`, meaning different things — e.g. `TASKS.md`'s real `PHASE 11` is Mobile POS, not Storage Abstraction, and its real `PHASE 15` is Storage Infrastructure & Abstraction). See the disclaimer in `master-roadmap.md` Part 1 for the full explanation. This table describes dependency relationships *among these planned roadmap items*, not a current `TASKS.md` state.
 
-| Phase | Depends On |
+| Roadmap Item | Depends On (same roadmap-only numbering) |
 |---|---|
-| Phase 3 — Barcode & Scanning | Phase 2 (Inventory UX production-readiness foundation) |
-| Phase 4 — Smart Product Creation | Phase 3 (Unknown Barcode Assistant is the trigger surface) |
-| Phase 5 — Inventory Intelligence | Phase 2 (Movements ledger data quality), Phase 3 (barcode data enriching the product model) |
-| Phase 6 — Warehouse Management | Phase 5 (on-hand/reserved/available split as the data model foundation for reservation management) |
-| Phase 7 — Productivity | Phase 2 (stable Inventory UX to build quick actions and bulk actions on top of) |
-| Phase 8 — AI Features | Phase 4 (shared LLM provider integration established), Phase 5 (computed metrics consumed by AI recommendations) |
-| Phase 9 — Company Branding & Information | Phase 11 (StorageProvider abstraction must be in place before first binary asset uploads) |
-| Phase 10 — Document & Print Designer | Phase 9 (company information fields as template variables), Phase 3 (barcode/QR rendering for label templates) |
-| Phase 11 — Storage Abstraction | Must land alongside or before Phase 9 |
+| Barcode & Scanning | Inventory UX Production-Readiness |
+| Smart Product Creation | Barcode & Scanning (Unknown Barcode Assistant is the trigger surface) |
+| Inventory Intelligence | Inventory UX (movements ledger data quality), Barcode & Scanning (barcode data enriching the product model) |
+| Warehouse Management | Inventory Intelligence (on-hand/reserved/available split as the data model foundation for reservation management) |
+| Productivity | Inventory UX (stable foundation to build quick actions and bulk actions on top of) |
+| AI Features | Smart Product Creation (shared LLM provider integration established), Inventory Intelligence (computed metrics consumed by AI recommendations) |
+| Company Branding & Information | Storage Abstraction (StorageProvider abstraction must be in place before first binary asset uploads) |
+| Document & Print Designer | Company Branding (company information fields as template variables), Barcode & Scanning (barcode/QR rendering for label templates) |
+| Storage Abstraction | Must land alongside or before Company Branding |
 
-This summary is maintained here as a quick-reference. The authoritative dependency reasoning for each phase is in `TASKS.md`.
+This summary is maintained here as a quick-reference for the roadmap's own sequencing. The authoritative *implemented and scheduled* phase reasoning is in `TASKS.md`, under its own separate numbering.

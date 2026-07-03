@@ -42,7 +42,7 @@ The following reference documents would be valuable additions to this folder:
 A glossary of domain terms used in the Sefay ERP, particularly terms from the Saudi/GCC business context that may not be self-evident to all engineers. Examples of terms to include:
 
 - **Company / Tenant** — the distinction between the Sefay platform and a company using it.
-- **Owner / Admin / Employee / Cashier** — the four roles and their colloquial meanings in practice.
+- **Owner / Manager / Inventory Clerk / Cashier / Worker / Superadmin** — the six roles (per `permissions.seed.ts`) and their colloquial meanings in practice.
 - **Goods Receipt** — the physical receipt of purchased goods into a warehouse, creating a stock increase movement.
 - **Transfer** — a movement of stock between two locations or warehouses within the same company.
 - **Stock Count** — a physical inventory audit where counted quantities are compared against system quantities.

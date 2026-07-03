@@ -14,5 +14,13 @@
   "revenue": "Revenue",
   "orders": "orders",
   "items": "items",
-  "loading": "Loading..."
+  "loading": "Loading...",
+  "employeePerformance": "Employee Performance",
+  "employee": "Employee",
+  "sales": "Sales",
+  "avgOrder": "Avg. Order",
+  "taxSummary": "Tax Summary",
+  "taxCollected": "Tax Collected",
+  "subtotalBeforeTax": "Subtotal Before Tax",
+  "taxRate": "Tax Rate"
 }

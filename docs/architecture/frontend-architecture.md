@@ -6,9 +6,11 @@
 
 ## Overview
 
-The Sefay ERP frontend is built on **Next.js 16.2.6** using the App Router, **React 19**, **TypeScript** in strict mode, **Tailwind CSS** for styling, and **next-intl** for Arabic/English internationalization. It runs inside the `sefayv1.0.2` project and communicates with Supabase (the `apiv1.0.2` project) as its backend.
+The Sefay ERP frontend is built on **Next.js 16.2.6** using the App Router (confirmed directly against `web/package.json` — a prior draft of this document "corrected" the version to 15, which was itself wrong; `RUNBOOK.md` does not mention a Next.js version at all, so that correction cited a source that didn't actually support it), **React 19**, **TypeScript** in strict mode, **Tailwind CSS v3** for styling, and **next-intl** for Arabic/English internationalization. It runs inside the `sefayv1.0.2` project and communicates with the NestJS backend (`apiv1.0.2`) via authenticated REST API calls to `/api/v1/...`.
 
 The frontend is an ERP application, not a marketing site — it prioritizes data density, keyboard accessibility, and operational correctness over visual novelty. Component decisions are biased toward reuse and toward matching the established Sefay design language (`rounded-2xl`, `shadow-2xl`, brand color `#0C447C`, slate/gray dark-mode palette).
+
+**State management:** TanStack Query (server state), Zustand (UI state), react-hook-form + zod (forms).
 
 ---
 
@@ -32,7 +34,7 @@ src/
     ├── ui/                ← reusable, design-system UI primitives
     ├── utils/             ← pure utility functions (e.g. exportCsv.ts)
     ├── hooks/             ← shared React hooks
-    ├── services/          ← shared API/Supabase service functions
+    ├── services/          ← shared API service functions
     ├── storage/           ← StorageProvider interface and adapters (Phase 11)
     └── types/             ← shared TypeScript types and interfaces
 ```
@@ -40,6 +42,8 @@ src/
 ### `src/features/`
 
 Each feature folder owns its components, hooks, API calls, and local types. Feature internals are private — one feature folder does not import from another feature folder's internals. Shared needs are promoted to `src/shared/`.
+
+Pattern: `page.tsx` has no business logic. API calls live in `features/*/api/`. Server state → TanStack Query. UI state → Zustand. Forms → `react-hook-form` + `zod`. No `useState` for form fields.
 
 ### `src/shared/`
 
@@ -65,7 +69,7 @@ A portal-rendered confirmation/alert dialog with `role="alertdialog"`, `aria-mod
 
 ### `SingleDatePicker` (`date-range-picker/SingleDatePicker.tsx`)
 
-A single-date picker rendered through `createPortal` and positioned via `useFloatingPosition`. The popup is a full day/month/year-zoomable calendar grid. Accepts `value`, `onChange`, `placeholder`, `align`, and an additive `className` prop. Always use this component for single-date fields — never a raw `<input type="date">`. See [engineering-principles.md](./engineering-principles.md#no-raw-input-typedate).
+A single-date picker rendered through `createPortal` and positioned via `useFloatingPosition`. The popup is a full day/month/year-zoomable calendar grid. Accepts `value`, `onChange`, `placeholder`, `align`, and an additive `className` prop. **Always use this component for single-date fields — never a raw `<input type="date">`.**
 
 ### `DateRangePicker` (`date-range-picker/DateRangePicker.tsx`)
 
@@ -73,7 +77,7 @@ A date range picker rendered through `createPortal`. The popup is a two-pane lay
 
 ### `useFloatingPosition` (`date-range-picker/useFloatingPosition.ts`)
 
-A shared React hook that computes `fixed` viewport coordinates (`top`/`left`) for a popup element based on its trigger element's `getBoundingClientRect()`. Clamps the popup within the viewport and flips it above the trigger when there is insufficient room below. Created to fix two bugs that existed with inline-positioned popups: (1) clipping inside scrollable modal bodies (`overflow-hidden`/`overflow-y-auto` ancestors), and (2) RTL/LTR offset class math pushing the panel off-screen.
+A shared React hook that computes `fixed` viewport coordinates (`top`/`left`) for a popup element based on its trigger element's `getBoundingClientRect()`. Clamps the popup within the viewport and flips it above the trigger when there is insufficient room below. Created to fix two bugs that existed with inline-positioned popups: (1) clipping inside scrollable modal bodies (`overflow-hidden`/`overflow-y-auto` ancestors), and (2) RTL/LTR offset class math pushing the panel off-screen. z-index set to 9999.
 
 ### `modal.tsx` / `dialog.tsx`
 
@@ -107,9 +111,9 @@ Both files must be updated in the same commit whenever a new translation key is 
 
 ## State Management
 
-Sefay currently uses local React state (`useState`, `useReducer`, `useContext`) only. There is no global state store (no Redux, Zustand, Jotai, or similar). Component state is colocated with the component that owns it, and lifted to the nearest common ancestor when shared between siblings.
+Sefay currently uses TanStack Query for server state and Zustand for UI state. There is no additional global state store. Component state is colocated with the component that owns it, and lifted to the nearest common ancestor when shared between siblings.
 
-This approach is intentional for the current project scale. If a phase introduces a cross-feature need for shared server state — for example, the AI Inventory Assistant (Phase 8) maintaining a chat session visible across navigation — a scoped solution (React Context or a lightweight store) will be introduced at that time, documented in an ADR, and added to this document.
+If a phase introduces a cross-feature need for shared server state — for example, the AI Inventory Assistant (Phase 8) maintaining a chat session visible across navigation — a scoped solution will be introduced at that time, documented in an ADR.
 
 ---
 
@@ -162,6 +166,24 @@ Known inconsistency: some list tables switch to card view at `sm:`, others at `m
 
 ---
 
+## Dark Mode
+
+The application supports full dark mode (implemented in §33). The dark mode pattern uses Tailwind's `dark:` variant. 29 files were updated during the dark mode full fix session. The dark mode color palette uses slate/gray tones against the brand navy.
+
+Key dark mode rules:
+- SuperAdmin pages use a dark navy theme by default.
+- Tenant application pages use a Tailwind-driven dark mode toggled by the user.
+- All new components must include `dark:` variant classes where applicable.
+- The settings namespace was added specifically to support dark mode toggle persistence.
+
+---
+
+## SuperAdmin UI
+
+SuperAdmin pages (`app/[locale]/superadmin/`) use a distinct dark navy theme regardless of the user's dark/light preference. SuperAdmin views include: tenant management, subscriptions, queue management, health dashboard, and metrics.
+
+---
+
 ## Future Architecture Considerations
 
 The following architectural changes are anticipated by the planned roadmap but have not yet been implemented:
@@ -169,5 +191,5 @@ The following architectural changes are anticipated by the planned roadmap but h
 - **Shared form-modal wrapper** — the seven near-identical create/edit form modals in Inventory (Warehouse, Location, Adjustment, Purchase Order, Transfer, Goods Receipt, Stock Count) should be unified under a shared wrapper using the existing `modal.tsx`/`dialog.tsx` primitives. This is the next planned milestone from the Phase 2 audit.
 - **Column manager primitive** — Phase 7 (Productivity) plans a shared column-show/hide/reorder configuration component for large tables (Stock Levels, Movements ledger). This should live in `src/shared/ui/` and not be built per-table.
 - **AI Assistant panel** — Phase 8 (AI Features) plans a docked AI chat panel, likely following the pattern of `command-palette.tsx`. It will require a scoped React Context for its session state.
-- **Server-side pagination** — five Inventory list pages (Purchase Orders, Goods Receipts, Transfers, Stock Counts, Adjustments) currently have no pagination plumbing. Adding it requires data-layer changes (new `page`/`pageSize` fields in types, hooks, and API functions), not only UI.
+- **Server-side pagination** — the backend API for all five Inventory/Purchasing list endpoints (Purchase Orders, Goods Receipts, Transfers, Stock Counts, Adjustments) now supports `page`/`per_page` as of 2026-07-03 (see `api-design.md`). Whether the frontend hooks/types for these five list pages actually send `page`/`pageSize` and expose pager UI controls was not verified in this pass — check each page's data hook before assuming end-to-end pagination is wired.
 - **StorageProvider integration** — Phase 11 establishes `src/shared/storage/StorageProvider.ts`. Frontend consumers (image upload in Phase 9 Company Branding) will use a server action or API route that internally calls the provider — the frontend never calls storage SDK methods directly.

@@ -28,3 +28,31 @@ export function usePaymentsReport(query?: ReportQuery) {
     queryFn: () => reportsApi.getPayments(query),
   })
 }
+
+export function useEmployeesReport(query?: ReportQuery) {
+  return useQuery({
+    queryKey: ['reports', 'employees', query],
+    queryFn: () => reportsApi.getEmployees(query),
+  })
+}
+
+export function useCustomersReport(query?: ReportQuery) {
+  return useQuery({
+    queryKey: ['reports', 'customers', query],
+    queryFn: () => reportsApi.getCustomersReport(query),
+  })
+}
+
+export function useTaxReport(query?: ReportQuery) {
+  return useQuery({
+    queryKey: ['reports', 'tax', query],
+    queryFn: () => reportsApi.getTax(query),
+  })
+}
+
+export function useInventoryReport(warehouseId?: string) {
+  return useQuery({
+    queryKey: ['reports', 'inventory', warehouseId],
+    queryFn: () => reportsApi.getInventory(warehouseId),
+  })
+}

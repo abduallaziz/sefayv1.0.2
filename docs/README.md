@@ -1,4 +1,4 @@
-# docs/ — Sefay Documentation System
+# docs/ — Sefay ERP Documentation System
 
 This folder is the single authoritative home for all technical documentation for the Sefay ERP platform. It is designed to scale alongside the codebase: new documents are added as features are planned, decisions are made, and architecture evolves. The folder is not a snapshot — it is a living system.
 
@@ -17,6 +17,24 @@ This folder is referenced from `TASKS.md` and `STATUS.md` for deeper context on 
 
 ---
 
+## Platform Summary
+
+**Sefay** is a multi-tenant SaaS POS/ERP platform targeting Arabic-speaking businesses in the GCC/Saudi market. It enables small-to-medium businesses across 37 granular activity types (retail, restaurants, services, healthcare, fashion, electronics, home goods, beauty) to manage sales, inventory, expenses, shifts, customers, and subscriptions from a single platform.
+
+**Infrastructure:**
+- API: NestJS + TypeScript on Railway
+- Frontend: Next.js (15/16.x) + Tailwind v3 on Vercel
+- Database: Supabase PostgreSQL (32+ migrations, direct client — no Supabase Auth in backend)
+- Queue: BullMQ + Redis
+- Payments: Stripe (production) + Mock Provider (development)
+- Email: Resend (optional — mock fallback if RESEND_API_KEY unset)
+
+**Multi-tenancy:** Shared database + `tenant_id` isolation via ScopedRepository pattern.
+
+**Auth:** JWT 15min access token + Refresh Token Rotation 7d, RBAC `resource.action.scope`.
+
+---
+
 ## Folder Structure
 
 ```
@@ -27,7 +45,8 @@ docs/
 ├── specifications/              ← cross-cutting technical specifications
 ├── roadmap/                     ← deeper roadmap research and planning
 ├── decisions/                   ← Architecture Decision Records (ADRs)
-└── reference/                   ← glossary, data dictionaries, lookup tables
+├── reference/                   ← glossary, data dictionaries, lookup tables
+└── legacy-analysis/             ← historical audit and coverage documents from V1.02
 ```
 
 ### `architecture/`
@@ -53,6 +72,10 @@ Architecture Decision Records (ADRs). Each ADR documents one significant technic
 ### `reference/`
 
 Reference material: glossary of domain terms, data dictionaries, API references, integration guides, and lookup tables. See [`reference/README.md`](./reference/README.md).
+
+### `legacy-analysis/`
+
+Historical audit and coverage documents generated during V1.02 schema analysis and zero-code-change evaluation. These documents are preserved as-is for archaeological context. They describe the state of the codebase at a specific point in time (2026-06-05) and should not be used as a current reference for schema or code correctness. See [`legacy-analysis/`](./legacy-analysis/).
 
 ---
 
