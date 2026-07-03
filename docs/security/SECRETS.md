@@ -18,6 +18,8 @@
 | `STRIPE_WEBHOOK_SECRET` | Conditional | StripeWebhookController | On compromise | Tied to Stripe webhook endpoint |
 | `RESEND_API_KEY` | Optional | EmailChannel | 90 days | Empty = mock mode |
 
+> ⚠️ **Dead variable found 2026-07-03:** `.env.example` and `.env.production.example` both define `JWT_EXPIRY=15m`, but `auth.module.ts` and `env.validation.ts` read `JWT_EXPIRES_IN` instead — `JWT_EXPIRY` is never read anywhere in the codebase. This doesn't currently cause a functional issue (both fall back to a `'15m'` default when unset), but the `.env.example` files should be updated to `JWT_EXPIRES_IN` to avoid a silent misconfiguration if someone sets `JWT_EXPIRY` expecting it to take effect.
+
 ---
 
 ## Validation Rules

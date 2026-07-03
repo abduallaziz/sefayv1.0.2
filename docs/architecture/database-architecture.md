@@ -17,22 +17,25 @@ See [`security-architecture.md`](./security-architecture.md) and [`tenant-archit
 
 ## V2 Schema Specification Summary
 
-*Source: oldmd/MASTER_SCHEMA_SPEC.md (authoritative V2 schema, dated 2026-06-05)*
+*Source: oldmd/MASTER_SCHEMA_SPEC.md (a planning document dated 2026-06-05).* **⚠️ Corrected 2026-07-03: this source document's "rename" proposals for the two rows marked below were never implemented — direct code inspection shows the opposite decision was actually applied for those two specific items.** The remaining rows in this section have not been independently re-verified against current code in this pass; treat them as the planning document's proposal, not a confirmed current-state fact, unless a table/row says otherwise.
 
 **28 active V2 tables.** 6 tables excluded from V2: `coupons`, `vehicles`, `workers`, `availability`, `queue`, `business_config`.
 
-### Key Column Naming Decisions (V2)
+### Key Column Naming Decisions (V2 — as originally proposed; see corrections below)
 
-| Table | Column | Correct Name | Notes |
+| Table | Column | Proposed Name | Notes |
 |---|---|---|---|
 | `customers` | name | `full_name` | not `name` |
 | `orders` | discount | `discount` | not `discount_amount` |
 | `orders` | tax | `tax` | not `tax_amount` |
 | `notifications` | subject | `title` | not `subject` |
 | `notifications` | metadata | `data` | not `metadata` |
-| `billing_invoices` | — | `billing_invoices` | not `invoices` (billing table) |
-| `order_items` | quantity/price | `qty`/`unit_price` | confirmed column names |
 | `expenses` | note | `notes` | plural |
+
+**⚠️ Two corrections to the original proposal, verified directly against `001_initial_schema.sql` and the TypeScript repositories on 2026-07-03:**
+
+1. **`invoices` vs `billing_invoices`:** the proposal wanted the billing table renamed to `billing_invoices`. This was **not done** — the table is `invoices` (`001_initial_schema.sql` line ~334), and every billing repository/controller (`core/billing/repositories/invoices.repository.ts`, `core/billing/stripe-webhook.controller.ts`, `core/billing/dunning/dunning.service.ts`) queries `.from('invoices')`. `billing_invoices` does not exist as a table name anywhere in the current codebase.
+2. **`order_items` columns:** the proposal wanted `order_items` renamed to `quantity`/`unit_price`. This was **not done either** — `order_items` (line ~559) genuinely has columns `qty`/`price`. **Important distinction the original proposal conflated:** there are two separate line-item tables — `order_items` (sales/POS orders, columns `qty`/`price`) and `invoice_items` (billing invoices, columns `quantity`/`unit_price`, line ~334). These are different tables with different real column names; neither was renamed to match the other. The `modules/invoices/repositories/invoices.repository.ts` SELECT clause aliases `qty AS quantity, price AS unit_price` for API response shaping only — the underlying `order_items` columns are still `qty`/`price`.
 
 ### Enum Domains (V2 Rule)
 
@@ -42,22 +45,22 @@ All enum domains are **text + CHECK constraints**, not PostgreSQL ENUM types. Th
 
 ### Resolved Conflicts (SCHEMA_DECISION_MATRIX.md)
 
-All 6 schema conflicts (A–F) were resolved in commit `745ca84` ("fix: security & bug remediation - 80 issues closed") on June 25, 2026. The SCHEMA_DECISION_MATRIX.md is now archival.
+*The commit and date below are as stated in the source document; not independently re-verified in this pass except where noted.*
 
-| Conflict | Resolution |
-|---|---|
-| A: `billing_invoices` vs `invoices` | Fix code — use `billing_invoices` |
-| B: `amount_due` vs `total_amount` | Fix code — use `total_amount` |
-| C: `subscriptions.expires_at` | Fix code — shared line with D |
-| D: `subscriptions.max_users/max_branches` | Fix code — shared line with C |
-| E: `dunning_attempts.attempted_at` | Fix DDL — add `DEFAULT NOW()` |
-| F: `grace_period_ends_at` dead code | Fix code — remove ~12 lines |
+| Conflict | Resolution as originally recorded | Verified against current code (2026-07-03) |
+|---|---|---|
+| A: `billing_invoices` vs `invoices` | Fix code — use `billing_invoices` | **Incorrect as recorded — the actual resolution was the opposite: keep the table as `invoices`, and fix the one out-of-sync caller (`stripe-webhook.controller.ts`) to use `invoices` instead of `billing_invoices`.** See correction above. |
+| B: `amount_due` vs `total_amount` | Fix code — use `total_amount` | Confirmed correct — `total_amount` is used consistently (`billing.types.ts`, `billing-invoice.service.ts`, `dunning.service.ts`, `invoices.repository.ts`); no `amount_due` references found. |
+| C: `subscriptions.expires_at` | Fix code — shared line with D | Not re-verified in this pass. |
+| D: `subscriptions.max_users/max_branches` | Fix code — shared line with C | Not re-verified in this pass. |
+| E: `dunning_attempts.attempted_at` | Fix DDL — add `DEFAULT NOW()` | Not re-verified in this pass. |
+| F: `grace_period_ends_at` dead code | Fix code — remove ~12 lines | Not re-verified in this pass. |
 
 ### Code Fixes Applied (F-01 through F-06)
 
 | Fix | Description |
 |---|---|
-| F-01 | `billing_invoices` naming in stripe-webhook controller |
+| F-01 | `stripe-webhook.controller.ts` corrected to use `invoices` (not `billing_invoices` — see correction above) |
 | F-02 | `amount_due` → `total_amount` |
 | F-03 | `subscriptions.expires_at` field reference |
 | F-04 | `subscriptions.max_users`/`max_branches` field references |
@@ -141,8 +144,8 @@ The following entities form the current data model. Entities marked `[planned]` 
 | `customers` | Customer records, tenant-scoped. `full_name` column (not `name`). |
 | `customer_field_definitions` | Dynamic customer field definitions per tenant (migration 008-010). Built-in fields (`full_name`, `phone`) cannot be deleted, only disabled. Custom fields are per-tenant. |
 | `orders` | Sales order header records. `discount` column (not `discount_amount`), `tax` column (not `tax_amount`). |
-| `order_items` | Line items on a sales order. `qty` and `unit_price` column names. Foreign keys use `ON DELETE SET NULL` for `item_id` and `variant_id`. |
-| `invoices` | Invoice records linked to orders. |
+| `order_items` | Line items on a sales order. `qty` and `price` column names (not `quantity`/`unit_price` — that naming belongs to `invoice_items`, a different table). Foreign keys use `ON DELETE SET NULL` for `item_id` and `variant_id`. |
+| `invoices` | Invoice records linked to orders. Line items live in `invoice_items` (`quantity`/`unit_price` columns), owned by the billing module, not orders. |
 
 ### Billing and Subscriptions
 
