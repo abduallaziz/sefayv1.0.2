@@ -1,0 +1,15 @@
+{
+  "title": "Staff Scheduling",
+  "subtitle": "Manage employee work schedules",
+  "addSchedule": "Add Schedule",
+  "employee": "Employee",
+  "selectEmployee": "Select an employee",
+  "date": "Date",
+  "startTime": "Start Time",
+  "endTime": "End Time",
+  "save": "Save",
+  "saving": "Saving...",
+  "upcoming": "Upcoming Schedules",
+  "noSchedules": "No schedules yet",
+  "error": "Something went wrong, try again"
+}
