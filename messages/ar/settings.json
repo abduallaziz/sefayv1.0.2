@@ -6,6 +6,7 @@
   "businessType": "نوع النشاط",
   "save": "حفظ",
   "saving": "جاري الحفظ...",
+  "saveError": "تعذر الحفظ، حاول مرة أخرى",
   "subscription": "الاشتراك",
   "plan": "الخطة",
   "status": "الحالة",
