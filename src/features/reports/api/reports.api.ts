@@ -43,6 +43,7 @@ export interface ExpensesReport {
     pending_count: number
     total_approved_amount: number
   }
+  by_category: { category: string; count: number; total: number }[]
   expenses: { id: string; amount: number; status: string }[]
 }
 

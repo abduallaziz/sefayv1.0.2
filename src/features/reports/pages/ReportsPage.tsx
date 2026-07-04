@@ -7,6 +7,7 @@ import { useRevenueReport, useShiftsReport, useExpensesReport, useEmployeesRepor
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { TrendingUp, Clock, TrendingDown, CreditCard, Users, Receipt, GitCompareArrows, Building2, UserMinus, ArrowUp, ArrowDown } from 'lucide-react'
 import { DateRangePicker, type DateRange } from '@/shared/ui/date-range-picker'
+import { formatNumber } from '@/lib/format'
 
 function toYMD(d: Date) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
@@ -64,11 +65,11 @@ export function ReportsPage() {
   const { data: byBranch, isLoading: byBranchLoading, error: byBranchError } = useBranchComparisonReport(query)
   const { data: churn, isLoading: churnLoading } = useCustomerChurnReport(query)
 
-  const summary = (revenue as any)?.summary
-  const dailyBreakdown = (revenue as any)?.daily_breakdown ?? []
-  const byPaymentMethod = (revenue as any)?.by_payment_method ?? {}
-  const byCategory = (expenses as any)?.by_category ?? []
-  const shiftsSummary = (shifts as any)?.summary
+  const summary = revenue?.summary
+  const dailyBreakdown = revenue?.daily_breakdown ?? []
+  const byPaymentMethod = revenue?.by_payment_method ?? {}
+  const byCategory = expenses?.by_category ?? []
+  const shiftsSummary = shifts?.summary
 
   return (
     <div className="space-y-6">
@@ -83,7 +84,7 @@ export function ReportsPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label={t('totalRevenue')}
-          value={revLoading ? '...' : `${(summary?.total_revenue ?? 0).toLocaleString('en-US')} ${currency}`}
+          value={revLoading ? '...' : `${formatNumber(summary?.total_revenue ?? 0)} ${currency}`}
           icon={TrendingUp}
           color="bg-emerald-600"
         />
@@ -101,7 +102,7 @@ export function ReportsPage() {
         />
         <StatCard
           label={t('totalExpenses')}
-          value={expLoading ? '...' : `${((expenses as any)?.summary?.total_expenses ?? 0).toLocaleString('en-US')} ${currency}`}
+          value={expLoading ? '...' : `${formatNumber(expenses?.summary?.total_approved_amount ?? 0)} ${currency}`}
           icon={TrendingDown}
           color="bg-red-600"
         />
@@ -142,7 +143,7 @@ export function ReportsPage() {
                 <span className="text-sm text-gray-600 dark:text-gray-400">{method}</span>
                 <div className="flex items-center gap-4 text-xs">
                   <span className="text-gray-500 dark:text-gray-500">{data.count} {t('orders')}</span>
-                  <span className="text-gray-900 dark:text-white font-medium">{data.total?.toLocaleString('en-US')} {currency}</span>
+                  <span className="text-gray-900 dark:text-white font-medium">{formatNumber(data.total ?? 0)} {currency}</span>
                 </div>
               </div>
             ))}
@@ -161,7 +162,7 @@ export function ReportsPage() {
                 <span className="text-sm text-gray-600 dark:text-gray-400">{c.category}</span>
                 <div className="flex items-center gap-4 text-xs">
                   <span className="text-gray-500 dark:text-gray-500">{c.count} {t('items')}</span>
-                  <span className="text-gray-900 dark:text-white font-medium">{c.total?.toLocaleString('en-US')} {currency}</span>
+                  <span className="text-gray-900 dark:text-white font-medium">{formatNumber(c.total ?? 0)} {currency}</span>
                 </div>
               </div>
             ))}
@@ -183,8 +184,8 @@ export function ReportsPage() {
                 <span className="text-sm text-gray-600 dark:text-gray-400">{e.name}</span>
                 <div className="flex items-center gap-4 text-xs">
                   <span className="text-gray-500 dark:text-gray-500">{e.order_count} {t('orders')}</span>
-                  <span className="text-gray-500 dark:text-gray-500">{t('avgOrder')}: {e.avg_order_value.toLocaleString('en-US')} {currency}</span>
-                  <span className="text-gray-900 dark:text-white font-medium">{e.total_sales.toLocaleString('en-US')} {currency}</span>
+                  <span className="text-gray-500 dark:text-gray-500">{t('avgOrder')}: {formatNumber(e.avg_order_value)} {currency}</span>
+                  <span className="text-gray-900 dark:text-white font-medium">{formatNumber(e.total_sales)} {currency}</span>
                 </div>
               </div>
             ))}
@@ -203,15 +204,15 @@ export function ReportsPage() {
           <div className="grid grid-cols-3 gap-4">
             <div>
               <p className="text-xs text-gray-500">{t('subtotalBeforeTax')}</p>
-              <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{tax?.summary.total_subtotal.toLocaleString('en-US')} {currency}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{formatNumber(tax?.summary.total_subtotal ?? 0)} {currency}</p>
             </div>
             <div>
               <p className="text-xs text-gray-500">{t('taxCollected')} ({((tax?.tax_rate ?? 0) * 100).toFixed(0)}%)</p>
-              <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{tax?.summary.total_tax_collected.toLocaleString('en-US')} {currency}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{formatNumber(tax?.summary.total_tax_collected ?? 0)} {currency}</p>
             </div>
             <div>
               <p className="text-xs text-gray-500">{t('totalRevenue')}</p>
-              <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{tax?.summary.grand_total.toLocaleString('en-US')} {currency}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{formatNumber(tax?.summary.grand_total ?? 0)} {currency}</p>
             </div>
           </div>
         )}
@@ -229,7 +230,7 @@ export function ReportsPage() {
           <div className="grid grid-cols-3 gap-4">
             <div>
               <p className="text-xs text-gray-500 mb-1">{t('totalRevenue')}</p>
-              <p className="text-sm font-medium text-gray-900 dark:text-white">{comparison?.current_period.revenue.toLocaleString('en-US')} {currency}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">{formatNumber(comparison?.current_period.revenue ?? 0)} {currency}</p>
               <ChangeBadge pct={comparison?.change.revenue_pct ?? null} />
             </div>
             <div>
@@ -239,7 +240,7 @@ export function ReportsPage() {
             </div>
             <div>
               <p className="text-xs text-gray-500 mb-1">{t('avgOrder')}</p>
-              <p className="text-sm font-medium text-gray-900 dark:text-white">{comparison?.current_period.avg_order_value.toLocaleString('en-US')} {currency}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">{formatNumber(comparison?.current_period.avg_order_value ?? 0)} {currency}</p>
               <ChangeBadge pct={comparison?.change.avg_order_value_pct ?? null} />
             </div>
           </div>
@@ -265,7 +266,7 @@ export function ReportsPage() {
                   <span className="text-sm text-gray-600 dark:text-gray-400">{b.branch_name}</span>
                   <div className="flex items-center gap-4 text-xs">
                     <span className="text-gray-500 dark:text-gray-500">{b.order_count} {t('orders')}</span>
-                    <span className="text-gray-900 dark:text-white font-medium">{b.revenue.toLocaleString('en-US')} {currency}</span>
+                    <span className="text-gray-900 dark:text-white font-medium">{formatNumber(b.revenue)} {currency}</span>
                   </div>
                 </div>
               ))}
