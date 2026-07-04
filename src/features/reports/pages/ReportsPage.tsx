@@ -125,6 +125,7 @@ export function ReportsPage() {
                   borderRadius: 8,
                   color: '#111827',
                 }}
+                formatter={(value?: number | string | readonly (number | string)[]) => [`${formatNumber(Number(value))} ${currency}`, t('revenue')]}
               />
               <Bar dataKey="total" fill="#0C447C" radius={[4, 4, 0, 0]} name={t('revenue')} />
             </BarChart>
