@@ -31,6 +31,12 @@ export interface CreateScheduleDto {
   notes?: string
 }
 
+export interface DayOverride {
+  day: number
+  start_time: string
+  end_time: string
+}
+
 export interface BulkCreateScheduleDto {
   user_ids: string[]
   branch_id?: string
@@ -39,6 +45,7 @@ export interface BulkCreateScheduleDto {
   days_of_week?: number[]
   start_time: string
   end_time: string
+  day_overrides?: DayOverride[]
 }
 
 export interface AttendanceException {

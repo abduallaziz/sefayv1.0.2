@@ -20,12 +20,16 @@ export function UsersPage() {
   const { data: users, isLoading } = useUsers()
   const { mutate: deleteUser } = useDeleteUser()
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [settingsUser, setSettingsUser] = useState<User | null>(null)
+  const [settingsUserId, setSettingsUserId] = useState<string | null>(null)
+  // Derived (not copied) so the modal always sees fresh data — e.g. after generating an
+  // attendance link, the mutation invalidates the users query and this re-resolves to the
+  // updated row without needing to close and reopen the modal.
+  const settingsUser = settingsUserId ? (users?.find((u) => u.id === settingsUserId) ?? null) : null
 
   return (
     <div className="space-y-6">
       <CreateUserDialog open={dialogOpen} onClose={() => setDialogOpen(false)} />
-      {settingsUser && <EmployeeSettingsModal user={settingsUser} onClose={() => setSettingsUser(null)} />}
+      {settingsUser && <EmployeeSettingsModal user={settingsUser} onClose={() => setSettingsUserId(null)} />}
 
       <div className="flex items-center justify-between gap-3">
         <div>
@@ -69,7 +73,7 @@ export function UsersPage() {
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
                     <button
-                      onClick={() => setSettingsUser(user)}
+                      onClick={() => setSettingsUserId(user.id)}
                       className="p-1.5 text-gray-400 dark:text-gray-600 hover:text-[#0C447C] dark:hover:text-[#5B9BD5] transition-colors"
                       title={t('settings.title', { name: '' })}
                     >
@@ -139,7 +143,7 @@ export function UsersPage() {
                       <td className="px-3 py-3 w-20">
                         <div className="flex items-center gap-1">
                           <button
-                            onClick={() => setSettingsUser(user)}
+                            onClick={() => setSettingsUserId(user.id)}
                             className="p-1.5 text-gray-400 dark:text-gray-600 hover:text-[#0C447C] dark:hover:text-[#5B9BD5] transition-colors"
                             title={t('settings.title', { name: '' })}
                           >

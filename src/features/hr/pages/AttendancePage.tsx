@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
-import { CalendarClock, LogIn, LogOut } from 'lucide-react'
+import { CalendarClock, LogIn, LogOut, Circle } from 'lucide-react'
 import { useMyAttendance, useCheckIn, useCheckOut } from '../hooks/useHr'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 
@@ -78,11 +78,19 @@ export function AttendancePage() {
           <div className="divide-y divide-slate-100 dark:divide-gray-800">
             {records.map((r) => (
               <div key={r.id} className="flex items-center justify-between px-4 py-3">
-                <div>
-                  <p className="text-sm text-slate-700 dark:text-slate-300">{fmtDateTime(r.check_in_at)}</p>
-                  <p className="text-xs text-slate-400">
-                    {r.check_out_at ? t('checkedOutAt', { time: fmtDateTime(r.check_out_at) }) : t('stillOpen')}
+                <div className="space-y-1">
+                  <p className="flex items-center gap-1.5 text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                    <Circle className="w-2 h-2 fill-current" />
+                    {fmtDateTime(r.check_in_at)}
                   </p>
+                  {r.check_out_at ? (
+                    <p className="flex items-center gap-1.5 text-sm font-medium text-red-600 dark:text-red-400">
+                      <Circle className="w-2 h-2 fill-current" />
+                      {fmtDateTime(r.check_out_at)}
+                    </p>
+                  ) : (
+                    <p className="text-xs text-amber-500">{t('stillOpen')}</p>
+                  )}
                 </div>
                 {r.hours_worked !== null && (
                   <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
