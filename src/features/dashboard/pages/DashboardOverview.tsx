@@ -218,34 +218,39 @@ export function DashboardOverview() {
 
   const rangeQuery = { period: 'custom' as const, from: range.from, to: range.to }
 
+  // Polling intervals below were 10-30s with staleTime: 0 — refreshing revenue/payments/
+  // expenses every 30s and shift status every 10s is far more often than a business
+  // dashboard needs, and since the rate limiter buckets per-tenant (not per-user), this
+  // background polling adds up across every concurrent staff member and was a real
+  // contributor to production 429s on ordinary actions elsewhere in the app (e.g. Settings).
   const { data: revenue, error: revenueError } = useQuery({
     queryKey: ['dashboard', 'revenue', range.from, range.to],
     queryFn: () => reportsApi.getRevenue(rangeQuery),
-    enabled: !!user && !!range.from && !!range.to, refetchInterval: 30000, staleTime: 0,
+    enabled: !!user && !!range.from && !!range.to, refetchInterval: 120000, staleTime: 60000,
   })
 
   const { data: payments, error: paymentsError } = useQuery({
     queryKey: ['dashboard', 'payments', range.from, range.to],
     queryFn: () => reportsApi.getPayments(rangeQuery),
-    enabled: !!user && !!range.from && !!range.to, refetchInterval: 30000, staleTime: 0,
+    enabled: !!user && !!range.from && !!range.to, refetchInterval: 120000, staleTime: 60000,
   })
 
   const { data: expenses, error: expensesError } = useQuery({
     queryKey: ['dashboard', 'expenses', range.from, range.to],
     queryFn: () => reportsApi.getExpenses(rangeQuery),
-    enabled: !!user && !!range.from && !!range.to, refetchInterval: 30000, staleTime: 0,
+    enabled: !!user && !!range.from && !!range.to, refetchInterval: 120000, staleTime: 60000,
   })
 
   const { data: shift, error: shiftError } = useQuery({
     queryKey: ['dashboard', 'shift'],
     queryFn: () => shiftsApi.getCurrent(),
-    enabled: !!user, refetchInterval: 10000, staleTime: 0,
+    enabled: !!user, refetchInterval: 30000, staleTime: 15000,
   })
 
   const { data: customerStats, error: customerStatsError } = useQuery({
     queryKey: ['dashboard', 'customers'],
     queryFn: () => customersApi.getStats(),
-    enabled: !!user, refetchInterval: 60000, staleTime: 0,
+    enabled: !!user, refetchInterval: 120000, staleTime: 60000,
   })
 
   const { data: sparklines, error: sparklinesError } = useQuery({
@@ -263,7 +268,7 @@ export function DashboardOverview() {
   const { data: recentActivity, error: recentActivityError } = useQuery({
     queryKey: ['dashboard', 'recent-activity'],
     queryFn: () => reportsApi.getRecentActivity(),
-    enabled: !!user, refetchInterval: 30000, staleTime: 0,
+    enabled: !!user, refetchInterval: 120000, staleTime: 60000,
   })
 
   const dashboardError = revenueError || paymentsError || expensesError || shiftError
