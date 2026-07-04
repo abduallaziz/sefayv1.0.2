@@ -11,5 +11,6 @@
   "checkedOutAt": "Checked out at {time}",
   "stillOpen": "Not checked out yet",
   "hoursWorked": "{hours}h",
-  "error": "Something went wrong, try again"
+  "error": "Something went wrong, try again",
+  "allEmployees": "All Employees"
 }

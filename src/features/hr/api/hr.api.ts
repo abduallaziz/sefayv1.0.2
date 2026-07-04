@@ -122,7 +122,7 @@ export const hrApi = {
   deleteSchedule: (id: string): Promise<void> =>
     apiClient.delete(`/schedules/${id}`),
 
-  createException: (dto: { user_id: string; date: string; reason: string }): Promise<AttendanceException> =>
+  createException: (dto: { user_id: string; date_from: string; date_to: string; reason: string }): Promise<AttendanceException[]> =>
     apiClient.post('/attendance/exceptions', dto),
 
   getExceptions: (filters?: { userId?: string; from?: string; to?: string }): Promise<AttendanceException[]> => {

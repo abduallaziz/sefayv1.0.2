@@ -2,17 +2,19 @@
 
 import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
-import { CalendarClock, LogIn, LogOut, Circle } from 'lucide-react'
-import { useMyAttendance, useCheckIn, useCheckOut } from '../hooks/useHr'
+import { CalendarClock, LogIn, LogOut, Circle, Users } from 'lucide-react'
+import { useMyAttendance, useCheckIn, useCheckOut, useAllAttendance } from '../hooks/useHr'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 
 export function AttendancePage() {
   const t = useTranslations('attendance')
   const { user } = useAuthStore()
+  const canViewAll = !!user?.permissions?.includes('attendance.view.all')
   const { data: records = [], isLoading } = useMyAttendance()
   const { mutate: checkIn, isPending: checkingIn } = useCheckIn()
   const { mutate: checkOut, isPending: checkingOut } = useCheckOut()
   const [error, setError] = useState<string | null>(null)
+  const [tab, setTab] = useState<'mine' | 'all'>('mine')
 
   const openRecord = useMemo(() => records.find((r) => r.check_out_at === null) ?? null, [records])
 
@@ -67,41 +69,92 @@ export function AttendancePage() {
       </div>
 
       <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl">
-        <div className="px-4 py-3 border-b border-slate-200 dark:border-gray-800">
-          <h2 className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('history')}</h2>
+        <div className="px-4 py-3 border-b border-slate-200 dark:border-gray-800 flex items-center justify-between">
+          {canViewAll ? (
+            <div className="flex gap-1 bg-slate-100 dark:bg-gray-800 rounded-lg p-1">
+              <button
+                onClick={() => setTab('mine')}
+                className={`px-3 py-1.5 rounded-md text-xs font-medium ${tab === 'mine' ? 'bg-white dark:bg-gray-900 text-slate-800 dark:text-white shadow-sm' : 'text-slate-500'}`}
+              >
+                {t('history')}
+              </button>
+              <button
+                onClick={() => setTab('all')}
+                className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1 ${tab === 'all' ? 'bg-white dark:bg-gray-900 text-slate-800 dark:text-white shadow-sm' : 'text-slate-500'}`}
+              >
+                <Users className="w-3.5 h-3.5" /> {t('allEmployees')}
+              </button>
+            </div>
+          ) : (
+            <h2 className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('history')}</h2>
+          )}
         </div>
-        {isLoading ? (
-          <div className="p-4 h-20 bg-slate-100 dark:bg-gray-800 rounded animate-pulse" />
-        ) : records.length === 0 ? (
-          <p className="text-sm text-slate-500 dark:text-slate-400 py-8 text-center">{t('noRecords')}</p>
+        {tab === 'mine' ? (
+          <AttendanceList records={records} isLoading={isLoading} showName={false} t={t} fmtDateTime={fmtDateTime} />
         ) : (
-          <div className="divide-y divide-slate-100 dark:divide-gray-800">
-            {records.map((r) => (
-              <div key={r.id} className="flex items-center justify-between px-4 py-3">
-                <div className="space-y-1">
-                  <p className="flex items-center gap-1.5 text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                    <Circle className="w-2 h-2 fill-current" />
-                    {fmtDateTime(r.check_in_at)}
-                  </p>
-                  {r.check_out_at ? (
-                    <p className="flex items-center gap-1.5 text-sm font-medium text-red-600 dark:text-red-400">
-                      <Circle className="w-2 h-2 fill-current" />
-                      {fmtDateTime(r.check_out_at)}
-                    </p>
-                  ) : (
-                    <p className="text-xs text-amber-500">{t('stillOpen')}</p>
-                  )}
-                </div>
-                {r.hours_worked !== null && (
-                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                    {t('hoursWorked', { hours: r.hours_worked })}
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
+          <AllEmployeesAttendance t={t} fmtDateTime={fmtDateTime} />
         )}
       </div>
+    </div>
+  )
+}
+
+function AllEmployeesAttendance({
+  t,
+  fmtDateTime,
+}: {
+  t: ReturnType<typeof useTranslations>
+  fmtDateTime: (iso: string) => string
+}) {
+  const { data: records = [], isLoading } = useAllAttendance()
+  return <AttendanceList records={records} isLoading={isLoading} showName t={t} fmtDateTime={fmtDateTime} />
+}
+
+function AttendanceList({
+  records,
+  isLoading,
+  showName,
+  t,
+  fmtDateTime,
+}: {
+  records: { id: string; user_name?: string | null; check_in_at: string; check_out_at: string | null; hours_worked: number | null }[]
+  isLoading: boolean
+  showName: boolean
+  t: ReturnType<typeof useTranslations>
+  fmtDateTime: (iso: string) => string
+}) {
+  if (isLoading) return <div className="p-4 h-20 bg-slate-100 dark:bg-gray-800 rounded animate-pulse" />
+  if (records.length === 0) {
+    return <p className="text-sm text-slate-500 dark:text-slate-400 py-8 text-center">{t('noRecords')}</p>
+  }
+  return (
+    <div className="divide-y divide-slate-100 dark:divide-gray-800">
+      {records.map((r) => (
+        <div key={r.id} className="flex items-center justify-between px-4 py-3">
+          <div className="space-y-1">
+            {showName && r.user_name && (
+              <p className="text-sm font-semibold text-slate-800 dark:text-white">{r.user_name}</p>
+            )}
+            <p className="flex items-center gap-1.5 text-sm font-medium text-emerald-600 dark:text-emerald-400">
+              <Circle className="w-2 h-2 fill-current" />
+              {fmtDateTime(r.check_in_at)}
+            </p>
+            {r.check_out_at ? (
+              <p className="flex items-center gap-1.5 text-sm font-medium text-red-600 dark:text-red-400">
+                <Circle className="w-2 h-2 fill-current" />
+                {fmtDateTime(r.check_out_at)}
+              </p>
+            ) : (
+              <p className="text-xs text-amber-500">{t('stillOpen')}</p>
+            )}
+          </div>
+          {r.hours_worked !== null && (
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              {t('hoursWorked', { hours: r.hours_worked })}
+            </span>
+          )}
+        </div>
+      ))}
     </div>
   )
 }

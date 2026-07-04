@@ -7,6 +7,7 @@ import { usePayrollReport } from '../hooks/useReports'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
 import { formatNumber } from '@/lib/format'
 import { useCreateException } from '@/features/hr/hooks/useHr'
+import { useUsers } from '@/features/users/hooks/useUsers'
 
 function currentMonth() {
   return new Date().toISOString().substring(0, 7)
@@ -17,21 +18,24 @@ export function PayrollReportPage() {
   const currency = useTenantStore((s) => s.currency_symbol)
   const [month, setMonth] = useState(currentMonth())
   const { data, isLoading, refetch } = usePayrollReport(month)
+  const { data: users = [] } = useUsers()
   const { mutate: createException, isPending: excusing } = useCreateException()
 
   const [excuseUserId, setExcuseUserId] = useState('')
-  const [excuseDate, setExcuseDate] = useState('')
+  const [excuseDateFrom, setExcuseDateFrom] = useState('')
+  const [excuseDateTo, setExcuseDateTo] = useState('')
   const [excuseReason, setExcuseReason] = useState('')
   const [excuseSuccess, setExcuseSuccess] = useState(false)
 
   const handleExcuse = () => {
-    if (!excuseUserId || !excuseDate || !excuseReason) return
+    if (!excuseUserId || !excuseDateFrom || !excuseDateTo || !excuseReason) return
     setExcuseSuccess(false)
     createException(
-      { user_id: excuseUserId, date: excuseDate, reason: excuseReason },
+      { user_id: excuseUserId, date_from: excuseDateFrom, date_to: excuseDateTo, reason: excuseReason },
       {
         onSuccess: () => {
-          setExcuseDate('')
+          setExcuseDateFrom('')
+          setExcuseDateTo('')
           setExcuseReason('')
           setExcuseSuccess(true)
           refetch()
@@ -107,24 +111,32 @@ export function PayrollReportPage() {
         </div>
       )}
 
-      {(data?.employees ?? []).length > 0 && (
+      {users.length > 0 && (
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 space-y-3">
           <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{t('excuseAbsence')}</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <select
               value={excuseUserId}
               onChange={(e) => setExcuseUserId(e.target.value)}
               className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-800 dark:text-white"
             >
               <option value="">{t('selectEmployee')}</option>
-              {data!.employees.map((e) => (
-                <option key={e.user_id} value={e.user_id}>{e.name}</option>
+              {users.map((u) => (
+                <option key={u.id} value={u.id}>{u.name}</option>
               ))}
             </select>
             <input
               type="date"
-              value={excuseDate}
-              onChange={(e) => setExcuseDate(e.target.value)}
+              value={excuseDateFrom}
+              onChange={(e) => setExcuseDateFrom(e.target.value)}
+              placeholder={t('dateFrom')}
+              className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-800 dark:text-white"
+            />
+            <input
+              type="date"
+              value={excuseDateTo}
+              onChange={(e) => setExcuseDateTo(e.target.value)}
+              placeholder={t('dateTo')}
               className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-800 dark:text-white"
             />
             <input
@@ -137,7 +149,7 @@ export function PayrollReportPage() {
           {excuseSuccess && <p className="text-sm text-emerald-600 dark:text-emerald-400">{t('excused')}</p>}
           <button
             onClick={handleExcuse}
-            disabled={excusing || !excuseUserId || !excuseDate || !excuseReason}
+            disabled={excusing || !excuseUserId || !excuseDateFrom || !excuseDateTo || !excuseReason}
             className="px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 text-white rounded-lg text-sm font-medium"
           >
             {excusing ? t('saving') : t('markExcused')}
