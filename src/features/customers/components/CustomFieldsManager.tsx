@@ -351,10 +351,7 @@ export function CustomFieldsManager() {
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <button
-                onClick={() => {
-                  setToggleError(null)
-                  updateProfileMutation.mutate({ name_field_enabled: !profile?.name_field_enabled }, { onError: onToggleError })
-                }}
+                onClick={() => updateProfileMutation.mutate({ name_field_enabled: !profile?.name_field_enabled })}
                 disabled={updateProfileMutation.isPending}
                 className={`px-2 py-0.5 rounded-full text-xs font-medium border transition-all ${
                   profile?.name_field_enabled
