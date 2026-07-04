@@ -77,8 +77,10 @@ export interface UpdateExpenseTemplateDto {
 }
 
 export const expensesApi = {
-  getAll: (): Promise<Expense[]> =>
-    apiClient.get<Expense[]>('/expenses'),
+  getAll: async (): Promise<Expense[]> => {
+    const res = await apiClient.get<{ data: Expense[] }>('/expenses');
+    return res.data;
+  },
 
   getStats: () =>
     apiClient.get<any>('/expenses/stats'),

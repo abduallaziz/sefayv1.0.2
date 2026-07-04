@@ -3,6 +3,7 @@
   "subtitle": "إدارة طلبات المصروفات والقوالب",
   "tabs": {
     "requests": "الطلبات",
+    "categories": "الفئات",
     "templates": "القوالب",
     "recurring": "المتكررة"
   },

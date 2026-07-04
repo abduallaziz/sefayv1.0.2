@@ -576,6 +576,7 @@
     "expiresIn": "Expires in",
     "tabs": {
       "requests": "Requests",
+      "categories": "Categories",
       "templates": "Templates",
       "all": "All",
       "pending": "Pending",

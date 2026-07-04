@@ -3,6 +3,7 @@
   "subtitle": "Manage expense requests and templates",
   "tabs": {
     "requests": "Requests",
+    "categories": "Categories",
     "templates": "Templates",
     "recurring": "Recurring"
   },
