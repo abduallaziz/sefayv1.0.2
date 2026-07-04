@@ -30,5 +30,22 @@
   "customerChurn": "Customer Churn",
   "previousCustomers": "Previous Period Customers",
   "churnedCustomers": "Churned Customers",
-  "churnRate": "Churn Rate"
+  "churnRate": "Churn Rate",
+  "payroll": {
+    "title": "Payroll",
+    "subtitle": "Net salary after late and absence deductions",
+    "employee": "Employee",
+    "baseSalary": "Base Salary",
+    "scheduledDays": "Scheduled Days",
+    "absences": "Absences",
+    "late": "Late",
+    "netSalary": "Net Salary",
+    "empty": "No employees on payroll for this month",
+    "excuseAbsence": "Excuse an absence",
+    "selectEmployee": "Select an employee",
+    "reason": "Reason",
+    "markExcused": "Mark excused",
+    "excused": "Excused successfully",
+    "saving": "Saving..."
+  }
 }

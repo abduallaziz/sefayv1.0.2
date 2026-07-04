@@ -77,3 +77,10 @@ export function useCustomerChurnReport(query?: ReportQuery) {
     queryFn: () => reportsApi.getCustomerChurn(query),
   })
 }
+
+export function usePayrollReport(month: string) {
+  return useQuery({
+    queryKey: ['reports', 'payroll', month],
+    queryFn: () => reportsApi.getPayroll(month),
+  })
+}

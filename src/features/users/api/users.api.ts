@@ -1,5 +1,7 @@
 import { apiClient } from '@/lib/api'
 
+export type LateDeductionMode = 'fixed' | 'per_minute' | 'percentage_of_daily_rate'
+
 export interface User {
   id: string
   name: string
@@ -8,6 +10,11 @@ export interface User {
   is_active: boolean
   created_at: string
   branch_id?: string
+  base_salary?: number | null
+  grace_period_minutes?: number
+  late_deduction_mode?: LateDeductionMode | null
+  late_deduction_value?: number | null
+  attendance_token?: string | null
 }
 
 export interface CreateUserDto {
@@ -22,6 +29,10 @@ export interface UpdateUserDto {
   name?: string
   is_active?: boolean
   branch_id?: string
+  base_salary?: number | null
+  grace_period_minutes?: number
+  late_deduction_mode?: LateDeductionMode | null
+  late_deduction_value?: number | null
 }
 
 export const usersApi = {
@@ -42,4 +53,10 @@ export const usersApi = {
 
   remove: (id: string): Promise<void> =>
     apiClient.delete(`/users/${id}`),
+
+  generateAttendanceLink: (id: string): Promise<{ id: string; attendance_token: string }> =>
+    apiClient.post(`/users/${id}/attendance-link`, {}),
+
+  unbindAttendanceDevice: (id: string): Promise<{ message: string }> =>
+    apiClient.post(`/users/${id}/attendance-link/unbind-device`, {}),
 }

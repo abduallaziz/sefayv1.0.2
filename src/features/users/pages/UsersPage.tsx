@@ -4,7 +4,9 @@ import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useUsers, useDeleteUser } from '../hooks/useUsers'
 import { CreateUserDialog } from '../components/CreateUserDialog'
-import { Trash2, Plus } from 'lucide-react'
+import { EmployeeSettingsModal } from '../components/EmployeeSettingsModal'
+import type { User } from '../api/users.api'
+import { Trash2, Plus, Settings } from 'lucide-react'
 
 const ROLE_COLORS: Record<string, string> = {
   owner: 'bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20',
@@ -18,10 +20,12 @@ export function UsersPage() {
   const { data: users, isLoading } = useUsers()
   const { mutate: deleteUser } = useDeleteUser()
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [settingsUser, setSettingsUser] = useState<User | null>(null)
 
   return (
     <div className="space-y-6">
       <CreateUserDialog open={dialogOpen} onClose={() => setDialogOpen(false)} />
+      {settingsUser && <EmployeeSettingsModal user={settingsUser} onClose={() => setSettingsUser(null)} />}
 
       <div className="flex items-center justify-between gap-3">
         <div>
@@ -63,13 +67,22 @@ export function UsersPage() {
                       <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
                     </div>
                   </div>
-                  <button
-                    onClick={() => deleteUser(user.id)}
-                    className="p-1.5 text-gray-400 dark:text-gray-600 hover:text-red-500 dark:hover:text-red-400 transition-colors shrink-0"
-                    title={t('delete')}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      onClick={() => setSettingsUser(user)}
+                      className="p-1.5 text-gray-400 dark:text-gray-600 hover:text-[#0C447C] dark:hover:text-[#5B9BD5] transition-colors"
+                      title={t('settings.title', { name: '' })}
+                    >
+                      <Settings className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => deleteUser(user.id)}
+                      className="p-1.5 text-gray-400 dark:text-gray-600 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                      title={t('delete')}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
                 <div className="flex items-center gap-2 mt-2 pt-2 border-t border-gray-100 dark:border-gray-700">
                   <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${ROLE_COLORS[user.role] ?? 'bg-gray-500/10 text-gray-600 dark:text-gray-400 border-gray-500/20'}`}>
@@ -96,7 +109,7 @@ export function UsersPage() {
                     <th className="text-start px-3 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">{t('email')}</th>
                     <th className="text-start px-3 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase w-24">{t('role')}</th>
                     <th className="text-start px-3 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase w-20">{t('status')}</th>
-                    <th className="px-3 py-3 w-10" />
+                    <th className="px-3 py-3 w-20" />
                   </tr>
                 </thead>
                 <tbody>
@@ -123,14 +136,23 @@ export function UsersPage() {
                           {user.is_active ? t('active') : t('inactive')}
                         </span>
                       </td>
-                      <td className="px-3 py-3 w-10">
-                        <button
-                          onClick={() => deleteUser(user.id)}
-                          className="p-1.5 text-gray-400 dark:text-gray-600 hover:text-red-500 dark:hover:text-red-400 transition-colors"
-                          title={t('delete')}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                      <td className="px-3 py-3 w-20">
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => setSettingsUser(user)}
+                            className="p-1.5 text-gray-400 dark:text-gray-600 hover:text-[#0C447C] dark:hover:text-[#5B9BD5] transition-colors"
+                            title={t('settings.title', { name: '' })}
+                          >
+                            <Settings className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => deleteUser(user.id)}
+                            className="p-1.5 text-gray-400 dark:text-gray-600 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                            title={t('delete')}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

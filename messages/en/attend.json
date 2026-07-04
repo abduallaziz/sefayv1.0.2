@@ -1,0 +1,15 @@
+{
+  "invalidLink": "Invalid link",
+  "greeting": "Hello, {name}",
+  "locating": "Getting your location...",
+  "locationReady": "Location confirmed",
+  "locationError": "Couldn't access your location — check location permission is enabled",
+  "outOfRange": "You must be at your work location to check in",
+  "checkInAction": "Check In",
+  "checkOutAction": "Check Out",
+  "submitting": "Submitting...",
+  "checkedIn": "Checked in successfully",
+  "checkedOut": "Checked out successfully",
+  "confirmationCode": "Confirmation code",
+  "error": "Something went wrong, try again"
+}

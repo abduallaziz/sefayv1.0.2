@@ -30,5 +30,22 @@
   "customerChurn": "تراجع العملاء",
   "previousCustomers": "عملاء الفترة السابقة",
   "churnedCustomers": "عملاء لم يعودوا",
-  "churnRate": "نسبة التراجع"
+  "churnRate": "نسبة التراجع",
+  "payroll": {
+    "title": "الرواتب",
+    "subtitle": "الراتب الصافي بعد خصومات التأخير والغياب",
+    "employee": "الموظف",
+    "baseSalary": "الراتب الأساسي",
+    "scheduledDays": "أيام العمل المجدولة",
+    "absences": "الغياب",
+    "late": "التأخير",
+    "netSalary": "الصافي",
+    "empty": "لا يوجد موظفون على نظام الرواتب لهذا الشهر",
+    "excuseAbsence": "إعفاء يوم غياب",
+    "selectEmployee": "اختر موظفًا",
+    "reason": "السبب",
+    "markExcused": "تسجيل الإعفاء",
+    "excused": "تم تسجيل الإعفاء",
+    "saving": "جاري الحفظ..."
+  }
 }
