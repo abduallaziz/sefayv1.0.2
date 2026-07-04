@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { customersApi, customerFieldDefinitionsApi } from '../api/customers.api';
+import { useAuthStore } from '@/core/auth/stores/auth.store';
 import {
   CreateCustomerDto,
   UpdateCustomerDto,
@@ -59,11 +60,14 @@ export const useDeleteCustomer = () => {
   });
 };
 
-export const useCustomerFieldDefinitions = () =>
-  useQuery({
+export const useCustomerFieldDefinitions = () => {
+  const authReady = useAuthStore((s) => !s.isLoading);
+  return useQuery({
     queryKey: ['customer-field-definitions'],
     queryFn: customerFieldDefinitionsApi.getAll,
+    enabled: authReady,
   });
+};
 
 export const useCreateFieldDefinition = () => {
   const qc = useQueryClient();
