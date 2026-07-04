@@ -43,6 +43,15 @@ export function SettingsPage() {
   const [invoiceFooter, setInvoiceFooter] = useState('');
   const [paperWidth, setPaperWidth] = useState<'58mm' | '80mm'>('80mm');
   const [autoPrint, setAutoPrint] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  // Every updateProfile() call below shares this — without it, a failed save (e.g. a
+  // 429 from the rate limiter, or any network error) previously failed completely
+  // silently: the toggle/field just stayed as it was, with no indication anything
+  // went wrong, which read as "the toggle doesn't save."
+  function onSaveError(e: any) {
+    setSaveError(e?.message ?? t('saveError'));
+  }
 
   const sub = (subscriptionData as any)?.subscription;
 
@@ -64,20 +73,24 @@ export function SettingsPage() {
 
   function handleSaveName() {
     if (!name.trim()) return;
-    updateProfile({ name: name.trim() });
+    setSaveError(null);
+    updateProfile({ name: name.trim() }, { onError: onSaveError });
   }
 
   function handleToggleCustomerCapture(enabled: boolean) {
-    updateProfile({ customer_capture_enabled: enabled });
+    setSaveError(null);
+    updateProfile({ customer_capture_enabled: enabled }, { onError: onSaveError });
   }
 
   function handleSaveCurrency() {
     const cur = CURRENCIES.find(c => c.code === selectedCurrency);
     if (!cur) return;
+    setSaveError(null);
     updateProfile(
       { currency_code: cur.code, currency_symbol: cur.symbol },
       {
         onSuccess: () => setCurrency(cur.code, cur.symbol),
+        onError: onSaveError,
       }
     );
   }
@@ -89,25 +102,33 @@ export function SettingsPage() {
       return;
     }
     setTaxRateError(false);
-    updateProfile({ tax_rate: value / 100 });
+    setSaveError(null);
+    updateProfile({ tax_rate: value / 100 }, { onError: onSaveError });
   }
 
   function handleSaveInvoiceCustomization() {
-    updateProfile({
-      ...(logoUrl.trim() ? { logo_url: logoUrl.trim() } : {}),
-      tax_number: taxNumber.trim(),
-      invoice_footer: invoiceFooter.trim(),
-    });
+    setSaveError(null);
+    updateProfile(
+      {
+        ...(logoUrl.trim() ? { logo_url: logoUrl.trim() } : {}),
+        tax_number: taxNumber.trim(),
+        invoice_footer: invoiceFooter.trim(),
+      },
+      { onError: onSaveError },
+    );
   }
 
   function handleSavePrinterSettings() {
-    updateProfile({ printer_settings: { paper_width: paperWidth, auto_print: autoPrint } });
+    setSaveError(null);
+    updateProfile({ printer_settings: { paper_width: paperWidth, auto_print: autoPrint } }, { onError: onSaveError });
   }
 
   function handleToggleNotification(key: keyof NotificationPreferences, enabled: boolean) {
-    updateProfile({
-      notification_preferences: { ...profile?.notification_preferences, [key]: enabled },
-    });
+    setSaveError(null);
+    updateProfile(
+      { notification_preferences: { ...profile?.notification_preferences, [key]: enabled } },
+      { onError: onSaveError },
+    );
   }
 
   return (
@@ -116,6 +137,13 @@ export function SettingsPage() {
         <h1 className="text-xl font-bold text-slate-800 dark:text-white">{t('title')}</h1>
         <p className="text-sm text-slate-500 mt-1">{t('subtitle')}</p>
       </div>
+
+      {saveError && (
+        <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+          <p className="text-sm text-red-600 dark:text-red-400">{saveError}</p>
+          <button onClick={() => setSaveError(null)} className="text-red-400 hover:text-red-600 text-xs shrink-0">✕</button>
+        </div>
+      )}
 
       {/* Profile */}
       <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-5 space-y-4">

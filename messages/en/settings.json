@@ -6,6 +6,7 @@
   "businessType": "Business Type",
   "save": "Save",
   "saving": "Saving...",
+  "saveError": "Couldn't save, please try again",
   "subscription": "Subscription",
   "plan": "Plan",
   "status": "Status",

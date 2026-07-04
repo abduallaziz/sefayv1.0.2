@@ -6,6 +6,12 @@ High-level project state. Detailed specs and engineering history live in `TASKS.
 
 ---
 
+## Standing Convention — Date Pickers & Numerals (2026-07-05)
+
+Never use native `<input type="date">`/`<input type="month">` — always use `DateRangePicker`/`SingleDatePicker` from `src/shared/ui/date-range-picker`. Always render numbers in English (Western) numerals everywhere, in every locale. Permanent rule set by the user — check before starting any task touching date selection or number display.
+
+---
+
 ## Current Phase
 
 **Phase 2 — Inventory UX Production-Readiness** (In Progress)

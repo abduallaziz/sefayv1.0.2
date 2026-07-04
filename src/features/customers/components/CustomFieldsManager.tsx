@@ -317,9 +317,23 @@ export function CustomFieldsManager() {
   const [showAdd, setShowAdd] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+  const [toggleError, setToggleError] = useState<string | null>(null)
+
+  // Without this, a failed toggle (429 from the rate limiter, network error, etc.)
+  // silently left the badge showing its old state with zero feedback — looked
+  // exactly like "the toggle doesn't save."
+  function onToggleError(e: any) {
+    setToggleError(e?.message ?? t('fields.toggle_error'))
+  }
 
   return (
     <div className="space-y-3">
+      {toggleError && (
+        <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl px-3 py-2 flex items-center justify-between gap-3">
+          <p className="text-xs text-red-600 dark:text-red-400">{toggleError}</p>
+          <button onClick={() => setToggleError(null)} className="text-red-400 hover:text-red-600 text-xs shrink-0">✕</button>
+        </div>
+      )}
       {isLoading ? (
         <div className="h-10 bg-slate-100 dark:bg-gray-800 rounded-lg animate-pulse" />
       ) : (
@@ -337,7 +351,10 @@ export function CustomFieldsManager() {
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <button
-                onClick={() => updateProfileMutation.mutate({ name_field_enabled: !profile?.name_field_enabled })}
+                onClick={() => {
+                  setToggleError(null)
+                  updateProfileMutation.mutate({ name_field_enabled: !profile?.name_field_enabled }, { onError: onToggleError })
+                }}
                 disabled={updateProfileMutation.isPending}
                 className={`px-2 py-0.5 rounded-full text-xs font-medium border transition-all ${
                   profile?.name_field_enabled
@@ -372,7 +389,10 @@ export function CustomFieldsManager() {
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <button
-                    onClick={() => updateMutation.mutate({ id: field.id, dto: { required: !field.required } })}
+                    onClick={() => {
+                      setToggleError(null)
+                      updateMutation.mutate({ id: field.id, dto: { required: !field.required } }, { onError: onToggleError })
+                    }}
                     disabled={updateMutation.isPending}
                     className={`px-2 py-0.5 rounded-full text-xs font-medium border transition-all ${
                       field.required
@@ -383,7 +403,10 @@ export function CustomFieldsManager() {
                     {field.required ? t('fields.status.required') : t('fields.status.optional')}
                   </button>
                   <button
-                    onClick={() => updateMutation.mutate({ id: field.id, dto: { is_active: !field.is_active } })}
+                    onClick={() => {
+                      setToggleError(null)
+                      updateMutation.mutate({ id: field.id, dto: { is_active: !field.is_active } }, { onError: onToggleError })
+                    }}
                     disabled={updateMutation.isPending}
                     className={`px-2 py-0.5 rounded-full text-xs font-medium border transition-all ${
                       field.is_active
