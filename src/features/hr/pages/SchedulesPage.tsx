@@ -26,6 +26,7 @@ export function SchedulesPage() {
   const [daysOfWeek, setDaysOfWeek] = useState<number[]>([0, 1, 2, 3, 4])
   const [startTime, setStartTime] = useState('09:00')
   const [endTime, setEndTime] = useState('17:00')
+  const [dayOverrides, setDayOverrides] = useState<Record<number, { start: string; end: string }>>({})
   const [error, setError] = useState<string | null>(null)
   const [bulkResultCount, setBulkResultCount] = useState<number | null>(null)
 
@@ -35,6 +36,17 @@ export function SchedulesPage() {
   const toggleDay = (day: number) => {
     setDaysOfWeek((prev) => (prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]))
   }
+  const toggleDayOverride = (day: number) => {
+    setDayOverrides((prev) => {
+      const next = { ...prev }
+      if (day in next) delete next[day]
+      else next[day] = { start: startTime, end: endTime }
+      return next
+    })
+  }
+  const setDayOverrideTime = (day: number, field: 'start' | 'end', value: string) => {
+    setDayOverrides((prev) => ({ ...prev, [day]: { ...prev[day], [field]: value } }))
+  }
 
   const handleCreate = () => {
     setError(null)
@@ -43,13 +55,26 @@ export function SchedulesPage() {
     if (bulkMode) {
       if (userIds.length === 0 || !dateFrom || !dateTo) return
       bulkCreateSchedule(
-        { user_ids: userIds, date_from: dateFrom, date_to: dateTo, days_of_week: daysOfWeek, start_time: startTime, end_time: endTime },
+        {
+          user_ids: userIds,
+          date_from: dateFrom,
+          date_to: dateTo,
+          days_of_week: daysOfWeek,
+          start_time: startTime,
+          end_time: endTime,
+          day_overrides: Object.entries(dayOverrides).map(([day, v]) => ({
+            day: Number(day),
+            start_time: v.start,
+            end_time: v.end,
+          })),
+        },
         {
           onSuccess: (rows) => {
             setBulkResultCount(rows.length)
             setUserIds([])
             setDateFrom('')
             setDateTo('')
+            setDayOverrides({})
           },
           onError: (e: any) => setError(e?.message ?? t('error')),
         },
@@ -182,6 +207,47 @@ export function SchedulesPage() {
                   />
                 </div>
               </div>
+
+              {daysOfWeek.length > 0 && (
+                <div>
+                  <label className="text-xs text-slate-500 mb-1 block">{t('dayOverridesHint')}</label>
+                  <div className="space-y-1.5">
+                    {daysOfWeek.map((d) => {
+                      const override = dayOverrides[d]
+                      return (
+                        <div key={d} className="flex items-center gap-2 flex-wrap">
+                          <label className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 w-24 shrink-0">
+                            <input
+                              type="checkbox"
+                              checked={!!override}
+                              onChange={() => toggleDayOverride(d)}
+                            />
+                            {t(`weekday.${d}`)}
+                          </label>
+                          {override && (
+                            <>
+                              <input
+                                type="time"
+                                value={override.start}
+                                onChange={(e) => setDayOverrideTime(d, 'start', e.target.value)}
+                                className="bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-2 py-1 text-xs text-slate-800 dark:text-white"
+                              />
+                              <span className="text-xs text-slate-400">–</span>
+                              <input
+                                type="time"
+                                value={override.end}
+                                onChange={(e) => setDayOverrideTime(d, 'end', e.target.value)}
+                                className="bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-2 py-1 text-xs text-slate-800 dark:text-white"
+                              />
+                            </>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
               {bulkResultCount !== null && (
                 <p className="text-sm text-emerald-600 dark:text-emerald-400">{t('bulkCreated', { count: bulkResultCount })}</p>
               )}

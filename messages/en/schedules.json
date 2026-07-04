@@ -19,6 +19,7 @@
   "dateTo": "To date",
   "daysOfWeek": "Days of week",
   "bulkCreated": "{count} schedules created successfully",
+  "dayOverridesHint": "Different hours for a specific day? (optional)",
   "weekday": {
     "0": "Sun",
     "1": "Mon",
