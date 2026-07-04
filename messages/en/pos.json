@@ -42,7 +42,9 @@
     "splitCard": "Remaining on Card",
     "cardInstruction": "Direct customer to terminal and confirm payment",
     "confirm": "Confirm Payment",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "redeemPoints": "Redeem Loyalty Points",
+    "availablePoints": "{points} points available"
   },
   "receipt": {
     "success": "Payment Successful",

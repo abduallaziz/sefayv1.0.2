@@ -37,7 +37,11 @@ export type NavKey =
   | 'movements'
   | 'inventoryReports'
   | 'transfers'
-  | 'stockCounts';
+  | 'stockCounts'
+  | 'tables'
+  | 'kitchen'
+  | 'attendance'
+  | 'schedules';
 
 export interface BusinessTypeConfig {
   sidebar: NavKey[];
@@ -47,7 +51,15 @@ export interface BusinessTypeConfig {
 // selling point, never hide it. (A §28 note from June 23, 2026 had proposed hiding
 // POS for pure-service activities; the user explicitly overruled that on June 26,
 // 2026 — POS stays in the sidebar for all 37 activities.)
-const FULL_SIDEBAR: NavKey[] = ['dashboard', 'pos', 'orders', 'items', 'customers', 'expenses', 'shifts', 'reports', 'users', 'settings', 'suppliers', 'warehouses', 'locations', 'purchaseOrders', 'goodsReceipts', 'stock', 'adjustments', 'inventoryDashboard', 'movements', 'inventoryReports', 'transfers', 'stockCounts'];
+const FULL_SIDEBAR: NavKey[] = ['dashboard', 'pos', 'orders', 'items', 'customers', 'expenses', 'shifts', 'reports', 'users', 'settings', 'suppliers', 'warehouses', 'locations', 'purchaseOrders', 'goodsReceipts', 'stock', 'adjustments', 'inventoryDashboard', 'movements', 'inventoryReports', 'transfers', 'stockCounts', 'attendance', 'schedules'];
+
+// Food-service activities get the Tables/Dine-in + Kitchen Display sidebar entries
+// on top of the full base sidebar. This is the first real sidebar differentiation
+// by activity (Phase 10F was explicitly flagged as the trigger for it — see TASKS.md
+// "Dynamic platform" entry and STATUS.md §46).
+const FOOD_SERVICE_SIDEBAR: NavKey[] = [...FULL_SIDEBAR, 'tables', 'kitchen'];
+
+const FOOD_SERVICE_ACTIVITIES: ActivityKey[] = ['restaurant', 'cafe', 'fastFood', 'bakery', 'juice', 'foodTruck'];
 
 export const ACTIVITY_CONFIG: Record<ActivityKey, BusinessTypeConfig> = Object.fromEntries(
   ([
@@ -59,7 +71,10 @@ export const ACTIVITY_CONFIG: Record<ActivityKey, BusinessTypeConfig> = Object.f
     'carWash', 'laundry', 'phoneFix', 'carWorkshop', 'homeServices',
     'phones', 'gadgets', 'gaming',
     'furniture', 'homeware', 'flowers', 'pets',
-  ] as ActivityKey[]).map((key) => [key, { sidebar: FULL_SIDEBAR }]),
+  ] as ActivityKey[]).map((key) => [
+    key,
+    { sidebar: FOOD_SERVICE_ACTIVITIES.includes(key) ? FOOD_SERVICE_SIDEBAR : FULL_SIDEBAR },
+  ]),
 ) as Record<ActivityKey, BusinessTypeConfig>;
 
 export const DEFAULT_ACTIVITY: ActivityKey = 'grocery';

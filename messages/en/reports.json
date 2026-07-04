@@ -22,5 +22,13 @@
   "taxSummary": "Tax Summary",
   "taxCollected": "Tax Collected",
   "subtotalBeforeTax": "Subtotal Before Tax",
-  "taxRate": "Tax Rate"
+  "taxRate": "Tax Rate",
+  "periodComparison": "Current vs Previous Period",
+  "vsPreviousPeriod": "Change compared to a preceding period of the same length",
+  "branchComparison": "Branch Comparison",
+  "noBranches": "No branches to show",
+  "customerChurn": "Customer Churn",
+  "previousCustomers": "Previous Period Customers",
+  "churnedCustomers": "Churned Customers",
+  "churnRate": "Churn Rate"
 }

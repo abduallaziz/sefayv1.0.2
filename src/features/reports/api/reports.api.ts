@@ -43,6 +43,7 @@ export interface ExpensesReport {
     pending_count: number
     total_approved_amount: number
   }
+  by_category: { category: string; count: number; total: number }[]
   expenses: { id: string; amount: number; status: string }[]
 }
 
@@ -58,6 +59,46 @@ export interface PaymentsReport {
     tab: { count: number; total: number }
   }
   by_method: Record<string, { count: number; total: number }>
+}
+
+export interface PeriodMetrics {
+  from: string
+  to: string
+  revenue: number
+  order_count: number
+  avg_order_value: number
+  unique_customers: number
+}
+
+export interface ComparisonReport {
+  current_period: PeriodMetrics
+  previous_period: PeriodMetrics
+  change: {
+    revenue_pct: number | null
+    order_count_pct: number | null
+    avg_order_value_pct: number | null
+  }
+}
+
+export interface BranchComparisonReport {
+  period: { from: string; to: string }
+  branches: {
+    branch_id: string
+    branch_name: string
+    revenue: number
+    order_count: number
+    avg_order_value: number
+    unique_customers: number
+  }[]
+}
+
+export interface CustomerChurnReport {
+  current_period: { from: string; to: string }
+  previous_period: { from: string; to: string }
+  previous_period_customers: number
+  current_period_customers: number
+  churned_customers: number
+  churn_rate_pct: number
 }
 
 export interface EmployeesReport {
@@ -213,4 +254,31 @@ export const reportsApi = {
 
   getInventory: (warehouseId?: string): Promise<InventoryReport> =>
     apiClient.get(`/reports/inventory${warehouseId ? `?warehouse_id=${warehouseId}` : ''}`),
+
+  getComparison: (query?: ReportQuery): Promise<ComparisonReport> => {
+    const params = new URLSearchParams()
+    if (query?.period) params.set('period', query.period)
+    if (query?.from) params.set('from', query.from)
+    if (query?.to) params.set('to', query.to)
+    const qs = params.toString()
+    return apiClient.get(`/reports/comparison${qs ? `?${qs}` : ''}`)
+  },
+
+  getByBranch: (query?: ReportQuery): Promise<BranchComparisonReport> => {
+    const params = new URLSearchParams()
+    if (query?.period) params.set('period', query.period)
+    if (query?.from) params.set('from', query.from)
+    if (query?.to) params.set('to', query.to)
+    const qs = params.toString()
+    return apiClient.get(`/reports/by-branch${qs ? `?${qs}` : ''}`)
+  },
+
+  getCustomerChurn: (query?: ReportQuery): Promise<CustomerChurnReport> => {
+    const params = new URLSearchParams()
+    if (query?.period) params.set('period', query.period)
+    if (query?.from) params.set('from', query.from)
+    if (query?.to) params.set('to', query.to)
+    const qs = params.toString()
+    return apiClient.get(`/reports/customer-churn${qs ? `?${qs}` : ''}`)
+  },
 }

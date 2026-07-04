@@ -47,4 +47,5 @@ export interface PaymentData {
   change?: number
   split_cash?: number
   split_card?: number
+  redeem_points?: number
 }

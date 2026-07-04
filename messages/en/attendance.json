@@ -1,0 +1,15 @@
+{
+  "title": "Attendance",
+  "subtitle": "Record your daily check-in and check-out",
+  "checkIn": "Check In",
+  "checkOut": "Check Out",
+  "checkedInAt": "Checked in at",
+  "notCheckedIn": "You haven't checked in today",
+  "processing": "Processing...",
+  "history": "History",
+  "noRecords": "No attendance records yet",
+  "checkedOutAt": "Checked out at {time}",
+  "stillOpen": "Not checked out yet",
+  "hoursWorked": "{hours}h",
+  "error": "Something went wrong, try again"
+}

@@ -36,7 +36,11 @@
     "movements": "Movements",
     "inventoryReports": "Reports",
     "transfers": "Transfers",
-    "stockCounts": "Stock Counts"
+    "stockCounts": "Stock Counts",
+    "tables": "Tables",
+    "kitchen": "Kitchen Display",
+    "attendance": "Attendance",
+    "schedules": "Staff Scheduling"
   },
   "common": {
     "save": "Save",
@@ -572,6 +576,7 @@
     "expiresIn": "Expires in",
     "tabs": {
       "requests": "Requests",
+      "categories": "Categories",
       "templates": "Templates",
       "all": "All",
       "pending": "Pending",

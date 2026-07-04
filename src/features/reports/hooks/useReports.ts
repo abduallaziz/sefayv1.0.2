@@ -56,3 +56,24 @@ export function useInventoryReport(warehouseId?: string) {
     queryFn: () => reportsApi.getInventory(warehouseId),
   })
 }
+
+export function useComparisonReport(query?: ReportQuery) {
+  return useQuery({
+    queryKey: ['reports', 'comparison', query],
+    queryFn: () => reportsApi.getComparison(query),
+  })
+}
+
+export function useBranchComparisonReport(query?: ReportQuery) {
+  return useQuery({
+    queryKey: ['reports', 'by-branch', query],
+    queryFn: () => reportsApi.getByBranch(query),
+  })
+}
+
+export function useCustomerChurnReport(query?: ReportQuery) {
+  return useQuery({
+    queryKey: ['reports', 'customer-churn', query],
+    queryFn: () => reportsApi.getCustomerChurn(query),
+  })
+}

@@ -63,6 +63,7 @@ export function POSPage() {
         cash_tendered: data.method === 'cash' ? data.cash_tendered : undefined,
         cash_amount: data.method === 'split' ? data.split_cash : undefined,
         card_amount: data.method === 'split' ? data.split_card : undefined,
+        redeem_points: data.redeem_points,
         items: cart.items.map(item => ({
           item_id: item.item_id,
           item_name: item.name,
@@ -168,6 +169,7 @@ export function POSPage() {
       {showPayment && (
         <PaymentModal
           cart={cart}
+          customer={selectedCustomer}
           onConfirm={handleConfirmPayment}
           onClose={() => setShowPayment(false)}
           isSubmitting={isSubmitting}

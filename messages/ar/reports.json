@@ -22,5 +22,13 @@
   "taxSummary": "ملخص الضريبة",
   "taxCollected": "الضريبة المحصّلة",
   "subtotalBeforeTax": "الإجمالي قبل الضريبة",
-  "taxRate": "نسبة الضريبة"
+  "taxRate": "نسبة الضريبة",
+  "periodComparison": "مقارنة الفترة الحالية بالسابقة",
+  "vsPreviousPeriod": "التغيّر مقارنةً بنفس طول الفترة السابقة",
+  "branchComparison": "مقارنة الفروع",
+  "noBranches": "لا توجد فروع لعرضها",
+  "customerChurn": "تراجع العملاء",
+  "previousCustomers": "عملاء الفترة السابقة",
+  "churnedCustomers": "عملاء لم يعودوا",
+  "churnRate": "نسبة التراجع"
 }

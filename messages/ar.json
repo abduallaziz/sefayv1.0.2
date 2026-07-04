@@ -36,7 +36,11 @@
     "movements": "حركات المخزون",
     "inventoryReports": "تقارير المخزون",
     "transfers": "التحويلات",
-    "stockCounts": "جرد المخزون"
+    "stockCounts": "جرد المخزون",
+    "tables": "الطاولات",
+    "kitchen": "شاشة المطبخ",
+    "attendance": "الحضور والانصراف",
+    "schedules": "جدولة الموظفين"
   },
   "common": {
     "save": "حفظ",
@@ -572,6 +576,7 @@
     "expiresIn": "تنتهي خلال",
     "tabs": {
       "requests": "الطلبات",
+      "categories": "الفئات",
       "templates": "القوالب",
       "all": "الكل",
       "pending": "المعلقة",

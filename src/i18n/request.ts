@@ -37,6 +37,10 @@ export default getRequestConfig(async ({ requestLocale }) => {
     suppliers,
     warehouses,
     locations,
+    tables,
+    kitchen,
+    attendance,
+    schedules,
   ] = await Promise.all([
     loadFile(`${locale}.json`),
     loadFile(`${locale}/common.json`),
@@ -58,6 +62,10 @@ export default getRequestConfig(async ({ requestLocale }) => {
     loadFile(`${locale}/suppliers.json`),
     loadFile(`${locale}/warehouses.json`),
     loadFile(`${locale}/locations.json`),
+    loadFile(`${locale}/tables.json`),
+    loadFile(`${locale}/kitchen.json`),
+    loadFile(`${locale}/attendance.json`),
+    loadFile(`${locale}/schedules.json`),
   ])
 
   return {
@@ -90,6 +98,10 @@ export default getRequestConfig(async ({ requestLocale }) => {
       suppliers,
       warehouses,
       locations,
+      tables,
+      kitchen,
+      attendance,
+      schedules,
       stock: inventory?.stock,
       adjustments: inventory?.adjustments,
       inventoryDashboard: inventory?.dashboard,

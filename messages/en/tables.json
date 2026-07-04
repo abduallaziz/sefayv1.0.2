@@ -1,0 +1,59 @@
+{
+  "title": "Tables",
+  "subtitle": "Manage tables, orders and reservations",
+  "newTable": "New Table",
+  "newReservation": "New Reservation",
+  "tabs": {
+    "tables": "Tables",
+    "reservations": "Reservations",
+    "waitlist": "Waitlist"
+  },
+  "status": {
+    "available": "Available",
+    "occupied": "Occupied",
+    "reserved": "Reserved",
+    "cleaning": "Cleaning"
+  },
+  "tableName": "Table Name",
+  "tableNamePlaceholder": "e.g. Table 1",
+  "capacity": "Capacity",
+  "cancel": "Cancel",
+  "save": "Save",
+  "saving": "Saving...",
+  "error": "Something went wrong, try again",
+  "table": "Table",
+  "tableAvailable": "This table is available",
+  "opening": "Opening...",
+  "openTable": "Open Table",
+  "addItems": "Add Items",
+  "addItemsCount": "Add ({count})",
+  "checkout": "Checkout",
+  "confirmCheckout": "Confirm Payment",
+  "processing": "Processing...",
+  "noItemsYet": "No items added yet",
+  "total": "Total",
+  "payment": {
+    "cash": "Cash",
+    "card": "Card"
+  },
+  "kitchenStatus": {
+    "pending": "Awaiting Prep",
+    "preparing": "Preparing",
+    "ready": "Ready",
+    "served": "Served"
+  },
+  "noTables": "No tables yet",
+  "noReservations": "No reservations",
+  "guests": "guests",
+  "selectTable": "Select a table",
+  "reservationStatus": {
+    "confirmed": "Confirmed",
+    "seated": "Seated",
+    "cancelled": "Cancelled",
+    "no_show": "No Show"
+  },
+  "addToWaitlist": "Add to Waitlist",
+  "customerName": "Customer Name",
+  "waitlistEmpty": "Waitlist is empty",
+  "seatAt": "Seat at table"
+}
