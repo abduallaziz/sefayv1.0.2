@@ -44,6 +44,8 @@
     "excuseAbsence": "Excuse an absence",
     "selectEmployee": "Select an employee",
     "reason": "Reason",
+    "dateFrom": "From date",
+    "dateTo": "To date",
     "markExcused": "Mark excused",
     "excused": "Excused successfully",
     "saving": "Saving..."

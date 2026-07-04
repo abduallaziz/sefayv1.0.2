@@ -76,7 +76,7 @@ export function useExceptions(filters?: { userId?: string; from?: string; to?: s
 export function useCreateException() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (dto: { user_id: string; date: string; reason: string }) => hrApi.createException(dto),
+    mutationFn: (dto: { user_id: string; date_from: string; date_to: string; reason: string }) => hrApi.createException(dto),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['attendance-exceptions'] }),
   })
 }

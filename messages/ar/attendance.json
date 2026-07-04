@@ -11,5 +11,6 @@
   "checkedOutAt": "انصرف الساعة {time}",
   "stillOpen": "لم ينصرف بعد",
   "hoursWorked": "{hours} ساعة",
-  "error": "حدث خطأ، حاول مجددًا"
+  "error": "حدث خطأ، حاول مجددًا",
+  "allEmployees": "كل الموظفين"
 }

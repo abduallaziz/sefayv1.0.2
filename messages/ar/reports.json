@@ -44,6 +44,8 @@
     "excuseAbsence": "إعفاء يوم غياب",
     "selectEmployee": "اختر موظفًا",
     "reason": "السبب",
+    "dateFrom": "من تاريخ",
+    "dateTo": "إلى تاريخ",
     "markExcused": "تسجيل الإعفاء",
     "excused": "تم تسجيل الإعفاء",
     "saving": "جاري الحفظ..."
