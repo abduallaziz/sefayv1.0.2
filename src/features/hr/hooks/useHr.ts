@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { hrApi, CreateScheduleDto } from '../api/hr.api'
+import { hrApi, CreateScheduleDto, BulkCreateScheduleDto, CreateEmployeeGeofenceDto } from '../api/hr.api'
 
 export function useMyAttendance(from?: string, to?: string) {
   return useQuery({
@@ -55,5 +55,52 @@ export function useDeleteSchedule() {
   return useMutation({
     mutationFn: (id: string) => hrApi.deleteSchedule(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['schedules'] }),
+  })
+}
+
+export function useBulkCreateSchedule() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (dto: BulkCreateScheduleDto) => hrApi.bulkCreateSchedule(dto),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['schedules'] }),
+  })
+}
+
+export function useExceptions(filters?: { userId?: string; from?: string; to?: string }) {
+  return useQuery({
+    queryKey: ['attendance-exceptions', filters],
+    queryFn: () => hrApi.getExceptions(filters),
+  })
+}
+
+export function useCreateException() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (dto: { user_id: string; date: string; reason: string }) => hrApi.createException(dto),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['attendance-exceptions'] }),
+  })
+}
+
+export function useEmployeeGeofences(userId: string) {
+  return useQuery({
+    queryKey: ['employee-geofences', userId],
+    queryFn: () => hrApi.getEmployeeGeofences(userId),
+    enabled: !!userId,
+  })
+}
+
+export function useCreateEmployeeGeofence() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (dto: CreateEmployeeGeofenceDto) => hrApi.createEmployeeGeofence(dto),
+    onSuccess: (_data, variables) => qc.invalidateQueries({ queryKey: ['employee-geofences', variables.user_id] }),
+  })
+}
+
+export function useDeleteEmployeeGeofence() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => hrApi.deleteEmployeeGeofence(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['employee-geofences'] }),
   })
 }

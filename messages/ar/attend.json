@@ -1,0 +1,15 @@
+{
+  "invalidLink": "رابط غير صالح",
+  "greeting": "أهلاً، {name}",
+  "locating": "جاري تحديد موقعك...",
+  "locationReady": "تم تحديد موقعك",
+  "locationError": "تعذر الوصول لموقعك — تأكد من تفعيل صلاحية الموقع",
+  "outOfRange": "يجب أن تكون في موقع العمل لتسجيل الحضور",
+  "checkInAction": "تسجيل حضور",
+  "checkOutAction": "تسجيل انصراف",
+  "submitting": "جاري التسجيل...",
+  "checkedIn": "تم تسجيل حضورك",
+  "checkedOut": "تم تسجيل انصرافك",
+  "confirmationCode": "رمز التأكيد",
+  "error": "حدث خطأ، حاول مرة أخرى"
+}

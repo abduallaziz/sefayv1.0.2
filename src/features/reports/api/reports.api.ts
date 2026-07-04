@@ -173,6 +173,24 @@ export interface SparklinesReport {
   expenses: number[]
 }
 
+export interface PayrollEmployee {
+  user_id: string
+  name: string
+  base_salary: number
+  scheduled_days: number
+  day_rate: number
+  absence_count: number
+  absence_deduction: number
+  late_count: number
+  late_deduction: number
+  net_salary: number
+}
+
+export interface PayrollReport {
+  month: string
+  employees: PayrollEmployee[]
+}
+
 export const reportsApi = {
   getRevenue: (query?: ReportQuery): Promise<RevenueReport> => {
     const params = new URLSearchParams()
@@ -281,4 +299,7 @@ export const reportsApi = {
     const qs = params.toString()
     return apiClient.get(`/reports/customer-churn${qs ? `?${qs}` : ''}`)
   },
+
+  getPayroll: (month: string): Promise<PayrollReport> =>
+    apiClient.get(`/reports/payroll?month=${month}`),
 }

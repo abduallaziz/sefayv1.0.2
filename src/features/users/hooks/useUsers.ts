@@ -49,3 +49,19 @@ export function useDeleteUser() {
     },
   })
 }
+
+export function useGenerateAttendanceLink() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => usersApi.generateAttendanceLink(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+    },
+  })
+}
+
+export function useUnbindAttendanceDevice() {
+  return useMutation({
+    mutationFn: (id: string) => usersApi.unbindAttendanceDevice(id),
+  })
+}

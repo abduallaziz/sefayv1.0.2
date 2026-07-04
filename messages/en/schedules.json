@@ -11,5 +11,21 @@
   "saving": "Saving...",
   "upcoming": "Upcoming Schedules",
   "noSchedules": "No schedules yet",
-  "error": "Something went wrong, try again"
+  "error": "Something went wrong, try again",
+  "singleMode": "Single employee",
+  "bulkMode": "Bulk schedule",
+  "employees": "Employees",
+  "dateFrom": "From date",
+  "dateTo": "To date",
+  "daysOfWeek": "Days of week",
+  "bulkCreated": "{count} schedules created successfully",
+  "weekday": {
+    "0": "Sun",
+    "1": "Mon",
+    "2": "Tue",
+    "3": "Wed",
+    "4": "Thu",
+    "5": "Fri",
+    "6": "Sat"
+  }
 }
