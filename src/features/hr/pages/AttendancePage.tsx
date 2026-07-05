@@ -191,23 +191,23 @@ function AllEmployeesAttendance({
             <tr key={r.user_id}>
               <td className="px-4 py-3 align-middle font-semibold text-slate-800 dark:text-white">{r.user_name}</td>
               <td className="px-4 py-3">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 rounded-lg px-3 py-2">
-                    <div className="w-7 h-7 shrink-0 rounded-full bg-emerald-500 flex items-center justify-center text-white">
-                      <LogIn className="w-4 h-4" />
+                <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 rounded-md px-1.5 py-1">
+                    <div className="w-4 h-4 shrink-0 rounded-full bg-emerald-500 flex items-center justify-center text-white">
+                      <LogIn className="w-2.5 h-2.5" />
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">{t('checkIn')}</p>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400">{fmtDateTime(r.check_in_at)}</p>
+                      <p className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-400 leading-tight">{t('checkIn')}</p>
+                      <p className="text-[9px] text-slate-500 dark:text-slate-400 leading-tight">{fmtDateTime(r.check_in_at)}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-lg px-3 py-2">
-                    <div className="w-7 h-7 shrink-0 rounded-full bg-red-500 flex items-center justify-center text-white">
-                      <LogOut className="w-4 h-4" />
+                  <div className="flex items-center gap-1 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-md px-1.5 py-1">
+                    <div className="w-4 h-4 shrink-0 rounded-full bg-red-500 flex items-center justify-center text-white">
+                      <LogOut className="w-2.5 h-2.5" />
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-red-700 dark:text-red-400">{t('checkOut')}</p>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      <p className="text-[10px] font-semibold text-red-700 dark:text-red-400 leading-tight">{t('checkOut')}</p>
+                      <p className="text-[9px] text-slate-500 dark:text-slate-400 leading-tight">
                         {r.check_out_at ? fmtDateTime(r.check_out_at) : t('stillOpen')}
                       </p>
                     </div>
