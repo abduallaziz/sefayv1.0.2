@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react'
 import { CalendarClock, LogIn, LogOut, Circle, Users, History, X } from 'lucide-react'
 import { useMyAttendance, useCheckIn, useCheckOut, useAllAttendance } from '../hooks/useHr'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
+import { DateRangePicker } from '@/shared/ui/date-range-picker'
 
 export function AttendancePage() {
   const t = useTranslations('attendance')
@@ -254,7 +255,12 @@ function EmployeeHistoryModal({
   t: ReturnType<typeof useTranslations>
   fmtDateTime: (iso: string) => string
 }) {
-  const { data: records = [], isLoading } = useAllAttendance({ userId: user.id })
+  const [range, setRange] = useState<{ from: string | undefined; to: string | undefined }>({ from: undefined, to: undefined })
+  const { data: records = [], isLoading } = useAllAttendance({
+    userId: user.id,
+    from: range.from,
+    to: range.to ? `${range.to}T23:59:59` : undefined,
+  })
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={onClose}>
       <div
@@ -266,6 +272,9 @@ function EmployeeHistoryModal({
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
             <X className="w-4 h-4" />
           </button>
+        </div>
+        <div className="px-4 py-3 border-b border-slate-100 dark:border-gray-800">
+          <DateRangePicker className="w-full" value={range} onChange={setRange} />
         </div>
         <div className="overflow-y-auto">
           <AttendanceList records={records} isLoading={isLoading} showName={false} t={t} fmtDateTime={fmtDateTime} />
