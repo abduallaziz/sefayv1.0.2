@@ -178,43 +178,55 @@ function AllEmployeesAttendance({
 
   return (
     <>
-      <div className="divide-y divide-slate-100 dark:divide-gray-800">
-        {latestPerEmployee.map((r) => (
-          <div key={r.user_id} className="grid grid-cols-3 items-center gap-2 px-4 py-3">
-            {r.user_name && <p className="text-sm font-semibold text-slate-800 dark:text-white">{r.user_name}</p>}
-            <div className="text-center">
-              {r.hours_worked !== null ? (
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                  {t('hoursWorked', { hours: r.hours_worked })}
-                </span>
-              ) : (
-                <span className="text-xs text-amber-500">{t('stillOpen')}</span>
-              )}
-            </div>
-            <div className="flex items-center justify-end gap-3">
-              <div className="space-y-1 text-right">
-                <p className="flex items-center justify-end gap-1.5 text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                  {fmtDateTime(r.check_in_at)}
-                  <Circle className="w-2 h-2 fill-current" />
-                </p>
-                {r.check_out_at && (
-                  <p className="flex items-center justify-end gap-1.5 text-sm font-medium text-red-600 dark:text-red-400">
-                    {fmtDateTime(r.check_out_at)}
-                    <Circle className="w-2 h-2 fill-current" />
-                  </p>
-                )}
-              </div>
-              <button
-                onClick={() => setHistoryUser({ id: r.user_id, name: r.user_name ?? '' })}
-                className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-slate-200 dark:border-gray-700 text-[#0C447C] dark:text-[#5B9BD5] hover:bg-slate-50 dark:hover:bg-gray-800"
-              >
-                <History className="w-3.5 h-3.5" />
-                {t('viewHistory')}
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-slate-200 dark:border-gray-800">
+            <th className="text-right px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('employee')}</th>
+            <th className="text-center px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('workHours')}</th>
+            <th className="text-center px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('history')}</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100 dark:divide-gray-800">
+          {latestPerEmployee.map((r) => (
+            <tr key={r.user_id}>
+              <td className="px-4 py-3 align-middle font-semibold text-slate-800 dark:text-white">{r.user_name}</td>
+              <td className="px-4 py-3">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 rounded-lg px-3 py-2">
+                    <div className="w-7 h-7 shrink-0 rounded-full bg-emerald-500 flex items-center justify-center text-white">
+                      <LogIn className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">{t('checkIn')}</p>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400">{fmtDateTime(r.check_in_at)}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-lg px-3 py-2">
+                    <div className="w-7 h-7 shrink-0 rounded-full bg-red-500 flex items-center justify-center text-white">
+                      <LogOut className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-red-700 dark:text-red-400">{t('checkOut')}</p>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                        {r.check_out_at ? fmtDateTime(r.check_out_at) : t('stillOpen')}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td className="px-4 py-3 text-center align-middle">
+                <button
+                  onClick={() => setHistoryUser({ id: r.user_id, name: r.user_name ?? '' })}
+                  className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-slate-200 dark:border-gray-700 text-[#0C447C] dark:text-[#5B9BD5] hover:bg-slate-50 dark:hover:bg-gray-800"
+                >
+                  <History className="w-3.5 h-3.5" />
+                  {t('viewHistory')}
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
       {historyUser && (
         <EmployeeHistoryModal user={historyUser} onClose={() => setHistoryUser(null)} t={t} fmtDateTime={fmtDateTime} />
       )}

@@ -13,5 +13,7 @@
   "hoursWorked": "{hours}h",
   "error": "Something went wrong, try again",
   "allEmployees": "All Employees",
-  "viewHistory": "View full history"
+  "viewHistory": "View full history",
+  "employee": "Employee",
+  "workHours": "Work Hours"
 }

@@ -13,5 +13,7 @@
   "hoursWorked": "{hours} ساعة",
   "error": "حدث خطأ، حاول مجددًا",
   "allEmployees": "كل الموظفين",
-  "viewHistory": "عرض السجل الكامل"
+  "viewHistory": "عرض السجل الكامل",
+  "employee": "اسم الموظف",
+  "workHours": "ساعات العمل"
 }
