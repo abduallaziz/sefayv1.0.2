@@ -12,5 +12,6 @@
   "stillOpen": "Not checked out yet",
   "hoursWorked": "{hours}h",
   "error": "Something went wrong, try again",
-  "allEmployees": "All Employees"
+  "allEmployees": "All Employees",
+  "viewHistory": "View full history"
 }

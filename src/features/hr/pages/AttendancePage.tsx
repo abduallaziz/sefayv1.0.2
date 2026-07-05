@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
-import { CalendarClock, LogIn, LogOut, Circle, Users } from 'lucide-react'
+import { CalendarClock, LogIn, LogOut, Circle, Users, History, X } from 'lucide-react'
 import { useMyAttendance, useCheckIn, useCheckOut, useAllAttendance } from '../hooks/useHr'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 
@@ -107,7 +107,88 @@ function AllEmployeesAttendance({
   fmtDateTime: (iso: string) => string
 }) {
   const { data: records = [], isLoading } = useAllAttendance()
-  return <AttendanceList records={records} isLoading={isLoading} showName t={t} fmtDateTime={fmtDateTime} />
+  const [historyUser, setHistoryUser] = useState<{ id: string; name: string } | null>(null)
+
+  const latestPerEmployee = useMemo(() => {
+    const byUser = new Map<string, (typeof records)[number]>()
+    for (const r of records) {
+      if (!byUser.has(r.user_id)) byUser.set(r.user_id, r)
+    }
+    return Array.from(byUser.values())
+  }, [records])
+
+  if (isLoading) return <div className="p-4 h-20 bg-slate-100 dark:bg-gray-800 rounded animate-pulse" />
+  if (latestPerEmployee.length === 0) {
+    return <p className="text-sm text-slate-500 dark:text-slate-400 py-8 text-center">{t('noRecords')}</p>
+  }
+
+  return (
+    <>
+      <div className="divide-y divide-slate-100 dark:divide-gray-800">
+        {latestPerEmployee.map((r) => (
+          <div key={r.user_id} className="flex items-center justify-between px-4 py-3">
+            <div className="space-y-1">
+              {r.user_name && <p className="text-sm font-semibold text-slate-800 dark:text-white">{r.user_name}</p>}
+              <p className="flex items-center gap-1.5 text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                <Circle className="w-2 h-2 fill-current" />
+                {fmtDateTime(r.check_in_at)}
+              </p>
+              {r.check_out_at ? (
+                <p className="flex items-center gap-1.5 text-sm font-medium text-red-600 dark:text-red-400">
+                  <Circle className="w-2 h-2 fill-current" />
+                  {fmtDateTime(r.check_out_at)}
+                </p>
+              ) : (
+                <p className="text-xs text-amber-500">{t('stillOpen')}</p>
+              )}
+            </div>
+            <button
+              onClick={() => setHistoryUser({ id: r.user_id, name: r.user_name ?? '' })}
+              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-slate-200 dark:border-gray-700 text-[#0C447C] dark:text-[#5B9BD5] hover:bg-slate-50 dark:hover:bg-gray-800"
+            >
+              <History className="w-3.5 h-3.5" />
+              {t('viewHistory')}
+            </button>
+          </div>
+        ))}
+      </div>
+      {historyUser && (
+        <EmployeeHistoryModal user={historyUser} onClose={() => setHistoryUser(null)} t={t} fmtDateTime={fmtDateTime} />
+      )}
+    </>
+  )
+}
+
+function EmployeeHistoryModal({
+  user,
+  onClose,
+  t,
+  fmtDateTime,
+}: {
+  user: { id: string; name: string }
+  onClose: () => void
+  t: ReturnType<typeof useTranslations>
+  fmtDateTime: (iso: string) => string
+}) {
+  const { data: records = [], isLoading } = useAllAttendance({ userId: user.id })
+  return (
+    <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={onClose}>
+      <div
+        className="bg-white dark:bg-gray-900 rounded-xl w-full max-w-md max-h-[80vh] flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="px-4 py-3 border-b border-slate-200 dark:border-gray-800 flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-slate-800 dark:text-white">{user.name}</h2>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        <div className="overflow-y-auto">
+          <AttendanceList records={records} isLoading={isLoading} showName={false} t={t} fmtDateTime={fmtDateTime} />
+        </div>
+      </div>
+    </div>
+  )
 }
 
 function AttendanceList({

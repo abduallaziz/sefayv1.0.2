@@ -12,5 +12,6 @@
   "stillOpen": "لم ينصرف بعد",
   "hoursWorked": "{hours} ساعة",
   "error": "حدث خطأ، حاول مجددًا",
-  "allEmployees": "كل الموظفين"
+  "allEmployees": "كل الموظفين",
+  "viewHistory": "عرض السجل الكامل"
 }
