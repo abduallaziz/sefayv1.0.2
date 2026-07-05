@@ -31,7 +31,16 @@ export function SettingsPage() {
   const { data: profile, isLoading: profileLoading } = useProfile();
   const { data: subscriptionData, isLoading: subLoading } = useSubscription();
   const { data: usage, isLoading: usageLoading } = useUsage();
-  const { mutate: updateProfile, isPending } = useUpdateProfile();
+  // Separate mutation instances per section — sharing one meant clicking any single
+  // save button flipped every button on the page to "saving..." at once, even though
+  // only that section's request was actually sent.
+  const { mutate: saveName, isPending: savingName } = useUpdateProfile();
+  const { mutate: saveCustomerCapture, isPending: savingCustomerCapture } = useUpdateProfile();
+  const { mutate: saveCurrency, isPending: savingCurrency } = useUpdateProfile();
+  const { mutate: saveTaxRate, isPending: savingTaxRate } = useUpdateProfile();
+  const { mutate: saveInvoiceCustomization, isPending: savingInvoiceCustomization } = useUpdateProfile();
+  const { mutate: savePrinterSettings, isPending: savingPrinterSettings } = useUpdateProfile();
+  const { mutate: saveNotification, isPending: savingNotification } = useUpdateProfile();
 
   const { currency_code, setCurrency } = useTenantStore();
   const [name, setName] = useState('');
@@ -74,19 +83,19 @@ export function SettingsPage() {
   function handleSaveName() {
     if (!name.trim()) return;
     setSaveError(null);
-    updateProfile({ name: name.trim() }, { onError: onSaveError });
+    saveName({ name: name.trim() }, { onError: onSaveError });
   }
 
   function handleToggleCustomerCapture(enabled: boolean) {
     setSaveError(null);
-    updateProfile({ customer_capture_enabled: enabled }, { onError: onSaveError });
+    saveCustomerCapture({ customer_capture_enabled: enabled }, { onError: onSaveError });
   }
 
   function handleSaveCurrency() {
     const cur = CURRENCIES.find(c => c.code === selectedCurrency);
     if (!cur) return;
     setSaveError(null);
-    updateProfile(
+    saveCurrency(
       { currency_code: cur.code, currency_symbol: cur.symbol },
       {
         onSuccess: () => setCurrency(cur.code, cur.symbol),
@@ -103,12 +112,12 @@ export function SettingsPage() {
     }
     setTaxRateError(false);
     setSaveError(null);
-    updateProfile({ tax_rate: value / 100 }, { onError: onSaveError });
+    saveTaxRate({ tax_rate: value / 100 }, { onError: onSaveError });
   }
 
   function handleSaveInvoiceCustomization() {
     setSaveError(null);
-    updateProfile(
+    saveInvoiceCustomization(
       {
         ...(logoUrl.trim() ? { logo_url: logoUrl.trim() } : {}),
         tax_number: taxNumber.trim(),
@@ -120,12 +129,12 @@ export function SettingsPage() {
 
   function handleSavePrinterSettings() {
     setSaveError(null);
-    updateProfile({ printer_settings: { paper_width: paperWidth, auto_print: autoPrint } }, { onError: onSaveError });
+    savePrinterSettings({ printer_settings: { paper_width: paperWidth, auto_print: autoPrint } }, { onError: onSaveError });
   }
 
   function handleToggleNotification(key: keyof NotificationPreferences, enabled: boolean) {
     setSaveError(null);
-    updateProfile(
+    saveNotification(
       { notification_preferences: { ...profile?.notification_preferences, [key]: enabled } },
       { onError: onSaveError },
     );
@@ -175,11 +184,11 @@ export function SettingsPage() {
             </div>
             <button
               onClick={handleSaveName}
-              disabled={isPending || !name.trim()}
+              disabled={savingName || !name.trim()}
               className="flex items-center gap-2 px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 rounded-lg text-sm text-white transition-colors"
             >
               <Save className="w-4 h-4" />
-              {isPending ? t('saving') : t('save')}
+              {savingName ? t('saving') : t('save')}
             </button>
           </div>
         )}
@@ -209,11 +218,11 @@ export function SettingsPage() {
         </div>
         <button
           onClick={handleSaveCurrency}
-          disabled={isPending || selectedCurrency === currency_code}
+          disabled={savingCurrency || selectedCurrency === currency_code}
           className="flex items-center gap-2 px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 rounded-lg text-sm text-white transition-colors"
         >
           <Save className="w-4 h-4" />
-          {isPending ? t('saving') : t('save')}
+          {savingCurrency ? t('saving') : t('save')}
         </button>
       </div>
 
@@ -239,11 +248,11 @@ export function SettingsPage() {
             {taxRateError && <p className="text-xs text-red-500">{t('taxRateError')}</p>}
             <button
               onClick={handleSaveTaxRate}
-              disabled={isPending}
+              disabled={savingTaxRate}
               className="flex items-center gap-2 px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 rounded-lg text-sm text-white transition-colors"
             >
               <Save className="w-4 h-4" />
-              {isPending ? t('saving') : t('save')}
+              {savingTaxRate ? t('saving') : t('save')}
             </button>
           </div>
         )}
@@ -290,11 +299,11 @@ export function SettingsPage() {
             </div>
             <button
               onClick={handleSaveInvoiceCustomization}
-              disabled={isPending}
+              disabled={savingInvoiceCustomization}
               className="flex items-center gap-2 px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 rounded-lg text-sm text-white transition-colors"
             >
               <Save className="w-4 h-4" />
-              {isPending ? t('saving') : t('save')}
+              {savingInvoiceCustomization ? t('saving') : t('save')}
             </button>
           </div>
         )}
@@ -345,11 +354,11 @@ export function SettingsPage() {
             </div>
             <button
               onClick={handleSavePrinterSettings}
-              disabled={isPending}
+              disabled={savingPrinterSettings}
               className="flex items-center gap-2 px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 rounded-lg text-sm text-white transition-colors"
             >
               <Save className="w-4 h-4" />
-              {isPending ? t('saving') : t('save')}
+              {savingPrinterSettings ? t('saving') : t('save')}
             </button>
           </div>
         )}
@@ -373,7 +382,7 @@ export function SettingsPage() {
                   <span className="text-xs text-slate-600 dark:text-slate-300">{t(`notifications.${key}`)}</span>
                   <button
                     onClick={() => handleToggleNotification(key, !enabled)}
-                    disabled={isPending}
+                    disabled={savingNotification}
                     className={`relative w-12 h-6 rounded-full transition-colors disabled:opacity-50 ${
                       enabled ? 'bg-[#0C447C]' : 'bg-slate-200 dark:bg-gray-700'
                     }`}
@@ -403,7 +412,7 @@ export function SettingsPage() {
           ) : (
             <button
               onClick={() => handleToggleCustomerCapture(!profile?.customer_capture_enabled)}
-              disabled={isPending}
+              disabled={savingCustomerCapture}
               className={`relative w-12 h-6 rounded-full transition-colors disabled:opacity-50 ${
                 profile?.customer_capture_enabled ? 'bg-[#0C447C]' : 'bg-slate-200 dark:bg-gray-700'
               }`}
