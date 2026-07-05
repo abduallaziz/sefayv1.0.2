@@ -18,6 +18,8 @@
   "settings": {
     "title": "{name} settings",
     "payroll": "Salary & deduction policy",
+    "department": "Department/Group",
+    "departmentPlaceholder": "e.g. IT",
     "baseSalary": "Monthly base salary",
     "gracePeriod": "Grace period (minutes)",
     "deductionMode": "Late deduction mode",

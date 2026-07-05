@@ -15,5 +15,19 @@
   "allEmployees": "All Employees",
   "viewHistory": "View full history",
   "employee": "Employee",
-  "workHours": "Work Hours"
+  "workHours": "Work Hours",
+  "searchEmployee": "Search employee...",
+  "allDepartments": "All Departments",
+  "department": "Department",
+  "status": "Status",
+  "statusValues": {
+    "present": "Present now",
+    "out": "Out",
+    "away": "Away",
+    "not_logged": "Not logged"
+  },
+  "totalHours": "Total Hours",
+  "workDays": "Work Days",
+  "lateHours": "Late Hours",
+  "attendancePercentage": "Attendance %"
 }

@@ -18,6 +18,8 @@
   "settings": {
     "title": "إعدادات {name}",
     "payroll": "الراتب وسياسة الخصم",
+    "department": "القسم/الإدارة",
+    "departmentPlaceholder": "مثال: تقنية المعلومات",
     "baseSalary": "الراتب الأساسي الشهري",
     "gracePeriod": "فترة السماح (دقائق)",
     "deductionMode": "طريقة خصم التأخير",

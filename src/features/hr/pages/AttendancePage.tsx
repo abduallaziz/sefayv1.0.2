@@ -2,10 +2,24 @@
 
 import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
-import { CalendarClock, LogIn, LogOut, Circle, History, X } from 'lucide-react'
-import { useMyAttendance, useCheckIn, useCheckOut, useAllAttendance } from '../hooks/useHr'
+import { CalendarClock, LogIn, LogOut, Circle, History, X, Search } from 'lucide-react'
+import { useMyAttendance, useCheckIn, useCheckOut, useAllAttendance, useSchedules } from '../hooks/useHr'
+import { useUsers } from '@/features/users/hooks/useUsers'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { DateRangePicker } from '@/shared/ui/date-range-picker'
+
+type Status = 'present' | 'out' | 'away' | 'not_logged'
+
+const STATUS_STYLE: Record<Status, { dot: string; text: string }> = {
+  present: { dot: 'bg-emerald-500', text: 'text-emerald-600 dark:text-emerald-400' },
+  out: { dot: 'bg-red-500', text: 'text-red-600 dark:text-red-400' },
+  away: { dot: 'bg-amber-500', text: 'text-amber-600 dark:text-amber-400' },
+  not_logged: { dot: 'bg-slate-400', text: 'text-slate-500 dark:text-slate-400' },
+}
+
+function todayStr() {
+  return new Date().toISOString().substring(0, 10)
+}
 
 export function AttendancePage() {
   const t = useTranslations('attendance')
@@ -128,8 +142,23 @@ function AllEmployeesAttendance({
   t: ReturnType<typeof useTranslations>
   fmtDateTime: (iso: string) => string
 }) {
+  const today = todayStr()
   const { data: records = [], isLoading } = useAllAttendance()
+  const { data: todaySchedules = [] } = useSchedules({ from: today, to: today })
+  const { data: users = [] } = useUsers()
   const [historyUser, setHistoryUser] = useState<{ id: string; name: string } | null>(null)
+  const [search, setSearch] = useState('')
+  const [departmentFilter, setDepartmentFilter] = useState('')
+
+  const departmentByUserId = useMemo(
+    () => new Map((users as any[]).map((u) => [u.id, u.department as string | null])),
+    [users],
+  )
+  const departments = useMemo(
+    () => Array.from(new Set((users as any[]).map((u) => u.department).filter(Boolean))) as string[],
+    [users],
+  )
+  const scheduledUserIdsToday = useMemo(() => new Set(todaySchedules.map((s: any) => s.user_id)), [todaySchedules])
 
   const latestPerEmployee = useMemo(() => {
     const byUser = new Map<string, (typeof records)[number]>()
@@ -139,74 +168,128 @@ function AllEmployeesAttendance({
     return Array.from(byUser.values())
   }, [records])
 
-  if (isLoading) return <div className="p-4 h-20 bg-slate-100 dark:bg-gray-800 rounded animate-pulse" />
-  if (latestPerEmployee.length === 0) {
-    return <p className="text-sm text-slate-500 dark:text-slate-400 py-8 text-center">{t('noRecords')}</p>
+  const filtered = useMemo(() => {
+    return latestPerEmployee.filter((r) => {
+      if (search && !r.user_name?.toLowerCase().includes(search.toLowerCase())) return false
+      if (departmentFilter && departmentByUserId.get(r.user_id) !== departmentFilter) return false
+      return true
+    })
+  }, [latestPerEmployee, search, departmentFilter, departmentByUserId])
+
+  function getStatus(r: (typeof records)[number]): Status {
+    const isToday = r.check_in_at.substring(0, 10) === today
+    if (isToday) return r.check_out_at ? 'out' : 'present'
+    return scheduledUserIdsToday.has(r.user_id) ? 'away' : 'not_logged'
   }
+
+  if (isLoading) return <div className="p-4 h-20 bg-slate-100 dark:bg-gray-800 rounded animate-pulse" />
 
   return (
     <>
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-slate-200 dark:border-gray-800">
-            <th className="w-1/3 text-right px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('employee')}</th>
-            <th className="w-1/3 text-center px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('workHours')}</th>
-            <th className="w-1/3 text-center px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('history')}</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-100 dark:divide-gray-800">
-          {latestPerEmployee.map((r) => (
-            <tr key={r.user_id}>
-              <td className="px-4 py-3 align-middle">
-                <p className="font-semibold text-slate-800 dark:text-white mb-1.5">{r.user_name}</p>
-                <div className="flex items-center gap-1.5">
-                  <div className="flex items-center gap-1 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 rounded-md px-1.5 py-1">
-                    <div className="w-4 h-4 shrink-0 rounded-full bg-emerald-500 flex items-center justify-center text-white">
-                      <LogIn className="w-2.5 h-2.5" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-400 leading-tight">{t('checkIn')}</p>
-                      <p className="text-[9px] text-slate-500 dark:text-slate-400 leading-tight">{fmtDateTime(r.check_in_at)}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-md px-1.5 py-1">
-                    <div className="w-4 h-4 shrink-0 rounded-full bg-red-500 flex items-center justify-center text-white">
-                      <LogOut className="w-2.5 h-2.5" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-semibold text-red-700 dark:text-red-400 leading-tight">{t('checkOut')}</p>
-                      <p className="text-[9px] text-slate-500 dark:text-slate-400 leading-tight">
-                        {r.check_out_at ? fmtDateTime(r.check_out_at) : t('stillOpen')}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </td>
-              <td className="px-4 py-3 text-center align-middle">
-                <div className="inline-flex items-center justify-center gap-1.5 bg-slate-50 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 min-w-[90px]">
-                  <CalendarClock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                  {r.hours_worked !== null ? (
-                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                      {t('hoursWorked', { hours: r.hours_worked })}
-                    </span>
-                  ) : (
-                    <span className="text-xs text-amber-500">{t('stillOpen')}</span>
-                  )}
-                </div>
-              </td>
-              <td className="px-4 py-3 text-center align-middle">
-                <button
-                  onClick={() => setHistoryUser({ id: r.user_id, name: r.user_name ?? '' })}
-                  className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-slate-200 dark:border-gray-700 text-[#0C447C] dark:text-[#5B9BD5] hover:bg-slate-50 dark:hover:bg-gray-800"
-                >
-                  <History className="w-3.5 h-3.5" />
-                  {t('viewHistory')}
-                </button>
-              </td>
+      <div className="p-4 border-b border-slate-100 dark:border-gray-800 flex flex-wrap items-center gap-2">
+        <div className="relative flex-1 min-w-[180px]">
+          <Search className="w-3.5 h-3.5 text-slate-400 absolute start-3 top-1/2 -translate-y-1/2" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={t('searchEmployee')}
+            className="w-full bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg ps-8 pe-3 py-2 text-sm text-slate-800 dark:text-white"
+          />
+        </div>
+        {departments.length > 0 && (
+          <select
+            value={departmentFilter}
+            onChange={(e) => setDepartmentFilter(e.target.value)}
+            className="bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white"
+          >
+            <option value="">{t('allDepartments')}</option>
+            {departments.map((d) => (
+              <option key={d} value={d}>{d}</option>
+            ))}
+          </select>
+        )}
+      </div>
+
+      {filtered.length === 0 ? (
+        <p className="text-sm text-slate-500 dark:text-slate-400 py-8 text-center">{t('noRecords')}</p>
+      ) : (
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-slate-200 dark:border-gray-800">
+              <th className="text-right px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('employee')}</th>
+              <th className="text-center px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('department')}</th>
+              <th className="text-center px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('status')}</th>
+              <th className="text-center px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('workHours')}</th>
+              <th className="text-center px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('history')}</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-slate-100 dark:divide-gray-800">
+            {filtered.map((r) => {
+              const status = getStatus(r)
+              const style = STATUS_STYLE[status]
+              return (
+                <tr key={r.user_id}>
+                  <td className="px-4 py-3 align-middle">
+                    <p className="font-semibold text-slate-800 dark:text-white mb-1.5">{r.user_name}</p>
+                    <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 rounded-md px-1.5 py-1">
+                        <div className="w-4 h-4 shrink-0 rounded-full bg-emerald-500 flex items-center justify-center text-white">
+                          <LogIn className="w-2.5 h-2.5" />
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-400 leading-tight">{t('checkIn')}</p>
+                          <p className="text-[9px] text-slate-500 dark:text-slate-400 leading-tight">{fmtDateTime(r.check_in_at)}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-md px-1.5 py-1">
+                        <div className="w-4 h-4 shrink-0 rounded-full bg-red-500 flex items-center justify-center text-white">
+                          <LogOut className="w-2.5 h-2.5" />
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-semibold text-red-700 dark:text-red-400 leading-tight">{t('checkOut')}</p>
+                          <p className="text-[9px] text-slate-500 dark:text-slate-400 leading-tight">
+                            {r.check_out_at ? fmtDateTime(r.check_out_at) : t('stillOpen')}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-center align-middle text-slate-600 dark:text-slate-300">
+                    {departmentByUserId.get(r.user_id) || <span className="text-slate-400">—</span>}
+                  </td>
+                  <td className="px-4 py-3 text-center align-middle">
+                    <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${style.text}`}>
+                      <span className={`w-2 h-2 rounded-full ${style.dot} inline-block`} />
+                      {t(`statusValues.${status}`)}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-center align-middle">
+                    <div className="inline-flex items-center justify-center gap-1.5 bg-slate-50 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 min-w-[90px]">
+                      <CalendarClock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      {r.hours_worked !== null && r.check_in_at.substring(0, 10) === today ? (
+                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                          {t('hoursWorked', { hours: r.hours_worked })}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-slate-400">—</span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-center align-middle">
+                    <button
+                      onClick={() => setHistoryUser({ id: r.user_id, name: r.user_name ?? '' })}
+                      className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-slate-200 dark:border-gray-700 text-[#0C447C] dark:text-[#5B9BD5] hover:bg-slate-50 dark:hover:bg-gray-800"
+                    >
+                      <History className="w-3.5 h-3.5" />
+                      {t('viewHistory')}
+                    </button>
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      )}
       {historyUser && (
         <EmployeeHistoryModal user={historyUser} onClose={() => setHistoryUser(null)} t={t} fmtDateTime={fmtDateTime} />
       )}
@@ -231,10 +314,41 @@ function EmployeeHistoryModal({
     from: range.from,
     to: range.to ? `${range.to}T23:59:59` : undefined,
   })
+  const { data: schedules = [] } = useSchedules({ userId: user.id, from: range.from, to: range.to })
+
+  const stats = useMemo(() => {
+    const totalHours = records.reduce((sum, r) => sum + (r.hours_worked ?? 0), 0)
+    const workDays = new Set(records.map((r) => r.check_in_at.substring(0, 10))).size
+    const scheduledDaysWithEarliestStart = new Map<string, string>()
+    for (const s of schedules as any[]) {
+      const existing = scheduledDaysWithEarliestStart.get(s.scheduled_date)
+      if (!existing || s.start_time < existing) scheduledDaysWithEarliestStart.set(s.scheduled_date, s.start_time)
+    }
+    let lateHours = 0
+    for (const r of records) {
+      const date = r.check_in_at.substring(0, 10)
+      const start = scheduledDaysWithEarliestStart.get(date)
+      if (!start) continue
+      const scheduledStart = new Date(`${date}T${start}Z`)
+      const actualStart = new Date(r.check_in_at)
+      const diffHours = (actualStart.getTime() - scheduledStart.getTime()) / 3600000
+      if (diffHours > 0) lateHours += diffHours
+    }
+    const scheduledDayCount = scheduledDaysWithEarliestStart.size
+    const attendancePercentage = scheduledDayCount > 0 ? Math.min(100, Math.round((workDays / scheduledDayCount) * 100)) : 0
+
+    return {
+      totalHours: Math.round(totalHours * 100) / 100,
+      workDays,
+      lateHours: Math.round(lateHours * 100) / 100,
+      attendancePercentage,
+    }
+  }, [records, schedules])
+
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={onClose}>
       <div
-        className="bg-white dark:bg-gray-900 rounded-xl w-full max-w-md max-h-[80vh] flex flex-col"
+        className="bg-white dark:bg-gray-900 rounded-xl w-full max-w-md max-h-[85vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="px-4 py-3 border-b border-slate-200 dark:border-gray-800 flex items-center justify-between">
@@ -246,10 +360,82 @@ function EmployeeHistoryModal({
         <div className="px-4 py-3 border-b border-slate-100 dark:border-gray-800">
           <DateRangePicker className="w-full" value={range} onChange={setRange} />
         </div>
+
+        <div className="grid grid-cols-2 gap-2 px-4 py-3 border-b border-slate-100 dark:border-gray-800">
+          <div className="bg-slate-50 dark:bg-gray-800 rounded-lg p-2.5 text-center">
+            <p className="text-lg font-bold text-slate-800 dark:text-white">{stats.totalHours}</p>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400">{t('totalHours')}</p>
+          </div>
+          <div className="bg-slate-50 dark:bg-gray-800 rounded-lg p-2.5 text-center">
+            <p className="text-lg font-bold text-slate-800 dark:text-white">{stats.workDays}</p>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400">{t('workDays')}</p>
+          </div>
+          <div className="bg-amber-50 dark:bg-amber-500/10 rounded-lg p-2.5 text-center">
+            <p className="text-lg font-bold text-amber-600 dark:text-amber-400">{stats.lateHours}</p>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400">{t('lateHours')}</p>
+          </div>
+          <div className="bg-emerald-50 dark:bg-emerald-500/10 rounded-lg p-2.5 text-center">
+            <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{stats.attendancePercentage}%</p>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400">{t('attendancePercentage')}</p>
+          </div>
+        </div>
+
         <div className="overflow-y-auto">
-          <AttendanceList records={records} isLoading={isLoading} showName={false} t={t} fmtDateTime={fmtDateTime} />
+          <AttendanceTimeline records={records} isLoading={isLoading} t={t} fmtDateTime={fmtDateTime} />
         </div>
       </div>
+    </div>
+  )
+}
+
+function AttendanceTimeline({
+  records,
+  isLoading,
+  t,
+  fmtDateTime,
+}: {
+  records: { id: string; check_in_at: string; check_out_at: string | null; hours_worked: number | null }[]
+  isLoading: boolean
+  t: ReturnType<typeof useTranslations>
+  fmtDateTime: (iso: string) => string
+}) {
+  if (isLoading) return <div className="p-4 h-20 bg-slate-100 dark:bg-gray-800 rounded animate-pulse" />
+  if (records.length === 0) {
+    return <p className="text-sm text-slate-500 dark:text-slate-400 py-8 text-center">{t('noRecords')}</p>
+  }
+  return (
+    <div className="px-4 py-3 space-y-4">
+      {records.map((r) => (
+        <div key={r.id}>
+          <p className="text-xs text-slate-400 mb-2">
+            {new Date(r.check_in_at).toLocaleDateString('en-US', { dateStyle: 'medium' })}
+            {r.hours_worked !== null && ` · ${t('hoursWorked', { hours: r.hours_worked })}`}
+          </p>
+          <div className="relative ps-6">
+            <div className="absolute start-[7px] top-1.5 bottom-1.5 w-px bg-slate-200 dark:bg-gray-700" />
+            <div className="relative flex items-center gap-2 mb-3">
+              <span className="absolute start-[-24px] w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center text-white z-10">
+                <LogIn className="w-2.5 h-2.5" />
+              </span>
+              <div>
+                <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">{t('checkIn')}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{fmtDateTime(r.check_in_at)}</p>
+              </div>
+            </div>
+            <div className="relative flex items-center gap-2">
+              <span className="absolute start-[-24px] w-4 h-4 rounded-full bg-red-500 flex items-center justify-center text-white z-10">
+                <LogOut className="w-2.5 h-2.5" />
+              </span>
+              <div>
+                <p className="text-sm font-medium text-red-600 dark:text-red-400">{t('checkOut')}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  {r.check_out_at ? fmtDateTime(r.check_out_at) : t('stillOpen')}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   )
 }

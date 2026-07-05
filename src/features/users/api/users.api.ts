@@ -20,6 +20,7 @@ export interface User {
   custom_shifts?: { start_time: string; end_time: string }[] | null
   custom_day_overrides?: { day: number; shifts: { start_time: string; end_time: string }[] }[] | null
   schedule_start_date?: string | null
+  department?: string | null
 }
 
 export interface CreateUserDto {
@@ -38,6 +39,7 @@ export interface UpdateUserDto {
   grace_period_minutes?: number
   late_deduction_mode?: LateDeductionMode | null
   late_deduction_value?: number | null
+  department?: string | null
 }
 
 export const usersApi = {
