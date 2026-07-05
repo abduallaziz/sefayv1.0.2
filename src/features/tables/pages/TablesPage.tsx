@@ -10,6 +10,7 @@ import { TableCard } from '../components/TableCard'
 import { CreateTableModal } from '../components/CreateTableModal'
 import { DineInModal } from '../components/DineInModal'
 import { useTablesList, useReservations, useWaitlist, useCreateWaitlistEntry, useSeatWaitlistEntry, useCancelWaitlistEntry, useCreateReservation } from '../hooks/useTables'
+import { SingleDatePicker } from '@/shared/ui/date-range-picker'
 import type { RestaurantTable } from '../api/tables.api'
 
 export function TablesPage() {
@@ -100,22 +101,23 @@ function ReservationsTab({ reservations, isLoading, tables }: { reservations: an
   const [tableId, setTableId] = useState('')
   const [name, setName] = useState('')
   const [partySize, setPartySize] = useState('2')
-  const [dateTime, setDateTime] = useState('')
+  const [date, setDate] = useState('')
+  const [time, setTime] = useState('19:00')
   const [error, setError] = useState<string | null>(null)
   const { mutate: create, isPending: creating } = useCreateReservation()
 
   const handleAdd = () => {
-    if (!name.trim() || !tableId || !dateTime) return
+    if (!name.trim() || !tableId || !date) return
     setError(null)
     create(
       {
         table_id: tableId,
         customer_name: name.trim(),
         party_size: parseInt(partySize, 10) || 1,
-        reservation_time: new Date(dateTime).toISOString(),
+        reservation_time: new Date(`${date}T${time}`).toISOString(),
       },
       {
-        onSuccess: () => { setName(''); setTableId(''); setDateTime(''); setShowAdd(false) },
+        onSuccess: () => { setName(''); setTableId(''); setDate(''); setShowAdd(false) },
         onError: (e: any) => setError(e?.message ?? t('error')),
       },
     )
@@ -150,10 +152,11 @@ function ReservationsTab({ reservations, isLoading, tables }: { reservations: an
               placeholder={t('customerName')}
               className="bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white"
             />
+            <SingleDatePicker value={date || undefined} onChange={(v) => setDate(v ?? '')} />
             <input
-              type="datetime-local"
-              value={dateTime}
-              onChange={(e) => setDateTime(e.target.value)}
+              type="time"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
               className="bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white"
             />
             <input
@@ -167,7 +170,7 @@ function ReservationsTab({ reservations, isLoading, tables }: { reservations: an
           {error && <p className="text-sm text-red-500">{error}</p>}
           <button
             onClick={handleAdd}
-            disabled={creating || !name.trim() || !tableId || !dateTime}
+            disabled={creating || !name.trim() || !tableId || !date}
             className="px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 text-white rounded-lg text-sm font-medium"
           >
             {creating ? t('saving') : t('save')}
