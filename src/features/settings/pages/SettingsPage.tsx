@@ -337,8 +337,8 @@ export function SettingsPage() {
                 }`}
               >
                 <span
-                  className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
-                    autoPrint ? 'translate-x-6 rtl:-translate-x-6' : 'translate-x-0.5 rtl:-translate-x-0.5'
+                  className={`absolute top-0.5 start-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
+                    autoPrint ? 'translate-x-6 rtl:-translate-x-6' : 'translate-x-0'
                   }`}
                 />
               </button>
@@ -379,8 +379,8 @@ export function SettingsPage() {
                     }`}
                   >
                     <span
-                      className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
-                        enabled ? 'translate-x-6 rtl:-translate-x-6' : 'translate-x-0.5 rtl:-translate-x-0.5'
+                      className={`absolute top-0.5 start-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
+                        enabled ? 'translate-x-6 rtl:-translate-x-6' : 'translate-x-0'
                       }`}
                     />
                   </button>
@@ -409,8 +409,8 @@ export function SettingsPage() {
               }`}
             >
               <span
-                className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
-                  profile?.customer_capture_enabled ? 'translate-x-6 rtl:-translate-x-6' : 'translate-x-0.5 rtl:-translate-x-0.5'
+                className={`absolute top-0.5 start-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
+                  profile?.customer_capture_enabled ? 'translate-x-6 rtl:-translate-x-6' : 'translate-x-0'
                 }`}
               />
             </button>
