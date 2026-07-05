@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import { CalendarDays, Plus, Trash2, Users as UsersIcon } from 'lucide-react'
 import { useSchedules, useCreateSchedule, useDeleteSchedule, useBulkCreateSchedule } from '../hooks/useHr'
 import { useUsers } from '@/features/users/hooks/useUsers'
+import { DateRangePicker, SingleDatePicker } from '@/shared/ui/date-range-picker'
 
 const WEEKDAYS = [0, 1, 2, 3, 4, 5, 6] // 0 = Sunday
 
@@ -149,25 +150,15 @@ export function SchedulesPage() {
                   ))}
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs text-slate-500 mb-1 block">{t('dateFrom')}</label>
-                  <input
-                    type="date"
-                    value={dateFrom}
-                    onChange={(e) => setDateFrom(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-slate-500 mb-1 block">{t('dateTo')}</label>
-                  <input
-                    type="date"
-                    value={dateTo}
-                    onChange={(e) => setDateTo(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white"
-                  />
-                </div>
+              <div>
+                <label className="text-xs text-slate-500 mb-1 block">{t('dateFrom')} – {t('dateTo')}</label>
+                <DateRangePicker
+                  value={{ from: dateFrom || undefined, to: dateTo || undefined }}
+                  onChange={(range) => {
+                    setDateFrom(range.from ?? '')
+                    setDateTo(range.to ?? '')
+                  }}
+                />
               </div>
               <div>
                 <label className="text-xs text-slate-500 mb-1 block">{t('daysOfWeek')}</label>
@@ -278,12 +269,7 @@ export function SchedulesPage() {
                 </div>
                 <div>
                   <label className="text-xs text-slate-500 mb-1 block">{t('date')}</label>
-                  <input
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white"
-                  />
+                  <SingleDatePicker value={date || undefined} onChange={(v) => setDate(v ?? '')} />
                 </div>
                 <div>
                   <label className="text-xs text-slate-500 mb-1 block">{t('startTime')}</label>

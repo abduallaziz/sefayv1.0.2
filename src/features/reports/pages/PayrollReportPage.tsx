@@ -8,6 +8,7 @@ import { useTenantStore } from '@/core/tenant/stores/tenant.store'
 import { formatNumber } from '@/lib/format'
 import { useCreateException } from '@/features/hr/hooks/useHr'
 import { useUsers } from '@/features/users/hooks/useUsers'
+import { DateRangePicker, SingleDatePicker } from '@/shared/ui/date-range-picker'
 
 function currentMonth() {
   return new Date().toISOString().substring(0, 7)
@@ -55,11 +56,9 @@ export function PayrollReportPage() {
         </div>
         <div className="flex items-center gap-2">
           <Calendar className="w-4 h-4 text-gray-400" />
-          <input
-            type="month"
-            value={month}
-            onChange={(e) => setMonth(e.target.value)}
-            className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-800 dark:text-white"
+          <SingleDatePicker
+            value={`${month}-01`}
+            onChange={(v) => setMonth((v ?? currentMonth()).substring(0, 7))}
           />
         </div>
       </div>
@@ -125,19 +124,12 @@ export function PayrollReportPage() {
                 <option key={u.id} value={u.id}>{u.name}</option>
               ))}
             </select>
-            <input
-              type="date"
-              value={excuseDateFrom}
-              onChange={(e) => setExcuseDateFrom(e.target.value)}
-              placeholder={t('dateFrom')}
-              className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-800 dark:text-white"
-            />
-            <input
-              type="date"
-              value={excuseDateTo}
-              onChange={(e) => setExcuseDateTo(e.target.value)}
-              placeholder={t('dateTo')}
-              className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-800 dark:text-white"
+            <DateRangePicker
+              value={{ from: excuseDateFrom || undefined, to: excuseDateTo || undefined }}
+              onChange={(range) => {
+                setExcuseDateFrom(range.from ?? '')
+                setExcuseDateTo(range.to ?? '')
+              }}
             />
             <input
               placeholder={t('reason')}

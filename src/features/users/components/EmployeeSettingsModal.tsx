@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import { X, Copy, Check, Link as LinkIcon, MapPin, Trash2, RotateCcw } from 'lucide-react'
 import { useUpdateUser, useGenerateAttendanceLink, useUnbindAttendanceDevice } from '../hooks/useUsers'
 import { useEmployeeGeofences, useCreateEmployeeGeofence, useDeleteEmployeeGeofence } from '@/features/hr/hooks/useHr'
+import { DateRangePicker } from '@/shared/ui/date-range-picker'
 import type { User, LateDeductionMode } from '../api/users.api'
 
 export function EmployeeSettingsModal({ user, onClose }: { user: User; onClose: () => void }) {
@@ -257,19 +258,15 @@ export function EmployeeSettingsModal({ user, onClose }: { user: User; onClose: 
               onChange={(e) => setZoneRadius(e.target.value)}
               className="bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white"
             />
-            <div />
-            <input
-              type="date"
-              value={zoneFrom}
-              onChange={(e) => setZoneFrom(e.target.value)}
-              className="bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white"
-            />
-            <input
-              type="date"
-              value={zoneTo}
-              onChange={(e) => setZoneTo(e.target.value)}
-              className="bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white"
-            />
+            <div className="col-span-2">
+              <DateRangePicker
+                value={{ from: zoneFrom || undefined, to: zoneTo || undefined }}
+                onChange={(range) => {
+                  setZoneFrom(range.from ?? '')
+                  setZoneTo(range.to ?? '')
+                }}
+              />
+            </div>
           </div>
           <button
             onClick={addZone}
