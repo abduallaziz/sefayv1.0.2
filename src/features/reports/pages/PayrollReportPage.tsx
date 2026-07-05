@@ -125,6 +125,7 @@ export function PayrollReportPage() {
               ))}
             </select>
             <DateRangePicker
+              className="w-full"
               value={{ from: excuseDateFrom || undefined, to: excuseDateTo || undefined }}
               onChange={(range) => {
                 setExcuseDateFrom(range.from ?? '')
