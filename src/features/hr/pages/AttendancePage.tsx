@@ -216,13 +216,16 @@ function AllEmployeesAttendance({
                 </div>
               </td>
               <td className="px-4 py-3 text-center align-middle">
-                {r.hours_worked !== null ? (
-                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                    {t('hoursWorked', { hours: r.hours_worked })}
-                  </span>
-                ) : (
-                  <span className="text-xs text-amber-500">{t('stillOpen')}</span>
-                )}
+                <div className="inline-flex items-center justify-center gap-1.5 bg-slate-50 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 min-w-[90px]">
+                  <CalendarClock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  {r.hours_worked !== null ? (
+                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      {t('hoursWorked', { hours: r.hours_worked })}
+                    </span>
+                  ) : (
+                    <span className="text-xs text-amber-500">{t('stillOpen')}</span>
+                  )}
+                </div>
               </td>
               <td className="px-4 py-3 text-center align-middle">
                 <button
