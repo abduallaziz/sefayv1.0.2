@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
-import { CalendarClock, LogIn, LogOut, Circle, Users, History, X } from 'lucide-react'
+import { CalendarClock, LogIn, LogOut, Circle, History, X } from 'lucide-react'
 import { useMyAttendance, useCheckIn, useCheckOut, useAllAttendance } from '../hooks/useHr'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { DateRangePicker } from '@/shared/ui/date-range-picker'
@@ -15,7 +15,6 @@ export function AttendancePage() {
   const { mutate: checkIn, isPending: checkingIn } = useCheckIn()
   const { mutate: checkOut, isPending: checkingOut } = useCheckOut()
   const [error, setError] = useState<string | null>(null)
-  const [tab, setTab] = useState<'mine' | 'all'>('mine')
   const [showMyHistory, setShowMyHistory] = useState(false)
 
   const openRecord = useMemo(() => records.find((r) => r.check_out_at === null) ?? null, [records])
@@ -72,86 +71,54 @@ export function AttendancePage() {
       </div>
 
       <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl">
-        <div className="px-4 py-3 border-b border-slate-200 dark:border-gray-800 flex items-center justify-between">
-          {canViewAll ? (
-            <div className="flex gap-1 bg-slate-100 dark:bg-gray-800 rounded-lg p-1">
-              <button
-                onClick={() => setTab('mine')}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium ${tab === 'mine' ? 'bg-white dark:bg-gray-900 text-slate-800 dark:text-white shadow-sm' : 'text-slate-500'}`}
-              >
-                {t('history')}
-              </button>
-              <button
-                onClick={() => setTab('all')}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1 ${tab === 'all' ? 'bg-white dark:bg-gray-900 text-slate-800 dark:text-white shadow-sm' : 'text-slate-500'}`}
-              >
-                <Users className="w-3.5 h-3.5" /> {t('allEmployees')}
-              </button>
-            </div>
-          ) : (
-            <h2 className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('history')}</h2>
-          )}
+        <div className="px-4 py-3 border-b border-slate-200 dark:border-gray-800">
+          <h2 className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('history')}</h2>
         </div>
-        {tab === 'mine' ? (
-          canViewAll ? (
-            <AllEmployeesAttendance t={t} fmtDateTime={fmtDateTime} />
-          ) : (
-            <>
-              <AttendanceList
-                records={latestRecord ? [latestRecord] : []}
-                isLoading={isLoading}
-                showName={false}
-                t={t}
-                fmtDateTime={fmtDateTime}
-              />
-              {records.length > 1 && (
-                <div className="px-4 py-3 border-t border-slate-100 dark:border-gray-800 text-center">
-                  <button
-                    onClick={() => setShowMyHistory(true)}
-                    className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-slate-200 dark:border-gray-700 text-[#0C447C] dark:text-[#5B9BD5] hover:bg-slate-50 dark:hover:bg-gray-800 mx-auto"
-                  >
-                    <History className="w-3.5 h-3.5" />
-                    {t('viewHistory')}
-                  </button>
-                </div>
-              )}
-              {showMyHistory && (
-                <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={() => setShowMyHistory(false)}>
-                  <div
-                    className="bg-white dark:bg-gray-900 rounded-xl w-full max-w-md max-h-[80vh] flex flex-col"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <div className="px-4 py-3 border-b border-slate-200 dark:border-gray-800 flex items-center justify-between">
-                      <h2 className="text-sm font-semibold text-slate-800 dark:text-white">{t('history')}</h2>
-                      <button onClick={() => setShowMyHistory(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                    <div className="overflow-y-auto">
-                      <AttendanceList records={records} isLoading={isLoading} showName={false} t={t} fmtDateTime={fmtDateTime} />
-                    </div>
+        {canViewAll ? (
+          <AllEmployeesAttendance t={t} fmtDateTime={fmtDateTime} />
+        ) : (
+          <>
+            <AttendanceList
+              records={latestRecord ? [latestRecord] : []}
+              isLoading={isLoading}
+              showName={false}
+              t={t}
+              fmtDateTime={fmtDateTime}
+            />
+            {records.length > 1 && (
+              <div className="px-4 py-3 border-t border-slate-100 dark:border-gray-800 text-center">
+                <button
+                  onClick={() => setShowMyHistory(true)}
+                  className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-slate-200 dark:border-gray-700 text-[#0C447C] dark:text-[#5B9BD5] hover:bg-slate-50 dark:hover:bg-gray-800 mx-auto"
+                >
+                  <History className="w-3.5 h-3.5" />
+                  {t('viewHistory')}
+                </button>
+              </div>
+            )}
+            {showMyHistory && (
+              <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={() => setShowMyHistory(false)}>
+                <div
+                  className="bg-white dark:bg-gray-900 rounded-xl w-full max-w-md max-h-[80vh] flex flex-col"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="px-4 py-3 border-b border-slate-200 dark:border-gray-800 flex items-center justify-between">
+                    <h2 className="text-sm font-semibold text-slate-800 dark:text-white">{t('history')}</h2>
+                    <button onClick={() => setShowMyHistory(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="overflow-y-auto">
+                    <AttendanceList records={records} isLoading={isLoading} showName={false} t={t} fmtDateTime={fmtDateTime} />
                   </div>
                 </div>
-              )}
-            </>
-          )
-        ) : (
-          <AllEmployeesFlatLog t={t} fmtDateTime={fmtDateTime} />
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
   )
-}
-
-function AllEmployeesFlatLog({
-  t,
-  fmtDateTime,
-}: {
-  t: ReturnType<typeof useTranslations>
-  fmtDateTime: (iso: string) => string
-}) {
-  const { data: records = [], isLoading } = useAllAttendance()
-  return <AttendanceList records={records} isLoading={isLoading} showName t={t} fmtDateTime={fmtDateTime} />
 }
 
 function AllEmployeesAttendance({
