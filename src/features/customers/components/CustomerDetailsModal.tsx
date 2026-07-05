@@ -37,7 +37,7 @@ export function CustomerDetailsModal({ customer, onClose, onEdit }: Props) {
                 {customer.full_name || '—'}
               </h2>
               <p className="text-sm text-gray-400">
-                {t('details.since')} {new Date(customer.created_at).toLocaleDateString('ar-SA')}
+                {t('details.since')} {new Date(customer.created_at).toLocaleDateString('en-US')}
               </p>
             </div>
           </div>
@@ -71,14 +71,14 @@ export function CustomerDetailsModal({ customer, onClose, onEdit }: Props) {
             <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3 text-center">
               <TrendingUp className="w-5 h-5 text-green-500 mx-auto mb-1" />
               <p className="text-lg font-bold text-gray-900 dark:text-white">
-                {(customer.total_spent ?? 0).toLocaleString()}
+                {(customer.total_spent ?? 0).toLocaleString('en-US')}
               </p>
               <p className="text-xs text-gray-400">{currency}</p>
             </div>
             <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3 text-center">
               <Star className="w-5 h-5 text-yellow-500 mx-auto mb-1 fill-yellow-500" />
               <p className="text-lg font-bold text-gray-900 dark:text-white">
-                {customer.loyalty_points.toLocaleString()}
+                {customer.loyalty_points.toLocaleString('en-US')}
               </p>
               <p className="text-xs text-gray-400">{t('details.points')}</p>
             </div>
@@ -98,10 +98,10 @@ export function CustomerDetailsModal({ customer, onClose, onEdit }: Props) {
                   <div key={order.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <div>
                       <p className="text-sm font-medium text-gray-900 dark:text-white">
-                        {order.total.toLocaleString()} {currency}
+                        {order.total.toLocaleString('en-US')} {currency}
                       </p>
                       <p className="text-xs text-gray-400">
-                        {new Date(order.created_at).toLocaleDateString('ar-SA')} · {order.items_count} {t('details.items')}
+                        {new Date(order.created_at).toLocaleDateString('en-US')} · {order.items_count} {t('details.items')}
                       </p>
                     </div>
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusColors[order.status]}`}>

@@ -24,7 +24,9 @@ function fromYMD(s: string) {
 function getDaysInMonth(y: number, m: number) { return new Date(y, m+1, 0).getDate(); }
 function getFirstDayOfMonth(y: number, m: number) { return new Date(y, m, 1).getDay(); }
 function formatLabel(s: string, locale: string) {
-  return new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', year: 'numeric' }).format(fromYMD(s));
+  // '-u-nu-latn' forces Western numerals — plain 'ar' renders Arabic-Indic
+  // day/year digits, which is exactly what this component exists to avoid.
+  return new Intl.DateTimeFormat(`${locale}-u-nu-latn`, { day: 'numeric', month: 'short', year: 'numeric' }).format(fromYMD(s));
 }
 
 type CalView = 'days' | 'months' | 'years';

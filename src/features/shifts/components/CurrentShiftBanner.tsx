@@ -36,7 +36,7 @@ export function CurrentShiftBanner({ onOpenShift, onCloseShift, onViewSummary }:
     );
   }
 
-  const openedAt = new Date(shift.opened_at).toLocaleTimeString('ar-SA', {
+  const openedAt = new Date(shift.opened_at).toLocaleTimeString('en-US', {
     hour: '2-digit',
     minute: '2-digit',
   });

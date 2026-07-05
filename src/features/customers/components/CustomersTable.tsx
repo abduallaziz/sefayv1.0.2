@@ -63,10 +63,10 @@ export function CustomersTable({ customers, onView, onEdit, onDelete }: Props) {
                         <span className="flex items-center gap-0.5"><PlateIcon className="w-3.5 h-2.5" /><span dir="ltr">{customer.plate_number}</span></span>
                       )}
                       {customer.odometer != null && (
-                        <span className="flex items-center gap-0.5"><Gauge className="w-3 h-3" />{customer.odometer.toLocaleString()}</span>
+                        <span className="flex items-center gap-0.5"><Gauge className="w-3 h-3" />{customer.odometer.toLocaleString('en-US')}</span>
                       )}
                       {customer.visit_date && (
-                        <span className="flex items-center gap-0.5"><Calendar className="w-3 h-3" />{new Date(customer.visit_date).toLocaleDateString('ar-SA')}</span>
+                        <span className="flex items-center gap-0.5"><Calendar className="w-3 h-3" />{new Date(customer.visit_date).toLocaleDateString('en-US')}</span>
                       )}
                     </div>
                   )}
@@ -86,10 +86,10 @@ export function CustomersTable({ customers, onView, onEdit, onDelete }: Props) {
             </div>
             <div className="flex items-center justify-between mt-3 pt-2 border-t border-gray-100 dark:border-gray-700 text-sm">
               <span className="text-gray-500 dark:text-gray-400">{customer.orders_count ?? 0} {t('table.orders')}</span>
-              <span className="font-medium text-gray-900 dark:text-white">{(customer.total_spent ?? 0).toLocaleString()} {currency}</span>
+              <span className="font-medium text-gray-900 dark:text-white">{(customer.total_spent ?? 0).toLocaleString('en-US')} {currency}</span>
               <div className="flex items-center gap-1">
                 <Star className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500" />
-                <span className="font-medium text-gray-900 dark:text-white">{customer.loyalty_points.toLocaleString()}</span>
+                <span className="font-medium text-gray-900 dark:text-white">{customer.loyalty_points.toLocaleString('en-US')}</span>
               </div>
             </div>
           </div>
@@ -122,7 +122,7 @@ export function CustomersTable({ customers, onView, onEdit, onDelete }: Props) {
                     </div>
                     <div>
                       <p className="font-medium text-gray-900 dark:text-white">{customer.full_name}</p>
-                      <p className="text-xs text-gray-400">{new Date(customer.created_at).toLocaleDateString('ar-SA')}</p>
+                      <p className="text-xs text-gray-400">{new Date(customer.created_at).toLocaleDateString('en-US')}</p>
                     </div>
                   </div>
                 </td>
@@ -152,13 +152,13 @@ export function CustomersTable({ customers, onView, onEdit, onDelete }: Props) {
                       {customer.odometer != null && (
                         <div className="flex items-center gap-1.5 text-gray-400">
                           <Gauge className="w-3.5 h-3.5" />
-                          <span className="text-xs">{customer.odometer.toLocaleString()}</span>
+                          <span className="text-xs">{customer.odometer.toLocaleString('en-US')}</span>
                         </div>
                       )}
                       {customer.visit_date && (
                         <div className="flex items-center gap-1.5 text-gray-400">
                           <Calendar className="w-3.5 h-3.5" />
-                          <span className="text-xs">{new Date(customer.visit_date).toLocaleDateString('ar-SA')}</span>
+                          <span className="text-xs">{new Date(customer.visit_date).toLocaleDateString('en-US')}</span>
                         </div>
                       )}
                       {!customer.plate_number && customer.odometer == null && !customer.visit_date && (
@@ -172,13 +172,13 @@ export function CustomersTable({ customers, onView, onEdit, onDelete }: Props) {
                 </td>
                 <td className="py-3 px-4">
                   <span className="text-gray-900 dark:text-white font-medium">
-                    {(customer.total_spent ?? 0).toLocaleString()} {currency}
+                    {(customer.total_spent ?? 0).toLocaleString('en-US')} {currency}
                   </span>
                 </td>
                 <td className="py-3 px-4">
                   <div className="flex items-center gap-1.5">
                     <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                    <span className="font-medium text-gray-900 dark:text-white">{customer.loyalty_points.toLocaleString()}</span>
+                    <span className="font-medium text-gray-900 dark:text-white">{customer.loyalty_points.toLocaleString('en-US')}</span>
                   </div>
                 </td>
                 <td className="py-3 px-4">

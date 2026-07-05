@@ -290,7 +290,9 @@ export function DashboardOverview() {
     return `${h}:${String(m).padStart(2, '0')}`
   })() : null
 
-  const dateLocale = locale === 'ar' ? 'ar-SA' : 'en-US'
+  // '-u-nu-latn' forces Western numerals while keeping Arabic weekday/month
+  // names — plain 'ar-SA' renders Arabic-Indic digits for day-of-month here.
+  const dateLocale = locale === 'ar' ? 'ar-SA-u-nu-latn' : 'en-US'
 
   /* Bar chart — daily_breakdown */
   const barData = (revenue?.daily_breakdown ?? []).map((d) => ({
