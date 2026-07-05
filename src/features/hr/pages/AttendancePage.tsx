@@ -182,9 +182,9 @@ function AllEmployeesAttendance({
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-slate-200 dark:border-gray-800">
-            <th className="text-right px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('employee')}</th>
-            <th className="text-center px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('workHours')}</th>
-            <th className="text-center px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('history')}</th>
+            <th className="w-1/3 text-right px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('employee')}</th>
+            <th className="w-1/3 text-center px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('workHours')}</th>
+            <th className="w-1/3 text-center px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('history')}</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100 dark:divide-gray-800">
