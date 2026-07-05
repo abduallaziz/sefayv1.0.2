@@ -37,8 +37,13 @@ export function useUpdateProfile() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (data: UpdateProfileDto) => settingsApi.updateProfile(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tenant', 'profile'] })
+    // Write the server's response straight into the cache instead of just
+    // invalidating: invalidate+refetch is async, so a second save fired right
+    // after the first (e.g. toggling two notification switches back to back)
+    // could read stale profile data before the refetch landed and clobber the
+    // first change when merging fields like notification_preferences.
+    onSuccess: (updated) => {
+      queryClient.setQueryData(['tenant', 'profile'], updated)
     },
   })
 }
