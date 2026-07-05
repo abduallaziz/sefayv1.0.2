@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { hrApi, CreateScheduleDto, BulkCreateScheduleDto, CreateEmployeeGeofenceDto } from '../api/hr.api'
+import { hrApi, CreateScheduleDto, BulkCreateScheduleDto, CreateEmployeeGeofenceDto, CreateShiftPatternDto, UpdateShiftPatternDto, AssignScheduleDto } from '../api/hr.api'
 
 export function useMyAttendance(from?: string, to?: string) {
   return useQuery({
@@ -63,6 +63,51 @@ export function useBulkCreateSchedule() {
   return useMutation({
     mutationFn: (dto: BulkCreateScheduleDto) => hrApi.bulkCreateSchedule(dto),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['schedules'] }),
+  })
+}
+
+export function useShiftPatterns() {
+  return useQuery({
+    queryKey: ['shift-patterns'],
+    queryFn: () => hrApi.getShiftPatterns(),
+  })
+}
+
+export function useCreateShiftPattern() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (dto: CreateShiftPatternDto) => hrApi.createShiftPattern(dto),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['shift-patterns'] }),
+  })
+}
+
+export function useUpdateShiftPattern() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, dto }: { id: string; dto: UpdateShiftPatternDto }) => hrApi.updateShiftPattern(id, dto),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['shift-patterns'] })
+      qc.invalidateQueries({ queryKey: ['users'] })
+    },
+  })
+}
+
+export function useDeleteShiftPattern() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => hrApi.deleteShiftPattern(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['shift-patterns'] })
+      qc.invalidateQueries({ queryKey: ['users'] })
+    },
+  })
+}
+
+export function useAssignSchedule() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (dto: AssignScheduleDto) => hrApi.assignSchedule(dto),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['users'] }),
   })
 }
 

@@ -15,6 +15,12 @@ export interface User {
   late_deduction_mode?: LateDeductionMode | null
   late_deduction_value?: number | null
   attendance_token?: string | null
+  shift_pattern_id?: string | null
+  custom_days_of_week?: number[] | null
+  custom_start_time?: string | null
+  custom_end_time?: string | null
+  custom_day_overrides?: { day: number; start_time: string; end_time: string }[] | null
+  schedule_start_date?: string | null
 }
 
 export interface CreateUserDto {

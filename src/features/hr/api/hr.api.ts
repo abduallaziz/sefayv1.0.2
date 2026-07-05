@@ -48,6 +48,37 @@ export interface BulkCreateScheduleDto {
   day_overrides?: DayOverride[]
 }
 
+export interface ShiftPattern {
+  id: string
+  name: string
+  days_of_week: number[]
+  start_time: string
+  end_time: string
+  day_overrides: DayOverride[]
+}
+
+export interface CreateShiftPatternDto {
+  name: string
+  days_of_week: number[]
+  start_time: string
+  end_time: string
+  day_overrides?: DayOverride[]
+}
+
+export type UpdateShiftPatternDto = Partial<CreateShiftPatternDto>
+
+export interface AssignScheduleDto {
+  user_ids: string[]
+  shift_pattern_id?: string
+  custom?: {
+    days_of_week: number[]
+    start_time: string
+    end_time: string
+    day_overrides?: DayOverride[]
+  }
+  schedule_start_date: string
+}
+
 export interface AttendanceException {
   id: string
   user_id: string
@@ -133,6 +164,21 @@ export const hrApi = {
     const qs = params.toString()
     return apiClient.get(`/attendance/exceptions${qs ? `?${qs}` : ''}`)
   },
+
+  getShiftPatterns: (): Promise<ShiftPattern[]> =>
+    apiClient.get('/shift-patterns'),
+
+  createShiftPattern: (dto: CreateShiftPatternDto): Promise<ShiftPattern> =>
+    apiClient.post('/shift-patterns', dto),
+
+  updateShiftPattern: (id: string, dto: UpdateShiftPatternDto): Promise<ShiftPattern> =>
+    apiClient.patch(`/shift-patterns/${id}`, dto),
+
+  deleteShiftPattern: (id: string): Promise<void> =>
+    apiClient.delete(`/shift-patterns/${id}`),
+
+  assignSchedule: (dto: AssignScheduleDto): Promise<{ assigned: number }> =>
+    apiClient.post('/shift-patterns/assign', dto),
 
   getEmployeeGeofences: (userId: string): Promise<EmployeeGeofence[]> =>
     apiClient.get(`/employee-geofences?user_id=${userId}`),
