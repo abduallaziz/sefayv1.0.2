@@ -165,29 +165,38 @@ function AllEmployeesAttendance({
     <>
       <div className="divide-y divide-slate-100 dark:divide-gray-800">
         {latestPerEmployee.map((r) => (
-          <div key={r.user_id} className="flex items-center justify-between px-4 py-3">
-            <div className="space-y-1">
-              {r.user_name && <p className="text-sm font-semibold text-slate-800 dark:text-white">{r.user_name}</p>}
-              <p className="flex items-center gap-1.5 text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                <Circle className="w-2 h-2 fill-current" />
-                {fmtDateTime(r.check_in_at)}
-              </p>
-              {r.check_out_at ? (
-                <p className="flex items-center gap-1.5 text-sm font-medium text-red-600 dark:text-red-400">
-                  <Circle className="w-2 h-2 fill-current" />
-                  {fmtDateTime(r.check_out_at)}
-                </p>
+          <div key={r.user_id} className="grid grid-cols-3 items-center gap-2 px-4 py-3">
+            {r.user_name && <p className="text-sm font-semibold text-slate-800 dark:text-white">{r.user_name}</p>}
+            <div className="text-center">
+              {r.hours_worked !== null ? (
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  {t('hoursWorked', { hours: r.hours_worked })}
+                </span>
               ) : (
-                <p className="text-xs text-amber-500">{t('stillOpen')}</p>
+                <span className="text-xs text-amber-500">{t('stillOpen')}</span>
               )}
             </div>
-            <button
-              onClick={() => setHistoryUser({ id: r.user_id, name: r.user_name ?? '' })}
-              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-slate-200 dark:border-gray-700 text-[#0C447C] dark:text-[#5B9BD5] hover:bg-slate-50 dark:hover:bg-gray-800"
-            >
-              <History className="w-3.5 h-3.5" />
-              {t('viewHistory')}
-            </button>
+            <div className="flex items-center justify-end gap-3">
+              <div className="space-y-1 text-right">
+                <p className="flex items-center justify-end gap-1.5 text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                  {fmtDateTime(r.check_in_at)}
+                  <Circle className="w-2 h-2 fill-current" />
+                </p>
+                {r.check_out_at && (
+                  <p className="flex items-center justify-end gap-1.5 text-sm font-medium text-red-600 dark:text-red-400">
+                    {fmtDateTime(r.check_out_at)}
+                    <Circle className="w-2 h-2 fill-current" />
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={() => setHistoryUser({ id: r.user_id, name: r.user_name ?? '' })}
+                className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-slate-200 dark:border-gray-700 text-[#0C447C] dark:text-[#5B9BD5] hover:bg-slate-50 dark:hover:bg-gray-800"
+              >
+                <History className="w-3.5 h-3.5" />
+                {t('viewHistory')}
+              </button>
+            </div>
           </div>
         ))}
       </div>
