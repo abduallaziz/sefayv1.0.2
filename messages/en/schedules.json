@@ -10,7 +10,9 @@
   "error": "Something went wrong, try again",
   "employees": "Employees",
   "daysOfWeek": "Days of week",
-  "dayOverridesHint": "Different hours for a specific day? (optional)",
+  "shifts": "Shifts (add more than one for a split shift)",
+  "addShift": "Add another shift",
+  "dayOverridesHint": "Override specific days (e.g. Friday with one shift instead of two)",
   "weekday": {
     "0": "Sun",
     "1": "Mon",

@@ -31,10 +31,14 @@ export interface CreateScheduleDto {
   notes?: string
 }
 
-export interface DayOverride {
-  day: number
+export interface Shift {
   start_time: string
   end_time: string
+}
+
+export interface DayOverride {
+  day: number
+  shifts: Shift[]
 }
 
 export interface BulkCreateScheduleDto {
@@ -43,8 +47,7 @@ export interface BulkCreateScheduleDto {
   date_from: string
   date_to: string
   days_of_week?: number[]
-  start_time: string
-  end_time: string
+  shifts: Shift[]
   day_overrides?: DayOverride[]
 }
 
@@ -52,16 +55,14 @@ export interface ShiftPattern {
   id: string
   name: string
   days_of_week: number[]
-  start_time: string
-  end_time: string
+  shifts: Shift[]
   day_overrides: DayOverride[]
 }
 
 export interface CreateShiftPatternDto {
   name: string
   days_of_week: number[]
-  start_time: string
-  end_time: string
+  shifts: Shift[]
   day_overrides?: DayOverride[]
 }
 
@@ -72,8 +73,7 @@ export interface AssignScheduleDto {
   shift_pattern_id?: string
   custom?: {
     days_of_week: number[]
-    start_time: string
-    end_time: string
+    shifts: Shift[]
     day_overrides?: DayOverride[]
   }
   schedule_start_date: string
