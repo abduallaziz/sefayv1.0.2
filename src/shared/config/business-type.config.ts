@@ -80,6 +80,12 @@ export const ACTIVITY_CONFIG: Record<ActivityKey, BusinessTypeConfig> = Object.f
 
 export const DEFAULT_ACTIVITY: ActivityKey = 'grocery';
 
+// Special-case value for internal test/demo tenants only — grants the full
+// sidebar (every nav entry, including food-service-only ones) regardless of
+// activity, so QA accounts can exercise every feature without per-activity
+// gating getting in the way.
+export const ALL_ACTIVITIES_SIDEBAR: BusinessTypeConfig = { sidebar: FOOD_SERVICE_SIDEBAR };
+
 // Fallback for tenants registered before the `activity` column existed —
 // derives a representative activity from the legacy broad business_type.
 export const BUSINESS_TYPE_TO_ACTIVITY: Record<BusinessTypeKey, ActivityKey> = {
