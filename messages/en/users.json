@@ -42,6 +42,7 @@
     "useMyLocation": "Use my current location",
     "locating": "Locating...",
     "radiusM": "Radius (meters)",
+    "pickOnMap": "Or pick the location by clicking the map",
     "addZone": "Add zone"
   }
 }

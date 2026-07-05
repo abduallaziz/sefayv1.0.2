@@ -1,12 +1,20 @@
 'use client'
 
 import { useState } from 'react'
+import dynamic from 'next/dynamic'
 import { useTranslations } from 'next-intl'
 import { X, Copy, Check, Link as LinkIcon, MapPin, Trash2, RotateCcw } from 'lucide-react'
 import { useUpdateUser, useGenerateAttendanceLink, useUnbindAttendanceDevice } from '../hooks/useUsers'
 import { useEmployeeGeofences, useCreateEmployeeGeofence, useDeleteEmployeeGeofence } from '@/features/hr/hooks/useHr'
 import { DateRangePicker } from '@/shared/ui/date-range-picker'
 import type { User, LateDeductionMode } from '../api/users.api'
+
+// Leaflet touches `window` at module load time, which breaks SSR — must be
+// loaded client-only.
+const LocationMapPicker = dynamic(
+  () => import('@/shared/ui/location-map-picker').then((m) => m.LocationMapPicker),
+  { ssr: false },
+)
 
 export function EmployeeSettingsModal({ user, onClose }: { user: User; onClose: () => void }) {
   const t = useTranslations('users.settings')
@@ -258,6 +266,18 @@ export function EmployeeSettingsModal({ user, onClose }: { user: User; onClose: 
               onChange={(e) => setZoneRadius(e.target.value)}
               className="bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white"
             />
+            <div className="col-span-2">
+              <p className="text-xs text-slate-400 mb-1">{t('pickOnMap')}</p>
+              <LocationMapPicker
+                lat={zoneLat ? Number(zoneLat) : null}
+                lng={zoneLng ? Number(zoneLng) : null}
+                radiusM={zoneRadius ? Number(zoneRadius) : null}
+                onPick={(lat, lng) => {
+                  setZoneLat(lat.toFixed(6))
+                  setZoneLng(lng.toFixed(6))
+                }}
+              />
+            </div>
             <div className="col-span-2">
               <DateRangePicker
                 value={{ from: zoneFrom || undefined, to: zoneTo || undefined }}
