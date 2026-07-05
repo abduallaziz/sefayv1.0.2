@@ -50,9 +50,15 @@ export function LocationMapPicker({ lat, lng, radiusM, onPick }: Props) {
       zoom={position ? 15 : 11}
       style={{ height: 240, width: '100%', borderRadius: 12 }}
     >
+      {/* CARTO's basemap CDN — same OpenStreetMap data, but noticeably faster
+          and sharper (retina @2x tiles) than the plain openstreetmap.org tile
+          server, which is rate-limited for non-hobby traffic. */}
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+        subdomains="abcd"
+        maxZoom={19}
+        detectRetina
       />
       <ClickHandler onPick={onPick} />
       <RecenterOnChange position={position} />
