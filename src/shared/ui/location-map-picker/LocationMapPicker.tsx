@@ -29,7 +29,7 @@ function ClickHandler({ onPick }: { onPick: (lat: number, lng: number) => void }
 function RecenterOnChange({ position }: { position: [number, number] | null }) {
   const map = useMap()
   useEffect(() => {
-    if (position) map.setView(position, Math.max(map.getZoom(), 15))
+    if (position) map.setView(position, Math.max(map.getZoom(), 17))
   }, [position, map])
   return null
 }
@@ -47,16 +47,16 @@ export function LocationMapPicker({ lat, lng, radiusM, onPick }: Props) {
   return (
     <MapContainer
       center={position ?? DEFAULT_CENTER}
-      zoom={position ? 15 : 11}
+      zoom={position ? 17 : 11}
       style={{ height: 240, width: '100%', borderRadius: 12 }}
     >
-      {/* CARTO's basemap CDN — same OpenStreetMap data, but noticeably faster
-          and sharper (retina @2x tiles) than the plain openstreetmap.org tile
-          server, which is rate-limited for non-hobby traffic. */}
+      {/* Wikimedia's OSM mirror: the full standard OpenStreetMap street style
+          (street names, POI labels — denser than CARTO's simplified Voyager
+          style) served from a CDN fast enough for production use, unlike the
+          plain openstreetmap.org tile server. */}
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-        subdomains="abcd"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        url="https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}{r}.png"
         maxZoom={19}
         detectRetina
       />
