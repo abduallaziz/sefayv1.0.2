@@ -274,29 +274,38 @@ function AttendanceList({
   return (
     <div className="divide-y divide-slate-100 dark:divide-gray-800">
       {records.map((r) => (
-        <div key={r.id} className="flex items-center justify-between px-4 py-3">
-          <div className="space-y-1">
+        <div key={r.id} className="flex items-center justify-between gap-2 px-4 py-3 flex-wrap">
+          <div>
             {showName && r.user_name && (
-              <p className="text-sm font-semibold text-slate-800 dark:text-white">{r.user_name}</p>
+              <p className="text-sm font-semibold text-slate-800 dark:text-white mb-1.5">{r.user_name}</p>
             )}
-            <p className="flex items-center gap-1.5 text-sm font-medium text-emerald-600 dark:text-emerald-400">
-              <Circle className="w-2 h-2 fill-current" />
-              {fmtDateTime(r.check_in_at)}
-            </p>
-            {r.check_out_at ? (
-              <p className="flex items-center gap-1.5 text-sm font-medium text-red-600 dark:text-red-400">
-                <Circle className="w-2 h-2 fill-current" />
-                {fmtDateTime(r.check_out_at)}
-              </p>
+            <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 rounded-md px-1.5 py-1">
+                <div className="w-4 h-4 shrink-0 rounded-full bg-emerald-500 flex items-center justify-center text-white">
+                  <Circle className="w-2 h-2 fill-current" />
+                </div>
+                <p className="text-[10px] font-medium text-emerald-700 dark:text-emerald-400 leading-tight">{fmtDateTime(r.check_in_at)}</p>
+              </div>
+              <div className="flex items-center gap-1 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-md px-1.5 py-1">
+                <div className="w-4 h-4 shrink-0 rounded-full bg-red-500 flex items-center justify-center text-white">
+                  <Circle className="w-2 h-2 fill-current" />
+                </div>
+                <p className="text-[10px] font-medium text-red-700 dark:text-red-400 leading-tight">
+                  {r.check_out_at ? fmtDateTime(r.check_out_at) : t('stillOpen')}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="inline-flex items-center justify-center gap-1.5 bg-slate-50 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2">
+            <CalendarClock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            {r.hours_worked !== null ? (
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                {t('hoursWorked', { hours: r.hours_worked })}
+              </span>
             ) : (
-              <p className="text-xs text-amber-500">{t('stillOpen')}</p>
+              <span className="text-xs text-amber-500">{t('stillOpen')}</span>
             )}
           </div>
-          {r.hours_worked !== null && (
-            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-              {t('hoursWorked', { hours: r.hours_worked })}
-            </span>
-          )}
         </div>
       ))}
     </div>
