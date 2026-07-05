@@ -26,6 +26,7 @@ export function EmployeeSettingsModal({ user, onClose }: { user: User; onClose: 
   const { mutate: deleteZone } = useDeleteEmployeeGeofence()
 
   const [department, setDepartment] = useState(user.department ?? '')
+  const [jobTitle, setJobTitle] = useState(user.job_title ?? '')
   const [baseSalary, setBaseSalary] = useState(user.base_salary?.toString() ?? '')
   const [gracePeriod, setGracePeriod] = useState(String(user.grace_period_minutes ?? 0))
   const [deductionMode, setDeductionMode] = useState<LateDeductionMode | ''>(user.late_deduction_mode ?? '')
@@ -49,6 +50,7 @@ export function EmployeeSettingsModal({ user, onClose }: { user: User; onClose: 
       id: user.id,
       data: {
         department: department.trim() === '' ? null : department.trim(),
+        job_title: jobTitle.trim() === '' ? null : jobTitle.trim(),
         base_salary: baseSalary === '' ? null : Number(baseSalary),
         grace_period_minutes: Number(gracePeriod) || 0,
         late_deduction_mode: deductionMode === '' ? null : deductionMode,
@@ -116,7 +118,16 @@ export function EmployeeSettingsModal({ user, onClose }: { user: User; onClose: 
         <div className="space-y-3">
           <h3 className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('payroll')}</h3>
           <div className="grid grid-cols-2 gap-3">
-            <div className="col-span-2">
+            <div>
+              <label className="text-xs text-slate-500 mb-1 block">{t('jobTitle')}</label>
+              <input
+                value={jobTitle}
+                onChange={(e) => setJobTitle(e.target.value)}
+                placeholder={t('jobTitlePlaceholder')}
+                className="w-full bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white"
+              />
+            </div>
+            <div>
               <label className="text-xs text-slate-500 mb-1 block">{t('department')}</label>
               <input
                 value={department}

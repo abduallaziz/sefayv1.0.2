@@ -20,6 +20,8 @@
     "payroll": "Salary & deduction policy",
     "department": "Department/Group",
     "departmentPlaceholder": "e.g. IT",
+    "jobTitle": "Job title",
+    "jobTitlePlaceholder": "e.g. Software Developer",
     "baseSalary": "Monthly base salary",
     "gracePeriod": "Grace period (minutes)",
     "deductionMode": "Late deduction mode",

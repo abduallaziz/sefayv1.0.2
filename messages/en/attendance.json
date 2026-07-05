@@ -29,5 +29,10 @@
   "totalHours": "Total Hours",
   "workDays": "Work Days",
   "lateHours": "Late Hours",
-  "attendancePercentage": "Attendance %"
+  "attendancePercentage": "Attendance %",
+  "export": "Export",
+  "lastCheckIn": "Last Check-in",
+  "lastCheckOut": "Last Check-out",
+  "actions": "Actions",
+  "paginationSummary": "Showing {from} to {to} of {total} employees"
 }

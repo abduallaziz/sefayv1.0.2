@@ -29,5 +29,10 @@
   "totalHours": "إجمالي الساعات",
   "workDays": "أيام العمل",
   "lateHours": "ساعات التأخير",
-  "attendancePercentage": "نسبة الحضور"
+  "attendancePercentage": "نسبة الحضور",
+  "export": "تصدير",
+  "lastCheckIn": "آخر حضور",
+  "lastCheckOut": "آخر انصراف",
+  "actions": "الإجراءات",
+  "paginationSummary": "عرض {from} إلى {to} من {total} موظف"
 }

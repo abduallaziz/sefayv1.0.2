@@ -2,11 +2,11 @@
 
 import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
-import { CalendarClock, LogIn, LogOut, Circle, History, X, Search } from 'lucide-react'
+import { CalendarClock, LogIn, LogOut, Circle, History, X, Search, Download, ChevronRight, ChevronLeft } from 'lucide-react'
 import { useMyAttendance, useCheckIn, useCheckOut, useAllAttendance, useSchedules } from '../hooks/useHr'
 import { useUsers } from '@/features/users/hooks/useUsers'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
-import { DateRangePicker } from '@/shared/ui/date-range-picker'
+import { DateRangePicker, SingleDatePicker } from '@/shared/ui/date-range-picker'
 
 type Status = 'present' | 'out' | 'away' | 'not_logged'
 
@@ -135,6 +135,35 @@ export function AttendancePage() {
   )
 }
 
+const AVATAR_COLORS = ['#0C447C', '#7C3AED', '#059669', '#DC2626', '#D97706', '#0891B2']
+
+function avatarColor(name: string) {
+  let hash = 0
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash)
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length]
+}
+
+function initials(name: string) {
+  return name.trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase()
+}
+
+function Avatar({ name, avatarUrl }: { name: string; avatarUrl?: string | null }) {
+  if (avatarUrl) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={avatarUrl} alt={name} className="w-9 h-9 rounded-full object-cover shrink-0" />
+  }
+  return (
+    <div
+      className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-semibold shrink-0"
+      style={{ backgroundColor: avatarColor(name) }}
+    >
+      {initials(name)}
+    </div>
+  )
+}
+
+const PAGE_SIZE = 5
+
 function AllEmployeesAttendance({
   t,
   fmtDateTime,
@@ -142,23 +171,21 @@ function AllEmployeesAttendance({
   t: ReturnType<typeof useTranslations>
   fmtDateTime: (iso: string) => string
 }) {
-  const today = todayStr()
+  const [refDate, setRefDate] = useState(todayStr())
   const { data: records = [], isLoading } = useAllAttendance()
-  const { data: todaySchedules = [] } = useSchedules({ from: today, to: today })
+  const { data: dateSchedules = [] } = useSchedules({ from: refDate, to: refDate })
   const { data: users = [] } = useUsers()
   const [historyUser, setHistoryUser] = useState<{ id: string; name: string } | null>(null)
   const [search, setSearch] = useState('')
   const [departmentFilter, setDepartmentFilter] = useState('')
+  const [page, setPage] = useState(1)
 
-  const departmentByUserId = useMemo(
-    () => new Map((users as any[]).map((u) => [u.id, u.department as string | null])),
-    [users],
-  )
+  const usersById = useMemo(() => new Map((users as any[]).map((u) => [u.id, u])), [users])
   const departments = useMemo(
     () => Array.from(new Set((users as any[]).map((u) => u.department).filter(Boolean))) as string[],
     [users],
   )
-  const scheduledUserIdsToday = useMemo(() => new Set(todaySchedules.map((s: any) => s.user_id)), [todaySchedules])
+  const scheduledUserIdsOnDate = useMemo(() => new Set(dateSchedules.map((s: any) => s.user_id)), [dateSchedules])
 
   const latestPerEmployee = useMemo(() => {
     const byUser = new Map<string, (typeof records)[number]>()
@@ -171,124 +198,199 @@ function AllEmployeesAttendance({
   const filtered = useMemo(() => {
     return latestPerEmployee.filter((r) => {
       if (search && !r.user_name?.toLowerCase().includes(search.toLowerCase())) return false
-      if (departmentFilter && departmentByUserId.get(r.user_id) !== departmentFilter) return false
+      if (departmentFilter && usersById.get(r.user_id)?.department !== departmentFilter) return false
       return true
     })
-  }, [latestPerEmployee, search, departmentFilter, departmentByUserId])
+  }, [latestPerEmployee, search, departmentFilter, usersById])
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const currentPage = Math.min(page, totalPages)
+  const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
 
   function getStatus(r: (typeof records)[number]): Status {
-    const isToday = r.check_in_at.substring(0, 10) === today
-    if (isToday) return r.check_out_at ? 'out' : 'present'
-    return scheduledUserIdsToday.has(r.user_id) ? 'away' : 'not_logged'
+    const isRefDate = r.check_in_at.substring(0, 10) === refDate
+    if (isRefDate) return r.check_out_at ? 'out' : 'present'
+    return scheduledUserIdsOnDate.has(r.user_id) ? 'away' : 'not_logged'
+  }
+
+  function exportCsv() {
+    const header = [t('employee'), t('department'), t('status'), t('workHours'), t('lastCheckIn'), t('lastCheckOut')]
+    const rows = filtered.map((r) => {
+      const status = getStatus(r)
+      return [
+        r.user_name ?? '',
+        usersById.get(r.user_id)?.department ?? '',
+        t(`statusValues.${status}`),
+        r.hours_worked !== null && r.check_in_at.substring(0, 10) === refDate ? String(r.hours_worked) : '',
+        fmtDateTime(r.check_in_at),
+        r.check_out_at ? fmtDateTime(r.check_out_at) : '',
+      ]
+    })
+    const csv = [header, ...rows].map((row) => row.map((c) => `"${c.replace(/"/g, '""')}"`).join(',')).join('\n')
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `attendance-${refDate}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
   }
 
   if (isLoading) return <div className="p-4 h-20 bg-slate-100 dark:bg-gray-800 rounded animate-pulse" />
 
   return (
     <>
-      <div className="p-4 border-b border-slate-100 dark:border-gray-800 flex flex-wrap items-center gap-2">
-        <div className="relative flex-1 min-w-[180px]">
+      <div className="p-4 border-b border-slate-100 dark:border-gray-800 flex flex-wrap items-center gap-2 justify-between">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={exportCsv}
+            className="flex items-center gap-1.5 px-3 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] text-white rounded-lg text-xs font-medium"
+          >
+            <Download className="w-3.5 h-3.5" />
+            {t('export')}
+          </button>
+          {departments.length > 0 && (
+            <select
+              value={departmentFilter}
+              onChange={(e) => { setDepartmentFilter(e.target.value); setPage(1) }}
+              className="bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white"
+            >
+              <option value="">{t('allDepartments')}</option>
+              {departments.map((d) => (
+                <option key={d} value={d}>{d}</option>
+              ))}
+            </select>
+          )}
+          <SingleDatePicker value={refDate} onChange={(v) => setRefDate(v ?? todayStr())} />
+        </div>
+        <div className="relative min-w-[180px]">
           <Search className="w-3.5 h-3.5 text-slate-400 absolute start-3 top-1/2 -translate-y-1/2" />
           <input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => { setSearch(e.target.value); setPage(1) }}
             placeholder={t('searchEmployee')}
             className="w-full bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg ps-8 pe-3 py-2 text-sm text-slate-800 dark:text-white"
           />
         </div>
-        {departments.length > 0 && (
-          <select
-            value={departmentFilter}
-            onChange={(e) => setDepartmentFilter(e.target.value)}
-            className="bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white"
-          >
-            <option value="">{t('allDepartments')}</option>
-            {departments.map((d) => (
-              <option key={d} value={d}>{d}</option>
-            ))}
-          </select>
-        )}
       </div>
 
       {filtered.length === 0 ? (
         <p className="text-sm text-slate-500 dark:text-slate-400 py-8 text-center">{t('noRecords')}</p>
       ) : (
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-slate-200 dark:border-gray-800">
-              <th className="text-right px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('employee')}</th>
-              <th className="text-center px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('department')}</th>
-              <th className="text-center px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('status')}</th>
-              <th className="text-center px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('workHours')}</th>
-              <th className="text-center px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('history')}</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100 dark:divide-gray-800">
-            {filtered.map((r) => {
-              const status = getStatus(r)
-              const style = STATUS_STYLE[status]
-              return (
-                <tr key={r.user_id}>
-                  <td className="px-4 py-3 align-middle">
-                    <p className="font-semibold text-slate-800 dark:text-white mb-1.5">{r.user_name}</p>
-                    <div className="flex items-center gap-1.5">
-                      <div className="flex items-center gap-1 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 rounded-md px-1.5 py-1">
-                        <div className="w-4 h-4 shrink-0 rounded-full bg-emerald-500 flex items-center justify-center text-white">
-                          <LogIn className="w-2.5 h-2.5" />
-                        </div>
+        <>
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-slate-200 dark:border-gray-800">
+                <th className="text-right px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('employee')}</th>
+                <th className="text-center px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('department')}</th>
+                <th className="text-center px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('status')}</th>
+                <th className="text-center px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('workHours')}</th>
+                <th className="text-center px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('lastCheckIn')}</th>
+                <th className="text-center px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('lastCheckOut')}</th>
+                <th className="text-center px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400">{t('actions')}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-gray-800">
+              {paginated.map((r) => {
+                const status = getStatus(r)
+                const style = STATUS_STYLE[status]
+                const employeeUser = usersById.get(r.user_id)
+                const name = r.user_name ?? ''
+                return (
+                  <tr key={r.user_id}>
+                    <td className="px-4 py-3 align-middle">
+                      <div className="flex items-center gap-2.5">
+                        <Avatar name={name} avatarUrl={employeeUser?.avatar_url} />
                         <div>
-                          <p className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-400 leading-tight">{t('checkIn')}</p>
-                          <p className="text-[9px] text-slate-500 dark:text-slate-400 leading-tight">{fmtDateTime(r.check_in_at)}</p>
+                          <p className="font-semibold text-slate-800 dark:text-white">{name}</p>
+                          {employeeUser?.job_title && (
+                            <p className="text-xs text-slate-400">{employeeUser.job_title}</p>
+                          )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-1 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-md px-1.5 py-1">
-                        <div className="w-4 h-4 shrink-0 rounded-full bg-red-500 flex items-center justify-center text-white">
-                          <LogOut className="w-2.5 h-2.5" />
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-semibold text-red-700 dark:text-red-400 leading-tight">{t('checkOut')}</p>
-                          <p className="text-[9px] text-slate-500 dark:text-slate-400 leading-tight">
-                            {r.check_out_at ? fmtDateTime(r.check_out_at) : t('stillOpen')}
-                          </p>
-                        </div>
+                    </td>
+                    <td className="px-4 py-3 text-center align-middle text-slate-600 dark:text-slate-300">
+                      {employeeUser?.department || <span className="text-slate-400">—</span>}
+                    </td>
+                    <td className="px-4 py-3 text-center align-middle">
+                      <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${style.text}`}>
+                        <span className={`w-2 h-2 rounded-full ${style.dot} inline-block`} />
+                        {t(`statusValues.${status}`)}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-center align-middle text-slate-700 dark:text-slate-300">
+                      {r.hours_worked !== null && r.check_in_at.substring(0, 10) === refDate
+                        ? t('hoursWorked', { hours: r.hours_worked })
+                        : <span className="text-slate-400">—</span>}
+                    </td>
+                    <td className="px-4 py-3 text-center align-middle">
+                      <div className="inline-block bg-emerald-50 dark:bg-emerald-500/10 rounded-lg px-3 py-1.5">
+                        <p className="text-sm font-medium text-slate-800 dark:text-white">
+                          {new Date(r.check_in_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                        <p className="text-[10px] text-slate-400">
+                          {new Date(r.check_in_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                        </p>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-center align-middle text-slate-600 dark:text-slate-300">
-                    {departmentByUserId.get(r.user_id) || <span className="text-slate-400">—</span>}
-                  </td>
-                  <td className="px-4 py-3 text-center align-middle">
-                    <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${style.text}`}>
-                      <span className={`w-2 h-2 rounded-full ${style.dot} inline-block`} />
-                      {t(`statusValues.${status}`)}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-center align-middle">
-                    <div className="inline-flex items-center justify-center gap-1.5 bg-slate-50 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 min-w-[90px]">
-                      <CalendarClock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                      {r.hours_worked !== null && r.check_in_at.substring(0, 10) === today ? (
-                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                          {t('hoursWorked', { hours: r.hours_worked })}
-                        </span>
-                      ) : (
-                        <span className="text-xs text-slate-400">—</span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-center align-middle">
-                    <button
-                      onClick={() => setHistoryUser({ id: r.user_id, name: r.user_name ?? '' })}
-                      className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-slate-200 dark:border-gray-700 text-[#0C447C] dark:text-[#5B9BD5] hover:bg-slate-50 dark:hover:bg-gray-800"
-                    >
-                      <History className="w-3.5 h-3.5" />
-                      {t('viewHistory')}
-                    </button>
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
+                    </td>
+                    <td className="px-4 py-3 text-center align-middle">
+                      <div className="inline-block bg-red-50 dark:bg-red-500/10 rounded-lg px-3 py-1.5">
+                        {r.check_out_at ? (
+                          <>
+                            <p className="text-sm font-medium text-slate-800 dark:text-white">
+                              {new Date(r.check_out_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                            </p>
+                            <p className="text-[10px] text-slate-400">
+                              {new Date(r.check_out_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                            </p>
+                          </>
+                        ) : (
+                          <p className="text-sm font-medium text-slate-400">--</p>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center align-middle">
+                      <button
+                        onClick={() => setHistoryUser({ id: r.user_id, name })}
+                        className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-slate-200 dark:border-gray-700 text-[#0C447C] dark:text-[#5B9BD5] hover:bg-slate-50 dark:hover:bg-gray-800"
+                      >
+                        <History className="w-3.5 h-3.5" />
+                        {t('viewHistory')}
+                      </button>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+
+          <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100 dark:border-gray-800">
+            <p className="text-xs text-slate-400">
+              {t('paginationSummary', {
+                from: (currentPage - 1) * PAGE_SIZE + 1,
+                to: Math.min(currentPage * PAGE_SIZE, filtered.length),
+                total: filtered.length,
+              })}
+            </p>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="p-1.5 rounded-lg border border-slate-200 dark:border-gray-700 text-slate-500 disabled:opacity-40"
+              >
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+              <span className="text-xs text-slate-500 px-2">{currentPage} / {totalPages}</span>
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="p-1.5 rounded-lg border border-slate-200 dark:border-gray-700 text-slate-500 disabled:opacity-40"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        </>
       )}
       {historyUser && (
         <EmployeeHistoryModal user={historyUser} onClose={() => setHistoryUser(null)} t={t} fmtDateTime={fmtDateTime} />
