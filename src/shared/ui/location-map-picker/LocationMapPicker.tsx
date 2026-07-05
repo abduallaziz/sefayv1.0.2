@@ -50,13 +50,13 @@ export function LocationMapPicker({ lat, lng, radiusM, onPick }: Props) {
       zoom={position ? 17 : 11}
       style={{ height: 240, width: '100%', borderRadius: 12 }}
     >
-      {/* Wikimedia's OSM mirror: the full standard OpenStreetMap street style
-          (street names, POI labels — denser than CARTO's simplified Voyager
-          style) served from a CDN fast enough for production use, unlike the
-          plain openstreetmap.org tile server. */}
+      {/* CARTO's basemap CDN — reliable, fast, no key required. Wikimedia's
+          mirror was tried for denser labels but failed to load (blank/gray
+          tiles) in production, so reverted to the known-working provider. */}
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}{r}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+        subdomains="abcd"
         maxZoom={19}
         detectRetina
       />
