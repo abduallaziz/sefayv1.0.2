@@ -189,8 +189,8 @@ function AllEmployeesAttendance({
         <tbody className="divide-y divide-slate-100 dark:divide-gray-800">
           {latestPerEmployee.map((r) => (
             <tr key={r.user_id}>
-              <td className="px-4 py-3 align-middle font-semibold text-slate-800 dark:text-white">{r.user_name}</td>
-              <td className="px-4 py-3">
+              <td className="px-4 py-3 align-middle">
+                <p className="font-semibold text-slate-800 dark:text-white mb-1.5">{r.user_name}</p>
                 <div className="flex items-center gap-1.5">
                   <div className="flex items-center gap-1 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 rounded-md px-1.5 py-1">
                     <div className="w-4 h-4 shrink-0 rounded-full bg-emerald-500 flex items-center justify-center text-white">
@@ -213,6 +213,15 @@ function AllEmployeesAttendance({
                     </div>
                   </div>
                 </div>
+              </td>
+              <td className="px-4 py-3 text-center align-middle">
+                {r.hours_worked !== null ? (
+                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    {t('hoursWorked', { hours: r.hours_worked })}
+                  </span>
+                ) : (
+                  <span className="text-xs text-amber-500">{t('stillOpen')}</span>
+                )}
               </td>
               <td className="px-4 py-3 text-center align-middle">
                 <button
