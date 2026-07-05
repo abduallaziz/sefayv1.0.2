@@ -130,7 +130,7 @@ function AllEmployeesAttendance({
   const { data: records = [], isLoading } = useAllAttendance()
   const { data: dateSchedules = [] } = useSchedules({ from: refDate, to: refDate })
   const { data: users = [] } = useUsers()
-  const [historyUser, setHistoryUser] = useState<{ id: string; name: string } | null>(null)
+  const [historyUser, setHistoryUser] = useState<{ id: string; name: string; jobTitle?: string | null; avatarUrl?: string | null } | null>(null)
   const [search, setSearch] = useState('')
   const [departmentFilter, setDepartmentFilter] = useState('')
   const [page, setPage] = useState(1)
@@ -306,7 +306,7 @@ function AllEmployeesAttendance({
                     </td>
                     <td className="px-4 py-3 text-center align-middle">
                       <button
-                        onClick={() => setHistoryUser({ id: r.user_id, name })}
+                        onClick={() => setHistoryUser({ id: r.user_id, name, jobTitle: employeeUser?.job_title, avatarUrl: employeeUser?.avatar_url })}
                         className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-slate-200 dark:border-gray-700 text-[#0C447C] dark:text-[#5B9BD5] hover:bg-slate-50 dark:hover:bg-gray-800"
                       >
                         <History className="w-3.5 h-3.5" />
@@ -360,7 +360,7 @@ function EmployeeHistoryModal({
   t,
   fmtDateTime,
 }: {
-  user: { id: string; name: string }
+  user: { id: string; name: string; jobTitle?: string | null; avatarUrl?: string | null }
   onClose: () => void
   t: ReturnType<typeof useTranslations>
   fmtDateTime: (iso: string) => string
@@ -409,10 +409,16 @@ function EmployeeHistoryModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="px-4 py-3 border-b border-slate-200 dark:border-gray-800 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-slate-800 dark:text-white">{user.name}</h2>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
             <X className="w-4 h-4" />
           </button>
+          <div className="flex items-center gap-2.5">
+            <div className="text-end">
+              <h2 className="text-sm font-semibold text-slate-800 dark:text-white">{user.name}</h2>
+              {user.jobTitle && <p className="text-xs text-slate-400">{user.jobTitle}</p>}
+            </div>
+            <Avatar name={user.name} avatarUrl={user.avatarUrl} />
+          </div>
         </div>
         <div className="px-4 py-3 border-b border-slate-100 dark:border-gray-800">
           <DateRangePicker className="w-full" value={range} onChange={setRange} />
@@ -438,7 +444,7 @@ function EmployeeHistoryModal({
         </div>
 
         <div className="overflow-y-auto">
-          <AttendanceTimeline records={records} isLoading={isLoading} t={t} fmtDateTime={fmtDateTime} />
+          <AttendanceTimeline records={records} isLoading={isLoading} t={t} />
         </div>
       </div>
     </div>
@@ -449,50 +455,59 @@ function AttendanceTimeline({
   records,
   isLoading,
   t,
-  fmtDateTime,
 }: {
   records: { id: string; check_in_at: string; check_out_at: string | null; hours_worked: number | null }[]
   isLoading: boolean
   t: ReturnType<typeof useTranslations>
-  fmtDateTime: (iso: string) => string
 }) {
   if (isLoading) return <div className="p-4 h-20 bg-slate-100 dark:bg-gray-800 rounded animate-pulse" />
   if (records.length === 0) {
     return <p className="text-sm text-slate-500 dark:text-slate-400 py-8 text-center">{t('noRecords')}</p>
   }
   return (
-    <div className="px-4 py-3 space-y-4">
-      {records.map((r) => (
-        <div key={r.id}>
-          <p className="text-xs text-slate-400 mb-2">
-            {new Date(r.check_in_at).toLocaleDateString('en-US', { dateStyle: 'medium' })}
-            {r.hours_worked !== null && ` · ${t('hoursWorked', { hours: r.hours_worked })}`}
-          </p>
-          <div className="relative ps-6">
-            <div className="absolute start-[7px] top-1.5 bottom-1.5 w-px bg-slate-200 dark:bg-gray-700" />
-            <div className="relative flex items-center gap-2 mb-3">
-              <span className="absolute start-[-24px] w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center text-white z-10">
-                <LogIn className="w-2.5 h-2.5" />
-              </span>
-              <div>
-                <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">{t('checkIn')}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{fmtDateTime(r.check_in_at)}</p>
+    <div className="px-4 py-3 divide-y divide-slate-100 dark:divide-gray-800">
+      {records.map((r) => {
+        const d = new Date(r.check_in_at)
+        return (
+          <div key={r.id} className="py-3 first:pt-0 flex items-start justify-between gap-3">
+            <p className="text-xs text-slate-400 pt-1 shrink-0">
+              {r.hours_worked !== null && t('hoursWorked', { hours: r.hours_worked })}
+            </p>
+
+            <div className="relative pe-6 flex-1">
+              <div className="absolute end-[7px] top-1.5 bottom-1.5 w-px bg-slate-200 dark:bg-gray-700" />
+              <div className="relative flex items-center justify-end gap-2 mb-2">
+                <span className="text-xs font-medium px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                  {t('checkIn')}
+                </span>
+                <span className="absolute end-[-24px] w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center text-white z-10">
+                  <LogIn className="w-2.5 h-2.5" />
+                </span>
+              </div>
+              <div className="relative flex items-center justify-end gap-2">
+                <span className="text-xs font-medium px-3 py-1 rounded-full bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400">
+                  {r.check_out_at ? t('checkOut') : t('stillOpen')}
+                </span>
+                <span className="absolute end-[-24px] w-4 h-4 rounded-full bg-red-500 flex items-center justify-center text-white z-10">
+                  <LogOut className="w-2.5 h-2.5" />
+                </span>
               </div>
             </div>
-            <div className="relative flex items-center gap-2">
-              <span className="absolute start-[-24px] w-4 h-4 rounded-full bg-red-500 flex items-center justify-center text-white z-10">
-                <LogOut className="w-2.5 h-2.5" />
-              </span>
-              <div>
-                <p className="text-sm font-medium text-red-600 dark:text-red-400">{t('checkOut')}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  {r.check_out_at ? fmtDateTime(r.check_out_at) : t('stillOpen')}
+
+            <div className="flex items-center gap-1.5 shrink-0">
+              <CalendarClock className="w-3.5 h-3.5 text-slate-400" />
+              <div className="text-end">
+                <p className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                  {d.toLocaleDateString('en-US', { weekday: 'long' })}
+                </p>
+                <p className="text-[10px] text-slate-400">
+                  {d.toLocaleDateString('en-US', { day: 'numeric', month: 'long' })}
                 </p>
               </div>
             </div>
           </div>
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 }
