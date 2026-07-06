@@ -63,6 +63,7 @@
   "submitLeaveRequest": "إرسال الطلب",
   "leaveRequestSubmitted": "تم إرسال طلبك بنجاح",
   "leaveRequestError": "تعذر إرسال الطلب، حاول مرة أخرى",
+  "leaveBalanceExceeded": "لديك فقط {count} يوم إجازة متبقي",
   "cancel": "إلغاء",
   "insideWork": "داخل الدوام",
   "outsideWork": "خارج الدوام"

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { CalendarDays, Plus, X } from 'lucide-react'
 import { BottomNav } from '../components/BottomNav'
@@ -18,6 +18,10 @@ interface Leave {
 
 const LEAVE_TYPES = ['annual', 'sick', 'unpaid', 'other'] as const
 
+function calculateLeaveDays(dateFrom: string, dateTo: string): number {
+  return Math.round((new Date(dateTo).getTime() - new Date(dateFrom).getTime()) / 86400000) + 1
+}
+
 export function AttendLeavesPage({ token }: { token: string }) {
   const t = useTranslations('attend')
   const [leaves, setLeaves] = useState<Leave[] | null>(null)
@@ -29,6 +33,12 @@ export function AttendLeavesPage({ token }: { token: string }) {
   const [reason, setReason] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
+
+  const requestedDays = useMemo(
+    () => (dateFrom && dateTo && dateTo >= dateFrom ? calculateLeaveDays(dateFrom, dateTo) : 0),
+    [dateFrom, dateTo],
+  )
+  const exceedsBalance = balance !== null && requestedDays > balance
 
   function loadLeaves() {
     fetch(`/api/v1/attend/${token}/dashboard`)
@@ -47,7 +57,7 @@ export function AttendLeavesPage({ token }: { token: string }) {
   }, [token])
 
   async function handleSubmit() {
-    if (!dateFrom || !dateTo) return
+    if (!dateFrom || !dateTo || exceedsBalance) return
     setSubmitting(true)
     setFormError(null)
     try {
@@ -57,7 +67,12 @@ export function AttendLeavesPage({ token }: { token: string }) {
         body: JSON.stringify({ leave_type: leaveType, date_from: dateFrom, date_to: dateTo, reason: reason || undefined }),
       })
       if (!res.ok) {
-        setFormError(t('leaveRequestError'))
+        const data = await res.json().catch(() => null)
+        if (data?.error === 'LEAVE_BALANCE_EXCEEDED') {
+          setFormError(t('leaveBalanceExceeded', { count: data.available }))
+        } else {
+          setFormError(t('leaveRequestError'))
+        }
         return
       }
       setShowForm(false)
@@ -145,6 +160,9 @@ export function AttendLeavesPage({ token }: { token: string }) {
               />
             </div>
 
+            {exceedsBalance && (
+              <p className="text-xs text-red-500 font-medium">{t('leaveBalanceExceeded', { count: balance })}</p>
+            )}
             {formError && <p className="text-xs text-red-500">{formError}</p>}
 
             <div className="flex gap-2 pt-1">
@@ -156,7 +174,7 @@ export function AttendLeavesPage({ token }: { token: string }) {
               </button>
               <button
                 onClick={handleSubmit}
-                disabled={submitting || !dateFrom || !dateTo}
+                disabled={submitting || !dateFrom || !dateTo || exceedsBalance}
                 className="flex-1 py-2 rounded-lg text-sm font-semibold text-white bg-[#0C447C] hover:bg-[#0a3863] disabled:opacity-50 transition-colors shadow-sm"
               >
                 {submitting ? t('submitting') : t('submitLeaveRequest')}

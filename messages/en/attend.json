@@ -63,6 +63,7 @@
   "submitLeaveRequest": "Submit Request",
   "leaveRequestSubmitted": "Your request was submitted successfully",
   "leaveRequestError": "Couldn't submit the request, try again",
+  "leaveBalanceExceeded": "You only have {count} leave days remaining",
   "cancel": "Cancel",
   "insideWork": "Inside Work",
   "outsideWork": "Outside Work"
