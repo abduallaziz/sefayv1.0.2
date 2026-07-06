@@ -41,7 +41,8 @@
     "kitchen": "Kitchen Display",
     "attendance": "Attendance",
     "schedules": "Staff Scheduling",
-    "payroll": "Payroll"
+    "payroll": "Payroll",
+    "leaves": "Leave Requests"
   },
   "common": {
     "save": "Save",

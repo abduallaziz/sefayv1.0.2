@@ -9,7 +9,7 @@ import {
   Receipt, Clock, BarChart3, Settings, UserCog,
   X, Zap, Truck, Warehouse, ClipboardList, PackageCheck, Boxes, SlidersHorizontal,
   ChevronDown, ArrowLeftRight, FileBarChart, Layers, ClipboardCheck, MapPin,
-  Utensils, ChefHat, CalendarClock, CalendarDays, Wallet,
+  Utensils, ChefHat, CalendarClock, CalendarDays, Wallet, ClipboardCheck as LeavesIcon,
 } from 'lucide-react'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { useThemeStore } from '@/core/theme/stores/theme.store'
@@ -47,6 +47,7 @@ const ALL_NAV_ITEMS: NavItem[] = [
   { key: 'attendance', href: '/dashboard/attendance', icon: CalendarClock, section: 'hr' },
   { key: 'schedules', href: '/dashboard/schedules',  icon: CalendarDays,    section: 'hr',       roles: ['owner', 'manager'] },
   { key: 'payroll',   href: '/dashboard/payroll',    icon: Wallet,          section: 'hr',       roles: ['owner'] },
+  { key: 'leaves',    href: '/dashboard/leaves',     icon: LeavesIcon,      section: 'hr',       roles: ['owner', 'manager'] },
   { key: 'settings',  href: '/dashboard/settings',   icon: Settings,        section: 'admin',    roles: ['owner'] },
 ]
 

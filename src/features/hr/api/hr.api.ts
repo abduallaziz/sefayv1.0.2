@@ -88,6 +88,19 @@ export interface AttendanceException {
   created_at: string
 }
 
+export interface LeaveRequest {
+  id: string
+  user_id: string
+  users: { name: string; job_title: string | null; department: string | null } | null
+  leave_type: string
+  date_from: string
+  date_to: string
+  days_count: number
+  status: 'pending' | 'approved' | 'rejected'
+  reason: string | null
+  created_at: string
+}
+
 export interface EmployeeGeofence {
   id: string
   user_id: string
@@ -188,4 +201,13 @@ export const hrApi = {
 
   deleteEmployeeGeofence: (id: string): Promise<void> =>
     apiClient.delete(`/employee-geofences/${id}`),
+
+  getLeaveRequests: (status?: 'pending' | 'approved' | 'rejected'): Promise<LeaveRequest[]> =>
+    apiClient.get(`/leaves${status ? `?status=${status}` : ''}`),
+
+  approveLeaveRequest: (id: string): Promise<LeaveRequest> =>
+    apiClient.patch(`/leaves/${id}/approve`, {}),
+
+  rejectLeaveRequest: (id: string): Promise<LeaveRequest> =>
+    apiClient.patch(`/leaves/${id}/reject`, {}),
 }

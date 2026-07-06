@@ -41,7 +41,8 @@
     "kitchen": "شاشة المطبخ",
     "attendance": "الحضور والانصراف",
     "schedules": "جدولة الموظفين",
-    "payroll": "الرواتب"
+    "payroll": "الرواتب",
+    "leaves": "الإجازات"
   },
   "common": {
     "save": "حفظ",

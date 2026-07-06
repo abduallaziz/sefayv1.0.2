@@ -149,3 +149,26 @@ export function useDeleteEmployeeGeofence() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['employee-geofences'] }),
   })
 }
+
+export function useLeaveRequests(status?: 'pending' | 'approved' | 'rejected') {
+  return useQuery({
+    queryKey: ['leaves', status],
+    queryFn: () => hrApi.getLeaveRequests(status),
+  })
+}
+
+export function useApproveLeaveRequest() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => hrApi.approveLeaveRequest(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['leaves'] }),
+  })
+}
+
+export function useRejectLeaveRequest() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => hrApi.rejectLeaveRequest(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['leaves'] }),
+  })
+}

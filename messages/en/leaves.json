@@ -1,0 +1,23 @@
+{
+  "title": "Leave Requests",
+  "subtitle": "Review and approve employee leave requests",
+  "filterAll": "All",
+  "filterPending": "Pending",
+  "filterApproved": "Approved",
+  "filterRejected": "Rejected",
+  "employee": "Employee",
+  "type": "Type",
+  "period": "Period",
+  "days": "Days",
+  "reason": "Reason",
+  "status": "Status",
+  "actions": "Actions",
+  "approve": "Approve",
+  "reject": "Reject",
+  "noRequests": "No requests",
+  "leaveTypeAnnual": "Annual Leave",
+  "leaveTypeSick": "Sick Leave",
+  "leaveTypeUnpaid": "Unpaid Leave",
+  "leaveTypeOther": "Other",
+  "noReason": "No reason given"
+}

@@ -1,0 +1,23 @@
+{
+  "title": "الإجازات",
+  "subtitle": "مراجعة واعتماد طلبات إجازات الموظفين",
+  "filterAll": "الكل",
+  "filterPending": "قيد الموافقة",
+  "filterApproved": "معتمدة",
+  "filterRejected": "مرفوضة",
+  "employee": "الموظف",
+  "type": "النوع",
+  "period": "الفترة",
+  "days": "الأيام",
+  "reason": "السبب",
+  "status": "الحالة",
+  "actions": "الإجراءات",
+  "approve": "اعتماد",
+  "reject": "رفض",
+  "noRequests": "لا يوجد طلبات",
+  "leaveTypeAnnual": "إجازة سنوية",
+  "leaveTypeSick": "إجازة مرضية",
+  "leaveTypeUnpaid": "إجازة بدون راتب",
+  "leaveTypeOther": "أخرى",
+  "noReason": "بدون سبب"
+}
