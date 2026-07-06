@@ -202,8 +202,13 @@ export const hrApi = {
   deleteEmployeeGeofence: (id: string): Promise<void> =>
     apiClient.delete(`/employee-geofences/${id}`),
 
-  getLeaveRequests: (status?: 'pending' | 'approved' | 'rejected'): Promise<LeaveRequest[]> =>
-    apiClient.get(`/leaves${status ? `?status=${status}` : ''}`),
+  getLeaveRequests: (status?: 'pending' | 'approved' | 'rejected', userId?: string): Promise<LeaveRequest[]> => {
+    const params = new URLSearchParams()
+    if (status) params.set('status', status)
+    if (userId) params.set('user_id', userId)
+    const qs = params.toString()
+    return apiClient.get(`/leaves${qs ? `?${qs}` : ''}`)
+  },
 
   approveLeaveRequest: (id: string): Promise<LeaveRequest> =>
     apiClient.patch(`/leaves/${id}/approve`, {}),

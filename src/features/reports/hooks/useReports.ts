@@ -84,3 +84,10 @@ export function usePayrollReport(month: string) {
     queryFn: () => reportsApi.getPayroll(month),
   })
 }
+
+export function useHrSummary() {
+  return useQuery({
+    queryKey: ['reports', 'hr-summary'],
+    queryFn: () => reportsApi.getHrSummary(),
+  })
+}

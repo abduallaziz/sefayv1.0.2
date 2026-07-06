@@ -173,6 +173,14 @@ export interface SparklinesReport {
   expenses: number[]
 }
 
+export interface HrSummary {
+  total_employees: number
+  present_today: number
+  absent_today: number
+  pending_leaves: number
+  approved_leaves_this_month: number
+}
+
 export interface PayrollEmployee {
   user_id: string
   name: string
@@ -183,6 +191,9 @@ export interface PayrollEmployee {
   absence_deduction: number
   late_count: number
   late_deduction: number
+  leave_paid_days: number
+  leave_unpaid_days: number
+  leave_deduction: number
   net_salary: number
 }
 
@@ -242,6 +253,9 @@ export const reportsApi = {
 
   getSparklines: (): Promise<SparklinesReport> =>
     apiClient.get('/reports/sparklines'),
+
+  getHrSummary: (): Promise<HrSummary> =>
+    apiClient.get('/reports/hr-summary'),
 
   getEmployees: (query?: ReportQuery): Promise<EmployeesReport> => {
     const params = new URLSearchParams()

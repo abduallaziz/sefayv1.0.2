@@ -9,6 +9,7 @@
   "active": "Active",
   "inactive": "Inactive",
   "delete": "Delete",
+  "viewDetails": "View Details",
   "empty": "No users found",
   "password": "Password",
   "cancel": "Cancel",

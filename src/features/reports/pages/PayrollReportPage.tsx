@@ -80,6 +80,7 @@ export function PayrollReportPage() {
                   <th className="text-start px-3 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">{t('scheduledDays')}</th>
                   <th className="text-start px-3 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">{t('absences')}</th>
                   <th className="text-start px-3 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">{t('late')}</th>
+                  <th className="text-start px-3 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">{t('leave')}</th>
                   <th className="text-start px-3 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">{t('netSalary')}</th>
                 </tr>
               </thead>
@@ -99,6 +100,22 @@ export function PayrollReportPage() {
                       <span className="text-amber-600 dark:text-amber-400">{e.late_count}</span>
                       {e.late_deduction > 0 && (
                         <span className="text-xs text-gray-400"> (-{formatNumber(e.late_deduction)} {currency})</span>
+                      )}
+                    </td>
+                    <td className="px-3 py-3">
+                      {e.leave_paid_days > 0 && (
+                        <span className="text-emerald-600 dark:text-emerald-400">{t('leavePaidDays', { count: e.leave_paid_days })}</span>
+                      )}
+                      {e.leave_unpaid_days > 0 && (
+                        <span className="text-red-600 dark:text-red-400 block">
+                          {t('leaveUnpaidDays', { count: e.leave_unpaid_days })}
+                          {e.leave_deduction > 0 && (
+                            <span className="text-xs text-gray-400"> (-{formatNumber(e.leave_deduction)} {currency})</span>
+                          )}
+                        </span>
+                      )}
+                      {e.leave_paid_days === 0 && e.leave_unpaid_days === 0 && (
+                        <span className="text-gray-400">—</span>
                       )}
                     </td>
                     <td className="px-3 py-3 font-semibold text-gray-900 dark:text-white">{formatNumber(e.net_salary)} {currency}</td>

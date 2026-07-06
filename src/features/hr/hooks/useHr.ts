@@ -150,10 +150,10 @@ export function useDeleteEmployeeGeofence() {
   })
 }
 
-export function useLeaveRequests(status?: 'pending' | 'approved' | 'rejected') {
+export function useLeaveRequests(status?: 'pending' | 'approved' | 'rejected', userId?: string) {
   return useQuery({
-    queryKey: ['leaves', status],
-    queryFn: () => hrApi.getLeaveRequests(status),
+    queryKey: ['leaves', status, userId],
+    queryFn: () => hrApi.getLeaveRequests(status, userId),
   })
 }
 

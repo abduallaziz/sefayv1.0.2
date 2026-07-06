@@ -2,11 +2,12 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
+import Link from 'next/link'
 import { useUsers, useDeleteUser } from '../hooks/useUsers'
 import { CreateUserDialog } from '../components/CreateUserDialog'
 import { EmployeeSettingsModal } from '../components/EmployeeSettingsModal'
 import type { User } from '../api/users.api'
-import { Trash2, Plus, Settings } from 'lucide-react'
+import { Trash2, Plus, Settings, Eye } from 'lucide-react'
 
 const ROLE_COLORS: Record<string, string> = {
   owner: 'bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20',
@@ -72,6 +73,13 @@ export function UsersPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
+                    <Link
+                      href={`/dashboard/users/${user.id}`}
+                      className="p-1.5 text-gray-400 dark:text-gray-600 hover:text-[#0C447C] dark:hover:text-[#5B9BD5] transition-colors"
+                      title={t('viewDetails')}
+                    >
+                      <Eye className="w-4 h-4" />
+                    </Link>
                     <button
                       onClick={() => setSettingsUserId(user.id)}
                       className="p-1.5 text-gray-400 dark:text-gray-600 hover:text-[#0C447C] dark:hover:text-[#5B9BD5] transition-colors"
@@ -142,6 +150,13 @@ export function UsersPage() {
                       </td>
                       <td className="px-3 py-3 w-20">
                         <div className="flex items-center gap-1">
+                          <Link
+                            href={`/dashboard/users/${user.id}`}
+                            className="p-1.5 text-gray-400 dark:text-gray-600 hover:text-[#0C447C] dark:hover:text-[#5B9BD5] transition-colors"
+                            title={t('viewDetails')}
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Link>
                           <button
                             onClick={() => setSettingsUserId(user.id)}
                             className="p-1.5 text-gray-400 dark:text-gray-600 hover:text-[#0C447C] dark:hover:text-[#5B9BD5] transition-colors"

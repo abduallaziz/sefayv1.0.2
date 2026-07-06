@@ -14,6 +14,7 @@ import {
   TrendingUp, ShoppingCart, Users, Wallet,
   Clock, BarChart3, Zap, AlertCircle,
   CheckCircle, CreditCard, RotateCcw, Star,
+  UserCheck, UserX, CalendarClock, CalendarCheck,
 } from 'lucide-react'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
@@ -271,6 +272,13 @@ export function DashboardOverview() {
     enabled: !!user, refetchInterval: 120000, staleTime: 60000,
   })
 
+  const canViewHrKpis = !!user?.permissions?.includes('attendance.view.all')
+  const { data: hrSummary } = useQuery({
+    queryKey: ['dashboard', 'hr-summary'],
+    queryFn: () => reportsApi.getHrSummary(),
+    enabled: !!user && canViewHrKpis, refetchInterval: 120000, staleTime: 60000,
+  })
+
   const dashboardError = revenueError || paymentsError || expensesError || shiftError
     || customerStatsError || sparklinesError || topItemsError || recentActivityError
 
@@ -468,6 +476,23 @@ export function DashboardOverview() {
           spark={sp.expenses} sparkColor="#D97706"
           stripe="linear-gradient(90deg,#B45309,#FBBF24)" />
       </div>
+
+      {canViewHrKpis && hrSummary && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '16px', marginBottom: '18px' }} className="stat-grid">
+          <StatCard c={c} title={t('statPresentToday')} value={hrSummary.present_today.toLocaleString('en-US')} icon={UserCheck}
+            spark={Array(7).fill(hrSummary.present_today)} sparkColor="#059669"
+            stripe="linear-gradient(90deg,#059669,#34D399)" />
+          <StatCard c={c} title={t('statAbsentToday')} value={hrSummary.absent_today.toLocaleString('en-US')} icon={UserX}
+            spark={Array(7).fill(hrSummary.absent_today)} sparkColor="#DC2626"
+            stripe="linear-gradient(90deg,#B91C1C,#F87171)" />
+          <StatCard c={c} title={t('statPendingLeaves')} value={hrSummary.pending_leaves.toLocaleString('en-US')} icon={CalendarClock}
+            spark={Array(7).fill(hrSummary.pending_leaves)} sparkColor="#D97706"
+            stripe="linear-gradient(90deg,#B45309,#FBBF24)" />
+          <StatCard c={c} title={t('statApprovedLeavesMonth')} value={hrSummary.approved_leaves_this_month.toLocaleString('en-US')} icon={CalendarCheck}
+            spark={Array(7).fill(hrSummary.approved_leaves_this_month)} sparkColor="#0C447C"
+            stripe="linear-gradient(90deg,#0C447C,#3B82F6)" />
+        </div>
+      )}
 
       {/* ── Charts Row ── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1.7fr 1fr', gap: '16px', marginBottom: '16px' }} className="chart-grid">
