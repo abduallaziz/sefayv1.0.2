@@ -66,7 +66,7 @@ export function AttendancePage() {
               </div>
             )}
             {showMyHistory && (
-              <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={() => setShowMyHistory(false)}>
+              <div className="fixed inset-0 z-[400] bg-black/40 flex items-center justify-center p-4" onClick={() => setShowMyHistory(false)}>
                 <div
                   className="bg-white dark:bg-gray-900 rounded-xl w-full max-w-md max-h-[80vh] flex flex-col"
                   onClick={(e) => e.stopPropagation()}
@@ -403,7 +403,7 @@ function EmployeeHistoryModal({
   }, [records, schedules])
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-[400] bg-black/40 flex items-center justify-center p-4" onClick={onClose}>
       <div
         className="bg-white dark:bg-gray-900 rounded-xl w-full max-w-2xl max-h-[85vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
