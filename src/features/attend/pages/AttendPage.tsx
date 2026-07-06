@@ -68,6 +68,7 @@ export function AttendPage({ token }: { token: string }) {
   const [result, setResult] = useState<{ action: 'check_in' | 'check_out'; code: string } | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [now, setNow] = useState(() => new Date())
+  const [view, setView] = useState<'dashboard' | 'checkin'>('dashboard')
 
   useEffect(() => {
     fetch(`/api/v1/attend/${token}`)
@@ -141,6 +142,7 @@ export function AttendPage({ token }: { token: string }) {
       fetch(`/api/v1/attend/${token}/dashboard`)
         .then(async (r) => { if (r.ok) setDashboard(await r.json()) })
         .catch(() => {})
+      setView('dashboard')
     } catch {
       setError(t('error'))
     } finally {
@@ -188,8 +190,11 @@ export function AttendPage({ token }: { token: string }) {
             </p>
             <p className="text-sm text-slate-500">{t('confirmationCode')}</p>
             <p className="text-2xl font-mono font-bold tracking-widest text-[#0C447C] dark:text-[#5B9BD5]">{result.code}</p>
+            <button onClick={() => setResult(null)} className="text-xs text-[#0C447C] dark:text-[#5B9BD5]">
+              {t('navHome')}
+            </button>
           </div>
-        ) : (
+        ) : view === 'checkin' ? (
           <>
             <div className={`rounded-xl p-4 text-center space-y-1.5 ${locationState === 'in_range' ? 'bg-emerald-50 dark:bg-emerald-500/10' : locationState === 'locating' ? 'bg-slate-50 dark:bg-gray-800' : 'bg-red-50 dark:bg-red-500/10'}`}>
               <div className="flex justify-center mb-1">
@@ -251,37 +256,40 @@ export function AttendPage({ token }: { token: string }) {
               <ShieldCheck className="w-3.5 h-3.5" />
               {t('autoNote')}
             </p>
+
+            {status && (
+              <div className="pt-3 border-t border-slate-100 dark:border-gray-800">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('todaySummary')}</p>
+                  <button onClick={() => setView('dashboard')} className="text-xs text-[#0C447C] dark:text-[#5B9BD5]">
+                    {t('viewDetails')}
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-red-50 dark:bg-red-500/10 rounded-lg p-3 text-center">
+                    <p className="text-lg font-bold text-slate-800 dark:text-white tabular-nums">{fmtTime(status.today_check_out_at)}</p>
+                    <p className="text-xs text-red-600 dark:text-red-400">{t('checkOutLabel')}</p>
+                  </div>
+                  <div className="bg-slate-50 dark:bg-gray-800 rounded-lg p-3 text-center">
+                    <p className="text-lg font-bold text-slate-800 dark:text-white tabular-nums">{fmtTime(status.today_check_in_at)}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{t('checkInLabel')}</p>
+                  </div>
+                </div>
+              </div>
+            )}
           </>
-        )}
-
-        {status && (
-          <div className="pt-3 border-t border-slate-100 dark:border-gray-800">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('todaySummary')}</p>
-              <span className="text-xs text-[#0C447C] dark:text-[#5B9BD5]">{t('viewDetails')}</span>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <div className="bg-red-50 dark:bg-red-500/10 rounded-lg p-3 text-center">
-                <p className="text-lg font-bold text-slate-800 dark:text-white tabular-nums">{fmtTime(status.today_check_out_at)}</p>
-                <p className="text-xs text-red-600 dark:text-red-400">{t('checkOutLabel')}</p>
-              </div>
-              <div className="bg-slate-50 dark:bg-gray-800 rounded-lg p-3 text-center">
-                <p className="text-lg font-bold text-slate-800 dark:text-white tabular-nums">{fmtTime(status.today_check_in_at)}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{t('checkInLabel')}</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {status && dashboard && (
-          <div className="pt-3 border-t border-slate-100 dark:border-gray-800 space-y-3">
-            <div className={`rounded-xl p-3 flex items-center justify-between ${status.checked_in ? 'bg-emerald-50 dark:bg-emerald-500/10' : 'bg-slate-50 dark:bg-gray-800'}`}>
+        ) : status && dashboard && (
+          <div className="space-y-3">
+            <button
+              onClick={() => setView('checkin')}
+              className={`w-full rounded-xl p-3 flex items-center justify-between ${status.checked_in ? 'bg-emerald-50 dark:bg-emerald-500/10' : 'bg-slate-50 dark:bg-gray-800'}`}
+            >
               <span className={`w-2 h-2 rounded-full ${status.checked_in ? 'bg-emerald-500' : 'bg-slate-400'}`} />
               <p className={`text-sm font-semibold ${status.checked_in ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-500'}`}>
                 {status.checked_in ? t('insideWorkNow') : t('outsideWorkNow')}
               </p>
-              <Clock className="w-4 h-4 text-slate-400" />
-            </div>
+              {status.checked_in ? <LogOut className="w-4 h-4 text-slate-400" /> : <LogIn className="w-4 h-4 text-slate-400" />}
+            </button>
 
             <div className="grid grid-cols-2 gap-2">
               <div className="bg-slate-50 dark:bg-gray-800 rounded-lg p-3">
@@ -335,7 +343,7 @@ export function AttendPage({ token }: { token: string }) {
                       </span>
                       <div className="text-end">
                         <p className="font-medium text-slate-700 dark:text-slate-300">{t('leaveDaysCount', { count: l.days_count })}</p>
-                        <p className="text-slate-400">{l.date_from} → {l.date_to}</p>
+                        <p className="text-slate-400">{t('leaveDateRange', { from: l.date_from, to: l.date_to })}</p>
                       </div>
                     </div>
                   ))}

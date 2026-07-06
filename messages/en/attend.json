@@ -42,6 +42,7 @@
   "pending": "Pending",
   "rejected": "Rejected",
   "leaveDaysCount": "{count} days",
+  "leaveDateRange": "From {from} to {to}",
   "logRangeDay": "Day",
   "logRangeWeek": "Week",
   "logRangeMonth": "Month",

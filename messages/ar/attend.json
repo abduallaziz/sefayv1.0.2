@@ -42,6 +42,7 @@
   "pending": "قيد الموافقة",
   "rejected": "مرفوضة",
   "leaveDaysCount": "{count} أيام",
+  "leaveDateRange": "من {from} إلى {to}",
   "logRangeDay": "اليوم",
   "logRangeWeek": "الأسبوع",
   "logRangeMonth": "الشهر",
