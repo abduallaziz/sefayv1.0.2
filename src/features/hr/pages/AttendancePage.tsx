@@ -195,8 +195,8 @@ function AllEmployeesAttendance({
 
   return (
     <>
-      <div className="p-4 border-b border-slate-100 dark:border-gray-800 flex flex-wrap items-center gap-2">
-        <div className="relative flex-1 min-w-[180px]">
+      <div className="p-4 border-b border-slate-100 dark:border-gray-800 flex flex-wrap items-center justify-between gap-2">
+        <div className="relative w-full sm:w-64">
           <Search className="w-3.5 h-3.5 text-slate-400 absolute start-3 top-1/2 -translate-y-1/2" />
           <input
             value={search}
@@ -205,26 +205,28 @@ function AllEmployeesAttendance({
             className="w-full bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg ps-8 pe-3 py-2 text-sm text-slate-800 dark:text-white"
           />
         </div>
-        <SingleDatePicker value={refDate} onChange={(v) => setRefDate(v ?? todayStr())} />
-        {departments.length > 0 && (
-          <select
-            value={departmentFilter}
-            onChange={(e) => { setDepartmentFilter(e.target.value); setPage(1) }}
-            className="bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white"
+        <div className="flex flex-wrap items-center gap-2">
+          <SingleDatePicker value={refDate} onChange={(v) => setRefDate(v ?? todayStr())} />
+          {departments.length > 0 && (
+            <select
+              value={departmentFilter}
+              onChange={(e) => { setDepartmentFilter(e.target.value); setPage(1) }}
+              className="bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white"
+            >
+              <option value="">{t('allDepartments')}</option>
+              {departments.map((d) => (
+                <option key={d} value={d}>{d}</option>
+              ))}
+            </select>
+          )}
+          <button
+            onClick={exportCsv}
+            className="flex items-center gap-1.5 px-3 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] text-white rounded-lg text-xs font-medium shrink-0"
           >
-            <option value="">{t('allDepartments')}</option>
-            {departments.map((d) => (
-              <option key={d} value={d}>{d}</option>
-            ))}
-          </select>
-        )}
-        <button
-          onClick={exportCsv}
-          className="flex items-center gap-1.5 px-3 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] text-white rounded-lg text-xs font-medium"
-        >
-          <Download className="w-3.5 h-3.5" />
-          {t('export')}
-        </button>
+            <Download className="w-3.5 h-3.5" />
+            {t('export')}
+          </button>
+        </div>
       </div>
 
       {filtered.length === 0 ? (
