@@ -408,20 +408,24 @@ function EmployeeHistoryModal({
         className="bg-white dark:bg-gray-900 rounded-xl w-full max-w-2xl max-h-[85vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="px-5 pt-5 pb-3 border-b border-slate-200 dark:border-gray-800 flex items-center justify-between">
+        <div className="pt-6 px-5 pb-3 flex items-center justify-between">
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
             <X className="w-4 h-4" />
           </button>
+          <h2 className="text-sm font-semibold text-slate-800 dark:text-white flex items-center gap-1.5">
+            <History className="w-3.5 h-3.5 text-slate-400" />
+            {t('history')}
+          </h2>
+        </div>
+        <div className="px-5 pb-4 border-b border-slate-100 dark:border-gray-800 flex items-center justify-between gap-3 flex-wrap">
+          <DateRangePicker value={range} onChange={setRange} />
           <div className="flex items-center gap-2.5">
             <div className="text-end">
-              <h2 className="text-sm font-semibold text-slate-800 dark:text-white">{user.name}</h2>
+              <h3 className="text-sm font-semibold text-slate-800 dark:text-white">{user.name}</h3>
               {user.jobTitle && <p className="text-xs text-slate-400">{user.jobTitle}</p>}
             </div>
             <Avatar name={user.name} avatarUrl={user.avatarUrl} />
           </div>
-        </div>
-        <div className="px-5 py-3 border-b border-slate-100 dark:border-gray-800">
-          <DateRangePicker className="w-full" value={range} onChange={setRange} />
         </div>
 
         <div className="grid grid-cols-4 gap-3 px-5 py-4 border-b border-slate-100 dark:border-gray-800">
