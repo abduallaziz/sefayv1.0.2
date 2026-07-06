@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { Bell, MapPin, CheckCircle2, XCircle, LogIn, LogOut, RefreshCw, ShieldCheck } from 'lucide-react'
+import { Bell, MapPin, CheckCircle2, XCircle, LogIn, LogOut, RefreshCw, ShieldCheck, Clock, CalendarCheck, TrendingUp, Gift } from 'lucide-react'
+import { BottomNav } from '../components/BottomNav'
 
 const DEVICE_ID_KEY = 'sefay_attend_device_id'
 
@@ -30,9 +31,35 @@ interface Status {
   zone_name: string | null
 }
 
+interface Leave {
+  id: string
+  leave_type: string
+  date_from: string
+  date_to: string
+  days_count: number
+  status: 'pending' | 'approved' | 'rejected'
+}
+
+interface Notification {
+  id: string
+  title: string
+  body: string | null
+  created_at: string
+}
+
+interface Dashboard {
+  work_hours_today: number
+  work_days_this_month: number
+  monthly_hours_total: number
+  leave_balance: number | null
+  recent_leaves: Leave[]
+  recent_notifications: Notification[]
+}
+
 export function AttendPage({ token }: { token: string }) {
   const t = useTranslations('attend')
   const [status, setStatus] = useState<Status | null>(null)
+  const [dashboard, setDashboard] = useState<Dashboard | null>(null)
   const [notFound, setNotFound] = useState(false)
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null)
   const [locationState, setLocationState] = useState<LocationState>('locating')
@@ -52,6 +79,12 @@ export function AttendPage({ token }: { token: string }) {
         setStatus(await res.json())
       })
       .catch(() => setNotFound(true))
+
+    fetch(`/api/v1/attend/${token}/dashboard`)
+      .then(async (res) => {
+        if (res.ok) setDashboard(await res.json())
+      })
+      .catch(() => {})
   }, [token])
 
   useEffect(() => {
@@ -105,6 +138,9 @@ export function AttendPage({ token }: { token: string }) {
         today_check_in_at: data.action === 'check_in' ? data.time : s.today_check_in_at,
         today_check_out_at: data.action === 'check_out' ? data.time : s.today_check_out_at,
       })
+      fetch(`/api/v1/attend/${token}/dashboard`)
+        .then(async (r) => { if (r.ok) setDashboard(await r.json()) })
+        .catch(() => {})
     } catch {
       setError(t('error'))
     } finally {
@@ -236,6 +272,96 @@ export function AttendPage({ token }: { token: string }) {
             </div>
           </div>
         )}
+
+        {status && dashboard && (
+          <div className="pt-3 border-t border-slate-100 dark:border-gray-800 space-y-3">
+            <div className={`rounded-xl p-3 flex items-center justify-between ${status.checked_in ? 'bg-emerald-50 dark:bg-emerald-500/10' : 'bg-slate-50 dark:bg-gray-800'}`}>
+              <span className={`w-2 h-2 rounded-full ${status.checked_in ? 'bg-emerald-500' : 'bg-slate-400'}`} />
+              <p className={`text-sm font-semibold ${status.checked_in ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-500'}`}>
+                {status.checked_in ? t('insideWorkNow') : t('outsideWorkNow')}
+              </p>
+              <Clock className="w-4 h-4 text-slate-400" />
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div className="bg-slate-50 dark:bg-gray-800 rounded-lg p-3">
+                <div className="flex items-center justify-between">
+                  <Clock className="w-3.5 h-3.5 text-slate-400" />
+                  <p className="text-xs text-slate-400">{t('today')}</p>
+                </div>
+                <p className="text-lg font-bold text-slate-800 dark:text-white">{dashboard.work_hours_today.toFixed(2)}</p>
+                <p className="text-[10px] text-slate-400">{t('totalWorkHoursToday')}</p>
+              </div>
+              <div className="bg-slate-50 dark:bg-gray-800 rounded-lg p-3">
+                <div className="flex items-center justify-between">
+                  <CalendarCheck className="w-3.5 h-3.5 text-violet-500" />
+                </div>
+                <p className="text-lg font-bold text-slate-800 dark:text-white">{dashboard.work_days_this_month}</p>
+                <p className="text-[10px] text-slate-400">{t('workDaysThisMonth')}</p>
+              </div>
+              <div className="bg-amber-50 dark:bg-amber-500/10 rounded-lg p-3">
+                <div className="flex items-center justify-between">
+                  <TrendingUp className="w-3.5 h-3.5 text-amber-500" />
+                </div>
+                <p className="text-lg font-bold text-amber-600 dark:text-amber-400">{dashboard.monthly_hours_total.toFixed(2)}</p>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400">{t('monthlyHoursTotal')}</p>
+              </div>
+              <div className="bg-emerald-50 dark:bg-emerald-500/10 rounded-lg p-3">
+                <div className="flex items-center justify-between">
+                  <Gift className="w-3.5 h-3.5 text-emerald-500" />
+                </div>
+                <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{dashboard.leave_balance ?? '—'}</p>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400">{t('leaveBalance')}</p>
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('recentLeaves')}</p>
+                <span className="text-xs text-[#0C447C] dark:text-[#5B9BD5]">{t('viewAll')}</span>
+              </div>
+              {dashboard.recent_leaves.length === 0 ? (
+                <p className="text-xs text-slate-400 text-center py-2">{t('noLeaves')}</p>
+              ) : (
+                <div className="space-y-1.5">
+                  {dashboard.recent_leaves.map((l) => (
+                    <div key={l.id} className="flex items-center justify-between bg-slate-50 dark:bg-gray-800 rounded-lg p-2.5 text-xs">
+                      <span className={`px-2 py-0.5 rounded-full font-medium ${
+                        l.status === 'approved' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400'
+                        : l.status === 'pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400'
+                        : 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400'
+                      }`}>
+                        {t(l.status)}
+                      </span>
+                      <div className="text-end">
+                        <p className="font-medium text-slate-700 dark:text-slate-300">{t('leaveDaysCount', { count: l.days_count })}</p>
+                        <p className="text-slate-400">{l.date_from} → {l.date_to}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div>
+              <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{t('recentNotifications')}</p>
+              {dashboard.recent_notifications.length === 0 ? (
+                <p className="text-xs text-slate-400 text-center py-2">{t('noNotifications')}</p>
+              ) : (
+                <div className="space-y-1.5">
+                  {dashboard.recent_notifications.map((n) => (
+                    <div key={n.id} className="flex items-start gap-2 bg-amber-50 dark:bg-amber-500/10 rounded-lg p-2.5">
+                      <Bell className="w-3.5 h-3.5 text-amber-500 mt-0.5 shrink-0" />
+                      <p className="text-xs font-medium text-slate-700 dark:text-slate-300">{n.title}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        <BottomNav token={token} />
       </div>
     </Shell>
   )
