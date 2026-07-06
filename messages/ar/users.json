@@ -10,6 +10,8 @@
   "inactive": "معطّل",
   "delete": "حذف",
   "viewDetails": "عرض التفاصيل",
+  "disable": "تعطيل",
+  "enable": "تفعيل",
   "empty": "لا يوجد مستخدمون",
   "password": "كلمة المرور",
   "cancel": "إلغاء",

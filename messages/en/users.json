@@ -10,6 +10,8 @@
   "inactive": "Inactive",
   "delete": "Delete",
   "viewDetails": "View Details",
+  "disable": "Disable",
+  "enable": "Enable",
   "empty": "No users found",
   "password": "Password",
   "cancel": "Cancel",
