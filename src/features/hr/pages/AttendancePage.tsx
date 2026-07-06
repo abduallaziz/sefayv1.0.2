@@ -405,10 +405,10 @@ function EmployeeHistoryModal({
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={onClose}>
       <div
-        className="bg-white dark:bg-gray-900 rounded-xl w-full max-w-md max-h-[85vh] flex flex-col"
+        className="bg-white dark:bg-gray-900 rounded-xl w-full max-w-2xl max-h-[85vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="px-4 py-3 border-b border-slate-200 dark:border-gray-800 flex items-center justify-between">
+        <div className="px-5 pt-5 pb-3 border-b border-slate-200 dark:border-gray-800 flex items-center justify-between">
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
             <X className="w-4 h-4" />
           </button>
@@ -420,24 +420,24 @@ function EmployeeHistoryModal({
             <Avatar name={user.name} avatarUrl={user.avatarUrl} />
           </div>
         </div>
-        <div className="px-4 py-3 border-b border-slate-100 dark:border-gray-800">
+        <div className="px-5 py-3 border-b border-slate-100 dark:border-gray-800">
           <DateRangePicker className="w-full" value={range} onChange={setRange} />
         </div>
 
-        <div className="grid grid-cols-2 gap-2 px-4 py-3 border-b border-slate-100 dark:border-gray-800">
-          <div className="bg-slate-50 dark:bg-gray-800 rounded-lg p-2.5 text-center">
+        <div className="grid grid-cols-4 gap-3 px-5 py-4 border-b border-slate-100 dark:border-gray-800">
+          <div className="bg-slate-50 dark:bg-gray-800 rounded-lg p-3 text-center">
             <p className="text-lg font-bold text-slate-800 dark:text-white">{stats.totalHours}</p>
             <p className="text-[10px] text-slate-500 dark:text-slate-400">{t('totalHours')}</p>
           </div>
-          <div className="bg-slate-50 dark:bg-gray-800 rounded-lg p-2.5 text-center">
+          <div className="bg-slate-50 dark:bg-gray-800 rounded-lg p-3 text-center">
             <p className="text-lg font-bold text-slate-800 dark:text-white">{stats.workDays}</p>
             <p className="text-[10px] text-slate-500 dark:text-slate-400">{t('workDays')}</p>
           </div>
-          <div className="bg-amber-50 dark:bg-amber-500/10 rounded-lg p-2.5 text-center">
+          <div className="bg-amber-50 dark:bg-amber-500/10 rounded-lg p-3 text-center">
             <p className="text-lg font-bold text-amber-600 dark:text-amber-400">{stats.lateHours}</p>
             <p className="text-[10px] text-slate-500 dark:text-slate-400">{t('lateHours')}</p>
           </div>
-          <div className="bg-emerald-50 dark:bg-emerald-500/10 rounded-lg p-2.5 text-center">
+          <div className="bg-emerald-50 dark:bg-emerald-500/10 rounded-lg p-3 text-center">
             <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{stats.attendancePercentage}%</p>
             <p className="text-[10px] text-slate-500 dark:text-slate-400">{t('attendancePercentage')}</p>
           </div>
@@ -465,7 +465,7 @@ function AttendanceTimeline({
     return <p className="text-sm text-slate-500 dark:text-slate-400 py-8 text-center">{t('noRecords')}</p>
   }
   return (
-    <div className="px-4 py-3 divide-y divide-slate-100 dark:divide-gray-800">
+    <div className="px-5 py-4 divide-y divide-slate-100 dark:divide-gray-800">
       {records.map((r) => {
         const d = new Date(r.check_in_at)
         return (
