@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { CalendarDays } from 'lucide-react'
 import { BottomNav } from '../components/BottomNav'
+import { TenantHeader } from '../components/TenantHeader'
 
 interface Leave {
   id: string
@@ -34,6 +35,7 @@ export function AttendLeavesPage({ token }: { token: string }) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-gray-950 p-4">
       <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-2xl p-6 w-full max-w-sm">
+        <TenantHeader token={token} />
         <div className="flex items-center gap-2 mb-4">
           <CalendarDays className="w-5 h-5 text-slate-400" />
           <h1 className="text-base font-semibold text-slate-800 dark:text-white">{t('navLeaves')}</h1>

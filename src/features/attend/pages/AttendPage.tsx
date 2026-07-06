@@ -29,6 +29,8 @@ interface Status {
   today_check_in_at: string | null
   today_check_out_at: string | null
   zone_name: string | null
+  tenant_name: string | null
+  tenant_logo_url: string | null
 }
 
 interface Leave {
@@ -68,7 +70,7 @@ export function AttendPage({ token }: { token: string }) {
   const [result, setResult] = useState<{ action: 'check_in' | 'check_out'; code: string } | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [now, setNow] = useState(() => new Date())
-  const [view, setView] = useState<'dashboard' | 'checkin'>('dashboard')
+  const [view, setView] = useState<'dashboard' | 'checkin'>('checkin')
 
   useEffect(() => {
     fetch(`/api/v1/attend/${token}`)
@@ -142,7 +144,6 @@ export function AttendPage({ token }: { token: string }) {
       fetch(`/api/v1/attend/${token}/dashboard`)
         .then(async (r) => { if (r.ok) setDashboard(await r.json()) })
         .catch(() => {})
-      setView('dashboard')
     } catch {
       setError(t('error'))
     } finally {
@@ -164,6 +165,18 @@ export function AttendPage({ token }: { token: string }) {
   return (
     <Shell>
       <div className="space-y-4">
+        {status?.tenant_name && (
+          <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-gray-800">
+            {status.tenant_logo_url ? (
+              <img src={status.tenant_logo_url} alt={status.tenant_name} className="w-6 h-6 rounded-md object-cover shrink-0" />
+            ) : (
+              <div className="w-6 h-6 rounded-md bg-[#0C447C] flex items-center justify-center text-white text-[10px] font-semibold shrink-0">
+                {initials(status.tenant_name)}
+              </div>
+            )}
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 truncate">{status.tenant_name}</p>
+          </div>
+        )}
         {status && (
           <div className="flex items-start justify-between">
             <Bell className="w-5 h-5 text-slate-400 mt-1.5" />
