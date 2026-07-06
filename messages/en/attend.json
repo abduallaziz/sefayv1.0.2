@@ -18,5 +18,6 @@
   "autoNote": "Your location and time will be recorded automatically",
   "todaySummary": "Today's Summary",
   "checkInLabel": "Check In",
-  "checkOutLabel": "Check Out"
+  "checkOutLabel": "Check Out",
+  "viewDetails": "View Details"
 }

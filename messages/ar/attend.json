@@ -18,5 +18,6 @@
   "autoNote": "سيتم تسجيل موقعك والوقت تلقائياً",
   "todaySummary": "ملخص دوام اليوم",
   "checkInLabel": "تسجيل الدخول",
-  "checkOutLabel": "تسجيل الخروج"
+  "checkOutLabel": "تسجيل الخروج",
+  "viewDetails": "عرض التفاصيل"
 }

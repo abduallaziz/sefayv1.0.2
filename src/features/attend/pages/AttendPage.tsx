@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { MapPin, CheckCircle2, XCircle, LogIn, LogOut, RefreshCw } from 'lucide-react'
+import { Bell, MapPin, CheckCircle2, XCircle, LogIn, LogOut, RefreshCw, ShieldCheck } from 'lucide-react'
 
 const DEVICE_ID_KEY = 'sefay_attend_device_id'
 
@@ -127,13 +127,19 @@ export function AttendPage({ token }: { token: string }) {
     <Shell>
       <div className="space-y-4">
         {status && (
-          <div className="flex items-center justify-between">
-            <div className="w-9 h-9 rounded-full bg-[#0C447C] flex items-center justify-center text-white text-xs font-semibold">
-              {initials(status.name)}
-            </div>
-            <div className="text-end">
-              <p className="text-base font-semibold text-slate-800 dark:text-white">{t('greeting', { name: status.name })}</p>
-              {status.job_title && <p className="text-xs text-slate-400">{status.job_title}</p>}
+          <div className="flex items-start justify-between">
+            <Bell className="w-5 h-5 text-slate-400 mt-1.5" />
+            <div className="flex items-center gap-2.5">
+              <div className="text-end">
+                <p className="text-base font-semibold text-slate-800 dark:text-white">{t('greeting', { name: status.name })} 👋</p>
+                {status.job_title && <p className="text-xs text-slate-400">{status.job_title}</p>}
+              </div>
+              <div className="relative shrink-0">
+                <div className="w-11 h-11 rounded-full bg-[#0C447C] flex items-center justify-center text-white text-sm font-semibold">
+                  {initials(status.name)}
+                </div>
+                <span className="absolute bottom-0 end-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white dark:border-gray-900" />
+              </div>
             </div>
           </div>
         )}
@@ -149,26 +155,38 @@ export function AttendPage({ token }: { token: string }) {
           </div>
         ) : (
           <>
-            <div className={`rounded-xl p-4 space-y-1 ${locationState === 'in_range' ? 'bg-emerald-50 dark:bg-emerald-500/10' : locationState === 'locating' ? 'bg-slate-50 dark:bg-gray-800' : 'bg-red-50 dark:bg-red-500/10'}`}>
-              <div className="flex items-center gap-2">
-                {locationState === 'locating' && <MapPin className="w-5 h-5 text-slate-400 animate-pulse" />}
-                {locationState === 'in_range' && <CheckCircle2 className="w-5 h-5 text-emerald-500" />}
-                {(locationState === 'out_of_range' || locationState === 'error') && <XCircle className="w-5 h-5 text-red-500" />}
-                <p className={`text-sm font-semibold ${locationState === 'in_range' ? 'text-emerald-700 dark:text-emerald-400' : locationState === 'locating' ? 'text-slate-500' : 'text-red-600 dark:text-red-400'}`}>
-                  {locationState === 'locating' && t('locating')}
-                  {locationState === 'in_range' && t('locationCorrect')}
-                  {locationState === 'error' && t('locationError')}
-                  {locationState === 'out_of_range' && t('outOfRange')}
-                </p>
+            <div className={`rounded-xl p-4 text-center space-y-1.5 ${locationState === 'in_range' ? 'bg-emerald-50 dark:bg-emerald-500/10' : locationState === 'locating' ? 'bg-slate-50 dark:bg-gray-800' : 'bg-red-50 dark:bg-red-500/10'}`}>
+              <div className="flex justify-center mb-1">
+                {locationState === 'locating' && (
+                  <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-gray-700 flex items-center justify-center">
+                    <MapPin className="w-5 h-5 text-slate-400 animate-pulse" />
+                  </div>
+                )}
+                {locationState === 'in_range' && (
+                  <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center">
+                    <CheckCircle2 className="w-6 h-6 text-white" />
+                  </div>
+                )}
+                {(locationState === 'out_of_range' || locationState === 'error') && (
+                  <div className="w-10 h-10 rounded-full bg-red-500 flex items-center justify-center">
+                    <XCircle className="w-6 h-6 text-white" />
+                  </div>
+                )}
               </div>
+              <p className={`text-sm font-semibold ${locationState === 'in_range' ? 'text-emerald-700 dark:text-emerald-400' : locationState === 'locating' ? 'text-slate-500' : 'text-red-600 dark:text-red-400'}`}>
+                {locationState === 'locating' && t('locating')}
+                {locationState === 'in_range' && t('locationCorrect')}
+                {locationState === 'error' && t('locationError')}
+                {locationState === 'out_of_range' && t('outOfRange')}
+              </p>
               {locationState === 'in_range' && status?.zone_name && (
-                <p className="text-xs text-slate-500 dark:text-slate-400 ps-7">{status.zone_name}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{status.zone_name}</p>
               )}
               <button
                 onClick={() => setLocationKey((k) => k + 1)}
-                className="flex items-center gap-1 text-xs text-[#0C447C] dark:text-[#5B9BD5] ps-7"
+                className="flex items-center gap-1 text-xs text-[#0C447C] dark:text-[#5B9BD5] mx-auto"
               >
-                <RefreshCw className="w-3 h-3" />
+                <MapPin className="w-3 h-3" />
                 {t('changeLocation')}
               </button>
             </div>
@@ -190,24 +208,30 @@ export function AttendPage({ token }: { token: string }) {
                 status?.checked_in ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700'
               }`}
             >
-              {status?.checked_in ? <LogOut className="w-4 h-4" /> : <LogIn className="w-4 h-4" />}
               {submitting ? t('submitting') : status?.checked_in ? t('checkOutAction') : t('checkInAction')}
+              {status?.checked_in ? <LogOut className="w-4 h-4" /> : <LogIn className="w-4 h-4" />}
             </button>
-            <p className="text-xs text-slate-400 text-center">{t('autoNote')}</p>
+            <p className="flex items-center justify-center gap-1 text-xs text-slate-400 text-center">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              {t('autoNote')}
+            </p>
           </>
         )}
 
         {status && (
-          <div className="pt-2 border-t border-slate-100 dark:border-gray-800">
-            <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">{t('todaySummary')}</p>
+          <div className="pt-3 border-t border-slate-100 dark:border-gray-800">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('todaySummary')}</p>
+              <span className="text-xs text-[#0C447C] dark:text-[#5B9BD5]">{t('viewDetails')}</span>
+            </div>
             <div className="grid grid-cols-2 gap-2">
               <div className="bg-red-50 dark:bg-red-500/10 rounded-lg p-3 text-center">
                 <p className="text-lg font-bold text-slate-800 dark:text-white tabular-nums">{fmtTime(status.today_check_out_at)}</p>
                 <p className="text-xs text-red-600 dark:text-red-400">{t('checkOutLabel')}</p>
               </div>
-              <div className="bg-emerald-50 dark:bg-emerald-500/10 rounded-lg p-3 text-center">
+              <div className="bg-slate-50 dark:bg-gray-800 rounded-lg p-3 text-center">
                 <p className="text-lg font-bold text-slate-800 dark:text-white tabular-nums">{fmtTime(status.today_check_in_at)}</p>
-                <p className="text-xs text-emerald-600 dark:text-emerald-400">{t('checkInLabel')}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{t('checkInLabel')}</p>
               </div>
             </div>
           </div>
