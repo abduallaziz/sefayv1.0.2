@@ -181,6 +181,13 @@ export interface HrSummary {
   approved_leaves_this_month: number
 }
 
+export interface AuditSummary {
+  total_today: number
+  leave_today: number
+  payroll_today: number
+  attendance_today: number
+}
+
 export interface PayrollEmployee {
   user_id: string
   name: string
@@ -256,6 +263,9 @@ export const reportsApi = {
 
   getHrSummary: (): Promise<HrSummary> =>
     apiClient.get('/reports/hr-summary'),
+
+  getAuditSummary: (): Promise<AuditSummary> =>
+    apiClient.get('/reports/audit-summary'),
 
   getEmployees: (query?: ReportQuery): Promise<EmployeesReport> => {
     const params = new URLSearchParams()

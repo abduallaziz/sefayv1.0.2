@@ -91,3 +91,10 @@ export function useHrSummary() {
     queryFn: () => reportsApi.getHrSummary(),
   })
 }
+
+export function useAuditSummary() {
+  return useQuery({
+    queryKey: ['reports', 'audit-summary'],
+    queryFn: () => reportsApi.getAuditSummary(),
+  })
+}

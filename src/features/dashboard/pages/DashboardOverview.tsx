@@ -15,6 +15,7 @@ import {
   Clock, BarChart3, Zap, AlertCircle,
   CheckCircle, CreditCard, RotateCcw, Star,
   UserCheck, UserX, CalendarClock, CalendarCheck,
+  History, CalendarDays,
 } from 'lucide-react'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
@@ -279,6 +280,12 @@ export function DashboardOverview() {
     enabled: !!user && canViewHrKpis, refetchInterval: 120000, staleTime: 60000,
   })
 
+  const { data: auditSummary } = useQuery({
+    queryKey: ['dashboard', 'audit-summary'],
+    queryFn: () => reportsApi.getAuditSummary(),
+    enabled: !!user && canViewHrKpis, refetchInterval: 120000, staleTime: 60000,
+  })
+
   const dashboardError = revenueError || paymentsError || expensesError || shiftError
     || customerStatsError || sparklinesError || topItemsError || recentActivityError
 
@@ -491,6 +498,23 @@ export function DashboardOverview() {
           <StatCard c={c} title={t('statApprovedLeavesMonth')} value={hrSummary.approved_leaves_this_month.toLocaleString('en-US')} icon={CalendarCheck}
             spark={Array(7).fill(hrSummary.approved_leaves_this_month)} sparkColor="#0C447C"
             stripe="linear-gradient(90deg,#0C447C,#3B82F6)" />
+        </div>
+      )}
+
+      {canViewHrKpis && auditSummary && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '16px', marginBottom: '18px' }} className="stat-grid">
+          <StatCard c={c} title={t('statAuditTotalToday')} value={auditSummary.total_today.toLocaleString('en-US')} icon={History}
+            spark={Array(7).fill(auditSummary.total_today)} sparkColor="#0C447C"
+            stripe="linear-gradient(90deg,#0C447C,#3B82F6)" />
+          <StatCard c={c} title={t('statAuditLeaveToday')} value={auditSummary.leave_today.toLocaleString('en-US')} icon={CalendarDays}
+            spark={Array(7).fill(auditSummary.leave_today)} sparkColor="#7C3AED"
+            stripe="linear-gradient(90deg,#6D28D9,#A78BFA)" />
+          <StatCard c={c} title={t('statAuditPayrollToday')} value={auditSummary.payroll_today.toLocaleString('en-US')} icon={Wallet}
+            spark={Array(7).fill(auditSummary.payroll_today)} sparkColor="#D97706"
+            stripe="linear-gradient(90deg,#B45309,#FBBF24)" />
+          <StatCard c={c} title={t('statAuditAttendanceToday')} value={auditSummary.attendance_today.toLocaleString('en-US')} icon={UserCheck}
+            spark={Array(7).fill(auditSummary.attendance_today)} sparkColor="#059669"
+            stripe="linear-gradient(90deg,#059669,#34D399)" />
         </div>
       )}
 
