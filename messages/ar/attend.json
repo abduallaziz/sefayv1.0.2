@@ -49,5 +49,21 @@
   "totalHoursForDay": "إجمالي ساعات العمل: {hours}",
   "comingSoon": "قريباً",
   "logTitle": "سجل الحضور والانصراف",
-  "logNoRecords": "لا يوجد سجل في هذه الفترة"
+  "logNoRecords": "لا يوجد سجل في هذه الفترة",
+  "newLeaveRequest": "طلب جديد",
+  "leaveTypeLabel": "نوع الطلب",
+  "leaveTypeAnnual": "إجازة سنوية",
+  "leaveTypeSick": "إجازة مرضية",
+  "leaveTypeUnpaid": "إجازة بدون راتب",
+  "leaveTypeOther": "أخرى",
+  "dateFromLabel": "من تاريخ",
+  "dateToLabel": "إلى تاريخ",
+  "reasonLabel": "السبب (اختياري)",
+  "reasonPlaceholder": "اكتب سبب الطلب...",
+  "submitLeaveRequest": "إرسال الطلب",
+  "leaveRequestSubmitted": "تم إرسال طلبك بنجاح",
+  "leaveRequestError": "تعذر إرسال الطلب، حاول مرة أخرى",
+  "cancel": "إلغاء",
+  "insideWork": "داخل الدوام",
+  "outsideWork": "خارج الدوام"
 }

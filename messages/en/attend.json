@@ -49,5 +49,21 @@
   "totalHoursForDay": "Total work hours: {hours}",
   "comingSoon": "Coming soon",
   "logTitle": "Attendance Log",
-  "logNoRecords": "No records in this period"
+  "logNoRecords": "No records in this period",
+  "newLeaveRequest": "New Request",
+  "leaveTypeLabel": "Request Type",
+  "leaveTypeAnnual": "Annual Leave",
+  "leaveTypeSick": "Sick Leave",
+  "leaveTypeUnpaid": "Unpaid Leave",
+  "leaveTypeOther": "Other",
+  "dateFromLabel": "From Date",
+  "dateToLabel": "To Date",
+  "reasonLabel": "Reason (optional)",
+  "reasonPlaceholder": "Write the reason for your request...",
+  "submitLeaveRequest": "Submit Request",
+  "leaveRequestSubmitted": "Your request was submitted successfully",
+  "leaveRequestError": "Couldn't submit the request, try again",
+  "cancel": "Cancel",
+  "insideWork": "Inside Work",
+  "outsideWork": "Outside Work"
 }

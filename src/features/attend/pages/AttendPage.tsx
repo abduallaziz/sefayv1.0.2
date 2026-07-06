@@ -182,14 +182,20 @@ export function AttendPage({ token }: { token: string }) {
             <Bell className="w-5 h-5 text-slate-400 mt-1.5" />
             <div className="flex items-center gap-2.5">
               <div className="text-end">
-                <p className="text-base font-semibold text-slate-800 dark:text-white">{t('greeting', { name: status.name })} 👋</p>
-                {status.job_title && <p className="text-xs text-slate-400">{status.job_title}</p>}
+                <p className="text-base font-bold text-slate-800 dark:text-white tracking-tight">{t('greeting', { name: status.name })} 👋</p>
+                {status.job_title && <p className="text-xs text-slate-400 mb-1">{status.job_title}</p>}
+                <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                  status.checked_in ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400' : 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400'
+                }`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${status.checked_in ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                  {status.checked_in ? t('insideWork') : t('outsideWork')}
+                </span>
               </div>
               <div className="relative shrink-0">
-                <div className="w-11 h-11 rounded-full bg-[#0C447C] flex items-center justify-center text-white text-sm font-semibold">
+                <div className="w-11 h-11 rounded-full bg-[#0C447C] flex items-center justify-center text-white text-sm font-semibold shadow-sm">
                   {initials(status.name)}
                 </div>
-                <span className="absolute bottom-0 end-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white dark:border-gray-900" />
+                <span className={`absolute bottom-0 end-0 w-3 h-3 rounded-full border-2 border-white dark:border-gray-900 ${status.checked_in ? 'bg-emerald-500' : 'bg-red-500'}`} />
               </div>
             </div>
           </div>
@@ -258,7 +264,7 @@ export function AttendPage({ token }: { token: string }) {
             <button
               onClick={handleSubmit}
               disabled={submitting || locationState !== 'in_range'}
-              className={`w-full flex items-center justify-center gap-2 py-3.5 disabled:opacity-50 text-white rounded-xl font-semibold ${
+              className={`w-full flex items-center justify-center gap-2 py-3.5 disabled:opacity-50 text-white rounded-xl font-semibold shadow-sm transition-colors ${
                 status?.checked_in ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700'
               }`}
             >
@@ -391,7 +397,7 @@ export function AttendPage({ token }: { token: string }) {
 function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-gray-950 p-4">
-      <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-2xl p-6 w-full max-w-sm">
+      <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-2xl shadow-sm p-6 w-full max-w-sm">
         {children}
       </div>
     </div>
