@@ -11,5 +11,12 @@
   "checkedIn": "Checked in successfully",
   "checkedOut": "Checked out successfully",
   "confirmationCode": "Confirmation code",
-  "error": "Something went wrong, try again"
+  "error": "Something went wrong, try again",
+  "locationCorrect": "You're at the right location",
+  "changeLocation": "Change location",
+  "currentTime": "Current time",
+  "autoNote": "Your location and time will be recorded automatically",
+  "todaySummary": "Today's Summary",
+  "checkInLabel": "Check In",
+  "checkOutLabel": "Check Out"
 }

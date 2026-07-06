@@ -11,5 +11,12 @@
   "checkedIn": "تم تسجيل حضورك",
   "checkedOut": "تم تسجيل انصرافك",
   "confirmationCode": "رمز التأكيد",
-  "error": "حدث خطأ، حاول مرة أخرى"
+  "error": "حدث خطأ، حاول مرة أخرى",
+  "locationCorrect": "أنت في الموقع الصحيح",
+  "changeLocation": "تغيير الموقع",
+  "currentTime": "الوقت الحالي",
+  "autoNote": "سيتم تسجيل موقعك والوقت تلقائياً",
+  "todaySummary": "ملخص دوام اليوم",
+  "checkInLabel": "تسجيل الدخول",
+  "checkOutLabel": "تسجيل الخروج"
 }
