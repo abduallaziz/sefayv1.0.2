@@ -401,7 +401,7 @@ function AttendanceTab({
     <div className="space-y-4">
       <div className="border border-slate-100 dark:border-gray-800 rounded-2xl p-5">
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-          <InfoItem icon={ShieldCheck} label={t('attendanceStatus')} value={t('enableAttendance')} />
+          <InfoItem icon={ShieldCheck} label={t('attendanceStatus')} value={t('tokenActive')} />
           <InfoItem icon={ShieldCheck} label={t('tokenStatus')} value={user.attendance_token ? t('tokenActive') : t('notSet')} />
           <InfoItem icon={Smartphone} label={t('deviceStatus')} value={user.attendance_device_fingerprint ? t('deviceBound') : t('deviceNotBound')} />
         </div>
