@@ -45,7 +45,7 @@ export function PermissionGroupSection({
   const status: 'custom' | 'partial' | 'default' =
     customizedCount === 0 ? 'default' : customizedCount === total ? 'custom' : 'partial'
 
-  const statusLabel = { custom: t('customized'), partial: t('partial'), default: t('defaultSource') }[status]
+  const statusLabel = { custom: t('customized'), partial: t('partial'), default: t('statusFilter.default') }[status]
   const statusClass = {
     custom: 'bg-[#E8F1FB] text-[#0C447C] dark:bg-[#0C447C]/20 dark:text-[#5B9BD5]',
     partial: 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400',

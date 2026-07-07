@@ -338,9 +338,14 @@ export function AccessControlPage({ initialRoleId }: { initialRoleId?: string })
                   )}
                 </div>
                 <div className="hidden sm:block flex-shrink-0">
-                  <div className="w-20 h-20 rounded-3xl bg-[#0C447C] flex items-center justify-center text-white">
-                    <ShieldCheck className="w-10 h-10" />
-                  </div>
+                  <svg width="96" height="80" viewBox="0 0 110 90">
+                    <rect x="6" y="34" width="20" height="20" rx="4" fill="#0C447C" opacity=".85" transform="rotate(15 16 44)" />
+                    <rect x="82" y="20" width="18" height="18" rx="4" fill="#5B9BD5" opacity=".9" transform="rotate(-10 91 29)" />
+                    <rect x="80" y="55" width="16" height="16" rx="4" fill="#0C447C" opacity=".7" transform="rotate(20 88 63)" />
+                    <circle cx="55" cy="44" r="34" fill="#FFFFFF" />
+                    <path d="M55 16 L82 26 V46 C82 62 70 74 55 80 C40 74 28 62 28 46 V26 Z" fill="#0C447C" />
+                    <path d="M42 46 L51 55 L70 34" stroke="white" strokeWidth="5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
                 </div>
               </div>
 
@@ -428,6 +433,17 @@ export function AccessControlPage({ initialRoleId }: { initialRoleId?: string })
                         {t('groupCount', { count: groupedPermissions.length })}
                       </span>
                     </div>
+
+                    {!detailLoading && groupedPermissions.length > 0 && (
+                      <div className="hidden md:flex items-center gap-3.5 px-5 pt-3 pb-1">
+                        <span className="w-3.5 flex-shrink-0" />
+                        <span className="text-[10px] font-extrabold text-slate-400 min-w-[62px] flex-shrink-0">{t('colProgress')}</span>
+                        <span className="text-[10px] font-extrabold text-slate-400 w-14 flex-shrink-0">{t('colCustomized')}</span>
+                        <span className="text-[10px] font-extrabold text-slate-400 w-20 flex-shrink-0">{t('colPermissions')}</span>
+                        <span className="flex-1 text-[10px] font-extrabold text-slate-400">{t('colPercentage')}</span>
+                        <span className="w-52 flex-shrink-0" />
+                      </div>
+                    )}
 
                     {detailLoading ? (
                       <div className="p-5 space-y-3">

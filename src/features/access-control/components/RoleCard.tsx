@@ -1,7 +1,7 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import { ChevronLeft, Lock, Circle } from 'lucide-react'
+import { ChevronLeft, Lock, Circle, Briefcase, User, Crown, Box, ShieldEllipsis, UserCheck, UserX } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { RoleSummary } from '../api/access-control.api'
 
@@ -11,14 +11,16 @@ import type { RoleSummary } from '../api/access-control.api'
 // badge / read-only wording, never whether an action is actually possible.
 const PROTECTED_ROLE_NAMES = new Set(['owner', 'superadmin'])
 
-// Pastel icon-color palette, cycled by position — not tied to specific role
-// names, so it works the same way once custom tenant roles exist.
+// Pastel icon-color palette + icon set, both cycled by position — not tied
+// to specific role names, so this works the same way once custom tenant
+// roles exist (a brand-new role just gets the next icon/color in rotation).
 const PALETTE = [
   { bg: '#E8F1FB', fg: '#0C447C' },
   { bg: '#E6F9EE', fg: '#16A34A' },
   { bg: '#FEF3DA', fg: '#D97706' },
   { bg: '#EDEAFB', fg: '#7C6EF6' },
 ]
+const ICONS = [Briefcase, User, Crown, Box, ShieldEllipsis, UserCheck, UserX, User]
 
 export function RoleCard({
   role,
@@ -34,6 +36,7 @@ export function RoleCard({
   const t = useTranslations('accessControl')
   const isProtected = PROTECTED_ROLE_NAMES.has(role.name)
   const color = PALETTE[index % PALETTE.length]
+  const Icon = ICONS[index % ICONS.length]
 
   return (
     <button
@@ -48,10 +51,10 @@ export function RoleCard({
     >
       <div className="flex items-center gap-2.5 mb-3">
         <div
-          className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 font-bold text-sm"
+          className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
           style={{ background: color.bg, color: color.fg }}
         >
-          {role.name.slice(0, 1).toUpperCase()}
+          <Icon className="w-4 h-4" />
         </div>
         <div className="min-w-0">
           <p className="text-sm font-extrabold text-slate-800 dark:text-white truncate">{role.name}</p>
