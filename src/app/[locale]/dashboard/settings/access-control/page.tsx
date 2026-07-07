@@ -1,5 +1,5 @@
-import { AccessControlRolesPage } from '@/features/access-control/pages/AccessControlRolesPage';
+import { AccessControlPage } from '@/features/access-control/pages/AccessControlPage';
 
 export default function Page() {
-  return <AccessControlRolesPage />;
+  return <AccessControlPage />;
 }

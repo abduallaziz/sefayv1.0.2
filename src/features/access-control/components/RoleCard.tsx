@@ -1,8 +1,8 @@
 'use client'
 
-import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { ChevronLeft, Lock, Circle } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import type { RoleSummary } from '../api/access-control.api'
 
 // Client-side only — purely for UX (protected-role framing). The backend's
@@ -20,15 +20,31 @@ const PALETTE = [
   { bg: '#EDEAFB', fg: '#7C6EF6' },
 ]
 
-export function RoleCard({ role, index }: { role: RoleSummary; index: number }) {
+export function RoleCard({
+  role,
+  index,
+  selected,
+  onSelect,
+}: {
+  role: RoleSummary
+  index: number
+  selected: boolean
+  onSelect: () => void
+}) {
   const t = useTranslations('accessControl')
   const isProtected = PROTECTED_ROLE_NAMES.has(role.name)
   const color = PALETTE[index % PALETTE.length]
 
   return (
-    <Link
-      href={`/dashboard/settings/access-control/${role.id}`}
-      className="block bg-white dark:bg-gray-900 border-[1.5px] border-slate-200 dark:border-gray-800 rounded-2xl p-4 hover:border-[#0C447C] hover:shadow-md hover:-translate-y-0.5 transition-all"
+    <button
+      type="button"
+      onClick={onSelect}
+      className={cn(
+        'w-full text-start bg-white dark:bg-gray-900 border-[1.5px] rounded-2xl p-4 transition-all',
+        selected
+          ? 'border-[#0C447C] shadow-md'
+          : 'border-slate-200 dark:border-gray-800 hover:border-[#0C447C] hover:shadow-md hover:-translate-y-0.5',
+      )}
     >
       <div className="flex items-center gap-2.5 mb-3">
         <div
@@ -66,6 +82,6 @@ export function RoleCard({ role, index }: { role: RoleSummary; index: number }) 
         {t('viewDetails')}
         <ChevronLeft className="w-3.5 h-3.5 rtl:rotate-180" />
       </div>
-    </Link>
+    </button>
   )
 }

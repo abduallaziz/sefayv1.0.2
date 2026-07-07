@@ -11,6 +11,7 @@
   "manageAccess": "Manage Access",
   "emptyTitle": "No roles found",
   "emptyDescription": "There are no roles to display right now",
+  "selectRolePrompt": "Select a role from the list to view its details",
   "loadError": "Couldn't load data, please try again",
   "saveError": "Couldn't save the change, please try again",
   "roleDetailSubtitle": "Control what this role can access",
