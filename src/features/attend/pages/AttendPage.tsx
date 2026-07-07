@@ -67,7 +67,6 @@ export function AttendPage({ token }: { token: string }) {
   const [locationState, setLocationState] = useState<LocationState>('locating')
   const [locationKey, setLocationKey] = useState(0)
   const [submitting, setSubmitting] = useState(false)
-  const [result, setResult] = useState<{ action: 'check_in' | 'check_out'; code: string } | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [now, setNow] = useState(() => new Date())
   const [view, setView] = useState<'dashboard' | 'checkin'>('checkin')
@@ -134,7 +133,9 @@ export function AttendPage({ token }: { token: string }) {
         setError(data.message ?? t('error'))
         return
       }
-      setResult(data)
+      // Confirmation code is intentionally not shown — the flipped check-in/out
+      // button and status badge below serve as the visible confirmation instead
+      // of a separate screen the employee would have to tap through.
       setStatus((s) => s && {
         ...s,
         checked_in: data.action === 'check_in',
@@ -201,19 +202,7 @@ export function AttendPage({ token }: { token: string }) {
           </div>
         )}
 
-        {result ? (
-          <div className="text-center space-y-3 py-4">
-            <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto" />
-            <p className="text-lg font-semibold text-slate-800 dark:text-white">
-              {result.action === 'check_in' ? t('checkedIn') : t('checkedOut')}
-            </p>
-            <p className="text-sm text-slate-500">{t('confirmationCode')}</p>
-            <p className="text-2xl font-mono font-bold tracking-widest text-[#0C447C] dark:text-[#5B9BD5]">{result.code}</p>
-            <button onClick={() => setResult(null)} className="text-xs text-[#0C447C] dark:text-[#5B9BD5]">
-              {t('navHome')}
-            </button>
-          </div>
-        ) : view === 'checkin' ? (
+        {view === 'checkin' ? (
           <>
             <div className={`rounded-xl p-4 text-center space-y-1.5 ${locationState === 'in_range' ? 'bg-emerald-50 dark:bg-emerald-500/10' : locationState === 'locating' ? 'bg-slate-50 dark:bg-gray-800' : 'bg-red-50 dark:bg-red-500/10'}`}>
               <div className="flex justify-center mb-1">
