@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { usersApi, CreateUserDto, UpdateUserDto } from '../api/users.api'
+import { usersApi, CreateUserDto, CreateEmployeeDto, UpdateUserDto } from '../api/users.api'
 
 export function useUsers() {
   return useQuery({
@@ -12,6 +12,16 @@ export function useCreateUser() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (data: CreateUserDto) => usersApi.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+    },
+  })
+}
+
+export function useCreateEmployee() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data: CreateEmployeeDto) => usersApi.createEmployee(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] })
     },

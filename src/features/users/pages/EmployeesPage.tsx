@@ -35,14 +35,13 @@ export function EmployeesPage() {
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t('title')}</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t('subtitle')}</p>
         </div>
-        <button
-          disabled
-          title={t('comingSoonWizard')}
-          className="flex items-center gap-2 px-3 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] rounded-lg text-sm text-white transition-colors shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+        <Link
+          href="/dashboard/employees/new"
+          className="flex items-center gap-2 px-3 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] rounded-lg text-sm text-white transition-colors shrink-0"
         >
           <Plus className="w-4 h-4" />
           <span className="hidden sm:inline">{t('addEmployee')}</span>
-        </button>
+        </Link>
       </div>
 
       <div className="flex items-center gap-2 flex-wrap">

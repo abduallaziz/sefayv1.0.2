@@ -44,6 +44,23 @@ export interface CreateUserDto {
   branch_id?: string
 }
 
+export interface CreateEmployeeDto {
+  name: string
+  employee_number?: string
+  phone?: string
+  email?: string
+  identity_number?: string
+  department?: string
+  job_title?: string
+  manager_name?: string
+  employment_type?: 'full_time' | 'part_time'
+  join_date?: string
+  city?: string
+  address?: string
+  gps_radius_meters?: number
+  enable_attendance?: boolean
+}
+
 export interface UpdateUserDto {
   name?: string
   is_active?: boolean
@@ -76,6 +93,9 @@ export const usersApi = {
 
   create: (data: CreateUserDto): Promise<User> =>
     apiClient.post('/users', data),
+
+  createEmployee: (data: CreateEmployeeDto): Promise<User & { attendance_token: string | null }> =>
+    apiClient.post('/employees', data),
 
   update: (id: string, data: UpdateUserDto): Promise<User> =>
     apiClient.patch(`/users/${id}`, data),
