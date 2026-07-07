@@ -102,6 +102,10 @@ export interface UpdateEmployeeDto {
   gps_radius_meters?: number | null
   is_active?: boolean
   attendance_enabled?: boolean
+  base_salary?: number | null
+  grace_period_minutes?: number
+  late_deduction_mode?: LateDeductionMode | null
+  late_deduction_value?: number | null
 }
 
 export interface LinkableUser {

@@ -5,9 +5,8 @@ import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useUsers, useDeleteUser, useUpdateUser } from '../hooks/useUsers'
 import { CreateUserDialog } from '../components/CreateUserDialog'
-import { EmployeeSettingsModal } from '../components/EmployeeSettingsModal'
 import type { User } from '../api/users.api'
-import { Trash2, Plus, Settings, Eye, Ban, UserCheck } from 'lucide-react'
+import { Trash2, Plus, Eye, Ban, UserCheck } from 'lucide-react'
 import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
 
 type PendingAction = { type: 'disable' | 'enable' | 'delete'; user: User }
@@ -25,7 +24,6 @@ export function UsersPage() {
   const { mutate: deleteUser, isPending: deleting } = useDeleteUser()
   const { mutate: updateUser, isPending: updating } = useUpdateUser()
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [settingsUserId, setSettingsUserId] = useState<string | null>(null)
   const [pendingAction, setPendingAction] = useState<PendingAction | null>(null)
 
   function confirmPendingAction() {
@@ -39,15 +37,10 @@ export function UsersPage() {
       )
     }
   }
-  // Derived (not copied) so the modal always sees fresh data — e.g. after generating an
-  // attendance link, the mutation invalidates the users query and this re-resolves to the
-  // updated row without needing to close and reopen the modal.
-  const settingsUser = settingsUserId ? (users?.find((u) => u.id === settingsUserId) ?? null) : null
 
   return (
     <div className="space-y-6">
       <CreateUserDialog open={dialogOpen} onClose={() => setDialogOpen(false)} />
-      {settingsUser && <EmployeeSettingsModal user={settingsUser} onClose={() => setSettingsUserId(null)} />}
 
       <div className="flex items-center justify-between gap-3">
         <div>
@@ -97,13 +90,6 @@ export function UsersPage() {
                     >
                       <Eye className="w-4 h-4" />
                     </Link>
-                    <button
-                      onClick={() => setSettingsUserId(user.id)}
-                      className="p-1.5 text-gray-400 dark:text-gray-600 hover:text-[#0C447C] dark:hover:text-[#5B9BD5] transition-colors"
-                      title={t('settings.title', { name: '' })}
-                    >
-                      <Settings className="w-4 h-4" />
-                    </button>
                     <button
                       onClick={() => setPendingAction({ type: user.is_active ? 'disable' : 'enable', user })}
                       className={`p-1.5 transition-colors ${user.is_active ? 'text-gray-400 dark:text-gray-600 hover:text-amber-500 dark:hover:text-amber-400' : 'text-emerald-500 hover:text-emerald-600'}`}
@@ -181,13 +167,6 @@ export function UsersPage() {
                           >
                             <Eye className="w-4 h-4" />
                           </Link>
-                          <button
-                            onClick={() => setSettingsUserId(user.id)}
-                            className="p-1.5 text-gray-400 dark:text-gray-600 hover:text-[#0C447C] dark:hover:text-[#5B9BD5] transition-colors"
-                            title={t('settings.title', { name: '' })}
-                          >
-                            <Settings className="w-4 h-4" />
-                          </button>
                           <button
                             onClick={() => setPendingAction({ type: user.is_active ? 'disable' : 'enable', user })}
                             className={`p-1.5 transition-colors ${user.is_active ? 'text-gray-400 dark:text-gray-600 hover:text-amber-500 dark:hover:text-amber-400' : 'text-emerald-500 hover:text-emerald-600'}`}
