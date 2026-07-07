@@ -1,10 +1,54 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { usersApi, CreateUserDto, CreateEmployeeDto, UpdateUserDto } from '../api/users.api'
+import { usersApi, CreateUserDto, CreateEmployeeDto, UpdateUserDto, UpdateEmployeeDto } from '../api/users.api'
 
 export function useUsers() {
   return useQuery({
     queryKey: ['users'],
     queryFn: usersApi.getAll,
+  })
+}
+
+export function useEmployees() {
+  return useQuery({
+    queryKey: ['employees'],
+    queryFn: usersApi.getEmployees,
+  })
+}
+
+export function useLinkableUsers() {
+  return useQuery({
+    queryKey: ['employees', 'linkable-users'],
+    queryFn: usersApi.getLinkableUsers,
+  })
+}
+
+export function useLinkAsEmployee() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => usersApi.linkAsEmployee(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+      queryClient.invalidateQueries({ queryKey: ['employees'] })
+    },
+  })
+}
+
+export function useUpdateEmployee() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: UpdateEmployeeDto }) =>
+      usersApi.updateEmployee(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+      queryClient.invalidateQueries({ queryKey: ['employees'] })
+    },
+  })
+}
+
+export function useCheckDuplicate() {
+  return useMutation({
+    mutationFn: (fields: { email?: string; phone?: string; employee_number?: string; exclude_id?: string }) =>
+      usersApi.checkDuplicate(fields),
   })
 }
 

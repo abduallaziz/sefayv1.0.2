@@ -1,10 +1,10 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { CheckCircle2 } from 'lucide-react'
-import { useCreateEmployee } from '../hooks/useUsers'
+import { useCreateEmployee, useCheckDuplicate } from '../hooks/useUsers'
 import { SingleDatePicker } from '@/shared/ui/date-range-picker'
 import type { CreateEmployeeDto } from '../api/users.api'
 
@@ -58,9 +58,28 @@ export function EmployeeWizardPage() {
   const [step, setStep] = useState<Step>(1)
   const [data, setData] = useState<WizardData>(INITIAL_DATA)
   const [error, setError] = useState<string | null>(null)
+  const [duplicates, setDuplicates] = useState<{ email?: boolean; phone?: boolean; employee_number?: boolean }>({})
+  const { mutate: checkDuplicate } = useCheckDuplicate()
 
   const set = <K extends keyof WizardData>(key: K, value: WizardData[K]) =>
     setData((d) => ({ ...d, [key]: value }))
+
+  // Real-time duplicate validation (debounced) — blocks moving past Step 1
+  // while any of email/phone/employee_number match another record in this tenant.
+  useEffect(() => {
+    if (step !== 1) return
+    const handle = setTimeout(() => {
+      if (!data.email && !data.phone && !data.employee_number) {
+        setDuplicates({})
+        return
+      }
+      checkDuplicate(
+        { email: data.email || undefined, phone: data.phone || undefined, employee_number: data.employee_number || undefined },
+        { onSuccess: (result) => setDuplicates(result) },
+      )
+    }, 500)
+    return () => clearTimeout(handle)
+  }, [step, data.email, data.phone, data.employee_number, checkDuplicate])
 
   const steps: { key: Step; label: string }[] = [
     { key: 1, label: t('step1') },
@@ -72,12 +91,19 @@ export function EmployeeWizardPage() {
 
   const stepSubtitle = t(`stepSubtitle${step}` as 'stepSubtitle1')
 
-  const canGoNext = step !== 1 || data.name.trim().length > 0
+  const hasDuplicates = !!(duplicates.email || duplicates.phone || duplicates.employee_number)
+  const canGoNext = step !== 1 || (data.name.trim().length > 0 && !hasDuplicates)
 
   function goNext() {
-    if (step === 1 && !data.name.trim()) {
-      setError(t('nameRequired'))
-      return
+    if (step === 1) {
+      if (!data.name.trim()) {
+        setError(t('nameRequired'))
+        return
+      }
+      if (hasDuplicates) {
+        setError(t('resolveDuplicatesFirst'))
+        return
+      }
     }
     setError(null)
     if (step < 5) setStep((s) => (s + 1) as Step)
@@ -165,7 +191,7 @@ export function EmployeeWizardPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 mt-6">
           <div>
-            {step === 1 && <BasicInfoStep t={t} data={data} set={set} />}
+            {step === 1 && <BasicInfoStep t={t} data={data} set={set} duplicates={duplicates} />}
             {step === 2 && <JobInfoStep t={t} data={data} set={set} />}
             {step === 3 && <LocationStep t={t} data={data} set={set} />}
             {step === 4 && <AttendanceStep t={t} data={data} set={set} />}
@@ -212,7 +238,14 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 /* ── Step 1: Basic Information ── */
-function BasicInfoStep({ t, data, set }: { t: ReturnType<typeof useTranslations>; data: WizardData; set: <K extends keyof WizardData>(key: K, value: WizardData[K]) => void }) {
+function BasicInfoStep({
+  t, data, set, duplicates,
+}: {
+  t: ReturnType<typeof useTranslations>
+  data: WizardData
+  set: <K extends keyof WizardData>(key: K, value: WizardData[K]) => void
+  duplicates: { email?: boolean; phone?: boolean; employee_number?: boolean }
+}) {
   return (
     <div>
       <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{t('basicInfoTitle')}</h2>
@@ -222,12 +255,15 @@ function BasicInfoStep({ t, data, set }: { t: ReturnType<typeof useTranslations>
         </Field>
         <Field label={t('employeeNumber')}>
           <input className={inputClass} value={data.employee_number} onChange={(e) => set('employee_number', e.target.value)} placeholder={t('employeeNumberPlaceholder')} />
+          {duplicates.employee_number && <p className="text-xs text-red-500 mt-1.5">{t('employeeNumberDuplicate')}</p>}
         </Field>
         <Field label={t('email')}>
           <input type="email" className={inputClass} value={data.email} onChange={(e) => set('email', e.target.value)} />
+          {duplicates.email && <p className="text-xs text-red-500 mt-1.5">{t('emailDuplicate')}</p>}
         </Field>
         <Field label={t('phone')}>
           <input className={inputClass} value={data.phone} onChange={(e) => set('phone', e.target.value)} />
+          {duplicates.phone && <p className="text-xs text-red-500 mt-1.5">{t('phoneDuplicate')}</p>}
         </Field>
         <Field label={t('identityNumber')}>
           <input className={inputClass} value={data.identity_number} onChange={(e) => set('identity_number', e.target.value)} />

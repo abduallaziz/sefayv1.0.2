@@ -106,5 +106,9 @@
 
   "creating": "جاري الإنشاء...",
   "createError": "حدث خطأ أثناء إنشاء الموظف",
-  "nameRequired": "الاسم مطلوب"
+  "nameRequired": "الاسم مطلوب",
+  "emailDuplicate": "البريد الإلكتروني مستخدم مسبقاً",
+  "phoneDuplicate": "رقم الجوال مستخدم مسبقاً",
+  "employeeNumberDuplicate": "رقم الموظف مستخدم مسبقاً",
+  "resolveDuplicatesFirst": "يرجى حل التكرارات قبل المتابعة"
 }

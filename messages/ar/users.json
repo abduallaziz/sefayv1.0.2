@@ -18,6 +18,11 @@
   "create": "إنشاء",
   "creating": "جاري الإنشاء...",
   "passwordHint": "8 أحرف على الأقل",
+  "saving": "جارٍ التنفيذ...",
+  "confirmActionTitle": "تأكيد الإجراء",
+  "confirmActionMessage_disable": "سيتم تعطيل الحساب فوراً، وسيتم إبطال رابط الحضور والجهاز المرتبط وإنهاء الجلسات النشطة. هل تريد تعطيل",
+  "confirmActionMessage_enable": "هل تريد تفعيل",
+  "confirmActionMessage_delete": "سيتم حذف هذا المستخدم (حذف ناعم مع الاحتفاظ بالسجلات التاريخية). هل تريد حذف",
   "settings": {
     "title": "إعدادات {name}",
     "payroll": "الراتب وسياسة الخصم",

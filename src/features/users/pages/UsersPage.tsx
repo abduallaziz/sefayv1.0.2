@@ -8,6 +8,9 @@ import { CreateUserDialog } from '../components/CreateUserDialog'
 import { EmployeeSettingsModal } from '../components/EmployeeSettingsModal'
 import type { User } from '../api/users.api'
 import { Trash2, Plus, Settings, Eye, Ban, UserCheck } from 'lucide-react'
+import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
+
+type PendingAction = { type: 'disable' | 'enable' | 'delete'; user: User }
 
 const ROLE_COLORS: Record<string, string> = {
   owner: 'bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20',
@@ -19,10 +22,23 @@ const ROLE_COLORS: Record<string, string> = {
 export function UsersPage() {
   const t = useTranslations('users')
   const { data: users, isLoading } = useUsers()
-  const { mutate: deleteUser } = useDeleteUser()
-  const { mutate: updateUser } = useUpdateUser()
+  const { mutate: deleteUser, isPending: deleting } = useDeleteUser()
+  const { mutate: updateUser, isPending: updating } = useUpdateUser()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [settingsUserId, setSettingsUserId] = useState<string | null>(null)
+  const [pendingAction, setPendingAction] = useState<PendingAction | null>(null)
+
+  function confirmPendingAction() {
+    if (!pendingAction) return
+    if (pendingAction.type === 'delete') {
+      deleteUser(pendingAction.user.id, { onSuccess: () => setPendingAction(null) })
+    } else {
+      updateUser(
+        { id: pendingAction.user.id, data: { is_active: pendingAction.type === 'enable' } },
+        { onSuccess: () => setPendingAction(null) },
+      )
+    }
+  }
   // Derived (not copied) so the modal always sees fresh data — e.g. after generating an
   // attendance link, the mutation invalidates the users query and this re-resolves to the
   // updated row without needing to close and reopen the modal.
@@ -89,14 +105,14 @@ export function UsersPage() {
                       <Settings className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => updateUser({ id: user.id, data: { is_active: !user.is_active } })}
+                      onClick={() => setPendingAction({ type: user.is_active ? 'disable' : 'enable', user })}
                       className={`p-1.5 transition-colors ${user.is_active ? 'text-gray-400 dark:text-gray-600 hover:text-amber-500 dark:hover:text-amber-400' : 'text-emerald-500 hover:text-emerald-600'}`}
                       title={user.is_active ? t('disable') : t('enable')}
                     >
                       {user.is_active ? <Ban className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
                     </button>
                     <button
-                      onClick={() => deleteUser(user.id)}
+                      onClick={() => setPendingAction({ type: 'delete', user })}
                       className="p-1.5 text-gray-400 dark:text-gray-600 hover:text-red-500 dark:hover:text-red-400 transition-colors"
                       title={t('delete')}
                     >
@@ -173,14 +189,14 @@ export function UsersPage() {
                             <Settings className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => updateUser({ id: user.id, data: { is_active: !user.is_active } })}
+                            onClick={() => setPendingAction({ type: user.is_active ? 'disable' : 'enable', user })}
                             className={`p-1.5 transition-colors ${user.is_active ? 'text-gray-400 dark:text-gray-600 hover:text-amber-500 dark:hover:text-amber-400' : 'text-emerald-500 hover:text-emerald-600'}`}
                             title={user.is_active ? t('disable') : t('enable')}
                           >
                             {user.is_active ? <Ban className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
                           </button>
                           <button
-                            onClick={() => deleteUser(user.id)}
+                            onClick={() => setPendingAction({ type: 'delete', user })}
                             className="p-1.5 text-gray-400 dark:text-gray-600 hover:text-red-500 dark:hover:text-red-400 transition-colors"
                             title={t('delete')}
                           >
@@ -199,6 +215,26 @@ export function UsersPage() {
           </div>
         </>
       )}
+
+      <ConfirmDialog
+        open={!!pendingAction}
+        onClose={() => setPendingAction(null)}
+        onConfirm={confirmPendingAction}
+        variant={pendingAction?.type === 'delete' ? 'danger' : 'warning'}
+        title={t('confirmActionTitle')}
+        message={
+          pendingAction && (
+            <>
+              {t(`confirmActionMessage_${pendingAction.type}`)}{' '}
+              <span className="font-semibold text-slate-700 dark:text-white">{pendingAction.user.name}</span>؟
+            </>
+          )
+        }
+        confirmLabel={pendingAction ? t(pendingAction.type) : ''}
+        cancelLabel={t('cancel')}
+        loadingLabel={t('saving')}
+        isLoading={deleting || updating}
+      />
     </div>
   )
 }

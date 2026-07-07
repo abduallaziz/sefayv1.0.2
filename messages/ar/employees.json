@@ -17,5 +17,19 @@
   "attendanceDisabled": "غير مفعل",
   "viewProfile": "عرض الملف",
   "empty": "لا يوجد موظفون",
-  "noResults": "لا توجد نتائج مطابقة"
+  "noResults": "لا توجد نتائج مطابقة",
+  "disable": "تعطيل",
+  "enable": "تفعيل",
+  "delete": "حذف",
+  "cancel": "إلغاء",
+  "processing": "جارٍ التنفيذ...",
+  "confirmActionTitle": "تأكيد الإجراء",
+  "confirmActionMessage_disable": "سيتم تعطيل الوصول فوراً، وإبطال رابط الحضور والجهاز المرتبط وإنهاء الجلسات النشطة. هل تريد تعطيل",
+  "confirmActionMessage_enable": "هل تريد تفعيل",
+  "confirmActionMessage_delete": "سيتم حذف هذا الموظف (حذف ناعم مع الاحتفاظ بالسجلات التاريخية). هل تريد حذف",
+  "linkExistingUser": "ربط مستخدم نظام موجود",
+  "linkExistingUserHint": "اختر مستخدم نظام (تسجيل دخول فقط) لإنشاء ملف موظف له.",
+  "noLinkableUsers": "لا يوجد مستخدمو نظام بدون ملف موظف",
+  "link": "ربط",
+  "linking": "جارٍ الربط..."
 }

@@ -82,6 +82,39 @@ export interface UpdateUserDto {
   city?: string | null
   address?: string | null
   gps_radius_meters?: number | null
+  is_employee_profile?: boolean
+}
+
+export interface UpdateEmployeeDto {
+  name?: string
+  avatar_url?: string | null
+  employee_number?: string | null
+  phone?: string | null
+  email?: string | null
+  identity_number?: string | null
+  department?: string | null
+  job_title?: string | null
+  manager_name?: string | null
+  employment_type?: 'full_time' | 'part_time' | null
+  join_date?: string | null
+  city?: string | null
+  address?: string | null
+  gps_radius_meters?: number | null
+  is_active?: boolean
+  attendance_enabled?: boolean
+}
+
+export interface LinkableUser {
+  id: string
+  name: string
+  email: string
+  role: string
+}
+
+export interface DuplicateCheckResult {
+  email?: boolean
+  phone?: boolean
+  employee_number?: boolean
 }
 
 export const usersApi = {
@@ -111,4 +144,25 @@ export const usersApi = {
 
   unbindAttendanceDevice: (id: string): Promise<{ message: string }> =>
     apiClient.post(`/users/${id}/attendance-link/unbind-device`, {}),
+
+  getEmployees: (): Promise<User[]> =>
+    apiClient.get('/employees'),
+
+  getLinkableUsers: (): Promise<LinkableUser[]> =>
+    apiClient.get('/employees/linkable-users'),
+
+  linkAsEmployee: (id: string): Promise<User> =>
+    apiClient.post(`/employees/${id}/link`, {}),
+
+  updateEmployee: (id: string, data: UpdateEmployeeDto): Promise<User> =>
+    apiClient.patch(`/employees/${id}`, data),
+
+  checkDuplicate: (fields: { email?: string; phone?: string; employee_number?: string; exclude_id?: string }): Promise<DuplicateCheckResult> => {
+    const params = new URLSearchParams()
+    if (fields.email) params.set('email', fields.email)
+    if (fields.phone) params.set('phone', fields.phone)
+    if (fields.employee_number) params.set('employee_number', fields.employee_number)
+    if (fields.exclude_id) params.set('exclude_id', fields.exclude_id)
+    return apiClient.get(`/employees/check-duplicate?${params.toString()}`)
+  },
 }

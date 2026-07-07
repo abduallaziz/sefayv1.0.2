@@ -17,5 +17,19 @@
   "attendanceDisabled": "Disabled",
   "viewProfile": "View Profile",
   "empty": "No employees",
-  "noResults": "No matching results"
+  "noResults": "No matching results",
+  "disable": "Disable",
+  "enable": "Enable",
+  "delete": "Delete",
+  "cancel": "Cancel",
+  "processing": "Processing...",
+  "confirmActionTitle": "Confirm Action",
+  "confirmActionMessage_disable": "This will immediately disable access, revoke the attendance link and bound device, and end active sessions. Disable",
+  "confirmActionMessage_enable": "Enable",
+  "confirmActionMessage_delete": "This will soft-delete this employee (historical records are kept). Delete",
+  "linkExistingUser": "Link Existing System User",
+  "linkExistingUserHint": "Pick a System User (login-only account) to create an Employee Profile for.",
+  "noLinkableUsers": "No System Users without an Employee Profile",
+  "link": "Link",
+  "linking": "Linking..."
 }

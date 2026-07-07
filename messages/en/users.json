@@ -18,6 +18,11 @@
   "create": "Create",
   "creating": "Creating...",
   "passwordHint": "At least 8 characters",
+  "saving": "Processing...",
+  "confirmActionTitle": "Confirm Action",
+  "confirmActionMessage_disable": "This will immediately disable the account, revoke the attendance link and bound device, and end active sessions. Disable",
+  "confirmActionMessage_enable": "Enable",
+  "confirmActionMessage_delete": "This will soft-delete this user (historical records are kept). Delete",
   "settings": {
     "title": "{name} settings",
     "payroll": "Salary & deduction policy",

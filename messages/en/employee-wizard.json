@@ -106,5 +106,9 @@
 
   "creating": "Creating...",
   "createError": "An error occurred while creating the employee",
-  "nameRequired": "Name is required"
+  "nameRequired": "Name is required",
+  "emailDuplicate": "This email is already in use",
+  "phoneDuplicate": "This phone number is already in use",
+  "employeeNumberDuplicate": "This employee number is already in use",
+  "resolveDuplicatesFirst": "Please resolve duplicate fields before continuing"
 }
