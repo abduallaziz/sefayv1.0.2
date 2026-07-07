@@ -117,6 +117,17 @@ export interface DuplicateCheckResult {
   employee_number?: boolean
 }
 
+export interface HistoryEntry {
+  id: string
+  actor_id: string | null
+  actor_role: string | null
+  action: string
+  resource_type: string
+  before_data: Record<string, unknown> | null
+  after_data: Record<string, unknown> | null
+  created_at: string
+}
+
 export const usersApi = {
   getAll: (): Promise<User[]> =>
     apiClient.get('/users'),
@@ -165,4 +176,7 @@ export const usersApi = {
     if (fields.exclude_id) params.set('exclude_id', fields.exclude_id)
     return apiClient.get(`/employees/check-duplicate?${params.toString()}`)
   },
+
+  getEmployeeHistory: (id: string): Promise<HistoryEntry[]> =>
+    apiClient.get(`/employees/${id}/history`),
 }

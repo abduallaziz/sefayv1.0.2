@@ -115,7 +115,19 @@ export function useGenerateAttendanceLink() {
 }
 
 export function useUnbindAttendanceDevice() {
+  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (id: string) => usersApi.unbindAttendanceDevice(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+    },
+  })
+}
+
+export function useEmployeeHistory(id: string) {
+  return useQuery({
+    queryKey: ['employees', id, 'history'],
+    queryFn: () => usersApi.getEmployeeHistory(id),
+    enabled: !!id,
   })
 }
