@@ -42,7 +42,8 @@
     "attendance": "Attendance",
     "schedules": "Staff Scheduling",
     "payroll": "Payroll",
-    "leaves": "Leave Requests"
+    "leaves": "Leave Requests",
+    "employees": "Employees"
   },
   "common": {
     "save": "Save",

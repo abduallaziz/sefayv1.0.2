@@ -23,6 +23,17 @@ export interface User {
   department?: string | null
   job_title?: string | null
   avatar_url?: string | null
+  attendance_device_fingerprint?: string | null
+  attendance_enabled?: boolean
+  employee_number?: string | null
+  phone?: string | null
+  identity_number?: string | null
+  manager_name?: string | null
+  employment_type?: 'full_time' | 'part_time' | null
+  join_date?: string | null
+  city?: string | null
+  address?: string | null
+  gps_radius_meters?: number | null
 }
 
 export interface CreateUserDto {
@@ -44,6 +55,16 @@ export interface UpdateUserDto {
   department?: string | null
   job_title?: string | null
   avatar_url?: string | null
+  attendance_enabled?: boolean
+  employee_number?: string | null
+  phone?: string | null
+  identity_number?: string | null
+  manager_name?: string | null
+  employment_type?: 'full_time' | 'part_time' | null
+  join_date?: string | null
+  city?: string | null
+  address?: string | null
+  gps_radius_meters?: number | null
 }
 
 export const usersApi = {

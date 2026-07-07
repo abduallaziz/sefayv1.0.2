@@ -10,6 +10,7 @@ import {
   X, Zap, Truck, Warehouse, ClipboardList, PackageCheck, Boxes, SlidersHorizontal,
   ChevronDown, ArrowLeftRight, FileBarChart, Layers, ClipboardCheck, MapPin,
   Utensils, ChefHat, CalendarClock, CalendarDays, Wallet, ClipboardCheck as LeavesIcon,
+  IdCard,
 } from 'lucide-react'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { useThemeStore } from '@/core/theme/stores/theme.store'
@@ -44,6 +45,7 @@ const ALL_NAV_ITEMS: NavItem[] = [
   { key: 'kitchen',   href: '/dashboard/kitchen',    icon: ChefHat,         section: 'sales' },
   { key: 'reports',   href: '/dashboard/reports',    icon: BarChart3,       section: 'reports',  roles: ['owner', 'manager'] },
   { key: 'users',     href: '/dashboard/users',      icon: UserCog,         section: 'hr',       roles: ['owner', 'manager'] },
+  { key: 'employees', href: '/dashboard/employees',  icon: IdCard,          section: 'hr',       roles: ['owner', 'manager'] },
   { key: 'attendance', href: '/dashboard/attendance', icon: CalendarClock, section: 'hr' },
   { key: 'schedules', href: '/dashboard/schedules',  icon: CalendarDays,    section: 'hr',       roles: ['owner', 'manager'] },
   { key: 'payroll',   href: '/dashboard/payroll',    icon: Wallet,          section: 'hr',       roles: ['owner'] },

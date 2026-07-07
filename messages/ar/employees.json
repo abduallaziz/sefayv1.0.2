@@ -1,0 +1,21 @@
+{
+  "title": "الموظفون",
+  "subtitle": "إدارة بيانات الموارد البشرية للموظفين",
+  "count": "{count} موظف",
+  "addEmployee": "إضافة موظف",
+  "comingSoonWizard": "معالج إضافة الموظفين قادم قريبًا",
+  "search": "بحث بالاسم أو رقم الموظف...",
+  "filterAllStatus": "كل الحالات",
+  "active": "نشط",
+  "inactive": "معطّل",
+  "employeeNumber": "رقم الموظف",
+  "department": "القسم",
+  "jobTitle": "المسمى الوظيفي",
+  "status": "الحالة",
+  "attendance": "الحضور",
+  "attendanceEnabled": "مفعل",
+  "attendanceDisabled": "غير مفعل",
+  "viewProfile": "عرض الملف",
+  "empty": "لا يوجد موظفون",
+  "noResults": "لا توجد نتائج مطابقة"
+}

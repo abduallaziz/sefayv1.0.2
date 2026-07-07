@@ -42,7 +42,8 @@
     "attendance": "الحضور والانصراف",
     "schedules": "جدولة الموظفين",
     "payroll": "الرواتب",
-    "leaves": "الإجازات"
+    "leaves": "الإجازات",
+    "employees": "الموظفون"
   },
   "common": {
     "save": "حفظ",

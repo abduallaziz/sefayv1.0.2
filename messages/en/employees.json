@@ -1,0 +1,21 @@
+{
+  "title": "Employees",
+  "subtitle": "Manage employee HR records",
+  "count": "{count} employees",
+  "addEmployee": "Add Employee",
+  "comingSoonWizard": "The employee creation wizard is coming soon",
+  "search": "Search by name or employee number...",
+  "filterAllStatus": "All Statuses",
+  "active": "Active",
+  "inactive": "Disabled",
+  "employeeNumber": "Employee #",
+  "department": "Department",
+  "jobTitle": "Job Title",
+  "status": "Status",
+  "attendance": "Attendance",
+  "attendanceEnabled": "Enabled",
+  "attendanceDisabled": "Disabled",
+  "viewProfile": "View Profile",
+  "empty": "No employees",
+  "noResults": "No matching results"
+}
