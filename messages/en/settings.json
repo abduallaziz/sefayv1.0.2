@@ -2,6 +2,8 @@
   "title": "Settings",
   "subtitle": "Manage your store information and subscription",
   "profile": "Store Profile",
+  "accessControl": "Access Control",
+  "accessControlHint": "Control what each role can access",
   "businessName": "Business Name",
   "businessType": "Business Type",
   "save": "Save",

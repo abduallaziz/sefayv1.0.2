@@ -2,6 +2,8 @@
   "title": "الإعدادات",
   "subtitle": "إدارة معلومات المتجر والاشتراك",
   "profile": "معلومات المتجر",
+  "accessControl": "إدارة الصلاحيات",
+  "accessControlHint": "تحكم فيما يمكن لكل دور الوصول إليه",
   "businessName": "اسم المتجر",
   "businessType": "نوع النشاط",
   "save": "حفظ",

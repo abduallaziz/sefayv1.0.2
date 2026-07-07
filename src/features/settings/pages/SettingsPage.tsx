@@ -1,10 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useProfile, useSubscription, useUsage, useUpdateProfile } from '../hooks/useSettings';
 import { useTenantStore } from '@/core/tenant/stores/tenant.store';
-import { Building2, CreditCard, BarChart3, Save, Coins, Users, Percent, Receipt, Printer, Bell } from 'lucide-react';
+import { useAuthStore } from '@/core/auth/stores/auth.store';
+import { Building2, CreditCard, BarChart3, Save, Coins, Users, Percent, Receipt, Printer, Bell, ShieldCheck, ChevronLeft } from 'lucide-react';
 import { CustomFieldsManager } from '@/features/customers/components/CustomFieldsManager';
 import { NumberInput } from '@/shared/ui/number-input';
 import type { NotificationPreferences } from '../api/settings.api';
@@ -63,6 +65,8 @@ export function SettingsPage() {
   }
 
   const sub = (subscriptionData as any)?.subscription;
+  const authUser = useAuthStore((s) => s.user);
+  const canManageAccessControl = authUser?.role === 'owner' || authUser?.role === 'superadmin';
 
   useEffect(() => {
     if (profile?.tax_rate !== undefined) {
@@ -193,6 +197,25 @@ export function SettingsPage() {
           </div>
         )}
       </div>
+
+      {/* Access Control */}
+      {canManageAccessControl && (
+        <Link
+          href="/dashboard/settings/access-control"
+          className="flex items-center justify-between gap-3 bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-5 hover:border-[#0C447C]/50 transition-colors group"
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-[#E8F1FB] dark:bg-[#0C447C]/10">
+              <ShieldCheck className="w-4 h-4 text-[#0C447C] dark:text-[#5B9BD5]" />
+            </div>
+            <div>
+              <h2 className="text-sm font-semibold text-slate-700 dark:text-white">{t('accessControl')}</h2>
+              <p className="text-xs text-slate-500 mt-0.5">{t('accessControlHint')}</p>
+            </div>
+          </div>
+          <ChevronLeft className="w-4 h-4 text-slate-400 rtl:rotate-180 group-hover:text-[#0C447C] transition-colors" />
+        </Link>
+      )}
 
       {/* Currency */}
       <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-5 space-y-4">
