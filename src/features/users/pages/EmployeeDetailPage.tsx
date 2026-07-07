@@ -8,7 +8,7 @@ import {
   User as UserIcon, ShieldCheck, Smartphone, History as HistoryIcon,
 } from 'lucide-react'
 import { useUsers, useGenerateAttendanceLink, useUnbindAttendanceDevice, useEmployeeHistory } from '../hooks/useUsers'
-import { useAllAttendance, useLeaveRequests } from '@/features/hr/hooks/useHr'
+import { useLeaveRequests } from '@/features/hr/hooks/useHr'
 import { usePayrollReport } from '@/features/reports/hooks/useReports'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
 import { formatNumber } from '@/lib/format'
@@ -33,19 +33,8 @@ export function EmployeeDetailPage({ userId }: { userId: string }) {
   const { data: users = [], isLoading: usersLoading } = useUsers()
   const user = users.find((u) => u.id === userId)
 
-  const monthStart = `${month}-01`
-  const monthEnd = new Date(Number(month.slice(0, 4)), Number(month.slice(5, 7)), 0).toISOString().substring(0, 10)
-
-  const { data: attendance = [] } = useAllAttendance({ userId, from: monthStart, to: monthEnd })
   const { data: leaves = [] } = useLeaveRequests(undefined, userId)
   const { data: payroll } = usePayrollReport(month)
-
-  const attendanceSummary = useMemo(() => {
-    const workDays = new Set(attendance.map((a) => a.check_in_at.substring(0, 10))).size
-    const totalHours = attendance.reduce((sum, a) => sum + (a.hours_worked ?? 0), 0)
-    const last = [...attendance].sort((a, b) => (a.check_in_at < b.check_in_at ? 1 : -1))[0]
-    return { workDays, totalHours: Math.round(totalHours * 100) / 100, last }
-  }, [attendance])
 
   const leaveSummary = useMemo(() => ({
     pending: leaves.filter((l) => l.status === 'pending').length,
@@ -122,7 +111,7 @@ export function EmployeeDetailPage({ userId }: { userId: string }) {
             <OverviewTab t={t} user={user} leaveSummary={leaveSummary} leaves={leaves} payrollRow={payrollRow} currency={currency} />
           )}
           {tab === 'job' && <JobInfoTab t={t} user={user} />}
-          {tab === 'attendance' && <AttendanceTab t={t} user={user} attendanceSummary={attendanceSummary} />}
+          {tab === 'attendance' && <AttendanceTab t={t} user={user} />}
           {tab === 'history' && <HistoryTab t={t} userId={userId} />}
         </div>
       </div>
@@ -250,11 +239,10 @@ function JobInfoTab({ t, user }: { t: ReturnType<typeof useTranslations>; user: 
 
 /* ── Attendance tab ── */
 function AttendanceTab({
-  t, user, attendanceSummary,
+  t, user,
 }: {
   t: ReturnType<typeof useTranslations>
   user: any
-  attendanceSummary: { workDays: number; totalHours: number; last?: { check_in_at: string } }
 }) {
   const { mutate: generateLink, isPending: generating } = useGenerateAttendanceLink()
   const { mutate: unbindDevice, isPending: unbinding } = useUnbindAttendanceDevice()
@@ -310,13 +298,6 @@ function AttendanceTab({
           <InfoItem icon={ShieldCheck} label={t('attendanceStatus')} value={t('enableAttendance')} />
           <InfoItem icon={ShieldCheck} label={t('tokenStatus')} value={user.attendance_token ? t('tokenActive') : t('notSet')} />
           <InfoItem icon={Smartphone} label={t('deviceStatus')} value={user.attendance_device_fingerprint ? t('deviceBound') : t('deviceNotBound')} />
-          <InfoItem
-            icon={Clock}
-            label={t('lastAttendance')}
-            value={attendanceSummary.last ? new Date(attendanceSummary.last.check_in_at).toLocaleString('en-US') : t('noAttendanceYet')}
-          />
-          <InfoItem icon={CalendarDays} label={t('workDays')} value={String(attendanceSummary.workDays)} />
-          <InfoItem icon={Clock} label={t('totalHours')} value={String(attendanceSummary.totalHours)} />
         </div>
       </div>
 
