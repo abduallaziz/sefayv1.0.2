@@ -1,6 +1,6 @@
 # Permission System
 
-*Added: 2026-06-30*
+*Added: 2026-06-30. Updated: 2026-07-08 — see the "Tenant-Aware Permission Customization" section below; it changes several statements in the original version of this doc (marked inline).*
 
 ---
 
@@ -10,22 +10,25 @@ Sefay uses a role-based access control (RBAC) model. Each user in a company is a
 
 Permission strings follow the format `resource.action.scope`.
 
-The single authoritative permissions seed file is `src/database/seeds/permissions.seed.ts`. This file seeds the `permissions` and `role_permissions` tables on every deploy. It is idempotent (upsert). See STATUS.md §40.
+The single authoritative **global default** permissions seed file is `src/database/seeds/permissions.seed.ts`. This file seeds the `permissions` and `role_permissions` tables on every deploy. It is idempotent (upsert). See STATUS.md §40.
+
+**As of 2026-07-08, this is no longer the whole picture** — `role_permissions` is the permanent global fallback, but a tenant can now override individual permission grants for their own roles via `tenant_role_permissions`. See "Tenant-Aware Permission Customization" below before assuming a role's effective permissions match this seed file exactly for any given tenant.
 
 ---
 
 ## Current Roles
 
-Current roles, verified directly against the `add(role, keys)` calls in `src/database/seeds/permissions.seed.ts` (6 roles, 50 permission keys total — this file, not any architecture document, is authoritative):
+Current roles, verified directly against the `add(role, keys)` calls in `src/database/seeds/permissions.seed.ts` **plus** the `roles` table seeded by migration 059 (7 roles, ~55 permission keys total as of 2026-07-08 — the seed file and the `roles`/`permissions` tables, not any architecture document, are authoritative; both counts drift over time, don't hardcode them elsewhere):
 
 | Role | Description |
 |---|---|
-| **superadmin** | Platform operator. Cross-tenant access via shared analytics/tenant-management modules, plus platform-level `superadmin.*` permissions (queue view/manage, health view, backup view). |
-| **owner** | The company's primary account holder. Exactly one per company. Broadest tenant-scoped grant: full invoice/expense/shift/user/branch/item/customer/expense-record/report/settings/inventory/purchasing access, including `settings.manage` and `purchasing.approve`. |
-| **manager** | Company-level administrator. Same operational breadth as owner across inventory/purchasing/customers/items, but `users.view` only (not `manage`), `settings.view` only (not `manage`), and no `expense.approve`/`expense.reject` or `reports.view.all` (branch-scoped reporting only). |
-| **inventory_clerk** | Inventory and purchasing operations: `inventory.view`, `.adjust`, `.transfer`, `.count`, `.reserve`, plus `purchasing.view`, `.manage`, `.receive`. **Does not** hold `inventory.adjust.approve` or `purchasing.approve` — cannot approve adjustments or purchase orders, only create/process them. Also has `items.view`. |
-| **cashier** | Point-of-sale and customer-facing operations: invoice create/view (own), expense requests, shift open/close/view (own), `items.view`, `customers.view`/`manage`, `inventory.view`/`reserve`. No purchasing or settings access. |
-| **worker** | Minimal read access: `invoice.view.own`, `shift.view.own`, `items.view`, `inventory.view`. No write permissions on any resource. |
+| **superadmin** | Platform operator. Cross-tenant access via shared analytics/tenant-management modules, plus platform-level `superadmin.*` permissions (queue view/manage, health view, backup view). **Protected** — cannot be edited or deleted, including by an owner, via the Access Control admin UI (see below). |
+| **owner** | The company's primary account holder. Exactly one per company. Broadest tenant-scoped grant: full invoice/expense/shift/user/branch/item/customer/expense-record/report/settings/inventory/purchasing access, including `settings.manage` and `purchasing.approve`. **Protected** — same restriction as superadmin, to prevent an owner locking themselves out. |
+| **manager** | Company-level administrator. Same operational breadth as owner across inventory/purchasing/customers/items, but `users.view` only (not `manage`), `settings.view` only (not `manage`), and no `expense.approve`/`expense.reject` or `reports.view.all` (branch-scoped reporting only). Editable — an owner can customize its permissions per-tenant. |
+| **inventory_clerk** | Inventory and purchasing operations: `inventory.view`, `.adjust`, `.transfer`, `.count`, `.reserve`, plus `purchasing.view`, `.manage`, `.receive`. **Does not** hold `inventory.adjust.approve` or `purchasing.approve` — cannot approve adjustments or purchase orders, only create/process them. Also has `items.view`. Editable. |
+| **cashier** | Point-of-sale and customer-facing operations: invoice create/view (own), expense requests, shift open/close/view (own), `items.view`, `customers.view`/`manage`, `inventory.view`/`reserve`. No purchasing or settings access. Editable. |
+| **worker** | Minimal read access: `invoice.view.own`, `shift.view.own`, `items.view`, `inventory.view`. No write permissions on any resource. Editable. |
+| **none** | Added migration 057 (2026-07-03-ish, HR employee-profile work). An Employee Core profile with no system login/dashboard access at all — zero permission grants by design (no `role_permissions` rows exist for it). Editable in principle, though there's nothing to grant it in practice today. |
 
 *There is no `accountant` or `viewer` role, and no role literally named `inventory` — both appeared in an earlier draft of this document but do not exist in the seed file or the database. `inventory_clerk` is the correct, current name (an earlier draft of this document incorrectly reversed this and called `inventory_clerk` deprecated in favor of `inventory` — that was backwards).*
 
@@ -78,7 +81,9 @@ The following matrix is rebuilt directly from the `add(role, keys)` grants in `p
 
 ### Backend (Authoritative)
 
-Role authorization is checked by `PermissionGuard` (which checks the `role_permissions` table via the `@RequirePermission` decorator) in the NestJS request pipeline. The user's role is read from the JWT (set by the custom NestJS auth system at login time). The role check occurs before any business logic executes in the request handler.
+Role authorization is checked by `PermissionGuard` (via the `@RequirePermission` decorator) in the NestJS request pipeline. The user's role is read from the JWT (set by the custom NestJS auth system at login time). The role check occurs before any business logic executes in the request handler.
+
+**As of 2026-07-08**, the actual grant lookup (`PermissionsService.hasPermission(role, key, tenantId)`) checks `tenant_role_permissions` first (if the current tenant has customized that role) and falls back to the global `role_permissions` table otherwise — see "Tenant-Aware Permission Customization" below. `PermissionGuard` itself is otherwise unchanged: same decorator, same bypass order (superadmin, then the internal QA/demo tenant), same `ForbiddenException` on denial.
 
 For particularly sensitive operations:
 
@@ -126,7 +131,38 @@ See `TASKS.md` Company Factory Reset for the full confirmation flow specificatio
 
 ---
 
-## Future: Granular Permissions and Custom Roles
+## Tenant-Aware Permission Customization (Access Control System) — Added 2026-07-08
+
+**This section supersedes most of the old "Future: Granular Permissions and Custom Roles" section below, which described this as entirely unbuilt. Kept for history at the bottom of this doc; do not treat it as current.**
+
+The role model above (7 fixed roles, `role_permissions` as the global default) is now customizable **per tenant, per permission** — an owner can flip individual permission keys on/off for an editable role without affecting any other tenant on the platform and without having to redefine the whole role.
+
+### Data model (additive, apiv1.0.2)
+
+- `roles` — the 7 roles above as real rows (`tenant_id IS NULL`, `is_system = true`). The `roles` table also supports tenant-owned custom roles (`tenant_id` set, `is_system = false`) structurally, but **no UI or API exists yet to create one** — see "Still Future" below.
+- `tenant_role_permissions` — `(tenant_id, role_id, permission_key, is_granted)`. A row here overrides the global grant for that one key for that tenant+role; absence of a row means "follow the global default." This is a **per-key merge, not a role replacement** — an owner can override one permission without re-specifying the other 40+.
+- `permission_groups` — a curated, stable set of categories (`employees`, `attendance`, `expenses`, `payroll`, `reports`, `inventory`, `purchasing`, `sales`, `settings`, `platform`) that `permissions.group_id` points into, so the admin UI never hardcodes categories. Note: `payroll` currently only contains `hr.manage` as a stand-in — this is documented as a temporary/imprecise mapping pending a real `payroll.view/manage/export/approve` permission split.
+
+### API — `/access-control/*` (apiv1.0.2)
+
+`GET /permission-groups`, `GET /permissions`, `GET /roles`, `GET /roles/:id/permissions`, `PATCH`/`DELETE /roles/:id/permissions/:key`, `POST /roles/:id/reset`. Gated by a **hardcoded** owner/superadmin check (`AccessControlAdminGuard`), deliberately not `@RequirePermission()` — "who can manage permissions" must never itself be a customizable permission, or a compromised/misconfigured tenant could escalate. `owner` and `superadmin` roles can never be edited via this API, even by that tenant's own owner (self-lockout prevention). Platform-only permissions (`resource = 'superadmin'`) can never be granted to a tenant role, and are simply absent from a non-superadmin caller's API response (not filtered client-side). Every change writes a real before/after entry to `audit_logs` (not just an action string). Full design/safety rationale: apiv1.0.2 STATUS.md §68.
+
+### Frontend — `/dashboard/settings/access-control` (sefayv1.0.2)
+
+A real split-view page (roles list + selected role's detail on one screen, switching via component state, not page navigation) — reachable from Settings, owner/superadmin only. Protected roles render read-only with a lock badge rather than being hidden entirely. Groups/roles/permissions are rendered entirely from the API responses above, never hardcoded. "Reset to default" deletes the override row(s), it never rewrites a value that happens to match the current global default (important: this means resetting correctly re-inherits *future* global-default changes too).
+
+### Still Future (not built — this part of the old section below is still accurate)
+
+- Creating brand-new custom roles (the "دور جديد" button in the shipped UI is present but intentionally disabled, labeled "coming soon" — no backend support yet).
+- Multiple roles per user (`user_roles` — schema was reviewed/approved conceptually but no table exists).
+- Branch/department/warehouse-scoped permissions (an "access scope" layer — approved architecture exists, not implemented).
+- Per-user allow/deny exceptions overriding their role.
+- Approval-limit / business-rule policies (e.g. "can approve purchase orders under 5,000 SAR").
+- Time-boxed temporary access.
+
+---
+
+## Future: Granular Permissions and Custom Roles *(historical — see the section above for what's actually implemented as of 2026-07-08)*
 
 The current role model covers the initial business requirements. As the platform matures, the following expansions are anticipated:
 
