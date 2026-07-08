@@ -6,8 +6,9 @@ import { useTranslations } from 'next-intl';
 import { useProfile, useSubscription, useUsage, useUpdateProfile } from '../hooks/useSettings';
 import { useTenantStore } from '@/core/tenant/stores/tenant.store';
 import { useAuthStore } from '@/core/auth/stores/auth.store';
-import { Building2, CreditCard, BarChart3, Save, Coins, Users, Percent, Receipt, Printer, Bell, ShieldCheck, ChevronLeft } from 'lucide-react';
+import { Building2, CreditCard, BarChart3, Save, Coins, Users, Percent, Receipt, Printer, Bell, ShieldCheck, ChevronLeft, Award } from 'lucide-react';
 import { CustomFieldsManager } from '@/features/customers/components/CustomFieldsManager';
+import { LoyaltyTiersManager } from '@/features/loyalty-tiers/components/LoyaltyTiersManager';
 import { NumberInput } from '@/shared/ui/number-input';
 import type { NotificationPreferences } from '../api/settings.api';
 
@@ -43,6 +44,7 @@ export function SettingsPage() {
   const { mutate: saveInvoiceCustomization, isPending: savingInvoiceCustomization } = useUpdateProfile();
   const { mutate: savePrinterSettings, isPending: savingPrinterSettings } = useUpdateProfile();
   const { mutate: saveNotification, isPending: savingNotification } = useUpdateProfile();
+  const { mutate: saveLoyaltySettings, isPending: savingLoyaltySettings } = useUpdateProfile();
 
   const { currency_code, setCurrency } = useTenantStore();
   const [name, setName] = useState('');
@@ -54,6 +56,8 @@ export function SettingsPage() {
   const [invoiceFooter, setInvoiceFooter] = useState('');
   const [paperWidth, setPaperWidth] = useState<'58mm' | '80mm'>('80mm');
   const [autoPrint, setAutoPrint] = useState(false);
+  const [pointsPerCurrency, setPointsPerCurrency] = useState('1');
+  const [redemptionValue, setRedemptionValue] = useState('0.01');
   const [saveError, setSaveError] = useState<string | null>(null);
 
   // Every updateProfile() call below shares this — without it, a failed save (e.g. a
@@ -81,6 +85,8 @@ export function SettingsPage() {
       setInvoiceFooter(profile.invoice_footer ?? '');
       setPaperWidth(profile.printer_settings?.paper_width ?? '80mm');
       setAutoPrint(profile.printer_settings?.auto_print ?? false);
+      setPointsPerCurrency(String(profile.loyalty_points_per_currency ?? 1));
+      setRedemptionValue(String(profile.loyalty_redemption_value ?? 0.01));
     }
   }, [profile]);
 
@@ -134,6 +140,17 @@ export function SettingsPage() {
   function handleSavePrinterSettings() {
     setSaveError(null);
     savePrinterSettings({ printer_settings: { paper_width: paperWidth, auto_print: autoPrint } }, { onError: onSaveError });
+  }
+
+  function handleSaveLoyaltySettings() {
+    const perCurrency = Number(pointsPerCurrency);
+    const redemption = Number(redemptionValue);
+    if (Number.isNaN(perCurrency) || perCurrency < 0 || Number.isNaN(redemption) || redemption < 0) return;
+    setSaveError(null);
+    saveLoyaltySettings(
+      { loyalty_points_per_currency: perCurrency, loyalty_redemption_value: redemption },
+      { onError: onSaveError },
+    );
   }
 
   function handleToggleNotification(key: keyof NotificationPreferences, enabled: boolean) {
@@ -384,6 +401,57 @@ export function SettingsPage() {
               {savingPrinterSettings ? t('saving') : t('save')}
             </button>
           </div>
+        )}
+      </div>
+
+      {/* Loyalty Program */}
+      <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-5 space-y-4">
+        <div className="flex items-center gap-2 mb-2">
+          <Award className="w-4 h-4 text-slate-400" />
+          <h2 className="text-sm font-semibold text-slate-700 dark:text-white">{t('loyalty.title')}</h2>
+        </div>
+        {profileLoading ? (
+          <div className="h-10 bg-slate-100 dark:bg-gray-800 rounded-lg animate-pulse" />
+        ) : (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-slate-500 mb-1 block">{t('loyalty.pointsPerCurrency')}</label>
+                <input
+                  type="number"
+                  min={0}
+                  step="0.1"
+                  value={pointsPerCurrency}
+                  onChange={(e) => setPointsPerCurrency(e.target.value)}
+                  className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 text-slate-800 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C]"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-slate-500 mb-1 block">{t('loyalty.redemptionValue')}</label>
+                <input
+                  type="number"
+                  min={0}
+                  step="0.001"
+                  value={redemptionValue}
+                  onChange={(e) => setRedemptionValue(e.target.value)}
+                  className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 text-slate-800 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C]"
+                />
+              </div>
+            </div>
+            <button
+              onClick={handleSaveLoyaltySettings}
+              disabled={savingLoyaltySettings}
+              className="flex items-center gap-2 px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 rounded-lg text-sm text-white transition-colors"
+            >
+              <Save className="w-4 h-4" />
+              {savingLoyaltySettings ? t('saving') : t('save')}
+            </button>
+
+            <div className="pt-3 border-t border-slate-100 dark:border-gray-800">
+              <p className="text-xs text-slate-500 mb-3">{t('loyalty.tiersHint')}</p>
+              <LoyaltyTiersManager />
+            </div>
+          </>
         )}
       </div>
 

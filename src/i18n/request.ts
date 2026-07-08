@@ -48,6 +48,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
     employeeWizard,
     accessControl,
     coupons,
+    giftCards,
   ] = await Promise.all([
     loadFile(`${locale}.json`),
     loadFile(`${locale}/common.json`),
@@ -80,6 +81,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
     loadFile(`${locale}/employee-wizard.json`),
     loadFile(`${locale}/access-control.json`),
     loadFile(`${locale}/coupons.json`),
+    loadFile(`${locale}/gift-cards.json`),
   ])
 
   return {
@@ -123,6 +125,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
       employeeWizard,
       accessControl,
       coupons,
+      giftCards,
       stock: inventory?.stock,
       adjustments: inventory?.adjustments,
       inventoryDashboard: inventory?.dashboard,

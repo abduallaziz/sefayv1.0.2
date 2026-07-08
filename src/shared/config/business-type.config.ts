@@ -45,7 +45,8 @@ export type NavKey =
   | 'payroll'
   | 'leaves'
   | 'employees'
-  | 'coupons';
+  | 'coupons'
+  | 'giftCards';
 
 export interface BusinessTypeConfig {
   sidebar: NavKey[];
@@ -55,7 +56,7 @@ export interface BusinessTypeConfig {
 // selling point, never hide it. (A §28 note from June 23, 2026 had proposed hiding
 // POS for pure-service activities; the user explicitly overruled that on June 26,
 // 2026 — POS stays in the sidebar for all 37 activities.)
-const FULL_SIDEBAR: NavKey[] = ['dashboard', 'pos', 'orders', 'items', 'customers', 'expenses', 'shifts', 'reports', 'users', 'settings', 'suppliers', 'warehouses', 'locations', 'purchaseOrders', 'goodsReceipts', 'stock', 'adjustments', 'inventoryDashboard', 'movements', 'inventoryReports', 'transfers', 'stockCounts', 'attendance', 'schedules', 'payroll', 'leaves', 'employees', 'coupons'];
+const FULL_SIDEBAR: NavKey[] = ['dashboard', 'pos', 'orders', 'items', 'customers', 'expenses', 'shifts', 'reports', 'users', 'settings', 'suppliers', 'warehouses', 'locations', 'purchaseOrders', 'goodsReceipts', 'stock', 'adjustments', 'inventoryDashboard', 'movements', 'inventoryReports', 'transfers', 'stockCounts', 'attendance', 'schedules', 'payroll', 'leaves', 'employees', 'coupons', 'giftCards'];
 
 // Food-service activities get the Tables/Dine-in + Kitchen Display sidebar entries
 // on top of the full base sidebar. This is the first real sidebar differentiation

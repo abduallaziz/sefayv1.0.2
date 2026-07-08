@@ -28,6 +28,8 @@ export interface TenantProfile {
   invoice_footer: string | null
   printer_settings: PrinterSettings
   notification_preferences: NotificationPreferences
+  loyalty_points_per_currency: number
+  loyalty_redemption_value: number
 }
 
 export interface TenantSubscription {
@@ -58,6 +60,8 @@ export interface UpdateProfileDto {
   invoice_footer?: string
   printer_settings?: PrinterSettings
   notification_preferences?: NotificationPreferences
+  loyalty_points_per_currency?: number
+  loyalty_redemption_value?: number
 }
 
 export const settingsApi = {

@@ -37,5 +37,18 @@
     "subscription_expired": "انتهاء الاشتراك",
     "payment_failed": "فشل عملية دفع",
     "payment_success": "نجاح عملية دفع"
+  },
+  "loyalty": {
+    "title": "برنامج الولاء",
+    "pointsPerCurrency": "نقاط لكل وحدة عملة",
+    "redemptionValue": "قيمة استرداد النقطة الواحدة",
+    "tiersHint": "فئات الولاء تمنح مضاعِف نقاط إضافي حسب إجمالي ما اكتسبه العميل تاريخيًا (لا يتأثر بالاسترداد)",
+    "noTiers": "لا توجد فئات ولاء بعد",
+    "addTier": "إضافة فئة",
+    "tierName": "اسم الفئة",
+    "tierMinPoints": "الحد الأدنى من النقاط",
+    "tierMultiplier": "مضاعِف النقاط",
+    "tierThreshold": "من {points} نقطة",
+    "cancel": "إلغاء"
   }
 }
