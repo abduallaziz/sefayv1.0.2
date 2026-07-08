@@ -564,6 +564,11 @@ Individual permissions independent of role, company-defined custom roles, branch
 **Dependencies:** Multi-Branch Management, Approval Workflow Engine.
 > Spec: `docs/future/` — document to be created.
 
+**✅ Update (July 7-8, 2026) — partially implemented, not fully superseding this entry:**
+Tenant-aware per-permission customization for the 7 existing system roles shipped end-to-end: backend (`roles`, `tenant_role_permissions`, `permission_groups` tables + `/access-control/*` admin API, additive on top of the existing global `role_permissions`, zero behavior change for tenants who customize nothing) and frontend (`/dashboard/settings/access-control` — a real split-view page, not two separate routes). See apiv1.0.2 STATUS.md §68 for the full implementation history.
+
+**Still genuinely not built** (this entry stays open for these): creating brand-new custom roles (the "دور جديد" button in the shipped UI is intentionally disabled/"coming soon"), multiple roles per user, branch/warehouse-scoped permissions, per-user allow/deny exceptions, approval-limit policies, time-boxed temporary access. An approved architecture review for these exists (per-permission merge model, decision-order priority, tenant isolation guarantees) but none of it is implemented yet — future work should extend the same additive schema, not redesign it.
+
 ---
 
 ### Enterprise Features

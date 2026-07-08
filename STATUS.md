@@ -24,6 +24,7 @@ Core Inventory modules are functional. UX consistency work is ongoing. Live end-
 
 | What | PR | Notes |
 | --- | --- | --- |
+| Access Control Center (tenant-aware roles/permissions admin UI) | — | New `/dashboard/settings/access-control` split-view page (role list + selected role's detail on one screen, no page navigation between them). Consumes the new backend `/access-control/*` API (see apiv1.0.2 STATUS.md §68) — real data only, no hardcoded roles/groups/permission keys. Owner/superadmin only; protected roles (`owner`, `superadmin`) render read-only. Custom-role creation and the "Users" tab are honestly labeled "coming soon" rather than faked, since the backend doesn't support them yet. July 7-8, 2026. |
 | Date-Range Picker — full calendar-grid redesign + portal positioning | — | Both `SingleDatePicker` and `DateRangePicker` rewritten to portal-rendered calendar grid via `useFloatingPosition`. Mobile overflow fixed. Full history in TASKS.md. |
 | RTL native date-input fix + raw `<input type="date">` removal | — | All 4 raw date inputs replaced with shared pickers. `dir="ltr"` fix centralized in components. |
 | Shared `StatusBadge` | #16 | Replaces 8 per-feature badge implementations across Inventory. |
@@ -98,7 +99,7 @@ Core Inventory modules are functional. UX consistency work is ongoing. Live end-
 | 2FA, SSO & Security Hardening | Security | `docs/future/` — spec pending |
 | Multi-Branch Management | Platform | `docs/future/` — spec pending |
 | Multi-Company & Consolidation | Enterprise | `docs/future/` — spec pending |
-| Granular Permissions & Custom Roles | Platform | `docs/future/` — spec pending |
+| Granular Permissions & Custom Roles | Platform | ⚠️ Partially superseded — tenant-aware per-permission customization for existing system roles is now **implemented and shipped** (see "Recently Completed" above / apiv1.0.2 STATUS.md §68). What's genuinely still pending: creating brand-new custom roles, multiple roles per user, branch/department-scoped permissions, per-user allow/deny exceptions, approval-limit policies, and time-boxed temporary access. `docs/future/` spec still describes the original unstarted scope — needs a rewrite reflecting what's actually done. |
 | Pricing Engine & Discount Management | Commerce | `docs/future/` — spec pending |
 | UOM & Conversion | Commerce | `docs/future/` — spec pending |
 | Data Import & Migration Tools | Platform | `docs/future/` — spec pending |
