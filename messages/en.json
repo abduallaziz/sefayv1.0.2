@@ -43,7 +43,8 @@
     "schedules": "Staff Scheduling",
     "payroll": "Payroll",
     "leaves": "Leave Requests",
-    "employees": "Employees"
+    "employees": "Employees",
+    "coupons": "Coupons"
   },
   "common": {
     "save": "Save",

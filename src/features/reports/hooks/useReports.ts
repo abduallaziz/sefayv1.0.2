@@ -98,3 +98,11 @@ export function useAuditSummary() {
     queryFn: () => reportsApi.getAuditSummary(),
   })
 }
+
+export function useDailyReconciliation(date: string, branchId?: string) {
+  return useQuery({
+    queryKey: ['reports', 'daily-reconciliation', date, branchId],
+    queryFn: () => reportsApi.getDailyReconciliation(date, branchId),
+    enabled: !!date,
+  })
+}

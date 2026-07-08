@@ -3,10 +3,10 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
-import { useRevenueReport, useShiftsReport, useExpensesReport, useEmployeesReport, useTaxReport, useComparisonReport, useBranchComparisonReport, useCustomerChurnReport } from '../hooks/useReports'
+import { useRevenueReport, useShiftsReport, useExpensesReport, useEmployeesReport, useTaxReport, useComparisonReport, useBranchComparisonReport, useCustomerChurnReport, useCustomersReport, useDailyReconciliation } from '../hooks/useReports'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { TrendingUp, Clock, TrendingDown, CreditCard, Users, Receipt, GitCompareArrows, Building2, UserMinus, ArrowUp, ArrowDown } from 'lucide-react'
-import { DateRangePicker, type DateRange } from '@/shared/ui/date-range-picker'
+import { TrendingUp, Clock, TrendingDown, CreditCard, Users, Receipt, GitCompareArrows, Building2, UserMinus, ArrowUp, ArrowDown, Wallet } from 'lucide-react'
+import { DateRangePicker, SingleDatePicker, type DateRange } from '@/shared/ui/date-range-picker'
 import { formatNumber } from '@/lib/format'
 
 function toYMD(d: Date) {
@@ -55,6 +55,7 @@ export function ReportsPage() {
   const currency = useTenantStore((s) => s.currency_symbol)
   const [range, setRange] = useState<DateRange>(defaultRange)
   const query = { period: 'custom' as const, from: range.from, to: range.to }
+  const [reconciliationDate, setReconciliationDate] = useState<string>(toYMD(new Date()))
 
   const { data: revenue, isLoading: revLoading } = useRevenueReport(query)
   const { data: shifts, isLoading: shiftsLoading } = useShiftsReport(query)
@@ -64,6 +65,8 @@ export function ReportsPage() {
   const { data: comparison, isLoading: comparisonLoading } = useComparisonReport(query)
   const { data: byBranch, isLoading: byBranchLoading, error: byBranchError } = useBranchComparisonReport(query)
   const { data: churn, isLoading: churnLoading } = useCustomerChurnReport(query)
+  const { data: customersReport, isLoading: customersLoading } = useCustomersReport(query)
+  const { data: reconciliation, isLoading: reconciliationLoading } = useDailyReconciliation(reconciliationDate)
 
   const summary = revenue?.summary
   const dailyBreakdown = revenue?.daily_breakdown ?? []
@@ -297,6 +300,101 @@ export function ReportsPage() {
             <div>
               <p className="text-xs text-gray-500">{t('churnRate')}</p>
               <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{churn?.churn_rate_pct ?? 0}%</p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Top Customers */}
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <Users className="w-4 h-4 text-gray-400" />
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{t('topCustomers')}</h2>
+        </div>
+        {customersLoading ? (
+          <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
+        ) : (customersReport?.customers ?? []).length === 0 ? (
+          <p className="text-sm text-gray-500 dark:text-gray-400 py-4 text-center">{t('noCustomers')}</p>
+        ) : (
+          <div className="space-y-2">
+            {(customersReport?.customers ?? []).slice(0, 10).map((c) => (
+              <div key={c.customer_id} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
+                <span className="text-sm text-gray-600 dark:text-gray-400">{c.name}</span>
+                <div className="flex items-center gap-4 text-xs">
+                  <span className="text-gray-500 dark:text-gray-500">{c.order_count} {t('orders')}</span>
+                  <span className="text-gray-500 dark:text-gray-500">{t('avgOrder')}: {formatNumber(c.avg_order_value)} {currency}</span>
+                  <span className="text-gray-900 dark:text-white font-medium">{formatNumber(c.total_spent)} {currency}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Daily Reconciliation */}
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
+        <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
+          <div className="flex items-center gap-2">
+            <Wallet className="w-4 h-4 text-gray-400" />
+            <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{t('dailyReconciliation')}</h2>
+          </div>
+          <SingleDatePicker value={reconciliationDate} onChange={(v) => v && setReconciliationDate(v)} />
+        </div>
+        {reconciliationLoading ? (
+          <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
+        ) : (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div>
+                <p className="text-xs text-gray-500">{t('salesTotal')}</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{formatNumber(reconciliation?.sales.total_revenue ?? 0)} {currency}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{reconciliation?.sales.total_orders ?? 0} {t('orders')}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">{t('expensesTotal')}</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{formatNumber(reconciliation?.expenses.total_approved_amount ?? 0)} {currency}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{reconciliation?.expenses.approved_count ?? 0} {t('items')}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">{t('closedShifts')}</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{reconciliation?.cash_shifts.closed_shift_count ?? 0}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">{t('discrepancy')}</p>
+                <p className={`text-sm font-medium mt-1 ${(reconciliation?.cash_shifts.total_discrepancy ?? 0) === 0 ? 'text-gray-900 dark:text-white' : 'text-red-600 dark:text-red-400'}`}>
+                  {formatNumber(reconciliation?.cash_shifts.total_discrepancy ?? 0)} {currency}
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-xs text-gray-500 mb-2">{t('paymentMethods')}</p>
+              <div className="space-y-2">
+                {Object.entries(reconciliation?.sales.by_payment_method ?? {}).map(([method, data]) => (
+                  <div key={method} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{method}</span>
+                    <div className="flex items-center gap-4 text-xs">
+                      <span className="text-gray-500 dark:text-gray-500">{data.count} {t('orders')}</span>
+                      <span className="text-gray-900 dark:text-white font-medium">{formatNumber(data.total)} {currency}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4 pt-2 border-t border-gray-100 dark:border-gray-700">
+              <div>
+                <p className="text-xs text-gray-500">{t('openingCash')}</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{formatNumber(reconciliation?.cash_shifts.total_opening_cash ?? 0)} {currency}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">{t('closingCash')}</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{formatNumber(reconciliation?.cash_shifts.total_closing_cash ?? 0)} {currency}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">{t('expectedCash')}</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{formatNumber(reconciliation?.cash_shifts.total_expected_cash ?? 0)} {currency}</p>
+              </div>
             </div>
           </div>
         )}

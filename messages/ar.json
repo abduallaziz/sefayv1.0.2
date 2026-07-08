@@ -43,7 +43,8 @@
     "schedules": "جدولة الموظفين",
     "payroll": "الرواتب",
     "leaves": "الإجازات",
-    "employees": "الموظفون"
+    "employees": "الموظفون",
+    "coupons": "الكوبونات"
   },
   "common": {
     "save": "حفظ",

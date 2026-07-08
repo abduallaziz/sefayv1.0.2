@@ -10,7 +10,7 @@ import {
   X, Zap, Truck, Warehouse, ClipboardList, PackageCheck, Boxes, SlidersHorizontal,
   ChevronDown, ArrowLeftRight, FileBarChart, Layers, ClipboardCheck, MapPin,
   Utensils, ChefHat, CalendarClock, CalendarDays, Wallet, ClipboardCheck as LeavesIcon,
-  IdCard,
+  IdCard, Ticket,
 } from 'lucide-react'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { useThemeStore } from '@/core/theme/stores/theme.store'
@@ -43,6 +43,7 @@ const ALL_NAV_ITEMS: NavItem[] = [
   { key: 'shifts',    href: '/dashboard/shifts',     icon: Clock,           section: 'hr' },
   { key: 'tables',    href: '/dashboard/tables',     icon: Utensils,        section: 'sales' },
   { key: 'kitchen',   href: '/dashboard/kitchen',    icon: ChefHat,         section: 'sales' },
+  { key: 'coupons',   href: '/dashboard/coupons',    icon: Ticket,          section: 'sales',    roles: ['owner', 'manager'] },
   { key: 'reports',   href: '/dashboard/reports',    icon: BarChart3,       section: 'reports',  roles: ['owner', 'manager'] },
   { key: 'users',     href: '/dashboard/users',      icon: UserCog,         section: 'hr',       roles: ['owner', 'manager'] },
   { key: 'employees', href: '/dashboard/employees',  icon: IdCard,          section: 'hr',       roles: ['owner', 'manager'] },

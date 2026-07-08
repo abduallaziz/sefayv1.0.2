@@ -209,6 +209,26 @@ export interface PayrollReport {
   employees: PayrollEmployee[]
 }
 
+export interface DailyReconciliationReport {
+  date: string
+  sales: {
+    total_orders: number
+    total_revenue: number
+    by_payment_method: Record<string, { count: number; total: number }>
+  }
+  expenses: {
+    approved_count: number
+    total_approved_amount: number
+  }
+  cash_shifts: {
+    closed_shift_count: number
+    total_opening_cash: number
+    total_closing_cash: number
+    total_expected_cash: number
+    total_discrepancy: number
+  }
+}
+
 export const reportsApi = {
   getRevenue: (query?: ReportQuery): Promise<RevenueReport> => {
     const params = new URLSearchParams()
@@ -326,4 +346,10 @@ export const reportsApi = {
 
   getPayroll: (month: string): Promise<PayrollReport> =>
     apiClient.get(`/reports/payroll?month=${month}`),
+
+  getDailyReconciliation: (date: string, branchId?: string): Promise<DailyReconciliationReport> => {
+    const params = new URLSearchParams({ date })
+    if (branchId) params.set('branch_id', branchId)
+    return apiClient.get(`/reports/daily-reconciliation?${params.toString()}`)
+  },
 }
