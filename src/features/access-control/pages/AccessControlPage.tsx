@@ -157,9 +157,18 @@ export function AccessControlPage({ initialRoleId }: { initialRoleId?: string })
     <div className="space-y-6">
       <PageHeader title={t('title')} description={t('subtitle')} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-5 items-start">
+      {/*
+        This grid is forced to dir="ltr" purely so column order is
+        predictable (roles panel = first column = visually on the left,
+        detail panel = second column = visually on the right), matching the
+        approved reference exactly. In an RTL grid, the first-defined column
+        renders on the right instead, which put the roles panel on the wrong
+        side. Each panel below restores dir="rtl" internally so Arabic text
+        still flows correctly — only the column order is pinned.
+      */}
+      <div dir="ltr" className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-5 items-start">
         {/* ===== LEFT: roles panel ===== */}
-        <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-2xl p-4">
+        <div dir="rtl" className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-2xl p-4">
           <div className="flex items-center gap-2 mb-3">
             <h2 className="text-sm font-extrabold text-slate-800 dark:text-white">{t('rolesListTitle')}</h2>
             <span className="bg-[#E8F1FB] dark:bg-[#0C447C]/20 text-[#0C447C] dark:text-[#5B9BD5] text-[11px] font-extrabold rounded-full px-2.5 py-0.5">
@@ -242,7 +251,7 @@ export function AccessControlPage({ initialRoleId }: { initialRoleId?: string })
         </div>
 
         {/* ===== RIGHT: detail panel ===== */}
-        <div className="space-y-5">
+        <div dir="rtl" className="space-y-5">
           {!role ? (
             rolesLoading ? (
               <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-2xl p-16 animate-pulse h-64" />
@@ -370,11 +379,7 @@ export function AccessControlPage({ initialRoleId }: { initialRoleId?: string })
                 ))}
               </div>
 
-              {tab === 'overview' && (
-                <div className="text-sm text-slate-500 dark:text-slate-400">{t('overviewHint')}</div>
-              )}
-
-              {tab === 'permissions' && (
+              {(tab === 'overview' || tab === 'permissions') && (
                 <>
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="relative">
