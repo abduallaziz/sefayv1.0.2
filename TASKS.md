@@ -453,6 +453,8 @@ Employee records, org chart, departments, leave management, attendance, payroll 
 **Dependencies:** Advanced Accounting, Approval Workflow Engine, Multi-Branch Management.
 > Spec: `docs/future/` — document to be created.
 
+**✅ Update (July 2026) — substantially more built than this entry suggests:** Employee Core (name/employee number/phone/department/job title, with or without a system login), full attendance (mobile check-in/out portal, admin dashboard, GPS geofencing, shift patterns), leave requests, and payroll fields (base salary, grace period, late-deduction mode/value) are all implemented and in production — see apiv1.0.2 STATUS.md §66, §69, §70 and the `EmployeeDetailPage`/`AttendPage` history in this repo's git log. **Still genuinely not built**: org chart / reporting hierarchy as a real feature (only a free-text `manager_name` field exists, no FK — see apiv1.0.2's Access Control STATUS.md §68 for why a real `manager_id` FK matters), GOSI/WPS compliance calculations, and payroll posting via a Posting Engine (no accounting integration exists at all yet). Don't treat this as "not started."
+
 #### Manufacturing & MRP
 Bill of Materials, Work Orders, Production Planning, MRP, routing, capacity planning, shop floor control.
 **Dependencies:** Phase 5, Phase 6, Advanced Accounting, Pricing Engine, UOM.
