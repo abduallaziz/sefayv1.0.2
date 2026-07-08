@@ -254,3 +254,27 @@ Several significant architectural decisions have been made during recent develop
 **Reasoning captured in:** `TASKS.md` (RTL native date-input bug follow-up) and `docs/architecture/engineering-principles.md`.
 
 **Why it matters:** the RTL rendering bug was found and fixed in shared components after appearing in three different feature files. The standing rule prevents it from reappearing in any future feature.
+
+---
+
+### Storage Compatibility Layer for Employees (No Physical Table Split)
+
+**Decision:** System Users (login/role/permissions), Employee Core (HR data), and Attendance (token/device/GPS) are three logically separate domains, but all three stay on the single existing `users` table, distinguished by an explicit `is_employee_profile` boolean flag rather than splitting into two physical tables.
+
+**Reasoning captured in:** apiv1.0.2 STATUS.md §69.
+
+**Key alternative considered and rejected:** a real two-table split (`users` + `employees`) — rejected because dozens of existing foreign keys (`attendance_records`, `leave_requests`, `employee_geofences`, `shift_patterns`, `audit_logs`, payroll fields) all reference `users.id`; migrating every one of them was judged far riskier than an additive flag column.
+
+**Why it matters:** any future feature that needs to distinguish "has a login" from "is an employee" should check `is_employee_profile`, not assume `email`/`password_hash` presence implies one or the other (both are now nullable independently of that flag).
+
+---
+
+### Hybrid Tenant-Aware Permission Migration (Per-Key Merge, Not Per-Role Replacement)
+
+**Decision:** Tenant-specific permission customization (`tenant_role_permissions`) merges **individual permission keys** on top of the permanent global default (`role_permissions`), rather than replacing a role's entire grant set per tenant. A tenant with zero customizations behaves identically to the pre-existing global-only system. The admin API that manages this (`/access-control/*`) is gated by a **hardcoded** owner/superadmin role check, never by a customizable permission — "who can edit permissions" must not be alterable through the very system it gates.
+
+**Reasoning captured in:** apiv1.0.2 STATUS.md §68 (full architecture-review trail: current-system audit → proposed architecture → per-key merge correction → staged migration S1 through S5 Stage D).
+
+**Key alternatives considered and rejected:** (1) a full role-permission replacement model — rejected because it would force an owner to re-specify a role's entire permission set to change just one permission; (2) gating the admin API through the same customizable `@RequirePermission()` system used everywhere else — rejected as a privilege-escalation risk (a role could grant itself the ability to edit permissions).
+
+**Why it matters:** any future extension of this system (scopes, exceptions, policies, temporary access — all still unbuilt, see STATUS.md §68's "Still Future" list) should preserve this precedence model (explicit deny > explicit allow > tenant override > global default) rather than reintroducing a role-replacement design.
