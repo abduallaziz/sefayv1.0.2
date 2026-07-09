@@ -12,7 +12,10 @@ interface Props {
   cart: Cart
   onUpdateQty: (cartId: string, qty: number) => void
   onRemoveItem: (cartId: string) => void
-  onApplyDiscount: (type: Cart['discount_type'], value: number, coupon?: string) => void
+  onApplyManualDiscount: (type: Cart['discount_type'], value: number) => void
+  onClearManualDiscount: () => void
+  onApplyCoupon: (coupon: string) => void
+  onClearCoupon: () => void
   onCheckout: () => void
   onClear: () => void
   customerCaptureEnabled?: boolean
@@ -23,7 +26,8 @@ interface Props {
 const fmt = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 export function CartPanel({
-  cart, onUpdateQty, onRemoveItem, onApplyDiscount, onCheckout, onClear,
+  cart, onUpdateQty, onRemoveItem, onApplyManualDiscount, onClearManualDiscount,
+  onApplyCoupon, onClearCoupon, onCheckout, onClear,
   customerCaptureEnabled, selectedCustomer, onClearCustomer,
 }: Props) {
   const t = useTranslations('pos')
@@ -31,19 +35,22 @@ export function CartPanel({
   const [showDiscount, setShowDiscount] = useState(false)
   const [discountInput, setDiscountInput] = useState('')
   const [discountType, setDiscountType] = useState<'percentage' | 'fixed'>('percentage')
+  const [showCoupon, setShowCoupon] = useState(false)
   const [couponInput, setCouponInput] = useState('')
 
   const handleApplyDiscount = () => {
     const val = parseFloat(discountInput)
-    const coupon = couponInput.trim() || undefined
-    // A coupon code is valid on its own — it shouldn't require also entering a manual
-    // discount value. Only fall back to "do nothing" when neither is provided.
     if (!isNaN(val) && val > 0) {
-      onApplyDiscount(discountType, val, coupon)
+      onApplyManualDiscount(discountType, val)
       setShowDiscount(false)
-    } else if (coupon) {
-      onApplyDiscount(null, 0, coupon)
-      setShowDiscount(false)
+    }
+  }
+
+  const handleApplyCoupon = () => {
+    const coupon = couponInput.trim()
+    if (coupon) {
+      onApplyCoupon(coupon)
+      setShowCoupon(false)
     }
   }
 
@@ -115,19 +122,73 @@ export function CartPanel({
         </div>
       )}
 
+      {/* الكوبون مستقل تمامًا عن الخصم اليدوي — الكاشير يدخل الكود فقط، ونسبة/قيمة الخصم
+          تُجلَب وتُطبَّق تلقائيًا من تعريف الكوبون نفسه بالسيرفر، لا تُحدَّد يدويًا هنا أبدًا. */}
       <div className="border-t border-gray-100 dark:border-gray-700 pt-3 mb-3">
-        <button
-          onClick={() => setShowDiscount(!showDiscount)}
-          className="text-sm text-[#0C447C] dark:text-[#5B9BD5] hover:text-[#0a3a6b] dark:hover:text-blue-300"
-        >
-          {cart.discount_amount > 0
-            ? `✓ ${t('discountApplied')}: −${fmt(cart.discount_amount)} ${currency}`
-            : cart.coupon_code
-              ? `✓ ${t('couponCode')}: ${cart.coupon_code}`
-              : t('addDiscount')}
-        </button>
+        {cart.coupon_code ? (
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-[#0C447C] dark:text-[#5B9BD5] font-medium">
+              ✓ {t('couponCode')}: <span className="font-mono">{cart.coupon_code}</span>
+            </span>
+            <button
+              onClick={onClearCoupon}
+              className="text-xs text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300"
+            >
+              {t('removeCoupon')}
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setShowCoupon(!showCoupon)}
+            className="text-sm text-[#0C447C] dark:text-[#5B9BD5] hover:text-[#0a3a6b] dark:hover:text-blue-300"
+          >
+            {t('addCoupon')}
+          </button>
+        )}
 
-        {showDiscount && (
+        {showCoupon && !cart.coupon_code && (
+          <div className="mt-2 flex gap-2">
+            <input
+              placeholder={t('couponCode')}
+              value={couponInput}
+              onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+              className="flex-1 px-3 py-1.5 text-sm uppercase bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C] placeholder-gray-400 dark:placeholder-gray-600"
+            />
+            <button
+              onClick={handleApplyCoupon}
+              disabled={!couponInput.trim()}
+              className="px-3 py-1.5 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 text-white text-sm rounded-lg transition-colors shrink-0"
+            >
+              {t('apply')}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* الخصم اليدوي (يقرره الكاشير مباشرة) — منفصل تمامًا عن الكوبون أعلاه */}
+      <div className="border-t border-gray-100 dark:border-gray-700 pt-3 mb-3">
+        {cart.discount_amount > 0 ? (
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-emerald-600 dark:text-emerald-400 font-medium">
+              ✓ {t('discountApplied')}: −{fmt(cart.discount_amount)} {currency}
+            </span>
+            <button
+              onClick={onClearManualDiscount}
+              className="text-xs text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300"
+            >
+              {t('removeDiscount')}
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setShowDiscount(!showDiscount)}
+            className="text-sm text-[#0C447C] dark:text-[#5B9BD5] hover:text-[#0a3a6b] dark:hover:text-blue-300"
+          >
+            {t('addDiscount')}
+          </button>
+        )}
+
+        {showDiscount && cart.discount_amount === 0 && (
           <div className="mt-2 space-y-2 bg-gray-50 dark:bg-white/5 rounded-lg p-3">
             <div className="flex gap-2">
               <button
@@ -156,12 +217,6 @@ export function CartPanel({
               value={discountInput}
               onChange={setDiscountInput}
               className="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C]"
-            />
-            <input
-              placeholder={t('couponCode')}
-              value={couponInput}
-              onChange={(e) => setCouponInput(e.target.value)}
-              className="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C] placeholder-gray-400 dark:placeholder-gray-600"
             />
             <button
               onClick={handleApplyDiscount}

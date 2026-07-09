@@ -80,14 +80,27 @@ export function useCart(taxRate: number = 0) {
     )
   }, [])
 
-  const applyDiscount = useCallback(
-    (type: Cart['discount_type'], value: number, coupon?: string) => {
-      setDiscountType(type)
-      setDiscountValue(value)
-      setCouponCode(coupon)
-    },
-    []
-  )
+  // Manual discount (cashier-entered %/fixed amount) and coupon (code only — its
+  // discount is looked up and applied server-side from the coupon's own definition,
+  // never entered manually here) are independent from one another. Keeping them as
+  // separate setters means applying one never silently wipes out the other.
+  const applyManualDiscount = useCallback((type: Cart['discount_type'], value: number) => {
+    setDiscountType(type)
+    setDiscountValue(value)
+  }, [])
+
+  const clearManualDiscount = useCallback(() => {
+    setDiscountType(null)
+    setDiscountValue(0)
+  }, [])
+
+  const applyCoupon = useCallback((coupon: string) => {
+    setCouponCode(coupon)
+  }, [])
+
+  const clearCoupon = useCallback(() => {
+    setCouponCode(undefined)
+  }, [])
 
   const clearCart = useCallback(() => {
     setCartItems([])
@@ -96,5 +109,15 @@ export function useCart(taxRate: number = 0) {
     setCouponCode(undefined)
   }, [])
 
-  return { cart: { ...cart, coupon_code: couponCode }, addItem, removeItem, updateQty, applyDiscount, clearCart }
+  return {
+    cart: { ...cart, coupon_code: couponCode },
+    addItem,
+    removeItem,
+    updateQty,
+    applyManualDiscount,
+    clearManualDiscount,
+    applyCoupon,
+    clearCoupon,
+    clearCart,
+  }
 }

@@ -47,7 +47,11 @@ export function POSPage() {
   const taxRate = posConfig?.tax_rate ?? 0.15
   const customerCaptureEnabled = posConfig?.customer_capture_enabled ?? false
 
-  const { cart, addItem, removeItem, updateQty, applyDiscount, clearCart } = useCart(taxRate)
+  const {
+    cart, addItem, removeItem, updateQty,
+    applyManualDiscount, clearManualDiscount, applyCoupon, clearCoupon,
+    clearCart,
+  } = useCart(taxRate)
 
   const branchId = user?.branchId ?? (branches as any)?.[0]?.id ?? ''
 
@@ -159,7 +163,10 @@ export function POSPage() {
             cart={cart}
             onUpdateQty={updateQty}
             onRemoveItem={removeItem}
-            onApplyDiscount={applyDiscount}
+            onApplyManualDiscount={applyManualDiscount}
+            onClearManualDiscount={clearManualDiscount}
+            onApplyCoupon={applyCoupon}
+            onClearCoupon={clearCoupon}
             onCheckout={handleCheckoutClick}
             onClear={clearCart}
             customerCaptureEnabled={customerCaptureEnabled}
