@@ -44,7 +44,12 @@
     "confirm": "تأكيد الدفع",
     "cancel": "إلغاء",
     "redeemPoints": "استرداد نقاط الولاء",
-    "availablePoints": "{points} نقطة متاحة"
+    "availablePoints": "{points} نقطة متاحة",
+    "giftCard": "بطاقة هدايا",
+    "giftCardCode": "كود بطاقة الهدايا",
+    "giftCardApply": "تطبيق",
+    "giftCardApplied": "تم تطبيق بطاقة الهدايا",
+    "giftCardRemove": "إزالة"
   },
   "receipt": {
     "success": "تم الدفع بنجاح",

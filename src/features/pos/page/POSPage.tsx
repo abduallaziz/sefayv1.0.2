@@ -64,6 +64,9 @@ export function POSPage() {
         cash_amount: data.method === 'split' ? data.split_cash : undefined,
         card_amount: data.method === 'split' ? data.split_card : undefined,
         redeem_points: data.redeem_points,
+        coupon_code: cart.coupon_code,
+        gift_card_code: data.gift_card_code,
+        gift_card_amount: data.gift_card_amount,
         items: cart.items.map(item => ({
           item_id: item.item_id,
           item_name: item.name,

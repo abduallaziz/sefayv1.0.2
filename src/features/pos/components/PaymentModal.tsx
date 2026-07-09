@@ -21,28 +21,40 @@ export function PaymentModal({ cart, customer, onConfirm, onClose, isSubmitting 
   const [cashTendered, setCashTendered] = useState(cart.total.toFixed(2))
   const [splitCash, setSplitCash] = useState('')
   const [redeemPoints, setRedeemPoints] = useState('')
+  const [giftCardCode, setGiftCardCode] = useState('')
+  const [giftCardApplied, setGiftCardApplied] = useState(false)
+  const [giftCardAmount, setGiftCardAmount] = useState(cart.total.toFixed(2))
 
   const fmt = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
   const availablePoints = customer?.loyalty_points ?? 0
   const redeemPointsNum = Math.min(parseInt(redeemPoints || '0', 10) || 0, availablePoints)
 
+  // The gift card pays down the total directly, before any payment method is even
+  // relevant (mirrors InvoicesService.create on the backend: amountDueAfterGiftCard).
+  // Cash tendered / split amounts below must validate against this remaining amount,
+  // not the full cart total, or a fully-covered sale could never be confirmed.
+  const giftCardAmountNum = giftCardApplied ? Math.min(parseFloat(giftCardAmount) || 0, cart.total) : 0
+  const remainingDue = Math.max(0, cart.total - giftCardAmountNum)
+
   const change =
-    method === 'cash' && parseFloat(cashTendered) >= cart.total
-      ? parseFloat(cashTendered) - cart.total
+    method === 'cash' && parseFloat(cashTendered) >= remainingDue
+      ? parseFloat(cashTendered) - remainingDue
       : 0
 
-  const splitCard = method === 'split' && parseFloat(splitCash) < cart.total
-    ? cart.total - parseFloat(splitCash)
+  const splitCard = method === 'split' && parseFloat(splitCash) < remainingDue
+    ? remainingDue - parseFloat(splitCash)
     : 0
 
   const canConfirm = () => {
     if (isSubmitting) return false
-    if (method === 'cash') return parseFloat(cashTendered) >= cart.total
+    // Fully covered by the gift card — no payment method amount is required at all.
+    if (remainingDue <= 0) return true
+    if (method === 'cash') return parseFloat(cashTendered) >= remainingDue
     if (method === 'card') return true
     if (method === 'split') {
       const c = parseFloat(splitCash)
-      return !isNaN(c) && c > 0 && c < cart.total
+      return !isNaN(c) && c > 0 && c < remainingDue
     }
     return false
   }
@@ -55,6 +67,8 @@ export function PaymentModal({ cart, customer, onConfirm, onClose, isSubmitting 
       split_cash: method === 'split' ? parseFloat(splitCash) : undefined,
       split_card: method === 'split' ? splitCard : undefined,
       redeem_points: redeemPointsNum > 0 ? redeemPointsNum : undefined,
+      gift_card_code: giftCardApplied ? giftCardCode.trim() : undefined,
+      gift_card_amount: giftCardApplied ? giftCardAmountNum : undefined,
     }
     onConfirm(data)
   }
@@ -76,7 +90,56 @@ export function PaymentModal({ cart, customer, onConfirm, onClose, isSubmitting 
         <div className="p-5 space-y-4">
           <div className="bg-gray-50 dark:bg-white/5 rounded-xl p-4 text-center">
             <p className="text-sm text-gray-500 dark:text-gray-400">{t('payment.due')}</p>
-            <p className="text-3xl font-bold text-[#0C447C] dark:text-[#5B9BD5] mt-1">{fmt(cart.total)} {currency}</p>
+            <p className="text-3xl font-bold text-[#0C447C] dark:text-[#5B9BD5] mt-1">{fmt(remainingDue)} {currency}</p>
+            {giftCardApplied && (
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                {fmt(cart.total)} {currency} − {fmt(giftCardAmountNum)} {currency} ({t('payment.giftCard')})
+              </p>
+            )}
+          </div>
+
+          <div className="bg-violet-500/10 border border-violet-500/20 rounded-xl p-3 space-y-2">
+            {giftCardApplied ? (
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-violet-700 dark:text-violet-400 font-medium">
+                  {t('payment.giftCardApplied')}: <span className="font-mono">{giftCardCode}</span> (−{fmt(giftCardAmountNum)} {currency})
+                </span>
+                <button
+                  onClick={() => { setGiftCardApplied(false); setGiftCardCode('') }}
+                  className="text-xs text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 shrink-0"
+                >
+                  {t('payment.giftCardRemove')}
+                </button>
+              </div>
+            ) : (
+              <>
+                <span className="text-sm text-violet-700 dark:text-violet-400 font-medium">{t('payment.giftCard')}</span>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder={t('payment.giftCardCode')}
+                    value={giftCardCode}
+                    onChange={(e) => setGiftCardCode(e.target.value.toUpperCase())}
+                    className="flex-1 h-10 px-3 bg-white dark:bg-gray-900 border border-violet-500/30 text-gray-900 dark:text-white rounded-lg uppercase focus:outline-none focus:border-violet-500"
+                  />
+                  <input
+                    type="number"
+                    min={0.01}
+                    step="0.01"
+                    value={giftCardAmount}
+                    onChange={(e) => setGiftCardAmount(e.target.value)}
+                    className="w-24 h-10 px-2 text-center bg-white dark:bg-gray-900 border border-violet-500/30 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-violet-500"
+                  />
+                  <button
+                    disabled={!giftCardCode.trim() || !(parseFloat(giftCardAmount) > 0)}
+                    onClick={() => setGiftCardApplied(true)}
+                    className="px-3 h-10 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 text-white rounded-lg text-sm font-medium shrink-0"
+                  >
+                    {t('payment.giftCardApply')}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
 
           {customer && availablePoints > 0 && (
@@ -122,7 +185,7 @@ export function PaymentModal({ cart, customer, onConfirm, onClose, isSubmitting 
               <input
                 type="text"
                 inputMode="decimal"
-                placeholder={fmt(cart.total)}
+                placeholder={fmt(remainingDue)}
                 value={cashTendered}
                 onChange={(e) => setCashTendered(e.target.value)}
                 className="w-full text-lg h-12 text-center font-bold bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C]"

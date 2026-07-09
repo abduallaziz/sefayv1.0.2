@@ -35,8 +35,14 @@ export function CartPanel({
 
   const handleApplyDiscount = () => {
     const val = parseFloat(discountInput)
+    const coupon = couponInput.trim() || undefined
+    // A coupon code is valid on its own — it shouldn't require also entering a manual
+    // discount value. Only fall back to "do nothing" when neither is provided.
     if (!isNaN(val) && val > 0) {
-      onApplyDiscount(discountType, val)
+      onApplyDiscount(discountType, val, coupon)
+      setShowDiscount(false)
+    } else if (coupon) {
+      onApplyDiscount(null, 0, coupon)
       setShowDiscount(false)
     }
   }
@@ -116,7 +122,9 @@ export function CartPanel({
         >
           {cart.discount_amount > 0
             ? `✓ ${t('discountApplied')}: −${fmt(cart.discount_amount)} ${currency}`
-            : t('addDiscount')}
+            : cart.coupon_code
+              ? `✓ ${t('couponCode')}: ${cart.coupon_code}`
+              : t('addDiscount')}
         </button>
 
         {showDiscount && (

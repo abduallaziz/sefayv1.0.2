@@ -44,7 +44,12 @@
     "confirm": "Confirm Payment",
     "cancel": "Cancel",
     "redeemPoints": "Redeem Loyalty Points",
-    "availablePoints": "{points} points available"
+    "availablePoints": "{points} points available",
+    "giftCard": "Gift Card",
+    "giftCardCode": "Gift card code",
+    "giftCardApply": "Apply",
+    "giftCardApplied": "Gift card applied",
+    "giftCardRemove": "Remove"
   },
   "receipt": {
     "success": "Payment Successful",

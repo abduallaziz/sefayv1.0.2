@@ -52,6 +52,9 @@ export interface CreateOrderPayload {
   notes?: string;
   tax_rate?: number;
   redeem_points?: number;
+  coupon_code?: string;
+  gift_card_code?: string;
+  gift_card_amount?: number;
 }
 
 export async function createOrder(payload: CreateOrderPayload): Promise<Order> {

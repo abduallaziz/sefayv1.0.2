@@ -48,4 +48,6 @@ export interface PaymentData {
   split_cash?: number
   split_card?: number
   redeem_points?: number
+  gift_card_code?: string
+  gift_card_amount?: number
 }
