@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { User, X } from 'lucide-react'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
+import { couponsApi } from '@/features/coupons/api/coupons.api'
 import { Cart } from '../types/pos.types'
 import type { Customer } from '@/features/customers/types/customer.types'
 
@@ -11,7 +12,7 @@ interface Props {
   cart: Cart
   onUpdateQty: (cartId: string, qty: number) => void
   onRemoveItem: (cartId: string) => void
-  onApplyCoupon: (coupon: string) => void
+  onApplyCoupon: (coupon: string, discountAmount: number) => void
   onClearCoupon: () => void
   onCheckout: () => void
   onClear: () => void
@@ -30,12 +31,25 @@ export function CartPanel({
   const currency = useTenantStore((s) => s.currency_symbol)
   const [showCoupon, setShowCoupon] = useState(false)
   const [couponInput, setCouponInput] = useState('')
+  const [couponError, setCouponError] = useState<string | null>(null)
+  const [validatingCoupon, setValidatingCoupon] = useState(false)
 
-  const handleApplyCoupon = () => {
+  // يتحقق فعليًا من الكود عبر /coupons/validate قبل قبوله — لا يُعرَض كمطبَّق أبدًا
+  // إلا بعد تأكيد صحته ومبلغ خصمه الحقيقي من السيرفر.
+  const handleApplyCoupon = async () => {
     const coupon = couponInput.trim()
-    if (coupon) {
-      onApplyCoupon(coupon)
+    if (!coupon || cart.subtotal <= 0) return
+    setValidatingCoupon(true)
+    setCouponError(null)
+    try {
+      const result = await couponsApi.validate(coupon, cart.subtotal)
+      onApplyCoupon(result.code, result.discount_amount)
       setShowCoupon(false)
+      setCouponInput('')
+    } catch (e: any) {
+      setCouponError(e?.message ?? t('couponInvalid'))
+    } finally {
+      setValidatingCoupon(false)
     }
   }
 
@@ -107,13 +121,15 @@ export function CartPanel({
         </div>
       )}
 
-      {/* الكود يُطبَّق عند إنشاء الفاتورة — نسبة/قيمة الخصم تُجلَب وتُطبَّق تلقائيًا من تعريف
-          الكوبون نفسه بالسيرفر، لا تُحدَّد يدويًا هنا أبدًا. */}
+      {/* الكود يُتحقَّق منه فعليًا عبر /coupons/validate وقت التطبيق — نسبة/قيمة الخصم
+          تُجلَب من تعريف الكوبون نفسه بالسيرفر، لا تُحدَّد يدويًا هنا أبدًا. أي تعديل على
+          محتويات السلة بعد التطبيق يُلغي الكوبون تلقائيًا (راجع useCart) لتفادي عرض مبلغ
+          خصم غير محدَّث. */}
       <div className="border-t border-gray-100 dark:border-gray-700 pt-3 mb-3">
         {cart.coupon_code ? (
           <div className="flex items-center justify-between text-sm">
             <span className="text-[#0C447C] dark:text-[#5B9BD5] font-medium">
-              ✓ {t('couponCode')}: <span className="font-mono">{cart.coupon_code}</span>
+              ✓ {t('couponCode')}: <span className="font-mono">{cart.coupon_code}</span> (−{fmt(cart.coupon_discount_amount)} {currency})
             </span>
             <button
               onClick={onClearCoupon}
@@ -132,20 +148,23 @@ export function CartPanel({
         )}
 
         {showCoupon && !cart.coupon_code && (
-          <div className="mt-2 flex gap-2">
-            <input
-              placeholder={t('couponCode')}
-              value={couponInput}
-              onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
-              className="flex-1 px-3 py-1.5 text-sm uppercase bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C] placeholder-gray-400 dark:placeholder-gray-600"
-            />
-            <button
-              onClick={handleApplyCoupon}
-              disabled={!couponInput.trim()}
-              className="px-3 py-1.5 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 text-white text-sm rounded-lg transition-colors shrink-0"
-            >
-              {t('apply')}
-            </button>
+          <div className="mt-2 space-y-1.5">
+            <div className="flex gap-2">
+              <input
+                placeholder={t('couponCode')}
+                value={couponInput}
+                onChange={(e) => { setCouponInput(e.target.value.toUpperCase()); setCouponError(null) }}
+                className="flex-1 px-3 py-1.5 text-sm uppercase bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C] placeholder-gray-400 dark:placeholder-gray-600"
+              />
+              <button
+                onClick={handleApplyCoupon}
+                disabled={!couponInput.trim() || validatingCoupon}
+                className="px-3 py-1.5 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 text-white text-sm rounded-lg transition-colors shrink-0"
+              >
+                {validatingCoupon ? t('checking') : t('apply')}
+              </button>
+            </div>
+            {couponError && <p className="text-xs text-red-500 dark:text-red-400">{couponError}</p>}
           </div>
         )}
       </div>
@@ -155,6 +174,12 @@ export function CartPanel({
           <span>{t('subtotal')}</span>
           <span>{fmt(cart.subtotal)} {currency}</span>
         </div>
+        {cart.coupon_discount_amount > 0 && (
+          <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
+            <span>{t('discount')}</span>
+            <span>−{fmt(cart.coupon_discount_amount)} {currency}</span>
+          </div>
+        )}
         <div className="flex justify-between text-gray-500 dark:text-gray-400">
           <span>{t('tax')}</span>
           <span>{fmt(cart.tax_amount)} {currency}</span>

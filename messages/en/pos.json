@@ -7,11 +7,14 @@
   "noItems": "No items",
   "loading": "Loading...",
   "subtotal": "Subtotal",
+  "discount": "Discount",
   "tax": "VAT",
   "total": "Total",
   "checkout": "Checkout",
   "addCoupon": "+ Add coupon",
   "couponCode": "Coupon code",
+  "couponInvalid": "Invalid coupon code",
+  "checking": "Checking...",
   "removeCoupon": "Remove",
   "apply": "Apply",
   "service": "Service",
@@ -46,7 +49,9 @@
     "giftCardCode": "Gift card code",
     "giftCardApply": "Apply",
     "giftCardApplied": "Gift card applied",
-    "giftCardRemove": "Remove"
+    "giftCardRemove": "Remove",
+    "giftCardInvalid": "Invalid gift card code",
+    "failed": "Payment failed, please try again"
   },
   "receipt": {
     "success": "Payment Successful",

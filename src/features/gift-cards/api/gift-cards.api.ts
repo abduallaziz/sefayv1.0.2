@@ -18,6 +18,11 @@ export interface GiftCardInput {
   expires_at?: string
 }
 
+export interface GiftCardValidation {
+  code: string
+  current_balance: number
+}
+
 export const giftCardsApi = {
   getAll: (): Promise<GiftCard[]> => apiClient.get('/gift-cards'),
 
@@ -27,4 +32,9 @@ export const giftCardsApi = {
     apiClient.patch(`/gift-cards/${id}`, data),
 
   remove: (id: string): Promise<void> => apiClient.delete(`/gift-cards/${id}`),
+
+  // Preview-only — does not redeem/decrement the balance. Throws if the code is
+  // invalid/inactive/expired/has insufficient balance, same errors as checkout itself.
+  validate: (code: string, amount: number): Promise<GiftCardValidation> =>
+    apiClient.post('/gift-cards/validate', { code, amount }),
 }

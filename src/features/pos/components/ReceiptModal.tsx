@@ -8,11 +8,12 @@ interface Props {
   payment: PaymentData
   invoiceNumber: string
   taxRate: number
+  total: number
   onClose: () => void
   onNewOrder: () => void
 }
 
-export function ReceiptModal({ cart, payment, invoiceNumber, taxRate, onClose, onNewOrder }: Props) {
+export function ReceiptModal({ cart, payment, invoiceNumber, taxRate, total, onClose, onNewOrder }: Props) {
   const t = useTranslations('pos')
   const now = new Date().toLocaleString('en-US')
   const fmt = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -57,12 +58,18 @@ export function ReceiptModal({ cart, payment, invoiceNumber, taxRate, onClose, o
             <div className="flex justify-between text-gray-500 dark:text-gray-400">
               <span>{t('subtotal')}</span><span>{fmt(cart.subtotal)}</span>
             </div>
+            {cart.coupon_discount_amount > 0 && (
+              <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
+                <span>{t('discount')}{cart.coupon_code ? ` (${cart.coupon_code})` : ''}</span>
+                <span>−{fmt(cart.coupon_discount_amount)}</span>
+              </div>
+            )}
             <div className="flex justify-between text-gray-500 dark:text-gray-400">
               <span>{t('receipt.taxLabel', { percent: taxPct })}</span><span>{fmt(cart.tax_amount)}</span>
             </div>
             <div className="flex justify-between font-bold text-base border-t border-gray-200 dark:border-gray-700 pt-2">
               <span className="text-gray-900 dark:text-white">{t('total')}</span>
-              <span className="text-[#0C447C] dark:text-[#5B9BD5]">{fmt(cart.total)} {t('receipt.currency')}</span>
+              <span className="text-[#0C447C] dark:text-[#5B9BD5]">{fmt(total)} {t('receipt.currency')}</span>
             </div>
           </div>
 

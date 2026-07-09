@@ -7,11 +7,14 @@
   "noItems": "لا توجد منتجات",
   "loading": "جاري التحميل...",
   "subtotal": "المجموع الجزئي",
+  "discount": "الخصم",
   "tax": "ضريبة القيمة المضافة",
   "total": "الإجمالي",
   "checkout": "إتمام الدفع",
   "addCoupon": "+ إضافة كوبون",
   "couponCode": "كود الكوبون",
+  "couponInvalid": "كود الكوبون غير صالح",
+  "checking": "جاري التحقق...",
   "removeCoupon": "إزالة",
   "apply": "تطبيق",
   "service": "خدمة",
@@ -46,7 +49,9 @@
     "giftCardCode": "كود بطاقة الهدايا",
     "giftCardApply": "تطبيق",
     "giftCardApplied": "تم تطبيق بطاقة الهدايا",
-    "giftCardRemove": "إزالة"
+    "giftCardRemove": "إزالة",
+    "giftCardInvalid": "كود بطاقة الهدايا غير صالح",
+    "failed": "تعذّر إتمام الدفع، حاول مرة أخرى"
   },
   "receipt": {
     "success": "تم الدفع بنجاح",

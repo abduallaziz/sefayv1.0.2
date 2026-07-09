@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
+import { giftCardsApi } from '@/features/gift-cards/api/gift-cards.api'
 import { Cart, PaymentData, PaymentMethod } from '../types/pos.types'
 import type { Customer } from '@/features/customers/types/customer.types'
 
@@ -13,9 +14,10 @@ interface Props {
   onConfirm: (data: PaymentData) => void
   onClose: () => void
   isSubmitting?: boolean
+  error?: string | null
 }
 
-export function PaymentModal({ cart, customer, loyaltyEnabled = true, onConfirm, onClose, isSubmitting }: Props) {
+export function PaymentModal({ cart, customer, loyaltyEnabled = true, onConfirm, onClose, isSubmitting, error }: Props) {
   const t = useTranslations('pos')
   const currency = useTenantStore((s) => s.currency_symbol)
   const [method, setMethod] = useState<PaymentMethod>('cash')
@@ -25,6 +27,8 @@ export function PaymentModal({ cart, customer, loyaltyEnabled = true, onConfirm,
   const [giftCardCode, setGiftCardCode] = useState('')
   const [giftCardApplied, setGiftCardApplied] = useState(false)
   const [giftCardAmount, setGiftCardAmount] = useState(cart.total.toFixed(2))
+  const [giftCardError, setGiftCardError] = useState<string | null>(null)
+  const [validatingGiftCard, setValidatingGiftCard] = useState(false)
 
   const fmt = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
@@ -60,6 +64,24 @@ export function PaymentModal({ cart, customer, loyaltyEnabled = true, onConfirm,
       return !isNaN(c) && c > 0 && c < remainingDue
     }
     return false
+  }
+
+  // يتحقق فعليًا من الكود والمبلغ عبر /gift-cards/validate قبل قبول البطاقة —
+  // لا تُعرَض كمطبَّقة أبدًا إلا بعد تأكيد رصيدها الحقيقي من السيرفر.
+  const handleApplyGiftCard = async () => {
+    const code = giftCardCode.trim()
+    const amount = parseFloat(giftCardAmount)
+    if (!code || !(amount > 0)) return
+    setValidatingGiftCard(true)
+    setGiftCardError(null)
+    try {
+      await giftCardsApi.validate(code, amount)
+      setGiftCardApplied(true)
+    } catch (e: any) {
+      setGiftCardError(e?.message ?? t('payment.giftCardInvalid'))
+    } finally {
+      setValidatingGiftCard(false)
+    }
   }
 
   const handleConfirm = () => {
@@ -122,7 +144,7 @@ export function PaymentModal({ cart, customer, loyaltyEnabled = true, onConfirm,
                     type="text"
                     placeholder={t('payment.giftCardCode')}
                     value={giftCardCode}
-                    onChange={(e) => setGiftCardCode(e.target.value.toUpperCase())}
+                    onChange={(e) => { setGiftCardCode(e.target.value.toUpperCase()); setGiftCardError(null) }}
                     className="flex-1 h-10 px-3 bg-white dark:bg-gray-900 border border-violet-500/30 text-gray-900 dark:text-white rounded-lg uppercase focus:outline-none focus:border-violet-500"
                   />
                   <input
@@ -134,16 +156,23 @@ export function PaymentModal({ cart, customer, loyaltyEnabled = true, onConfirm,
                     className="w-24 h-10 px-2 text-center bg-white dark:bg-gray-900 border border-violet-500/30 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-violet-500"
                   />
                   <button
-                    disabled={!giftCardCode.trim() || !(parseFloat(giftCardAmount) > 0)}
-                    onClick={() => setGiftCardApplied(true)}
+                    disabled={!giftCardCode.trim() || !(parseFloat(giftCardAmount) > 0) || validatingGiftCard}
+                    onClick={handleApplyGiftCard}
                     className="px-3 h-10 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 text-white rounded-lg text-sm font-medium shrink-0"
                   >
-                    {t('payment.giftCardApply')}
+                    {validatingGiftCard ? t('checking') : t('payment.giftCardApply')}
                   </button>
                 </div>
+                {giftCardError && <p className="text-xs text-red-500 dark:text-red-400">{giftCardError}</p>}
               </>
             )}
           </div>
+
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 text-sm text-red-600 dark:text-red-400">
+              {error}
+            </div>
+          )}
 
           {customer && availablePoints > 0 && (
             <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 space-y-2">

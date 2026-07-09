@@ -31,6 +31,7 @@ export interface Cart {
   items: CartItem[]
   subtotal: number
   coupon_code?: string
+  coupon_discount_amount: number
   tax_amount: number
   tax_rate: number
   total: number

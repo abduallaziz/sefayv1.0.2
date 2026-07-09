@@ -20,8 +20,9 @@ export function POSPage() {
   const { user } = useAuthStore()
   const t = useTranslations('pos')
   const [showPayment, setShowPayment] = useState(false)
-  const [receipt, setReceipt] = useState<{ payment: PaymentData; invoiceNumber: string; taxRate: number } | null>(null)
+  const [receipt, setReceipt] = useState<{ payment: PaymentData; invoiceNumber: string; taxRate: number; total: number } | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [paymentError, setPaymentError] = useState<string | null>(null)
   const [mobileTab, setMobileTab] = useState<'items' | 'cart'>('items')
   const [showCustomerPicker, setShowCustomerPicker] = useState(false)
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
@@ -55,6 +56,7 @@ export function POSPage() {
   const handleConfirmPayment = async (data: PaymentData) => {
     if (isSubmitting) return
     setIsSubmitting(true)
+    setPaymentError(null)
     try {
       const order = await createOrder({
         branch_id: branchId,
@@ -82,9 +84,15 @@ export function POSPage() {
         payment: data,
         invoiceNumber: order.id.slice(-6).toUpperCase(),
         taxRate: (order as any).tax_rate ?? taxRate,
+        // الإجمالي الحقيقي المُحصَّل فعليًا من السيرفر — وليس تقدير الواجهة (cart.total) —
+        // يُعرَض بالإيصال، احتياطًا لأي فارق نادر بين لحظة معاينة الكوبون/الحساب وقت
+        // الدفع الفعلي (مثلًا كوبون استُنفد بواسطة كاشير آخر بين المعاينة والتأكيد).
+        total: order.total,
       })
-    } catch (error) {
-      console.error('Failed to create order:', error)
+    } catch (error: any) {
+      // كان يُسجَّل بـconsole فقط بلا أي إشعار للكاشير — يظهر كأن الزر "لا يعمل" بصمت
+      // عند فشل حقيقي (كوبون غير صالح لحظة التأكيد، رصيد بطاقة هدايا غير كافٍ، إلخ).
+      setPaymentError(error?.message ?? t('payment.failed'))
     } finally {
       setIsSubmitting(false)
     }
@@ -171,8 +179,9 @@ export function POSPage() {
           customer={selectedCustomer}
           loyaltyEnabled={loyaltyEnabled}
           onConfirm={handleConfirmPayment}
-          onClose={() => setShowPayment(false)}
+          onClose={() => { setShowPayment(false); setPaymentError(null) }}
           isSubmitting={isSubmitting}
+          error={paymentError}
         />
       )}
 
@@ -193,6 +202,7 @@ export function POSPage() {
           payment={receipt.payment}
           invoiceNumber={receipt.invoiceNumber}
           taxRate={receipt.taxRate}
+          total={receipt.total}
           onClose={() => setReceipt(null)}
           onNewOrder={handleNewOrder}
         />

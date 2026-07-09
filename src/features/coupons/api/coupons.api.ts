@@ -28,6 +28,13 @@ export interface CouponInput {
   valid_to?: string
 }
 
+export interface CouponValidation {
+  code: string
+  discount_type: CouponDiscountType
+  discount_value: number
+  discount_amount: number
+}
+
 export const couponsApi = {
   getAll: (): Promise<Coupon[]> => apiClient.get('/coupons'),
 
@@ -37,4 +44,9 @@ export const couponsApi = {
     apiClient.patch(`/coupons/${id}`, data),
 
   remove: (id: string): Promise<void> => apiClient.delete(`/coupons/${id}`),
+
+  // Preview-only — does not redeem/increment used_count. Throws if the code is
+  // invalid/expired/inactive/below min_order_amount, same errors as checkout itself.
+  validate: (code: string, subtotal: number): Promise<CouponValidation> =>
+    apiClient.post('/coupons/validate', { code, subtotal }),
 }
