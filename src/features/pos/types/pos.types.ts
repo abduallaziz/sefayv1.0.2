@@ -30,9 +30,6 @@ export interface CartItem {
 export interface Cart {
   items: CartItem[]
   subtotal: number
-  discount_amount: number
-  discount_type: 'percentage' | 'fixed' | null
-  discount_value: number
   coupon_code?: string
   tax_amount: number
   tax_rate: number

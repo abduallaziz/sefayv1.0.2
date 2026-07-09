@@ -1,26 +1,14 @@
 import { useState, useCallback } from 'react'
 import { Cart, CartItem, POSItem, POSVariant } from '../types/pos.types'
 
-function calcCart(items: CartItem[], discountType: Cart['discount_type'], discountValue: number, taxRate: number): Cart {
+function calcCart(items: CartItem[], taxRate: number): Cart {
   const subtotal = items.reduce((sum, i) => sum + i.total_price, 0)
-
-  let discount_amount = 0
-  if (discountType === 'percentage') {
-    discount_amount = Math.round(subtotal * (discountValue / 100) * 100) / 100
-  } else if (discountType === 'fixed') {
-    discount_amount = Math.min(discountValue, subtotal)
-  }
-
-  const taxable = subtotal - discount_amount
-  const tax_amount = Math.round(taxable * taxRate * 100) / 100
-  const total = Math.round((taxable + tax_amount) * 100) / 100
+  const tax_amount = Math.round(subtotal * taxRate * 100) / 100
+  const total = Math.round((subtotal + tax_amount) * 100) / 100
 
   return {
     items,
     subtotal,
-    discount_amount,
-    discount_type: discountType,
-    discount_value: discountValue,
     tax_amount,
     tax_rate: taxRate,
     total,
@@ -29,11 +17,9 @@ function calcCart(items: CartItem[], discountType: Cart['discount_type'], discou
 
 export function useCart(taxRate: number = 0) {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
-  const [discountType, setDiscountType] = useState<Cart['discount_type']>(null)
-  const [discountValue, setDiscountValue] = useState(0)
   const [couponCode, setCouponCode] = useState<string | undefined>()
 
-  const cart = calcCart(cartItems, discountType, discountValue, taxRate)
+  const cart = calcCart(cartItems, taxRate)
 
   const addItem = useCallback((item: POSItem, variant?: POSVariant) => {
     const cartId = variant ? `${item.id}_${variant.id}` : item.id
@@ -80,20 +66,8 @@ export function useCart(taxRate: number = 0) {
     )
   }, [])
 
-  // Manual discount (cashier-entered %/fixed amount) and coupon (code only — its
-  // discount is looked up and applied server-side from the coupon's own definition,
-  // never entered manually here) are independent from one another. Keeping them as
-  // separate setters means applying one never silently wipes out the other.
-  const applyManualDiscount = useCallback((type: Cart['discount_type'], value: number) => {
-    setDiscountType(type)
-    setDiscountValue(value)
-  }, [])
-
-  const clearManualDiscount = useCallback(() => {
-    setDiscountType(null)
-    setDiscountValue(0)
-  }, [])
-
+  // A coupon's discount is looked up and applied server-side from the coupon's own
+  // definition — never entered manually here.
   const applyCoupon = useCallback((coupon: string) => {
     setCouponCode(coupon)
   }, [])
@@ -104,8 +78,6 @@ export function useCart(taxRate: number = 0) {
 
   const clearCart = useCallback(() => {
     setCartItems([])
-    setDiscountType(null)
-    setDiscountValue(0)
     setCouponCode(undefined)
   }, [])
 
@@ -114,8 +86,6 @@ export function useCart(taxRate: number = 0) {
     addItem,
     removeItem,
     updateQty,
-    applyManualDiscount,
-    clearManualDiscount,
     applyCoupon,
     clearCoupon,
     clearCart,

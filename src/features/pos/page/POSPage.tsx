@@ -48,11 +48,7 @@ export function POSPage() {
   const customerCaptureEnabled = posConfig?.customer_capture_enabled ?? false
   const loyaltyEnabled = posConfig?.loyalty_enabled ?? true
 
-  const {
-    cart, addItem, removeItem, updateQty,
-    applyManualDiscount, clearManualDiscount, applyCoupon, clearCoupon,
-    clearCart,
-  } = useCart(taxRate)
+  const { cart, addItem, removeItem, updateQty, applyCoupon, clearCoupon, clearCart } = useCart(taxRate)
 
   const branchId = user?.branchId ?? (branches as any)?.[0]?.id ?? ''
 
@@ -80,12 +76,6 @@ export function POSPage() {
           quantity: item.quantity,
           unit_price: item.unit_price,
         })),
-        discount: cart.discount_type
-          ? {
-              type: cart.discount_type,
-              value: cart.discount_value,
-            }
-          : undefined,
       })
       setShowPayment(false)
       setReceipt({
@@ -164,8 +154,6 @@ export function POSPage() {
             cart={cart}
             onUpdateQty={updateQty}
             onRemoveItem={removeItem}
-            onApplyManualDiscount={applyManualDiscount}
-            onClearManualDiscount={clearManualDiscount}
             onApplyCoupon={applyCoupon}
             onClearCoupon={clearCoupon}
             onCheckout={handleCheckoutClick}

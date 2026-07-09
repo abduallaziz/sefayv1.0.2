@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { User, X } from 'lucide-react'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
-import { NumberInput } from '@/shared/ui/number-input'
 import { Cart } from '../types/pos.types'
 import type { Customer } from '@/features/customers/types/customer.types'
 
@@ -12,8 +11,6 @@ interface Props {
   cart: Cart
   onUpdateQty: (cartId: string, qty: number) => void
   onRemoveItem: (cartId: string) => void
-  onApplyManualDiscount: (type: Cart['discount_type'], value: number) => void
-  onClearManualDiscount: () => void
   onApplyCoupon: (coupon: string) => void
   onClearCoupon: () => void
   onCheckout: () => void
@@ -26,25 +23,13 @@ interface Props {
 const fmt = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 export function CartPanel({
-  cart, onUpdateQty, onRemoveItem, onApplyManualDiscount, onClearManualDiscount,
-  onApplyCoupon, onClearCoupon, onCheckout, onClear,
+  cart, onUpdateQty, onRemoveItem, onApplyCoupon, onClearCoupon, onCheckout, onClear,
   customerCaptureEnabled, selectedCustomer, onClearCustomer,
 }: Props) {
   const t = useTranslations('pos')
   const currency = useTenantStore((s) => s.currency_symbol)
-  const [showDiscount, setShowDiscount] = useState(false)
-  const [discountInput, setDiscountInput] = useState('')
-  const [discountType, setDiscountType] = useState<'percentage' | 'fixed'>('percentage')
   const [showCoupon, setShowCoupon] = useState(false)
   const [couponInput, setCouponInput] = useState('')
-
-  const handleApplyDiscount = () => {
-    const val = parseFloat(discountInput)
-    if (!isNaN(val) && val > 0) {
-      onApplyManualDiscount(discountType, val)
-      setShowDiscount(false)
-    }
-  }
 
   const handleApplyCoupon = () => {
     const coupon = couponInput.trim()
@@ -122,8 +107,8 @@ export function CartPanel({
         </div>
       )}
 
-      {/* الكوبون مستقل تمامًا عن الخصم اليدوي — الكاشير يدخل الكود فقط، ونسبة/قيمة الخصم
-          تُجلَب وتُطبَّق تلقائيًا من تعريف الكوبون نفسه بالسيرفر، لا تُحدَّد يدويًا هنا أبدًا. */}
+      {/* الكود يُطبَّق عند إنشاء الفاتورة — نسبة/قيمة الخصم تُجلَب وتُطبَّق تلقائيًا من تعريف
+          الكوبون نفسه بالسيرفر، لا تُحدَّد يدويًا هنا أبدًا. */}
       <div className="border-t border-gray-100 dark:border-gray-700 pt-3 mb-3">
         {cart.coupon_code ? (
           <div className="flex items-center justify-between text-sm">
@@ -165,80 +150,11 @@ export function CartPanel({
         )}
       </div>
 
-      {/* الخصم اليدوي (يقرره الكاشير مباشرة) — منفصل تمامًا عن الكوبون أعلاه */}
-      <div className="border-t border-gray-100 dark:border-gray-700 pt-3 mb-3">
-        {cart.discount_amount > 0 ? (
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-emerald-600 dark:text-emerald-400 font-medium">
-              ✓ {t('discountApplied')}: −{fmt(cart.discount_amount)} {currency}
-            </span>
-            <button
-              onClick={onClearManualDiscount}
-              className="text-xs text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300"
-            >
-              {t('removeDiscount')}
-            </button>
-          </div>
-        ) : (
-          <button
-            onClick={() => setShowDiscount(!showDiscount)}
-            className="text-sm text-[#0C447C] dark:text-[#5B9BD5] hover:text-[#0a3a6b] dark:hover:text-blue-300"
-          >
-            {t('addDiscount')}
-          </button>
-        )}
-
-        {showDiscount && cart.discount_amount === 0 && (
-          <div className="mt-2 space-y-2 bg-gray-50 dark:bg-white/5 rounded-lg p-3">
-            <div className="flex gap-2">
-              <button
-                onClick={() => setDiscountType('percentage')}
-                className={`flex-1 py-1 rounded-md text-xs font-medium transition-colors ${
-                  discountType === 'percentage'
-                    ? 'bg-[#0C447C] text-white'
-                    : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400'
-                }`}
-              >
-                {t('percentage')}
-              </button>
-              <button
-                onClick={() => setDiscountType('fixed')}
-                className={`flex-1 py-1 rounded-md text-xs font-medium transition-colors ${
-                  discountType === 'fixed'
-                    ? 'bg-[#0C447C] text-white'
-                    : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400'
-                }`}
-              >
-                {t('fixed')}
-              </button>
-            </div>
-            <NumberInput
-              placeholder={discountType === 'percentage' ? '10' : '20'}
-              value={discountInput}
-              onChange={setDiscountInput}
-              className="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C]"
-            />
-            <button
-              onClick={handleApplyDiscount}
-              className="w-full py-1.5 bg-[#0C447C] hover:bg-[#0a3a6b] text-white text-sm rounded-lg transition-colors"
-            >
-              {t('apply')}
-            </button>
-          </div>
-        )}
-      </div>
-
       <div className="space-y-1.5 text-sm border-t border-gray-100 dark:border-gray-700 pt-3 mb-3">
         <div className="flex justify-between text-gray-500 dark:text-gray-400">
           <span>{t('subtotal')}</span>
           <span>{fmt(cart.subtotal)} {currency}</span>
         </div>
-        {cart.discount_amount > 0 && (
-          <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
-            <span>{t('discount')}</span>
-            <span>−{fmt(cart.discount_amount)} {currency}</span>
-          </div>
-        )}
         <div className="flex justify-between text-gray-500 dark:text-gray-400">
           <span>{t('tax')}</span>
           <span>{fmt(cart.tax_amount)} {currency}</span>

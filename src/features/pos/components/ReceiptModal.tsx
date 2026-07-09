@@ -57,11 +57,6 @@ export function ReceiptModal({ cart, payment, invoiceNumber, taxRate, onClose, o
             <div className="flex justify-between text-gray-500 dark:text-gray-400">
               <span>{t('subtotal')}</span><span>{fmt(cart.subtotal)}</span>
             </div>
-            {cart.discount_amount > 0 && (
-              <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
-                <span>{t('discount')}</span><span>−{fmt(cart.discount_amount)}</span>
-              </div>
-            )}
             <div className="flex justify-between text-gray-500 dark:text-gray-400">
               <span>{t('receipt.taxLabel', { percent: taxPct })}</span><span>{fmt(cart.tax_amount)}</span>
             </div>
