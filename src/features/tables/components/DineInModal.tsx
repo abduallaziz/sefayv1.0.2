@@ -2,12 +2,12 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { X, Plus, ShoppingCart } from 'lucide-react'
+import { X, Plus, ShoppingCart, Trash2 } from 'lucide-react'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
 import { ItemGrid } from '@/features/pos/components/ItemGrid'
 import type { POSItem, POSVariant } from '@/features/pos/types/pos.types'
 import type { RestaurantTable } from '../api/tables.api'
-import { useOpenTable, useCurrentOrder, useAddDineInItems, useCheckoutTable } from '../hooks/useTables'
+import { useOpenTable, useCurrentOrder, useAddDineInItems, useRemoveDineInItem, useCheckoutTable } from '../hooks/useTables'
 
 interface Props {
   table: RestaurantTable
@@ -26,6 +26,7 @@ export function DineInModal({ table, onClose }: Props) {
   const { mutate: openTable, isPending: opening } = useOpenTable()
   const { data: order, isLoading: orderLoading } = useCurrentOrder(table.status === 'occupied' ? table.id : null)
   const { mutate: addItems, isPending: addingItems } = useAddDineInItems(table.id)
+  const { mutate: removeItem, isPending: removingItem } = useRemoveDineInItem(table.id)
   const { mutate: checkout, isPending: checkingOut } = useCheckoutTable(table.id)
 
   const fmt = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -126,7 +127,18 @@ export function DineInModal({ table, onClose }: Props) {
                           <span className="text-xs text-gray-400">{t(`kitchenStatus.${i.kitchen_status}`)}</span>
                         )}
                       </div>
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">{fmt(i.total_price)} {currency}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">{fmt(i.total_price)} {currency}</span>
+                        {view === 'order' && (
+                          <button
+                            onClick={() => { setError(null); removeItem(i.id, { onError: (e: any) => setError(e?.message ?? t('error')) }) }}
+                            disabled={removingItem}
+                            className="text-gray-400 hover:text-red-500 disabled:opacity-50 shrink-0"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   ))}
                   {(order?.items ?? []).length === 0 && (

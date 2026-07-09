@@ -70,6 +70,17 @@ export function useAddDineInItems(tableId: string) {
   })
 }
 
+export function useRemoveDineInItem(tableId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (itemId: string) => tablesApi.removeItem(tableId, itemId),
+    onSuccess: (data) => {
+      qc.setQueryData(['tables', tableId, 'order'], data)
+      qc.invalidateQueries({ queryKey: ['kitchen'] })
+    },
+  })
+}
+
 export function useCheckoutTable(tableId: string) {
   const qc = useQueryClient()
   return useMutation({

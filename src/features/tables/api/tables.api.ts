@@ -100,6 +100,9 @@ export const tablesApi = {
   addItems: (tableId: string, items: AddDineInItemInput[]): Promise<DineInOrder> =>
     apiClient.post(`/tables/${tableId}/items`, { items }),
 
+  removeItem: (tableId: string, itemId: string): Promise<DineInOrder> =>
+    apiClient.delete(`/tables/${tableId}/items/${itemId}`),
+
   getCurrentOrder: (tableId: string): Promise<DineInOrder> =>
     apiClient.get(`/tables/${tableId}/order`),
 
