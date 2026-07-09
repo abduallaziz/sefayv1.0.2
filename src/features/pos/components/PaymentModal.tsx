@@ -9,12 +9,13 @@ import type { Customer } from '@/features/customers/types/customer.types'
 interface Props {
   cart: Cart
   customer?: Customer | null
+  loyaltyEnabled?: boolean
   onConfirm: (data: PaymentData) => void
   onClose: () => void
   isSubmitting?: boolean
 }
 
-export function PaymentModal({ cart, customer, onConfirm, onClose, isSubmitting }: Props) {
+export function PaymentModal({ cart, customer, loyaltyEnabled = true, onConfirm, onClose, isSubmitting }: Props) {
   const t = useTranslations('pos')
   const currency = useTenantStore((s) => s.currency_symbol)
   const [method, setMethod] = useState<PaymentMethod>('cash')
@@ -27,8 +28,10 @@ export function PaymentModal({ cart, customer, onConfirm, onClose, isSubmitting 
 
   const fmt = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
-  const availablePoints = customer?.loyalty_points ?? 0
-  const redeemPointsNum = Math.min(parseInt(redeemPoints || '0', 10) || 0, availablePoints)
+  const availablePoints = loyaltyEnabled ? (customer?.loyalty_points ?? 0) : 0
+  const redeemPointsNum = loyaltyEnabled
+    ? Math.min(parseInt(redeemPoints || '0', 10) || 0, availablePoints)
+    : 0
 
   // The gift card pays down the total directly, before any payment method is even
   // relevant (mirrors InvoicesService.create on the backend: amountDueAfterGiftCard).

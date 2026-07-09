@@ -30,6 +30,7 @@ export interface TenantProfile {
   notification_preferences: NotificationPreferences
   loyalty_points_per_currency: number
   loyalty_redemption_value: number
+  loyalty_enabled: boolean
 }
 
 export interface TenantSubscription {
@@ -62,6 +63,7 @@ export interface UpdateProfileDto {
   notification_preferences?: NotificationPreferences
   loyalty_points_per_currency?: number
   loyalty_redemption_value?: number
+  loyalty_enabled?: boolean
 }
 
 export const settingsApi = {

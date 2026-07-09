@@ -45,6 +45,7 @@ export function SettingsPage() {
   const { mutate: savePrinterSettings, isPending: savingPrinterSettings } = useUpdateProfile();
   const { mutate: saveNotification, isPending: savingNotification } = useUpdateProfile();
   const { mutate: saveLoyaltySettings, isPending: savingLoyaltySettings } = useUpdateProfile();
+  const { mutate: saveLoyaltyEnabled, isPending: savingLoyaltyEnabled } = useUpdateProfile();
 
   const { currency_code, setCurrency } = useTenantStore();
   const [name, setName] = useState('');
@@ -140,6 +141,11 @@ export function SettingsPage() {
   function handleSavePrinterSettings() {
     setSaveError(null);
     savePrinterSettings({ printer_settings: { paper_width: paperWidth, auto_print: autoPrint } }, { onError: onSaveError });
+  }
+
+  function handleToggleLoyaltyEnabled(enabled: boolean) {
+    setSaveError(null);
+    saveLoyaltyEnabled({ loyalty_enabled: enabled }, { onError: onSaveError });
   }
 
   function handleSaveLoyaltySettings() {
@@ -406,12 +412,33 @@ export function SettingsPage() {
 
       {/* Loyalty Program */}
       <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-5 space-y-4">
-        <div className="flex items-center gap-2 mb-2">
-          <Award className="w-4 h-4 text-slate-400" />
-          <h2 className="text-sm font-semibold text-slate-700 dark:text-white">{t('loyalty.title')}</h2>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Award className="w-4 h-4 text-slate-400" />
+            <h2 className="text-sm font-semibold text-slate-700 dark:text-white">{t('loyalty.title')}</h2>
+          </div>
+          {profileLoading ? (
+            <div className="h-6 w-12 bg-slate-100 dark:bg-gray-800 rounded-full animate-pulse" />
+          ) : (
+            <button
+              onClick={() => handleToggleLoyaltyEnabled(!(profile?.loyalty_enabled ?? true))}
+              disabled={savingLoyaltyEnabled}
+              className={`relative w-12 h-6 rounded-full transition-colors disabled:opacity-50 ${
+                (profile?.loyalty_enabled ?? true) ? 'bg-[#0C447C]' : 'bg-slate-200 dark:bg-gray-700'
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 start-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
+                  (profile?.loyalty_enabled ?? true) ? 'translate-x-6 rtl:-translate-x-6' : 'translate-x-0'
+                }`}
+              />
+            </button>
+          )}
         </div>
         {profileLoading ? (
           <div className="h-10 bg-slate-100 dark:bg-gray-800 rounded-lg animate-pulse" />
+        ) : !(profile?.loyalty_enabled ?? true) ? (
+          <p className="text-xs text-slate-500">{t('loyalty.disabledHint')}</p>
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

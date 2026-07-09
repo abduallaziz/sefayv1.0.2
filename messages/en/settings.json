@@ -40,6 +40,7 @@
   },
   "loyalty": {
     "title": "Loyalty Program",
+    "disabledHint": "The loyalty program is currently disabled — no points are earned or redeemed on invoices. Enable it to show settings.",
     "pointsPerCurrency": "Points per currency unit",
     "redemptionValue": "Redemption value per point",
     "tiersHint": "Loyalty tiers grant a bonus points multiplier based on a customer's total lifetime points earned (not affected by redemption)",

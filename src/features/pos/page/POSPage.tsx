@@ -40,12 +40,13 @@ export function POSPage() {
 
   const { data: posConfig } = useQuery({
     queryKey: ['tenant', 'pos-config'],
-    queryFn: () => apiClient.get<{ tax_rate?: number; customer_capture_enabled?: boolean }>('/tenant/pos-config'),
+    queryFn: () => apiClient.get<{ tax_rate?: number; customer_capture_enabled?: boolean; loyalty_enabled?: boolean }>('/tenant/pos-config'),
     enabled: !!user,
   })
 
   const taxRate = posConfig?.tax_rate ?? 0.15
   const customerCaptureEnabled = posConfig?.customer_capture_enabled ?? false
+  const loyaltyEnabled = posConfig?.loyalty_enabled ?? true
 
   const {
     cart, addItem, removeItem, updateQty,
@@ -180,6 +181,7 @@ export function POSPage() {
         <PaymentModal
           cart={cart}
           customer={selectedCustomer}
+          loyaltyEnabled={loyaltyEnabled}
           onConfirm={handleConfirmPayment}
           onClose={() => setShowPayment(false)}
           isSubmitting={isSubmitting}
