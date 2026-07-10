@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { Tabs, TabsList, TabsTrigger, TabsContent, Switch } from '@/shared/ui'
 import { cn } from '@/lib/utils'
 import { PermissionRow } from './PermissionRow'
@@ -11,10 +11,12 @@ import type { PermissionGroup, ResolvedPermission } from '../api/access-control.
 // the spec calls for. "platform" is deliberately absent — those permissions
 // are never shown to tenant admins in the first place (see
 // listPermissionsCatalog(includeSuperadmin) on the backend).
+// Keys here are stable machine ids (used as Tabs values) — translated via
+// t(`domains.${id}`) for display, never used as display text directly.
 const DOMAIN_BUCKETS: Record<string, string[]> = {
-  Sales: ['sales', 'reports', 'settings'],
-  Inventory: ['inventory', 'purchasing', 'expenses'],
-  HR: ['employees', 'attendance', 'payroll'],
+  sales: ['sales', 'reports', 'settings'],
+  inventory: ['inventory', 'purchasing', 'expenses'],
+  hr: ['employees', 'attendance', 'payroll'],
 }
 
 interface PermissionConfiguratorProps {
@@ -33,6 +35,7 @@ export function PermissionConfigurator({
   onReset,
 }: PermissionConfiguratorProps) {
   const locale = useLocale()
+  const t = useTranslations('accessControl')
 
   const byGroupCode = useMemo(() => {
     const map = new Map<string, ResolvedPermission[]>()
@@ -58,7 +61,7 @@ export function PermissionConfigurator({
             value={domain}
             className="rounded-md text-slate-500 data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm"
           >
-            {domain}
+            {t(`domains.${domain}`)}
           </TabsTrigger>
         ))}
       </TabsList>
@@ -115,7 +118,7 @@ export function PermissionConfigurator({
             )
           })}
           {domainGroups.every((g) => (byGroupCode.get(g.code) ?? []).length === 0) && (
-            <p className="py-8 text-center text-sm text-slate-400">No permissions in this domain.</p>
+            <p className="py-8 text-center text-sm text-slate-400">{t('noPermissionsInDomain')}</p>
           )}
         </TabsContent>
       ))}

@@ -69,5 +69,60 @@
   "history": {
     "title": "سجل التغييرات",
     "comingSoon": "سيتم عرض سجل التغييرات على هذه الصلاحيات هنا قريبًا"
+  },
+  "createRoleCta": "إنشاء دور مخصص",
+  "loadRolesError": "تعذر تحميل الأدوار. حاول مرة أخرى.",
+  "noPermissionsInDomain": "لا توجد صلاحيات بهذا المجال.",
+  "table": {
+    "colName": "اسم الدور",
+    "colScope": "النطاق",
+    "colActiveUsers": "المستخدمون النشطون",
+    "colLastUpdated": "آخر تحديث",
+    "colActions": "الإجراءات"
+  },
+  "roleScope": {
+    "system": "نظامي",
+    "custom": "مخصص"
+  },
+  "actionsMenu": {
+    "viewOnly": "عرض الصلاحيات فقط",
+    "edit": "تعديل الدور",
+    "delete": "حذف الدور"
+  },
+  "emptyRoles": {
+    "title": "لا توجد أدوار مخصصة بعد",
+    "description": "الأدوار النظامية (المالك، المدير، الكاشير) متاحة دائمًا. أنشئ دورًا مخصصًا لضبط الصلاحيات لوظيفة محدَّدة."
+  },
+  "sheet": {
+    "createTitle": "إنشاء دور مخصص",
+    "createDescription": "أعطه اسمًا — تقدر تضبط صلاحياته مباشرة بعدها.",
+    "roleNameLabel": "اسم الدور",
+    "roleNamePlaceholder": "مثال: مشرف الوردية",
+    "descriptionLabel": "الوصف (اختياري)",
+    "descriptionPlaceholder": "ما الغرض من هذا الدور",
+    "roleNameMinLength": "اسم الدور يجب ألا يقل عن حرفين",
+    "createSubmit": "إنشاء الدور",
+    "configureDescriptionEdit": "بدّل مفتاح المجال لمنح أو سحب كل مجموعة صلاحياته دفعة واحدة، أو خصّص كل صلاحية على حدة أدناه.",
+    "configureDescriptionView": "دور نظامي — الصلاحيات معروضة للاطلاع فقط ولا يمكن تعديلها.",
+    "close": "إغلاق",
+    "done": "تم"
+  },
+  "toast": {
+    "roleCreated": "تم إنشاء دور \"{name}\"",
+    "roleCreateError": "تعذر إنشاء الدور",
+    "roleDeleted": "تم حذف دور \"{name}\"",
+    "roleDeleteError": "تعذر حذف الدور",
+    "permissionSaveError": "تعذر حفظ هذا التغيير",
+    "permissionResetError": "تعذر إرجاع هذه الصلاحية للوضع الافتراضي"
+  },
+  "domains": {
+    "sales": "المبيعات",
+    "inventory": "المخزون",
+    "hr": "الموارد البشرية"
+  },
+  "deleteConfirm": {
+    "title": "حذف هذا الدور؟",
+    "message": "سيُحذف \"{name}\" نهائيًا. لا يمكن التراجع عن هذا الإجراء.",
+    "loadingLabel": "جارٍ الحذف..."
   }
 }

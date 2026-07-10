@@ -7,7 +7,7 @@ import {
   flexRender,
   createColumnHelper,
 } from '@tanstack/react-table'
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { RoleSummary } from '../api/access-control.api'
 import { RoleStatusBadge } from './RoleStatusBadge'
 import { RoleActionsMenu } from './RoleActionsMenu'
@@ -23,11 +23,12 @@ interface RolesDataTableProps {
 
 export function RolesDataTable({ roles, onView, onEdit, onDelete }: RolesDataTableProps) {
   const locale = useLocale()
+  const t = useTranslations('accessControl')
 
   const columns = useMemo(
     () => [
       columnHelper.accessor('name', {
-        header: 'Role Name',
+        header: t('table.colName'),
         size: 35,
         cell: (info) => (
           <div>
@@ -40,18 +41,18 @@ export function RolesDataTable({ roles, onView, onEdit, onDelete }: RolesDataTab
       }),
       columnHelper.accessor('is_system', {
         id: 'scope',
-        header: 'Scope',
+        header: t('table.colScope'),
         size: 15,
         cell: (info) => <RoleStatusBadge isSystem={info.getValue()} />,
       }),
       columnHelper.accessor('user_count', {
         id: 'active_users',
-        header: 'Active Users',
+        header: t('table.colActiveUsers'),
         size: 15,
         cell: (info) => <span className="tabular-nums text-slate-700">{info.getValue()}</span>,
       }),
       columnHelper.accessor('updated_at', {
-        header: 'Last Updated',
+        header: t('table.colLastUpdated'),
         size: 20,
         cell: (info) => (
           <span className="text-slate-500">
@@ -65,7 +66,7 @@ export function RolesDataTable({ roles, onView, onEdit, onDelete }: RolesDataTab
       }),
       columnHelper.display({
         id: 'actions',
-        header: () => <span className="block text-end">Actions</span>,
+        header: () => <span className="block text-end">{t('table.colActions')}</span>,
         size: 15,
         cell: ({ row }) => (
           <div className="flex justify-end">
@@ -74,7 +75,7 @@ export function RolesDataTable({ roles, onView, onEdit, onDelete }: RolesDataTab
         ),
       }),
     ],
-    [locale, onView, onEdit, onDelete],
+    [locale, t, onView, onEdit, onDelete],
   )
 
   const table = useReactTable({

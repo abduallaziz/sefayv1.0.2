@@ -1,10 +1,12 @@
 'use client'
 
+import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
+import { useTranslations } from 'next-intl'
 import {
   Sheet,
   SheetContent,
@@ -28,11 +30,7 @@ import { RolesTableSkeleton } from './RolesTableSkeleton'
 import { RoleStatusBadge } from './RoleStatusBadge'
 import type { RoleSummary } from '../api/access-control.api'
 
-const createRoleSchema = z.object({
-  name: z.string().trim().min(2, 'Role name must be at least 2 characters').max(60),
-  description: z.string().trim().max(255).optional(),
-})
-type CreateRoleForm = z.infer<typeof createRoleSchema>
+type CreateRoleForm = { name: string; description?: string }
 
 type SheetMode = 'create' | 'edit' | 'view'
 
@@ -61,7 +59,21 @@ export function RoleFormSheet({ mode, role, open, onOpenChange }: RoleFormSheetP
 }
 
 function CreateRoleSheet({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
+  const t = useTranslations('accessControl')
   const createRole = useCreateRole()
+
+  // Schema built inside the component so the validation message can go
+  // through i18n — zod's .min(n, message) needs the translated string at
+  // call time, not at module-load time before any locale is known.
+  const createRoleSchema = useMemo(
+    () =>
+      z.object({
+        name: z.string().trim().min(2, t('sheet.roleNameMinLength')).max(60),
+        description: z.string().trim().max(255).optional(),
+      }),
+    [t],
+  )
+
   const {
     register,
     handleSubmit,
@@ -72,12 +84,12 @@ function CreateRoleSheet({ open, onOpenChange }: { open: boolean; onOpenChange: 
   function onSubmit(values: CreateRoleForm) {
     createRole.mutate(values, {
       onSuccess: () => {
-        toast.success(`Role "${values.name}" created`)
+        toast.success(t('toast.roleCreated', { name: values.name }))
         reset()
         onOpenChange(false)
       },
       onError: (err) => {
-        toast.error(err instanceof Error ? err.message : 'Could not create role')
+        toast.error(err instanceof Error ? err.message : t('toast.roleCreateError'))
       },
     })
   }
@@ -86,27 +98,35 @@ function CreateRoleSheet({ open, onOpenChange }: { open: boolean; onOpenChange: 
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full border-l border-slate-200 bg-white sm:max-w-xl">
         <SheetHeader>
-          <SheetTitle>Create Custom Role</SheetTitle>
-          <SheetDescription>Give it a name — you can configure its permissions right after.</SheetDescription>
+          <SheetTitle>{t('sheet.createTitle')}</SheetTitle>
+          <SheetDescription>{t('sheet.createDescription')}</SheetDescription>
         </SheetHeader>
 
         <form id="create-role-form" onSubmit={handleSubmit(onSubmit)}>
           <SheetBody className="space-y-4">
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">Role name</label>
-              <Input {...register('name')} placeholder="e.g. Shift Supervisor" className="h-10 rounded-md bg-white focus-visible:ring-indigo-500" />
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">{t('sheet.roleNameLabel')}</label>
+              <Input
+                {...register('name')}
+                placeholder={t('sheet.roleNamePlaceholder')}
+                className="h-10 rounded-md bg-white focus-visible:ring-indigo-500"
+              />
               {errors.name && <p className="mt-1 text-xs text-red-600">{errors.name.message}</p>}
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">Description (optional)</label>
-              <Input {...register('description')} placeholder="What this role is for" className="h-10 rounded-md bg-white focus-visible:ring-indigo-500" />
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">{t('sheet.descriptionLabel')}</label>
+              <Input
+                {...register('description')}
+                placeholder={t('sheet.descriptionPlaceholder')}
+                className="h-10 rounded-md bg-white focus-visible:ring-indigo-500"
+              />
             </div>
           </SheetBody>
         </form>
 
         <SheetFooter>
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t('cancel')}
           </Button>
           <Button
             type="submit"
@@ -116,10 +136,10 @@ function CreateRoleSheet({ open, onOpenChange }: { open: boolean; onOpenChange: 
           >
             {createRole.isPending ? (
               <>
-                <Loader2 className="me-2 h-4 w-4 animate-spin" /> Saving...
+                <Loader2 className="me-2 h-4 w-4 animate-spin" /> {t('saving')}
               </>
             ) : (
-              'Create Role'
+              t('sheet.createSubmit')
             )}
           </Button>
         </SheetFooter>
@@ -139,6 +159,7 @@ function ConfigureRoleSheet({
   open: boolean
   onOpenChange: (o: boolean) => void
 }) {
+  const t = useTranslations('accessControl')
   const { data: groups, isLoading: groupsLoading } = usePermissionGroups()
   const { data: permissions, isLoading: permissionsLoading } = useRolePermissions(role.id)
   const updatePermission = useUpdateRolePermission(role.id)
@@ -149,11 +170,11 @@ function ConfigureRoleSheet({
   function handleToggle(permissionKey: string, isGranted: boolean) {
     updatePermission.mutate(
       { permissionKey, isGranted },
-      { onError: () => toast.error('Could not save that change') },
+      { onError: () => toast.error(t('toast.permissionSaveError')) },
     )
   }
   function handleReset(permissionKey: string) {
-    resetPermission.mutate(permissionKey, { onError: () => toast.error('Could not reset that permission') })
+    resetPermission.mutate(permissionKey, { onError: () => toast.error(t('toast.permissionResetError')) })
   }
 
   return (
@@ -165,9 +186,7 @@ function ConfigureRoleSheet({
             <RoleStatusBadge isSystem={role.is_system} />
           </div>
           <SheetDescription>
-            {readOnly
-              ? 'System role — permissions are shown for reference and cannot be changed.'
-              : 'Toggle a domain switch to grant or revoke its whole permission set, or fine-tune individual permissions below.'}
+            {readOnly ? t('sheet.configureDescriptionView') : t('sheet.configureDescriptionEdit')}
           </SheetDescription>
         </SheetHeader>
 
@@ -187,7 +206,7 @@ function ConfigureRoleSheet({
 
         <SheetFooter>
           <Button type="button" onClick={() => onOpenChange(false)} className="bg-indigo-600 font-medium text-white hover:bg-indigo-700">
-            {readOnly ? 'Close' : 'Done'}
+            {readOnly ? t('sheet.close') : t('sheet.done')}
           </Button>
         </SheetFooter>
       </SheetContent>

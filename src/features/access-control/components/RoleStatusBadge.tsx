@@ -1,8 +1,11 @@
 import { Lock, Globe } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { Badge } from '@/shared/ui'
 import { cn } from '@/lib/utils'
 
 export function RoleStatusBadge({ isSystem, className }: { isSystem: boolean; className?: string }) {
+  const t = useTranslations('accessControl')
+
   if (isSystem) {
     return (
       <Badge
@@ -11,7 +14,7 @@ export function RoleStatusBadge({ isSystem, className }: { isSystem: boolean; cl
           className,
         )}
       >
-        <Lock className="h-3 w-3" /> System
+        <Lock className="h-3 w-3" /> {t('roleScope.system')}
       </Badge>
     )
   }
@@ -22,7 +25,7 @@ export function RoleStatusBadge({ isSystem, className }: { isSystem: boolean; cl
         className,
       )}
     >
-      <Globe className="h-3 w-3" /> Custom
+      <Globe className="h-3 w-3" /> {t('roleScope.custom')}
     </Badge>
   )
 }

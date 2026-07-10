@@ -1,4 +1,5 @@
 import { MoreHorizontal, Eye, Pencil, Trash2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import {
   Button,
   DropdownMenu,
@@ -19,6 +20,8 @@ interface RoleActionsMenuProps {
 // System roles never expose Edit/Delete in the DOM at all — not just
 // disabled — per spec: "completely hide/omit ... from the DOM."
 export function RoleActionsMenu({ role, onView, onEdit, onDelete }: RoleActionsMenuProps) {
+  const t = useTranslations('accessControl')
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -29,19 +32,19 @@ export function RoleActionsMenu({ role, onView, onEdit, onDelete }: RoleActionsM
       <DropdownMenuContent align="end" className="w-44">
         {role.is_system ? (
           <DropdownMenuItem onClick={() => onView(role)}>
-            <Eye className="h-4 w-4 me-2" /> View-Only Permissions
+            <Eye className="h-4 w-4 me-2" /> {t('actionsMenu.viewOnly')}
           </DropdownMenuItem>
         ) : (
           <>
             <DropdownMenuItem onClick={() => onEdit(role)}>
-              <Pencil className="h-4 w-4 me-2" /> Edit Role
+              <Pencil className="h-4 w-4 me-2" /> {t('actionsMenu.edit')}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => onDelete(role)}
               className="text-slate-600 hover:bg-red-50 hover:text-red-600 focus:bg-red-50 focus:text-red-600"
             >
-              <Trash2 className="h-4 w-4 me-2" /> Delete Role
+              <Trash2 className="h-4 w-4 me-2" /> {t('actionsMenu.delete')}
             </DropdownMenuItem>
           </>
         )}

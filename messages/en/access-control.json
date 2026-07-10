@@ -69,5 +69,60 @@
   "history": {
     "title": "Change History",
     "comingSoon": "A history of changes to these permissions will be shown here soon"
+  },
+  "createRoleCta": "Create Custom Role",
+  "loadRolesError": "Could not load roles. Please try again.",
+  "noPermissionsInDomain": "No permissions in this domain.",
+  "table": {
+    "colName": "Role Name",
+    "colScope": "Scope",
+    "colActiveUsers": "Active Users",
+    "colLastUpdated": "Last Updated",
+    "colActions": "Actions"
+  },
+  "roleScope": {
+    "system": "System",
+    "custom": "Custom"
+  },
+  "actionsMenu": {
+    "viewOnly": "View-Only Permissions",
+    "edit": "Edit Role",
+    "delete": "Delete Role"
+  },
+  "emptyRoles": {
+    "title": "No custom roles yet",
+    "description": "System roles (Owner, Manager, Cashier) are always available. Create a custom role to fine-tune access for a specific job."
+  },
+  "sheet": {
+    "createTitle": "Create Custom Role",
+    "createDescription": "Give it a name — you can configure its permissions right after.",
+    "roleNameLabel": "Role name",
+    "roleNamePlaceholder": "e.g. Shift Supervisor",
+    "descriptionLabel": "Description (optional)",
+    "descriptionPlaceholder": "What this role is for",
+    "roleNameMinLength": "Role name must be at least 2 characters",
+    "createSubmit": "Create Role",
+    "configureDescriptionEdit": "Toggle a domain switch to grant or revoke its whole permission set, or fine-tune individual permissions below.",
+    "configureDescriptionView": "System role — permissions are shown for reference and cannot be changed.",
+    "close": "Close",
+    "done": "Done"
+  },
+  "toast": {
+    "roleCreated": "Role \"{name}\" created",
+    "roleCreateError": "Could not create role",
+    "roleDeleted": "Role \"{name}\" deleted",
+    "roleDeleteError": "Could not delete role",
+    "permissionSaveError": "Could not save that change",
+    "permissionResetError": "Could not reset that permission"
+  },
+  "domains": {
+    "sales": "Sales",
+    "inventory": "Inventory",
+    "hr": "HR"
+  },
+  "deleteConfirm": {
+    "title": "Delete this role?",
+    "message": "\"{name}\" will be permanently deleted. This cannot be undone.",
+    "loadingLabel": "Deleting..."
   }
 }
