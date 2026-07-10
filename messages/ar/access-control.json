@@ -129,5 +129,14 @@
     "noDescription": "لا يوجد وصف بعد.",
     "manageUsers": "إدارة المستخدمين",
     "manageUsersComingSoon": "قريبًا — يتطلب تحويل أدوار المستخدمين من قائمة ثابتة إلى دعم كامل للأدوار المخصصة."
+  },
+  "roles": {
+    "superadmin": { "name": "مسؤول المنصة", "description": "مسؤول على مستوى المنصة عبر كل المستأجرين" },
+    "owner": { "name": "المالك", "description": "مالك المنشأة — صلاحية كاملة داخل مستأجره" },
+    "manager": { "name": "مدير", "description": "مدير فرع/عمليات" },
+    "cashier": { "name": "كاشير", "description": "مشغّل نقطة البيع" },
+    "worker": { "name": "موظف", "description": "عضو طاقم عام" },
+    "inventory_clerk": { "name": "أمين مخزون", "description": "طاقم عمليات المخزون/المستودع" },
+    "none": { "name": "بلا وصول", "description": "ملف موظف بلا صلاحية دخول للنظام/لوحة التحكم" }
   }
 }

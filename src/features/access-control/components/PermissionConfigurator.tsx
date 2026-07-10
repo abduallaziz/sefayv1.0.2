@@ -3,7 +3,6 @@
 import { useMemo } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { Tabs, TabsList, TabsTrigger, TabsContent, Switch } from '@/shared/ui'
-import { cn } from '@/lib/utils'
 import { PermissionRow } from './PermissionRow'
 import type { PermissionGroup, ResolvedPermission } from '../api/access-control.api'
 
@@ -91,17 +90,17 @@ export function PermissionConfigurator({
                     }}
                   />
                 </div>
-                {/* Toggling the module switch OFF blocks the sub-grid entirely
-                    (opacity-50 pointer-events-none), per spec — a partial
-                    state is possible (some children still granted from
-                    before), but the master switch off state takes priority
-                    over per-row nuance visually. */}
-                <div
-                  className={cn(
-                    'grid grid-cols-1 gap-1 p-2 transition-opacity sm:grid-cols-2',
-                    !allGranted && 'opacity-50 pointer-events-none',
-                  )}
-                >
+                {/* Individual permissions are always independently
+                    toggleable — the master switch above is a bulk
+                    convenience action only, never a gate. An earlier version
+                    blocked this sub-grid with pointer-events-none whenever
+                    !allGranted, which meant every permission in a brand-new
+                    custom role (starting fully ungranted) was unclickable
+                    until the master switch was used first — reported as
+                    "the switches don't respond." Fixed by removing the block
+                    entirely; readOnly (system roles) is still respected via
+                    each PermissionRow's own disabled state. */}
+                <div className="grid grid-cols-1 gap-1 p-2 sm:grid-cols-2">
                   {items.map((p) => (
                     <PermissionRow
                       key={p.permission_key}

@@ -1,5 +1,16 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { accessControlApi, ResolvedPermission } from '../api/access-control.api'
+import { useTranslations } from 'next-intl'
+import { accessControlApi, ResolvedPermission, RoleSummary } from '../api/access-control.api'
+
+// System role names are fixed backend enum values ('owner', 'cashier', …) —
+// translated via roles.<name>.name in access-control.json. Custom role names
+// are tenant-authored free text and must NEVER be passed through i18n lookup.
+export function useRoleDisplayName(role: RoleSummary): string {
+  const t = useTranslations('accessControl')
+  if (!role.is_system) return role.name
+  const key = `roles.${role.name}.name`
+  return t.has(key) ? t(key) : role.name
+}
 
 export function usePermissionGroups() {
   return useQuery({

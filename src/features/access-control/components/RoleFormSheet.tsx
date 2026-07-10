@@ -24,6 +24,7 @@ import {
   useUpdateRolePermission,
   useResetRolePermission,
   useCreateRole,
+  useRoleDisplayName,
 } from '../hooks/useAccessControl'
 import { PermissionConfigurator } from './PermissionConfigurator'
 import { RolesTableSkeleton } from './RolesTableSkeleton'
@@ -160,6 +161,7 @@ function ConfigureRoleSheet({
   onOpenChange: (o: boolean) => void
 }) {
   const t = useTranslations('accessControl')
+  const displayName = useRoleDisplayName(role)
   const { data: groups, isLoading: groupsLoading } = usePermissionGroups()
   const { data: permissions, isLoading: permissionsLoading } = useRolePermissions(role.id)
   const updatePermission = useUpdateRolePermission(role.id)
@@ -182,7 +184,7 @@ function ConfigureRoleSheet({
       <SheetContent side="end" className="w-full border-s border-slate-200 bg-white sm:max-w-xl">
         <SheetHeader>
           <div className="flex items-center gap-2">
-            <SheetTitle>{role.name}</SheetTitle>
+            <SheetTitle>{displayName}</SheetTitle>
             <RoleStatusBadge isSystem={role.is_system} />
           </div>
           <SheetDescription>

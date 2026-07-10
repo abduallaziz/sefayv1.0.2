@@ -129,5 +129,14 @@
     "noDescription": "No description added yet.",
     "manageUsers": "Manage Users",
     "manageUsersComingSoon": "Coming soon — requires moving user roles from a fixed list to full custom-role support."
+  },
+  "roles": {
+    "superadmin": { "name": "Platform Administrator", "description": "Platform-level administrator across all tenants" },
+    "owner": { "name": "Owner", "description": "Business owner — full access within their tenant" },
+    "manager": { "name": "Manager", "description": "Branch/operations manager" },
+    "cashier": { "name": "Cashier", "description": "Point-of-sale operator" },
+    "worker": { "name": "Worker", "description": "General staff member" },
+    "inventory_clerk": { "name": "Inventory Clerk", "description": "Warehouse/inventory operations staff" },
+    "none": { "name": "No Access", "description": "Employee profile with no system login/dashboard access" }
   }
 }
