@@ -96,7 +96,7 @@ function CreateRoleSheet({ open, onOpenChange }: { open: boolean; onOpenChange: 
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full border-l border-slate-200 bg-white sm:max-w-xl">
+      <SheetContent side="end" className="w-full border-s border-slate-200 bg-white sm:max-w-xl">
         <SheetHeader>
           <SheetTitle>{t('sheet.createTitle')}</SheetTitle>
           <SheetDescription>{t('sheet.createDescription')}</SheetDescription>
@@ -179,7 +179,7 @@ function ConfigureRoleSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full border-l border-slate-200 bg-white sm:max-w-xl">
+      <SheetContent side="end" className="w-full border-s border-slate-200 bg-white sm:max-w-xl">
         <SheetHeader>
           <div className="flex items-center gap-2">
             <SheetTitle>{role.name}</SheetTitle>

@@ -124,5 +124,10 @@
     "title": "Delete this role?",
     "message": "\"{name}\" will be permanently deleted. This cannot be undone.",
     "loadingLabel": "Deleting..."
+  },
+  "card": {
+    "noDescription": "No description added yet.",
+    "manageUsers": "Manage Users",
+    "manageUsersComingSoon": "Coming soon — requires moving user roles from a fixed list to full custom-role support."
   }
 }

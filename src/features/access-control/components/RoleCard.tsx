@@ -1,90 +1,84 @@
 'use client'
 
+import { Pencil, Trash2, Eye, Users, Lock } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { ChevronLeft, Lock, Circle, Briefcase, User, Crown, Box, ShieldEllipsis, UserCheck, UserX } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { Button, Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/shared/ui'
+import { RoleStatusBadge } from './RoleStatusBadge'
 import type { RoleSummary } from '../api/access-control.api'
 
-// Client-side only — purely for UX (protected-role framing). The backend's
-// AccessControlAdminGuard + protected-role check in AccessControlService are
-// the real enforcement; this list only decides whether the card shows a lock
-// badge / read-only wording, never whether an action is actually possible.
-const PROTECTED_ROLE_NAMES = new Set(['owner', 'superadmin'])
-
-// Pastel icon-color palette + icon set, both cycled by position — not tied
-// to specific role names, so this works the same way once custom tenant
-// roles exist (a brand-new role just gets the next icon/color in rotation).
-const PALETTE = [
-  { bg: '#E8F1FB', fg: '#0C447C' },
-  { bg: '#E6F9EE', fg: '#16A34A' },
-  { bg: '#FEF3DA', fg: '#D97706' },
-  { bg: '#EDEAFB', fg: '#7C6EF6' },
-]
-const ICONS = [Briefcase, User, Crown, Box, ShieldEllipsis, UserCheck, UserX, User]
-
-export function RoleCard({
-  role,
-  index,
-  selected,
-  onSelect,
-}: {
+interface RoleCardProps {
   role: RoleSummary
-  index: number
-  selected: boolean
-  onSelect: () => void
-}) {
+  onView: (role: RoleSummary) => void
+  onEdit: (role: RoleSummary) => void
+  onDelete: (role: RoleSummary) => void
+}
+
+// Replaces the old select-to-view-detail list card from the pre-rebuild
+// master-detail layout (this file was orphaned after that rewrite — no
+// remaining imports referenced it). This version puts the actions directly
+// on the card instead of requiring a click-through.
+export function RoleCard({ role, onView, onEdit, onDelete }: RoleCardProps) {
   const t = useTranslations('accessControl')
-  const isProtected = PROTECTED_ROLE_NAMES.has(role.name)
-  const color = PALETTE[index % PALETTE.length]
-  const Icon = ICONS[index % ICONS.length]
+  const isSystem = role.is_system
 
   return (
-    <button
-      type="button"
-      onClick={onSelect}
-      className={cn(
-        'w-full text-start bg-white dark:bg-gray-900 border-[1.5px] rounded-2xl p-4 transition-all',
-        selected
-          ? 'border-[#0C447C] shadow-md'
-          : 'border-slate-200 dark:border-gray-800 hover:border-[#0C447C] hover:shadow-md hover:-translate-y-0.5',
-      )}
-    >
-      <div className="flex items-center gap-2.5 mb-3">
-        <div
-          className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-          style={{ background: color.bg, color: color.fg }}
-        >
-          <Icon className="w-4 h-4" />
+    <div className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex min-w-0 items-center gap-2">
+          <h3 className="truncate text-base font-semibold text-slate-900">{role.name}</h3>
+          {isSystem && <Lock className="h-3.5 w-3.5 shrink-0 text-slate-400" />}
         </div>
-        <div className="min-w-0">
-          <p className="text-sm font-extrabold text-slate-800 dark:text-white truncate">{role.name}</p>
-          {isProtected ? (
-            <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400 mt-0.5">
-              <Lock className="w-2.5 h-2.5" /> {t('protectedRole')}
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 mt-0.5">
-              <Circle className="w-1.5 h-1.5 fill-current" /> {t('active')}
-            </span>
-          )}
-        </div>
+        <RoleStatusBadge isSystem={isSystem} className="shrink-0" />
       </div>
 
-      <div className="flex gap-4 mb-3">
-        <div>
-          <p className="text-[10px] text-slate-400 font-semibold mb-0.5">{t('permissionsShort')}</p>
-          <p className="text-base font-extrabold text-slate-800 dark:text-white">{role.permission_count}</p>
-        </div>
-        <div>
-          <p className="text-[10px] text-slate-400 font-semibold mb-0.5">{t('userCount')}</p>
-          <p className="text-base font-extrabold text-slate-800 dark:text-white">{role.user_count}</p>
-        </div>
+      <p className="line-clamp-2 min-h-[2.5rem] text-sm text-slate-500">
+        {role.description || t('card.noDescription')}
+      </p>
+
+      <div className="flex items-center gap-1.5 text-sm text-slate-600">
+        <Users className="h-4 w-4 text-slate-400" />
+        <span className="font-medium tabular-nums">{role.user_count}</span>
+        <span className="text-slate-400">{t('userCount')}</span>
       </div>
 
-      <div className="flex items-center justify-center gap-1 text-xs font-bold text-[#0C447C] dark:text-[#5B9BD5] border-t border-slate-100 dark:border-gray-800 pt-2.5">
-        {t('viewDetails')}
-        <ChevronLeft className="w-3.5 h-3.5 rtl:rotate-180" />
+      <div className="mt-1 flex items-center gap-2 border-t border-slate-100 pt-3">
+        {isSystem ? (
+          <Button variant="outline" size="sm" className="flex-1" onClick={() => onView(role)}>
+            <Eye className="me-1.5 h-3.5 w-3.5" /> {t('actionsMenu.viewOnly')}
+          </Button>
+        ) : (
+          <>
+            <Button variant="outline" size="sm" className="flex-1" onClick={() => onEdit(role)}>
+              <Pencil className="me-1.5 h-3.5 w-3.5" /> {t('actionsMenu.edit')}
+            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  {/* Disabled deliberately, not a stub — users.role is a
+                      fixed 5-value DB enum today, not a FK to the roles
+                      table this card manages, so there is no real
+                      assignment to perform yet (see STATUS.md). */}
+                  <span className="flex-1">
+                    <Button variant="outline" size="sm" className="w-full" disabled>
+                      <Users className="me-1.5 h-3.5 w-3.5" /> {t('card.manageUsers')}
+                    </Button>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>{t('card.manageUsersComingSoon')}</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 shrink-0 text-slate-500 hover:bg-red-50 hover:text-red-600"
+              onClick={() => onDelete(role)}
+              aria-label={t('actionsMenu.delete')}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </>
+        )}
       </div>
-    </button>
+    </div>
   )
 }

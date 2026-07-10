@@ -32,7 +32,7 @@ function DropdownMenuItem({ className, inset, ...props }: React.ComponentProps<t
     <DropdownMenuPrimitive.Item
       className={cn(
         'relative flex cursor-pointer select-none items-center gap-2 rounded px-2 py-2 text-sm text-slate-700 dark:text-white outline-none transition-colors hover:bg-slate-100 dark:hover:bg-[#242938] focus:bg-slate-100 dark:focus:bg-[#242938] data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-        inset && 'pl-8',
+        inset && 'ps-8',
         className
       )}
       {...props}

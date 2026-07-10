@@ -4,6 +4,7 @@ import * as React from 'react'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { X } from 'lucide-react'
+import { useLocale } from 'next-intl'
 import { cn } from '@/lib/utils'
 
 function Sheet({ ...props }: React.ComponentProps<typeof DialogPrimitive.Root>) {
@@ -30,19 +31,23 @@ function SheetOverlay({ className, ...props }: React.ComponentProps<typeof Dialo
   )
 }
 
+// Tailwind's animate plugin only knows physical directions
+// (slide-in-from-left/right) — there's no logical "slide-in-from-end"
+// utility, so the physical CSS has to be resolved once, here, from the
+// logical prop callers actually use (`start`/`end`). Positioning/border use
+// Tailwind's logical utilities (`start-0`/`end-0`, `border-s`/`border-e`),
+// which flip automatically with `dir` — only the animation direction name
+// needs the manual locale check below.
 const sheetVariants = cva(
   'fixed z-50 flex flex-col gap-0 bg-white dark:bg-[#1a1f2e] shadow-xl transition ease-in-out data-[state=closed]:duration-200 data-[state=open]:duration-300',
   {
     variants: {
       side: {
-        // "right" here means inline-end in LTR; RTL is handled by flipping
-        // to `start` classes in usage, not by a separate variant, since the
-        // slide direction should always be "away from reading start."
-        right: 'inset-y-0 right-0 h-full w-full border-l border-slate-200 dark:border-[#1e2130] sm:max-w-xl data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right',
-        left: 'inset-y-0 left-0 h-full w-full border-r border-slate-200 dark:border-[#1e2130] sm:max-w-xl data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left',
+        start: 'inset-y-0 start-0 h-full w-full border-e border-slate-200 dark:border-[#1e2130] sm:max-w-xl',
+        end: 'inset-y-0 end-0 h-full w-full border-s border-slate-200 dark:border-[#1e2130] sm:max-w-xl',
       },
     },
-    defaultVariants: { side: 'right' },
+    defaultVariants: { side: 'end' },
   }
 )
 
@@ -50,11 +55,19 @@ interface SheetContentProps
   extends React.ComponentProps<typeof DialogPrimitive.Content>,
     VariantProps<typeof sheetVariants> {}
 
-function SheetContent({ side, className, children, ...props }: SheetContentProps) {
+function SheetContent({ side = 'end', className, children, ...props }: SheetContentProps) {
+  const locale = useLocale()
+  const isRtl = locale === 'ar'
+  // logical side -> physical animation direction, resolved per locale.
+  const physicallyOpensFromRight = isRtl ? side === 'start' : side === 'end'
+  const animationClass = physicallyOpensFromRight
+    ? 'data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right'
+    : 'data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left'
+
   return (
     <SheetPortal>
       <SheetOverlay />
-      <DialogPrimitive.Content className={cn(sheetVariants({ side }), className)} {...props}>
+      <DialogPrimitive.Content className={cn(sheetVariants({ side }), animationClass, className)} {...props}>
         {children}
         <DialogPrimitive.Close className="absolute end-4 top-4 rounded opacity-70 text-slate-500 dark:text-[#64748b] transition-opacity hover:opacity-100 focus:outline-none">
           <X className="h-4 w-4" />
@@ -91,7 +104,7 @@ function SheetFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElemen
   return (
     <div
       className={cn(
-        'absolute bottom-0 left-0 right-0 flex items-center justify-end gap-3 p-4 border-t border-slate-200 dark:border-[#1e2130] bg-slate-50 dark:bg-[#161B22]',
+        'absolute bottom-0 inset-x-0 flex items-center justify-end gap-3 p-4 border-t border-slate-200 dark:border-[#1e2130] bg-slate-50 dark:bg-[#161B22]',
         className
       )}
       {...props}

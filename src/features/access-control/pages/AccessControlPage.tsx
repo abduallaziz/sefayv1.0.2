@@ -4,11 +4,10 @@ import { useEffect, useState } from 'react'
 import { Plus, ShieldCheck } from 'lucide-react'
 import { toast } from 'sonner'
 import { useTranslations } from 'next-intl'
-import { Button, EmptyState } from '@/shared/ui'
+import { Button, EmptyState, Skeleton } from '@/shared/ui'
 import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
 import { useAccessControlRoles, useDeleteRole } from '../hooks/useAccessControl'
-import { RolesDataTable } from '../components/RolesDataTable'
-import { RolesTableSkeleton } from '../components/RolesTableSkeleton'
+import { RoleCard } from '../components/RoleCard'
 import { RoleFormSheet } from '../components/RoleFormSheet'
 import type { RoleSummary } from '../api/access-control.api'
 
@@ -70,12 +69,29 @@ export function AccessControlPage({ initialRoleId }: { initialRoleId?: string } 
 
       {/* ── Workspace ─────────────────────────────────────────────────── */}
       <div className="p-6">
-        <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
-          {isError ? (
-            <div className="p-10 text-center text-sm text-red-600">{t('loadRolesError')}</div>
-          ) : isLoading ? (
-            <RolesTableSkeleton />
-          ) : !roles || roles.length === 0 ? (
+        {isError ? (
+          <div className="rounded-lg border border-slate-200 bg-white p-10 text-center text-sm text-red-600 shadow-sm">
+            {t('loadRolesError')}
+          </div>
+        ) : isLoading ? (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-5 w-32" />
+                  <Skeleton className="h-5 w-16 rounded-full" />
+                </div>
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-4 w-24" />
+                <div className="mt-1 flex gap-2 border-t border-slate-100 pt-3">
+                  <Skeleton className="h-9 flex-1" />
+                  <Skeleton className="h-9 flex-1" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : !roles || roles.length === 0 ? (
+          <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
             <EmptyState
               icon={ShieldCheck}
               title={t('emptyRoles.title')}
@@ -89,15 +105,20 @@ export function AccessControlPage({ initialRoleId }: { initialRoleId?: string } 
                 </Button>
               }
             />
-          ) : (
-            <RolesDataTable
-              roles={roles}
-              onView={(role) => setSheet({ mode: 'view', role })}
-              onEdit={(role) => setSheet({ mode: 'edit', role })}
-              onDelete={(role) => setRoleToDelete(role)}
-            />
-          )}
-        </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {roles.map((role) => (
+              <RoleCard
+                key={role.id}
+                role={role}
+                onView={(r) => setSheet({ mode: 'view', role: r })}
+                onEdit={(r) => setSheet({ mode: 'edit', role: r })}
+                onDelete={(r) => setRoleToDelete(r)}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {sheet && (
