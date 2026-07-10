@@ -105,3 +105,23 @@ export function useResetRole(roleId: string) {
     },
   })
 }
+
+export function useCreateRole() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: accessControlApi.createRole,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['access-control', 'roles'] })
+    },
+  })
+}
+
+export function useDeleteRole() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: accessControlApi.deleteRole,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['access-control', 'roles'] })
+    },
+  })
+}

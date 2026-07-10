@@ -21,10 +21,13 @@ export interface Permission {
 export interface RoleSummary {
   id: string
   name: string
+  description: string | null
   is_system: boolean
   user_count: number
   permission_count: number
   customized_permission_count: number
+  created_at: string
+  updated_at: string
 }
 
 export interface ResolvedPermission {
@@ -56,4 +59,10 @@ export const accessControlApi = {
 
   resetRole: (roleId: string): Promise<{ role_id: string; reset_count: number }> =>
     apiClient.post(`/access-control/roles/${roleId}/reset`, {}),
+
+  createRole: (input: { name: string; description?: string }): Promise<RoleSummary> =>
+    apiClient.post('/access-control/roles', input),
+
+  deleteRole: (roleId: string): Promise<{ role_id: string; deleted: boolean }> =>
+    apiClient.delete(`/access-control/roles/${roleId}`),
 }
