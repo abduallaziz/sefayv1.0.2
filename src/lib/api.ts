@@ -65,7 +65,7 @@ async function tryRefresh(): Promise<boolean> {
     if (!res.ok) return false;
 
     const data = await res.json();
-    setAccessToken(data.access_token);
+    setAccessToken(data.access_token, data.realtime_token);
     return true;
   } catch {
     return false;

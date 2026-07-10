@@ -1,18 +1,20 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { tablesApi, AddDineInItemInput, CheckoutDineInInput } from '../api/tables.api'
+import { useRealtimeStatusStore } from '@/core/realtime/realtime-status.store'
 
-// Table status can change from another cashier/device at any moment (opening a
-// table, checking one out, seating a reservation/waitlist entry) — the global
-// 60s staleTime (see core/providers.tsx) would otherwise leave this screen
-// showing a stale "available"/"occupied" status for up to a minute after
-// someone else changes it. Short staleTime + polling keeps every open Tables
-// screen converging on the real state without a manual refresh.
+// Table status changes push instantly via RealtimeProvider's postgres_changes
+// subscription (see core/realtime/) — invalidateQueries on 'tables' handles the
+// normal case with zero polling. refetchInterval only activates as a fallback while
+// the Realtime connection isn't actually up (initial connect, dropped socket, or a
+// tenant whose realtime_token failed to mint), per the "no polling except as a
+// fallback" requirement.
 export function useTablesList(branchId?: string) {
+  const realtimeConnected = useRealtimeStatusStore((s) => s.connected)
   return useQuery({
     queryKey: ['tables', branchId],
     queryFn: () => tablesApi.getAll(branchId),
     staleTime: 5000,
-    refetchInterval: 8000,
+    refetchInterval: realtimeConnected ? false : 8000,
   })
 }
 
@@ -46,14 +48,14 @@ export function useOpenTable() {
 }
 
 export function useCurrentOrder(tableId: string | null) {
+  const realtimeConnected = useRealtimeStatusStore((s) => s.connected)
   return useQuery({
     queryKey: ['tables', tableId, 'order'],
     queryFn: () => tablesApi.getCurrentOrder(tableId as string),
     enabled: !!tableId,
     staleTime: 5000,
-    // Only polls while a table's order is actually open on screen — picks up
-    // items added to the same table from a different device/cashier.
-    refetchInterval: tableId ? 8000 : false,
+    // Fallback polling only — orders/order_items changes push via RealtimeProvider.
+    refetchInterval: tableId && !realtimeConnected ? 8000 : false,
   })
 }
 

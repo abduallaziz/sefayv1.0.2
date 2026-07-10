@@ -9,6 +9,7 @@ import { useTranslations } from 'next-intl'
 import { settingsApi } from '@/features/settings/api/settings.api'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
 import { useThemeStore } from '@/core/theme/stores/theme.store'
+import { RealtimeProvider } from '@/core/realtime/RealtimeProvider'
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { isLoading, isAuthenticated } = useTenantAuth()
@@ -50,6 +51,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <ThemeProvider>
+      <RealtimeProvider />
       <div
         style={{
           minHeight: '100vh',

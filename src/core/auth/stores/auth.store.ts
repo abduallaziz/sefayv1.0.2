@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { supabaseRealtime } from '@/lib/supabase-realtime';
 
 export type UserRole = 'owner' | 'manager' | 'cashier' | 'worker' | 'superadmin';
 
@@ -24,10 +25,21 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
 
-  setAuth: (user: AuthUser, accessToken: string) => void;
-  setAccessToken: (accessToken: string) => void;
+  setAuth: (user: AuthUser, accessToken: string, realtimeToken?: string | null) => void;
+  setAccessToken: (accessToken: string, realtimeToken?: string | null) => void;
   clearAuth: () => void;
   setLoading: (v: boolean) => void;
+}
+
+// Kept outside the store's own state (Realtime auth is a client-side side effect,
+// not something any component needs to read/re-render on) — synced here so every
+// call site that already updates the access token (login, initial refresh,
+// apiClient's 401 retry) gets Realtime wired up automatically instead of each one
+// having to remember to call this separately.
+function syncRealtimeAuth(realtimeToken?: string | null) {
+  if (realtimeToken) {
+    supabaseRealtime.realtime.setAuth(realtimeToken);
+  }
 }
 
 export const useAuthStore = create<AuthState>()((set) => ({
@@ -36,11 +48,15 @@ export const useAuthStore = create<AuthState>()((set) => ({
   isAuthenticated: false,
   isLoading: true,
 
-  setAuth: (user, accessToken) =>
-    set({ user, accessToken, isAuthenticated: true }),
+  setAuth: (user, accessToken, realtimeToken) => {
+    syncRealtimeAuth(realtimeToken);
+    set({ user, accessToken, isAuthenticated: true });
+  },
 
-  setAccessToken: (accessToken) =>
-    set({ accessToken }),
+  setAccessToken: (accessToken, realtimeToken) => {
+    syncRealtimeAuth(realtimeToken);
+    set({ accessToken });
+  },
 
   clearAuth: () =>
     set({ user: null, accessToken: null, isAuthenticated: false }),
