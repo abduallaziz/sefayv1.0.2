@@ -38,13 +38,21 @@ function SheetOverlay({ className, ...props }: React.ComponentProps<typeof Dialo
 // Tailwind's logical utilities (`start-0`/`end-0`, `border-s`/`border-e`),
 // which flip automatically with `dir` — only the animation direction name
 // needs the manual locale check below.
+// `top-0`/`bottom-0` are split out instead of using `inset-y-0` so a caller
+// can cleanly override just the top offset (e.g. to clear a sticky app
+// header) via className — tailwind-merge only resolves same-utility
+// conflicts, and `top-[66px]` vs `inset-y-0` isn't reliably one of those.
+// No explicit height utility: with `position: fixed` and both `top` and
+// `bottom` set, height is auto-computed to exactly fill the gap between them
+// — adding `h-full` here would fight that (height:100% ignores the bottom
+// offset) and overflow past the viewport whenever top is non-zero.
 const sheetVariants = cva(
   'fixed z-50 flex flex-col gap-0 bg-white dark:bg-[#1a1f2e] shadow-xl transition ease-in-out data-[state=closed]:duration-200 data-[state=open]:duration-300',
   {
     variants: {
       side: {
-        start: 'inset-y-0 start-0 h-full w-full border-e border-slate-200 dark:border-[#1e2130] sm:max-w-xl',
-        end: 'inset-y-0 end-0 h-full w-full border-s border-slate-200 dark:border-[#1e2130] sm:max-w-xl',
+        start: 'top-0 bottom-0 start-0 w-full border-e border-slate-200 dark:border-[#1e2130] sm:max-w-xl',
+        end: 'top-0 bottom-0 end-0 w-full border-s border-slate-200 dark:border-[#1e2130] sm:max-w-xl',
       },
     },
     defaultVariants: { side: 'end' },
