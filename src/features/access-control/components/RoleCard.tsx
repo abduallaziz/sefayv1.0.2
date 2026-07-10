@@ -4,7 +4,7 @@ import { Pencil, Trash2, Eye, Users, Lock } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Button, Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/shared/ui'
 import { RoleStatusBadge } from './RoleStatusBadge'
-import { useRoleDisplayName } from '../hooks/useAccessControl'
+import { useRoleDisplayName, useRoleDisplayDescription } from '../hooks/useAccessControl'
 import type { RoleSummary } from '../api/access-control.api'
 
 interface RoleCardProps {
@@ -22,6 +22,7 @@ export function RoleCard({ role, onView, onEdit, onDelete }: RoleCardProps) {
   const t = useTranslations('accessControl')
   const isSystem = role.is_system
   const displayName = useRoleDisplayName(role)
+  const displayDescription = useRoleDisplayDescription(role)
 
   return (
     // h-full so every card in a CSS Grid row stretches to the row's tallest
@@ -41,7 +42,7 @@ export function RoleCard({ role, onView, onEdit, onDelete }: RoleCardProps) {
         </div>
 
         <p className="line-clamp-2 min-h-[2.5rem] text-sm text-slate-500">
-          {role.description || t('card.noDescription')}
+          {displayDescription || t('card.noDescription')}
         </p>
 
         <div className="flex items-center gap-1.5 text-sm text-slate-600">

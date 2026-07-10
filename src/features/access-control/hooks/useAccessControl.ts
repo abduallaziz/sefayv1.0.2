@@ -12,6 +12,21 @@ export function useRoleDisplayName(role: RoleSummary): string {
   return t.has(key) ? t(key) : role.name
 }
 
+// Same reasoning as useRoleDisplayName, for the description shown on the
+// card: system-role descriptions come from the `roles` table seed
+// (001_create_roles_table.sql), which is English-only (e.g. "Branch/
+// operations manager") — that was rendering unlocalized directly from the
+// API response. Custom-role descriptions are tenant-authored free text and
+// must stay exactly as entered, in whichever language the tenant typed them.
+export function useRoleDisplayDescription(role: RoleSummary): string | null {
+  const t = useTranslations('accessControl')
+  if (role.is_system) {
+    const key = `roles.${role.name}.description`
+    if (t.has(key)) return t(key)
+  }
+  return role.description
+}
+
 export function usePermissionGroups() {
   return useQuery({
     queryKey: ['access-control', 'permission-groups'],
