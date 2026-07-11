@@ -28,7 +28,10 @@ export function AccessControlPage({ initialRoleId }: { initialRoleId?: string } 
   useEffect(() => {
     if (!initialRoleId || !roles) return
     const role = roles.find((r) => r.id === initialRoleId)
-    if (role) setSheet({ mode: role.is_system ? 'view' : 'edit', role })
+    // Only 'owner' opens read-only now — every other system role is editable
+    // (matches RoleCard.tsx's isLocked; 'superadmin' never appears in `roles`
+    // at all, filtered server-side).
+    if (role) setSheet({ mode: role.name === 'owner' ? 'view' : 'edit', role })
     // Only react to roles finishing their first load for this deep link —
     // not on every roles refetch, which would re-open a sheet the user closed.
     // eslint-disable-next-line react-hooks/exhaustive-deps

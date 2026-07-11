@@ -21,6 +21,13 @@ interface RoleCardProps {
 export function RoleCard({ role, onView, onEdit, onDelete }: RoleCardProps) {
   const t = useTranslations('accessControl')
   const isSystem = role.is_system
+  // Only 'owner' is locked now — every other system role (manager/cashier/
+  // worker/inventory_clerk/none) is editable, matching the backend guard
+  // (getEditableRoleOrThrow only ever blocked 'owner'/'superadmin' — this was
+  // previously a frontend-only restriction wider than what the API allowed).
+  // 'superadmin' never reaches this component at all — filtered server-side
+  // in listRolesForTenant().
+  const isLocked = role.name === 'owner'
   const displayName = useRoleDisplayName(role)
   const displayDescription = useRoleDisplayDescription(role)
 
@@ -36,7 +43,7 @@ export function RoleCard({ role, onView, onEdit, onDelete }: RoleCardProps) {
         <div className="flex items-start justify-between gap-2">
           <div className="flex min-w-0 items-center gap-2">
             <h3 className="truncate text-base font-semibold text-slate-900">{displayName}</h3>
-            {isSystem && <Lock className="h-3.5 w-3.5 shrink-0 text-slate-400" />}
+            {isLocked && <Lock className="h-3.5 w-3.5 shrink-0 text-slate-400" />}
           </div>
           <RoleStatusBadge isSystem={isSystem} className="shrink-0" />
         </div>
@@ -60,9 +67,19 @@ export function RoleCard({ role, onView, onEdit, onDelete }: RoleCardProps) {
           card. truncate on each label lets it ellipsize instead of forcing
           the row wider than the card. */}
       <div className="flex items-center gap-2 overflow-hidden border-t border-slate-100 pt-3">
-        {isSystem ? (
+        {isLocked ? (
           <Button variant="outline" size="sm" className="min-w-0 flex-1" onClick={() => onView(role)}>
             <Eye className="me-1.5 h-3.5 w-3.5 shrink-0" /> <span className="truncate">{t('actionsMenu.viewOnly')}</span>
+          </Button>
+        ) : isSystem ? (
+          // System role, but not owner: permissions are fully editable, but
+          // Delete/Manage Users stay out entirely — deleting any system role
+          // is rejected by the backend regardless (tenant_id is null for all
+          // of them), and "Manage Users" for these is a real, buildable
+          // feature deferred as its own follow-up per your request, not the
+          // same architectural dead-end custom roles hit.
+          <Button variant="outline" size="sm" className="min-w-0 flex-1" onClick={() => onEdit(role)}>
+            <Pencil className="me-1.5 h-3.5 w-3.5 shrink-0" /> <span className="truncate">{t('actionsMenu.edit')}</span>
           </Button>
         ) : (
           <>
