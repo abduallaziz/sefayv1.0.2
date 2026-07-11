@@ -90,6 +90,38 @@ export function useChangeRole() {
       usersApi.changeRole(id, role),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] })
+      // Changing the primary role moves this user out of their old role's
+      // membership list and into the new one — both the per-role user list
+      // (RoleUsersSheet) and the roles list's user_count need to reflect it.
+      queryClient.invalidateQueries({ queryKey: ['access-control', 'roles'] })
+    },
+  })
+}
+
+// Parameterized by roleId, mirroring useUpdateRolePermission(roleId) in
+// access-control's own hooks — RoleUsersSheet only ever operates within one
+// role's context, so the role-scoped invalidation lives with the mutation
+// rather than being repeated at every call site.
+export function useAddUserRole(roleId: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (userId: string) => usersApi.addUserRole(userId, roleId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['access-control', 'roles', roleId, 'users'] })
+      queryClient.invalidateQueries({ queryKey: ['access-control', 'roles'] }) // user_count changed
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+    },
+  })
+}
+
+export function useRemoveUserRole(roleId: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (userId: string) => usersApi.removeUserRole(userId, roleId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['access-control', 'roles', roleId, 'users'] })
+      queryClient.invalidateQueries({ queryKey: ['access-control', 'roles'] })
+      queryClient.invalidateQueries({ queryKey: ['users'] })
     },
   })
 }

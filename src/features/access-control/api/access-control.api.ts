@@ -38,6 +38,14 @@ export interface ResolvedPermission {
   source: 'global' | 'tenant_override'
 }
 
+export interface RoleUserRow {
+  id: string
+  name: string
+  email: string
+  is_active: boolean
+  is_primary: boolean
+}
+
 export const accessControlApi = {
   getPermissionGroups: (): Promise<PermissionGroup[]> =>
     apiClient.get('/access-control/permission-groups'),
@@ -50,6 +58,9 @@ export const accessControlApi = {
 
   getRolePermissions: (roleId: string): Promise<ResolvedPermission[]> =>
     apiClient.get(`/access-control/roles/${roleId}/permissions`),
+
+  getRoleUsers: (roleId: string): Promise<RoleUserRow[]> =>
+    apiClient.get(`/access-control/roles/${roleId}/users`),
 
   updatePermission: (roleId: string, permissionKey: string, isGranted: boolean): Promise<ResolvedPermission> =>
     apiClient.patch(`/access-control/roles/${roleId}/permissions/${permissionKey}`, { is_granted: isGranted }),

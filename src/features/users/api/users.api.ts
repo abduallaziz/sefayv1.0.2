@@ -108,6 +108,13 @@ export interface UpdateEmployeeDto {
   late_deduction_value?: number | null
 }
 
+export interface UserRoleAssignment {
+  id: string
+  role_id: string
+  is_primary: boolean
+  role: { id: string; name: string; description: string | null; is_system: boolean }
+}
+
 export interface LinkableUser {
   id: string
   name: string
@@ -150,6 +157,15 @@ export const usersApi = {
 
   changeRole: (id: string, role: string): Promise<User> =>
     apiClient.patch(`/users/${id}/role`, { role }),
+
+  getUserRoles: (id: string): Promise<UserRoleAssignment[]> =>
+    apiClient.get(`/users/${id}/roles`),
+
+  addUserRole: (id: string, roleId: string): Promise<{ user_id: string; role_id: string; role_name: string }> =>
+    apiClient.post(`/users/${id}/roles`, { role_id: roleId }),
+
+  removeUserRole: (id: string, roleId: string): Promise<{ user_id: string; role_id: string; removed: boolean }> =>
+    apiClient.delete(`/users/${id}/roles/${roleId}`),
 
   remove: (id: string): Promise<void> =>
     apiClient.delete(`/users/${id}`),

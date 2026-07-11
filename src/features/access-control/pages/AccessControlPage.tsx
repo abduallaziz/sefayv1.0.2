@@ -9,6 +9,7 @@ import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
 import { useAccessControlRoles, useDeleteRole } from '../hooks/useAccessControl'
 import { RoleCard } from '../components/RoleCard'
 import { RoleFormSheet } from '../components/RoleFormSheet'
+import { RoleUsersSheet } from '../components/RoleUsersSheet'
 import type { RoleSummary } from '../api/access-control.api'
 
 type SheetState = { mode: 'create' } | { mode: 'edit' | 'view'; role: RoleSummary } | null
@@ -24,6 +25,7 @@ export function AccessControlPage({ initialRoleId }: { initialRoleId?: string } 
 
   const [sheet, setSheet] = useState<SheetState>(null)
   const [roleToDelete, setRoleToDelete] = useState<RoleSummary | null>(null)
+  const [manageUsersRole, setManageUsersRole] = useState<RoleSummary | null>(null)
 
   useEffect(() => {
     if (!initialRoleId || !roles) return
@@ -118,6 +120,7 @@ export function AccessControlPage({ initialRoleId }: { initialRoleId?: string } 
                 onView={(r) => setSheet({ mode: 'view', role: r })}
                 onEdit={(r) => setSheet({ mode: 'edit', role: r })}
                 onDelete={(r) => setRoleToDelete(r)}
+                onManageUsers={(r) => setManageUsersRole(r)}
               />
             ))}
           </div>
@@ -132,6 +135,12 @@ export function AccessControlPage({ initialRoleId }: { initialRoleId?: string } 
           onOpenChange={(open) => !open && setSheet(null)}
         />
       )}
+
+      <RoleUsersSheet
+        role={manageUsersRole}
+        open={!!manageUsersRole}
+        onOpenChange={(open) => !open && setManageUsersRole(null)}
+      />
 
       <ConfirmDialog
         open={!!roleToDelete}

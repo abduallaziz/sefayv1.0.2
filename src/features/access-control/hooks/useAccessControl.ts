@@ -50,6 +50,14 @@ export function useAccessControlRoles() {
   })
 }
 
+export function useRoleUsers(roleId: string) {
+  return useQuery({
+    queryKey: ['access-control', 'roles', roleId, 'users'],
+    queryFn: () => accessControlApi.getRoleUsers(roleId),
+    enabled: !!roleId,
+  })
+}
+
 export function useRolePermissions(roleId: string) {
   return useQuery({
     queryKey: ['access-control', 'roles', roleId, 'permissions'],

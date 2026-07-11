@@ -56,8 +56,26 @@
   },
   "card": {
     "noDescription": "No description added yet.",
-    "manageUsers": "Manage Users",
-    "manageUsersComingSoon": "Coming soon — requires moving user roles from a fixed list to full custom-role support."
+    "manageUsers": "Manage Users"
+  },
+  "roleUsersSheet": {
+    "title": "Users with the \"{role}\" role",
+    "description": "View, add, or remove users holding this role.",
+    "searchPlaceholder": "Search by name or email...",
+    "addUser": "Add User",
+    "addUserSearchPlaceholder": "Search users to add...",
+    "loadingUsers": "Loading users...",
+    "noCandidates": "No matching users found",
+    "add": "Add",
+    "primaryBadge": "Primary",
+    "removeRole": "Remove role",
+    "cannotRemovePrimary": "This is the user's primary role — change it via their role instead",
+    "emptyTitle": "No users hold this role yet",
+    "emptyDescription": "Add a user above to assign this role to them.",
+    "noSearchResults": "No users match your search",
+    "removeError": "Could not remove this role",
+    "addError": "Could not add this role",
+    "changePrimaryError": "Could not change the primary role"
   },
   "roles": {
     "superadmin": { "name": "Platform Administrator", "description": "Platform-level administrator across all tenants" },

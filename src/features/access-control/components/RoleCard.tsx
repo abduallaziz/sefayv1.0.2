@@ -2,7 +2,7 @@
 
 import { Pencil, Trash2, Eye, Users, Lock } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { Button, Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/shared/ui'
+import { Button } from '@/shared/ui'
 import { RoleStatusBadge } from './RoleStatusBadge'
 import { useRoleDisplayName, useRoleDisplayDescription } from '../hooks/useAccessControl'
 import type { RoleSummary } from '../api/access-control.api'
@@ -12,13 +12,14 @@ interface RoleCardProps {
   onView: (role: RoleSummary) => void
   onEdit: (role: RoleSummary) => void
   onDelete: (role: RoleSummary) => void
+  onManageUsers: (role: RoleSummary) => void
 }
 
 // Replaces the old select-to-view-detail list card from the pre-rebuild
 // master-detail layout (this file was orphaned after that rewrite — no
 // remaining imports referenced it). This version puts the actions directly
 // on the card instead of requiring a click-through.
-export function RoleCard({ role, onView, onEdit, onDelete }: RoleCardProps) {
+export function RoleCard({ role, onView, onEdit, onDelete, onManageUsers }: RoleCardProps) {
   const t = useTranslations('accessControl')
   const isSystem = role.is_system
   // Only 'owner' is locked now — every other system role (manager/cashier/
@@ -72,36 +73,26 @@ export function RoleCard({ role, onView, onEdit, onDelete }: RoleCardProps) {
             <Eye className="me-1.5 h-3.5 w-3.5 shrink-0" /> <span className="truncate">{t('actionsMenu.viewOnly')}</span>
           </Button>
         ) : isSystem ? (
-          // System role, but not owner: permissions are fully editable, but
-          // Delete/Manage Users stay out entirely — deleting any system role
-          // is rejected by the backend regardless (tenant_id is null for all
-          // of them), and "Manage Users" for these is a real, buildable
-          // feature deferred as its own follow-up per your request, not the
-          // same architectural dead-end custom roles hit.
-          <Button variant="outline" size="sm" className="min-w-0 flex-1" onClick={() => onEdit(role)}>
-            <Pencil className="me-1.5 h-3.5 w-3.5 shrink-0" /> <span className="truncate">{t('actionsMenu.edit')}</span>
-          </Button>
+          // System role, but not owner: permissions are fully editable.
+          // Delete stays excluded — deleting any system role is rejected by
+          // the backend regardless (tenant_id is null for all of them) —
+          // but Manage Users now works via user_roles (Phase 3).
+          <>
+            <Button variant="outline" size="sm" className="min-w-0 flex-1" onClick={() => onEdit(role)}>
+              <Pencil className="me-1.5 h-3.5 w-3.5 shrink-0" /> <span className="truncate">{t('actionsMenu.edit')}</span>
+            </Button>
+            <Button variant="outline" size="sm" className="min-w-0 flex-1" onClick={() => onManageUsers(role)}>
+              <Users className="me-1.5 h-3.5 w-3.5 shrink-0" /> <span className="truncate">{t('card.manageUsers')}</span>
+            </Button>
+          </>
         ) : (
           <>
             <Button variant="outline" size="sm" className="min-w-0 flex-1" onClick={() => onEdit(role)}>
               <Pencil className="me-1.5 h-3.5 w-3.5 shrink-0" /> <span className="truncate">{t('actionsMenu.edit')}</span>
             </Button>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  {/* Disabled deliberately, not a stub — users.role is a
-                      fixed 5-value DB enum today, not a FK to the roles
-                      table this card manages, so there is no real
-                      assignment to perform yet (see STATUS.md). */}
-                  <span className="min-w-0 flex-1">
-                    <Button variant="outline" size="sm" className="w-full min-w-0" disabled>
-                      <Users className="me-1.5 h-3.5 w-3.5 shrink-0" /> <span className="truncate">{t('card.manageUsers')}</span>
-                    </Button>
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent>{t('card.manageUsersComingSoon')}</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <Button variant="outline" size="sm" className="min-w-0 flex-1" onClick={() => onManageUsers(role)}>
+              <Users className="me-1.5 h-3.5 w-3.5 shrink-0" /> <span className="truncate">{t('card.manageUsers')}</span>
+            </Button>
             <Button
               variant="ghost"
               size="icon"
