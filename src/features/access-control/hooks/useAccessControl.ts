@@ -50,11 +50,18 @@ export function useAccessControlRoles() {
   })
 }
 
-export function useRoleUsers(roleId: string) {
+// refetchOnMount: 'always' deliberately overrides the app's 60s global
+// staleTime — RoleUsersSheet's data must reflect the exact current DB state
+// every time it opens, not up to a minute of the previous view (a user who
+// was just added/removed from another tab or by another admin must show up
+// correctly the instant this sheet opens, not on the next accidental focus
+// event).
+export function useRoleUsers(roleId: string, enabled = true) {
   return useQuery({
     queryKey: ['access-control', 'roles', roleId, 'users'],
     queryFn: () => accessControlApi.getRoleUsers(roleId),
-    enabled: !!roleId,
+    enabled: !!roleId && enabled,
+    refetchOnMount: 'always',
   })
 }
 

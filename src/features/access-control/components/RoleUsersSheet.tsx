@@ -53,7 +53,7 @@ function RoleUsersSheetContent({
   const t = useTranslations('accessControl')
   const displayName = useRoleDisplayName(role)
 
-  const { data: roleUsers, isLoading } = useRoleUsers(role.id)
+  const { data: roleUsers, isLoading } = useRoleUsers(role.id, open)
   const { data: allRoles } = useAccessControlRoles()
   const addUserRole = useAddUserRole(role.id)
   const removeUserRole = useRemoveUserRole(role.id)
