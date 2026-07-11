@@ -35,6 +35,12 @@ export function PermissionConfigurator({
 }: PermissionConfiguratorProps) {
   const locale = useLocale()
   const t = useTranslations('accessControl')
+  // Flat lookup, not t(`permissions.${key}`) — permission keys like
+  // "invoice.view" and "invoice.view.branch" can't both exist on the same
+  // JSON path (one would need to be a string leaf and an object at once).
+  // t.raw() skips next-intl's automatic dot-nesting so the messages file can
+  // store them as sibling keys in one flat object instead.
+  const permissionLabels = t.raw('permissions') as Record<string, string>
 
   const byGroupCode = useMemo(() => {
     const map = new Map<string, ResolvedPermission[]>()
@@ -105,7 +111,7 @@ export function PermissionConfigurator({
                     <PermissionRow
                       key={p.permission_key}
                       permission={p}
-                      label={p.description ?? p.permission_key}
+                      label={permissionLabels[p.permission_key] ?? p.description ?? p.permission_key}
                       advanced={false}
                       readOnly={readOnly}
                       onToggle={(granted) => onToggle(p.permission_key, granted)}
