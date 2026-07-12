@@ -173,13 +173,19 @@ export function UserPermissionChecklist({ userId, roleId, locked }: UserPermissi
               >
                 <Check className="h-3 w-3" />
               </Button>
+              {/* Deliberately no active/red styling here, unlike the GRANT
+                  button above — feedback from live testing: red read as an
+                  alarming "something's wrong" state, not "this permission is
+                  denied." The unchecked checkbox already communicates the
+                  denied state; clicking this always looks the same,
+                  whether it's applying or removing the DENY override. */}
               <Button
                 type="button"
                 size="sm"
-                variant={row.overrideAction === 'DENY' ? undefined : 'outline'}
+                variant="outline"
                 disabled={anyPending}
                 onClick={() => handleDeny(row.key)}
-                className={row.overrideAction === 'DENY' ? 'h-7 bg-red-600 px-2 text-xs text-white hover:bg-red-700' : 'h-7 px-2 text-xs'}
+                className="h-7 px-2 text-xs"
               >
                 <X className="h-3 w-3" />
               </Button>
