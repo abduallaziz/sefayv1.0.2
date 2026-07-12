@@ -10,7 +10,7 @@ export function RoleStatusBadge({ isSystem, className }: { isSystem: boolean; cl
     return (
       <Badge
         className={cn(
-          'gap-1 border border-slate-200 bg-slate-100 py-0.5 px-2 text-xs font-medium text-slate-800',
+          'gap-1 border border-slate-200 bg-slate-100 py-0.5 px-2 text-xs font-medium text-slate-800 dark:border-gray-700 dark:bg-gray-800 dark:text-slate-200',
           className,
         )}
       >
@@ -21,7 +21,7 @@ export function RoleStatusBadge({ isSystem, className }: { isSystem: boolean; cl
   return (
     <Badge
       className={cn(
-        'gap-1 border border-indigo-100 bg-indigo-50 py-0.5 px-2 text-xs font-medium text-indigo-700',
+        'gap-1 border border-indigo-100 bg-indigo-50 py-0.5 px-2 text-xs font-medium text-indigo-700 dark:border-indigo-500/20 dark:bg-indigo-500/10 dark:text-indigo-300',
         className,
       )}
     >

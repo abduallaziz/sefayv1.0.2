@@ -97,7 +97,7 @@ function CreateRoleSheet({ open, onOpenChange }: { open: boolean; onOpenChange: 
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="end" className="top-[66px] w-full border-s border-slate-200 bg-white sm:max-w-xl">
+      <SheetContent side="end" className="top-[66px] w-full border-s border-slate-200 bg-white dark:border-[#1e2130] dark:bg-[#1a1f2e] sm:max-w-xl">
         <SheetHeader>
           <SheetTitle>{t('sheet.createTitle')}</SheetTitle>
           <SheetDescription>{t('sheet.createDescription')}</SheetDescription>
@@ -106,20 +106,20 @@ function CreateRoleSheet({ open, onOpenChange }: { open: boolean; onOpenChange: 
         <form id="create-role-form" onSubmit={handleSubmit(onSubmit)}>
           <SheetBody className="space-y-4">
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">{t('sheet.roleNameLabel')}</label>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">{t('sheet.roleNameLabel')}</label>
               <Input
                 {...register('name')}
                 placeholder={t('sheet.roleNamePlaceholder')}
-                className="h-10 rounded-md bg-white focus-visible:ring-indigo-500"
+                className="h-10 rounded-md bg-white dark:bg-[#141720] focus-visible:ring-indigo-500"
               />
-              {errors.name && <p className="mt-1 text-xs text-red-600">{errors.name.message}</p>}
+              {errors.name && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.name.message}</p>}
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">{t('sheet.descriptionLabel')}</label>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">{t('sheet.descriptionLabel')}</label>
               <Input
                 {...register('description')}
                 placeholder={t('sheet.descriptionPlaceholder')}
-                className="h-10 rounded-md bg-white focus-visible:ring-indigo-500"
+                className="h-10 rounded-md bg-white dark:bg-[#141720] focus-visible:ring-indigo-500"
               />
             </div>
           </SheetBody>
@@ -181,7 +181,7 @@ function ConfigureRoleSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="end" className="top-[66px] w-full border-s border-slate-200 bg-white sm:max-w-xl">
+      <SheetContent side="end" className="top-[66px] w-full border-s border-slate-200 bg-white dark:border-[#1e2130] dark:bg-[#1a1f2e] sm:max-w-xl">
         <SheetHeader>
           <div className="flex items-center gap-2">
             <SheetTitle>{displayName}</SheetTitle>

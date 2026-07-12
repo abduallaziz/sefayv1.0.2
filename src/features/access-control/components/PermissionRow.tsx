@@ -27,7 +27,7 @@ export function PermissionRow({ permission, label, advanced, readOnly, onToggle,
           {isCustomized && <StatusBadge label={t('customized')} tone="brand" />}
         </div>
         {advanced && (
-          <p className="text-xs text-slate-400 mt-0.5 font-mono">{permission.permission_key}</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5 font-mono">{permission.permission_key}</p>
         )}
       </div>
 

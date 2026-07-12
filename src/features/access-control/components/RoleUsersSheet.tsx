@@ -100,7 +100,7 @@ function RoleUsersSheetContent({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="end" className="top-[66px] w-full border-s border-slate-200 bg-white sm:max-w-xl">
+      <SheetContent side="end" className="top-[66px] w-full border-s border-slate-200 bg-white dark:border-[#1e2130] dark:bg-[#1a1f2e] sm:max-w-xl">
         <SheetHeader>
           <SheetTitle>{t('roleUsersSheet.title', { role: displayName })}</SheetTitle>
           <SheetDescription>{t('roleUsersSheet.description')}</SheetDescription>
@@ -109,12 +109,12 @@ function RoleUsersSheetContent({
         <SheetBody className="space-y-4">
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
-              <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={t('roleUsersSheet.searchPlaceholder')}
-                className="h-10 rounded-md bg-white ps-9 focus-visible:ring-indigo-500"
+                className="h-10 rounded-md bg-white dark:bg-[#141720] ps-9 focus-visible:ring-indigo-500"
               />
             </div>
             <Button
@@ -203,30 +203,30 @@ function UserRow({
   const showPromoteDemote = user.is_primary && systemRoles.length > 0
 
   return (
-    <div className="rounded-lg border border-slate-100">
+    <div className="rounded-lg border border-slate-100 dark:border-gray-800">
       <div className="flex items-center justify-between gap-3 px-3 py-2.5">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span className="truncate text-sm font-medium text-slate-800">{user.name}</span>
+            <span className="truncate text-sm font-medium text-slate-800 dark:text-white">{user.name}</span>
             {user.is_primary && <StatusBadge label={t('roleUsersSheet.primaryBadge')} tone="brand" />}
             {locked && (
-              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-700">
+              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-700 dark:text-amber-400">
                 <Lock className="h-3 w-3" /> {t('userPermissionChecklist.ownerBadge')}
               </span>
             )}
           </div>
-          <p className="truncate text-xs text-slate-400">{user.email}</p>
+          <p className="truncate text-xs text-slate-400 dark:text-slate-500">{user.email}</p>
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
           {showPromoteDemote && (
             <Select value={currentRoleName} onValueChange={onPromoteDemote}>
-              <SelectTrigger className="h-8 w-36 rounded-md border-slate-200 bg-white text-xs text-slate-700">
+              <SelectTrigger className="h-8 w-36 rounded-md border-slate-200 bg-white text-xs text-slate-700 dark:border-[#1e2130] dark:bg-[#1a1f2e] dark:text-slate-200">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="border-slate-200 bg-white">
+              <SelectContent className="border-slate-200 bg-white dark:border-[#1e2130] dark:bg-[#1a1f2e]">
                 {systemRoles.map((r) => (
-                  <SelectItem key={r.id} value={r.name} className="text-slate-700">
+                  <SelectItem key={r.id} value={r.name} className="text-slate-700 dark:text-slate-200">
                     {r.name}
                   </SelectItem>
                 ))}
@@ -242,7 +242,7 @@ function UserRow({
                   variant="ghost"
                   size="icon"
                   onClick={onToggleExpand}
-                  className="h-8 w-8 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600"
+                  className="h-8 w-8 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 dark:text-slate-500 dark:hover:bg-indigo-500/10 dark:hover:text-indigo-400"
                   aria-label={t('userPermissionChecklist.togglePermissions')}
                 >
                   {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ShieldCheck className="h-3.5 w-3.5" />}
@@ -262,7 +262,7 @@ function UserRow({
                     size="icon"
                     disabled={user.is_primary || removing}
                     onClick={onRemove}
-                    className="h-8 w-8 text-slate-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-40"
+                    className="h-8 w-8 text-slate-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-40 dark:text-slate-500 dark:hover:bg-red-500/10 dark:hover:text-red-400"
                     aria-label={t('roleUsersSheet.removeRole')}
                   >
                     {user.is_primary ? <Lock className="h-3.5 w-3.5" /> : <Trash2 className="h-3.5 w-3.5" />}
@@ -278,7 +278,7 @@ function UserRow({
       </div>
 
       {expanded && (
-        <div className="border-t border-slate-100 p-2">
+        <div className="border-t border-slate-100 p-2 dark:border-gray-800">
           <UserPermissionChecklist userId={user.id} roleId={roleId} locked={locked} />
         </div>
       )}
@@ -313,25 +313,25 @@ function AddUserPanel({
   }, [allUsers, alreadyAssignedIds, query])
 
   return (
-    <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-3">
+    <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-gray-800 dark:bg-gray-800/50">
       <Input
         autoFocus
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder={t('roleUsersSheet.addUserSearchPlaceholder')}
-        className="h-9 rounded-md bg-white text-sm"
+        className="h-9 rounded-md bg-white dark:bg-[#141720] text-sm"
       />
       {isLoading ? (
-        <p className="py-2 text-center text-xs text-slate-400">{t('roleUsersSheet.loadingUsers')}</p>
+        <p className="py-2 text-center text-xs text-slate-400 dark:text-slate-500">{t('roleUsersSheet.loadingUsers')}</p>
       ) : candidates.length === 0 ? (
-        <p className="py-2 text-center text-xs text-slate-400">{t('roleUsersSheet.noCandidates')}</p>
+        <p className="py-2 text-center text-xs text-slate-400 dark:text-slate-500">{t('roleUsersSheet.noCandidates')}</p>
       ) : (
         <div className="max-h-56 space-y-1 overflow-y-auto">
           {candidates.map((u) => (
-            <div key={u.id} className="flex items-center justify-between gap-2 rounded-md bg-white px-2.5 py-1.5">
+            <div key={u.id} className="flex items-center justify-between gap-2 rounded-md bg-white px-2.5 py-1.5 dark:bg-gray-900">
               <div className="min-w-0">
-                <p className="truncate text-xs font-medium text-slate-700">{u.name}</p>
-                <p className="truncate text-[11px] text-slate-400">{u.email}</p>
+                <p className="truncate text-xs font-medium text-slate-700 dark:text-slate-200">{u.name}</p>
+                <p className="truncate text-[11px] text-slate-400 dark:text-slate-500">{u.email}</p>
               </div>
               <Button
                 type="button"

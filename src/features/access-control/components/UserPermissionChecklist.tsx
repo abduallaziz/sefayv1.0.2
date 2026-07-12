@@ -105,7 +105,7 @@ export function UserPermissionChecklist({ userId, roleId, locked }: UserPermissi
 
   if (locked) {
     return (
-      <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-800">
+      <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-400">
         <Lock className="h-4 w-4 shrink-0" />
         {t('userPermissionChecklist.ownerLocked')}
       </div>
@@ -117,15 +117,15 @@ export function UserPermissionChecklist({ userId, roleId, locked }: UserPermissi
   }
 
   return (
-    <div className="space-y-2 rounded-lg border border-slate-200 bg-white p-3">
+    <div className="space-y-2 rounded-lg border border-slate-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900">
       <div className="flex items-center gap-2">
         <div className="relative flex-1">
-          <Search className="pointer-events-none absolute start-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+          <Search className="pointer-events-none absolute start-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t('userPermissionChecklist.searchPlaceholder')}
-            className="h-8 rounded-md bg-white ps-8 text-xs"
+            className="h-8 rounded-md bg-white dark:bg-[#141720] ps-8 text-xs"
           />
         </div>
         <Button
@@ -146,7 +146,7 @@ export function UserPermissionChecklist({ userId, roleId, locked }: UserPermissi
             key={row.key}
             className={
               row.overrideAction
-                ? 'flex items-center justify-between gap-2 rounded-md border border-indigo-200 bg-indigo-50 px-2 py-1.5'
+                ? 'flex items-center justify-between gap-2 rounded-md border border-indigo-200 bg-indigo-50 px-2 py-1.5 dark:border-indigo-500/20 dark:bg-indigo-500/10'
                 : 'flex items-center justify-between gap-2 rounded-md px-2 py-1.5'
             }
           >
@@ -158,7 +158,7 @@ export function UserPermissionChecklist({ userId, roleId, locked }: UserPermissi
                 className="h-3.5 w-3.5 shrink-0 accent-indigo-600"
                 aria-label={row.label}
               />
-              <span className="truncate text-xs text-slate-700">{row.label}</span>
+              <span className="truncate text-xs text-slate-700 dark:text-slate-200">{row.label}</span>
               {row.overrideAction && <StatusBadge label={t('customized')} tone="brand" />}
             </div>
 

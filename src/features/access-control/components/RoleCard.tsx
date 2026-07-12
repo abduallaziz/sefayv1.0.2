@@ -39,24 +39,24 @@ export function RoleCard({ role, onView, onEdit, onDelete, onManageUsers }: Role
     // instead of staying at its intrinsic size), and the flex-1 content
     // block below pins the action row to the same bottom edge on every card
     // regardless of description length.
-    <div className="flex h-full flex-col gap-3 rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
+    <div className="flex h-full flex-col gap-3 rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-gray-800 dark:bg-gray-900">
       <div className="flex-1 space-y-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex min-w-0 items-center gap-2">
-            <h3 className="truncate text-base font-semibold text-slate-900">{displayName}</h3>
-            {isLocked && <Lock className="h-3.5 w-3.5 shrink-0 text-slate-400" />}
+            <h3 className="truncate text-base font-semibold text-slate-900 dark:text-white">{displayName}</h3>
+            {isLocked && <Lock className="h-3.5 w-3.5 shrink-0 text-slate-400 dark:text-slate-500" />}
           </div>
           <RoleStatusBadge isSystem={isSystem} className="shrink-0" />
         </div>
 
-        <p className="line-clamp-2 min-h-[2.5rem] text-sm text-slate-500">
+        <p className="line-clamp-2 min-h-[2.5rem] text-sm text-slate-500 dark:text-slate-400">
           {displayDescription || t('card.noDescription')}
         </p>
 
-        <div className="flex items-center gap-1.5 text-sm text-slate-600">
-          <Users className="h-4 w-4 shrink-0 text-slate-400" />
+        <div className="flex items-center gap-1.5 text-sm text-slate-600 dark:text-slate-300">
+          <Users className="h-4 w-4 shrink-0 text-slate-400 dark:text-slate-500" />
           <span className="shrink-0 font-medium tabular-nums">{role.user_count}</span>
-          <span className="truncate text-slate-400">{t('userCount')}</span>
+          <span className="truncate text-slate-400 dark:text-slate-500">{t('userCount')}</span>
         </div>
       </div>
 
@@ -67,7 +67,7 @@ export function RoleCard({ role, onView, onEdit, onDelete, onManageUsers }: Role
           padding, and the trailing Delete button visibly pokes outside the
           card. truncate on each label lets it ellipsize instead of forcing
           the row wider than the card. */}
-      <div className="flex items-center gap-2 overflow-hidden border-t border-slate-100 pt-3">
+      <div className="flex items-center gap-2 overflow-hidden border-t border-slate-100 pt-3 dark:border-gray-800">
         {isLocked ? (
           <Button variant="outline" size="sm" className="min-w-0 flex-1" onClick={() => onView(role)}>
             <Eye className="me-1.5 h-3.5 w-3.5 shrink-0" /> <span className="truncate">{t('actionsMenu.viewOnly')}</span>
@@ -96,7 +96,7 @@ export function RoleCard({ role, onView, onEdit, onDelete, onManageUsers }: Role
             <Button
               variant="ghost"
               size="icon"
-              className="h-9 w-9 shrink-0 text-slate-500 hover:bg-red-50 hover:text-red-600"
+              className="h-9 w-9 shrink-0 text-slate-500 hover:bg-red-50 hover:text-red-600 dark:text-slate-400 dark:hover:bg-red-500/10 dark:hover:text-red-400"
               onClick={() => onDelete(role)}
               aria-label={t('actionsMenu.delete')}
             >

@@ -53,15 +53,15 @@ export function AccessControlPage({ initialRoleId }: { initialRoleId?: string } 
   }
 
   return (
-    <div dir="auto" className="min-h-screen bg-slate-50">
+    <div dir="auto" className="min-h-screen bg-slate-50 dark:bg-gray-950">
       {/* ── Sticky header ─────────────────────────────────────────────── */}
-      <div className="sticky top-0 z-40 border-b border-slate-200 bg-slate-50/80 backdrop-blur-md">
+      <div className="sticky top-0 z-40 border-b border-slate-200 bg-slate-50/80 backdrop-blur-md dark:border-gray-800 dark:bg-gray-950/80">
         <div className="flex items-center justify-between px-6 py-4">
           <div>
-            <h1 className="font-cairo text-2xl font-semibold tracking-tight text-slate-900 rtl:font-cairo ltr:font-inter">
+            <h1 className="font-cairo text-2xl font-semibold tracking-tight text-slate-900 rtl:font-cairo ltr:font-inter dark:text-white">
               {t('title')}
             </h1>
-            <p className="mt-1 text-sm text-slate-500">{t('subtitle')}</p>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{t('subtitle')}</p>
           </div>
           <Button
             onClick={() => setSheet({ mode: 'create' })}
@@ -75,20 +75,20 @@ export function AccessControlPage({ initialRoleId }: { initialRoleId?: string } 
       {/* ── Workspace ─────────────────────────────────────────────────── */}
       <div className="p-6">
         {isError ? (
-          <div className="rounded-lg border border-slate-200 bg-white p-10 text-center text-sm text-red-600 shadow-sm">
+          <div className="rounded-lg border border-slate-200 bg-white p-10 text-center text-sm text-red-600 shadow-sm dark:border-gray-800 dark:bg-gray-900 dark:text-red-400">
             {t('loadRolesError')}
           </div>
         ) : isLoading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+              <div key={i} className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
                 <div className="flex items-center justify-between">
                   <Skeleton className="h-5 w-32" />
                   <Skeleton className="h-5 w-16 rounded-full" />
                 </div>
                 <Skeleton className="h-8 w-full" />
                 <Skeleton className="h-4 w-24" />
-                <div className="mt-1 flex gap-2 border-t border-slate-100 pt-3">
+                <div className="mt-1 flex gap-2 border-t border-slate-100 pt-3 dark:border-gray-800">
                   <Skeleton className="h-9 flex-1" />
                   <Skeleton className="h-9 flex-1" />
                 </div>
@@ -96,7 +96,7 @@ export function AccessControlPage({ initialRoleId }: { initialRoleId?: string } 
             ))}
           </div>
         ) : !roles || roles.length === 0 ? (
-          <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
+          <div className="rounded-lg border border-slate-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
             <EmptyState
               icon={ShieldCheck}
               title={t('emptyRoles.title')}

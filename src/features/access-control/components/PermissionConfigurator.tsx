@@ -63,12 +63,12 @@ export function PermissionConfigurator({
 
   return (
     <Tabs defaultValue={domainTabs[0]?.domain}>
-      <TabsList className="grid w-full grid-cols-3 rounded-md border-0 bg-slate-100 p-1">
+      <TabsList className="grid w-full grid-cols-3 rounded-md border-0 bg-slate-100 p-1 dark:bg-gray-800">
         {domainTabs.map(({ domain }) => (
           <TabsTrigger
             key={domain}
             value={domain}
-            className="rounded-md text-slate-500 data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm"
+            className="rounded-md text-slate-500 data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm dark:text-slate-400 dark:data-[state=active]:bg-gray-900 dark:data-[state=active]:text-white"
           >
             {t(`domains.${domain}`)}
           </TabsTrigger>
@@ -83,9 +83,9 @@ export function PermissionConfigurator({
             const allGranted = items.every((p) => p.granted)
 
             return (
-              <div key={group.id} className="rounded-lg border border-slate-200 bg-white">
-                <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
-                  <p className="text-sm font-semibold text-slate-900">
+              <div key={group.id} className="rounded-lg border border-slate-200 bg-white dark:border-gray-800 dark:bg-gray-900">
+                <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3 dark:border-gray-800">
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">
                     {locale === 'ar' ? group.name_ar : group.name_en}
                   </p>
                   <Switch
@@ -127,7 +127,7 @@ export function PermissionConfigurator({
             )
           })}
           {domainGroups.every((g) => (byGroupCode.get(g.code) ?? []).length === 0) && (
-            <p className="py-8 text-center text-sm text-slate-400">{t('noPermissionsInDomain')}</p>
+            <p className="py-8 text-center text-sm text-slate-400 dark:text-slate-500">{t('noPermissionsInDomain')}</p>
           )}
         </TabsContent>
       ))}
