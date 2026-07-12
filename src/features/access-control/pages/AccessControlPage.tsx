@@ -55,17 +55,23 @@ export function AccessControlPage({ initialRoleId }: { initialRoleId?: string } 
   return (
     <div dir="auto" className="min-h-screen bg-slate-50 dark:bg-gray-950">
       {/* ── Sticky header ─────────────────────────────────────────────── */}
-      <div className="sticky top-0 z-40 border-b border-slate-200 bg-slate-50/80 backdrop-blur-md dark:border-gray-800 dark:bg-gray-950/80">
-        <div className="flex items-center justify-between px-6 py-4">
-          <div>
-            <h1 className="font-cairo text-2xl font-semibold tracking-tight text-slate-900 rtl:font-cairo ltr:font-inter dark:text-white">
+      {/* z-10, not z-40 — the mobile sidebar drawer (DashboardSidebar.tsx)
+          and its backdrop use z-40/z-30, so matching z-40 here made this
+          header fight the drawer for stacking order on mobile (reported
+          live: header rendered on top of/overlapping the open sidebar). A
+          sticky header only needs to sit above this page's own scrolling
+          content, never above a global nav overlay. */}
+      <div className="sticky top-0 z-10 border-b border-slate-200 bg-slate-50/80 backdrop-blur-md dark:border-gray-800 dark:bg-gray-950/80">
+        <div className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <div className="min-w-0">
+            <h1 className="font-cairo text-xl font-semibold tracking-tight text-slate-900 rtl:font-cairo ltr:font-inter dark:text-white sm:text-2xl">
               {t('title')}
             </h1>
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{t('subtitle')}</p>
           </div>
           <Button
             onClick={() => setSheet({ mode: 'create' })}
-            className="rounded-md bg-indigo-600 px-4 py-2 font-medium text-white transition-colors hover:bg-indigo-700"
+            className="w-full rounded-md bg-indigo-600 px-4 py-2 font-medium text-white transition-colors hover:bg-indigo-700 sm:w-auto"
           >
             <Plus className="me-2 h-4 w-4" /> {t('createRoleCta')}
           </Button>
@@ -73,7 +79,7 @@ export function AccessControlPage({ initialRoleId }: { initialRoleId?: string } 
       </div>
 
       {/* ── Workspace ─────────────────────────────────────────────────── */}
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         {isError ? (
           <div className="rounded-lg border border-slate-200 bg-white p-10 text-center text-sm text-red-600 shadow-sm dark:border-gray-800 dark:bg-gray-900 dark:text-red-400">
             {t('loadRolesError')}
