@@ -183,19 +183,6 @@ export function UserPermissionChecklist({ userId, roleId, locked }: UserPermissi
               >
                 <X className="h-3 w-3" />
               </Button>
-              {row.overrideAction && (
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="ghost"
-                  disabled={anyPending}
-                  onClick={() => handleReset(row.key)}
-                  className="h-7 px-2 text-xs text-slate-400 hover:text-slate-700"
-                  aria-label={t('userPermissionChecklist.resetOne')}
-                >
-                  <RotateCcw className="h-3 w-3" />
-                </Button>
-              )}
             </div>
           </div>
         ))}
