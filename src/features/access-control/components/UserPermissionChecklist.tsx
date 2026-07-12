@@ -65,13 +65,27 @@ export function UserPermissionChecklist({ userId, roleId, locked }: UserPermissi
   const hasAnyOverride = (overrides ?? []).length > 0
   const loading = catalogLoading || roleLoading || overridesLoading
 
+  // Clicking a GRANT/DENY button that's already the active override toggles
+  // it OFF (removes the override, reverting to the inherited base-role
+  // state) instead of just re-sending the same action — reported live: the
+  // button stayed lit/red with no visible way to undo it short of hunting
+  // for the separate reset icon, which read as "did my click even do
+  // anything?"
   function handleGrant(permissionKey: string) {
+    if (overrideMap.get(permissionKey) === 'GRANT') {
+      handleReset(permissionKey)
+      return
+    }
     setOverride.mutate(
       { userId, permissionKey, action: 'GRANT' },
       { onError: (err) => toast.error(err instanceof Error ? err.message : t('userPermissionChecklist.setError')) },
     )
   }
   function handleDeny(permissionKey: string) {
+    if (overrideMap.get(permissionKey) === 'DENY') {
+      handleReset(permissionKey)
+      return
+    }
     setOverride.mutate(
       { userId, permissionKey, action: 'DENY' },
       { onError: (err) => toast.error(err instanceof Error ? err.message : t('userPermissionChecklist.setError')) },
