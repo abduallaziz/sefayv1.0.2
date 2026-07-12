@@ -38,8 +38,12 @@ export function PermissionConfigurator({
   // Flat lookup, not t(`permissions.${key}`) — permission keys like
   // "invoice.view" and "invoice.view.branch" can't both exist on the same
   // JSON path (one would need to be a string leaf and an object at once).
-  // t.raw() skips next-intl's automatic dot-nesting so the messages file can
-  // store them as sibling keys in one flat object instead.
+  // t.raw() skips next-intl's automatic dot-nesting, but next-intl still
+  // rejects ANY message key containing "." at parse time — even ones never
+  // read through the nesting path (confirmed live: this crashed every page
+  // load with INVALID_KEY until the messages files were fixed). So the JSON
+  // keys are stored with "." replaced by "__", and permission_key gets the
+  // same substitution here before the lookup.
   const permissionLabels = t.raw('permissions') as Record<string, string>
 
   const byGroupCode = useMemo(() => {
@@ -111,7 +115,7 @@ export function PermissionConfigurator({
                     <PermissionRow
                       key={p.permission_key}
                       permission={p}
-                      label={permissionLabels[p.permission_key] ?? p.description ?? p.permission_key}
+                      label={permissionLabels[p.permission_key.replace(/\./g, '__')] ?? p.description ?? p.permission_key}
                       advanced={false}
                       readOnly={readOnly}
                       onToggle={(granted) => onToggle(p.permission_key, granted)}

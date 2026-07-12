@@ -126,6 +126,49 @@ export function useRemoveUserRole(roleId: string) {
   })
 }
 
+// Phase C(UI) of the Hybrid RBAC+ABAC model — powers RoleUsersSheet's
+// per-user permission checklist.
+export function useUserPermissionOverrides(userId: string, enabled = true) {
+  return useQuery({
+    queryKey: ['users', userId, 'permission-overrides'],
+    queryFn: () => usersApi.getPermissionOverrides(userId),
+    enabled: !!userId && enabled,
+    refetchOnMount: 'always', // same reasoning as useRoleUsers — must reflect the exact current state on every open
+  })
+}
+
+export function useSetPermissionOverride() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ userId, permissionKey, action }: { userId: string; permissionKey: string; action: 'GRANT' | 'DENY' }) =>
+      usersApi.setPermissionOverride(userId, permissionKey, action),
+    onSuccess: (_data, { userId }) => {
+      queryClient.invalidateQueries({ queryKey: ['users', userId, 'permission-overrides'] })
+    },
+  })
+}
+
+export function useRemovePermissionOverride() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ userId, permissionKey }: { userId: string; permissionKey: string }) =>
+      usersApi.removePermissionOverride(userId, permissionKey),
+    onSuccess: (_data, { userId }) => {
+      queryClient.invalidateQueries({ queryKey: ['users', userId, 'permission-overrides'] })
+    },
+  })
+}
+
+export function useResetPermissionOverrides() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (userId: string) => usersApi.resetPermissionOverrides(userId),
+    onSuccess: (_data, userId) => {
+      queryClient.invalidateQueries({ queryKey: ['users', userId, 'permission-overrides'] })
+    },
+  })
+}
+
 export function useDeleteUser() {
   const queryClient = useQueryClient()
   return useMutation({

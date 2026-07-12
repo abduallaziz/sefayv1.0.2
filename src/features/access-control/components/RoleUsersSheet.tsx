@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
-import { Search, UserPlus, Trash2, Users as UsersIcon, Lock } from 'lucide-react'
+import { Search, UserPlus, Trash2, Users as UsersIcon, Lock, ShieldCheck, ChevronUp } from 'lucide-react'
 import {
   Sheet,
   SheetContent,
@@ -28,6 +28,7 @@ import { StatusBadge } from '@/shared/ui/status-badge'
 import { useRoleUsers, useRoleDisplayName, useAccessControlRoles } from '../hooks/useAccessControl'
 import { useAddUserRole, useRemoveUserRole, useChangeRole, useUsers } from '@/features/users/hooks/useUsers'
 import { RolesTableSkeleton } from './RolesTableSkeleton'
+import { UserPermissionChecklist } from './UserPermissionChecklist'
 import type { RoleSummary, RoleUserRow } from '../api/access-control.api'
 
 interface RoleUsersSheetProps {
@@ -61,6 +62,7 @@ function RoleUsersSheetContent({
 
   const [search, setSearch] = useState('')
   const [addingOpen, setAddingOpen] = useState(false)
+  const [expandedUserId, setExpandedUserId] = useState<string | null>(null)
 
   const filteredUsers = useMemo(() => {
     if (!roleUsers) return []
@@ -154,6 +156,10 @@ function RoleUsersSheetContent({
                   onRemove={() => handleRemove(user)}
                   onPromoteDemote={(newRoleName) => handlePromoteDemote(user.id, newRoleName)}
                   removing={removeUserRole.isPending}
+                  expanded={expandedUserId === user.id}
+                  onToggleExpand={() => setExpandedUserId((cur) => (cur === user.id ? null : user.id))}
+                  roleId={role.id}
+                  locked={role.name === 'owner'}
                 />
               ))}
             </div>
@@ -172,6 +178,10 @@ function UserRow({
   onRemove,
   onPromoteDemote,
   removing,
+  expanded,
+  onToggleExpand,
+  roleId,
+  locked,
 }: {
   user: RoleUserRow
   t: ReturnType<typeof useTranslations>
@@ -180,6 +190,10 @@ function UserRow({
   onRemove: () => void
   onPromoteDemote: (newRoleName: string) => void
   removing: boolean
+  expanded: boolean
+  onToggleExpand: () => void
+  roleId: string
+  locked: boolean
 }) {
   // The role currently open in this sheet may itself be a custom role even
   // though the picker only ever lists system roles — the picker still shows
@@ -189,54 +203,85 @@ function UserRow({
   const showPromoteDemote = user.is_primary && systemRoles.length > 0
 
   return (
-    <div className="flex items-center justify-between gap-3 rounded-lg border border-slate-100 px-3 py-2.5">
-      <div className="min-w-0">
-        <div className="flex items-center gap-2">
-          <span className="truncate text-sm font-medium text-slate-800">{user.name}</span>
-          {user.is_primary && <StatusBadge label={t('roleUsersSheet.primaryBadge')} tone="brand" />}
+    <div className="rounded-lg border border-slate-100">
+      <div className="flex items-center justify-between gap-3 px-3 py-2.5">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="truncate text-sm font-medium text-slate-800">{user.name}</span>
+            {user.is_primary && <StatusBadge label={t('roleUsersSheet.primaryBadge')} tone="brand" />}
+            {locked && (
+              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-700">
+                <Lock className="h-3 w-3" /> {t('userPermissionChecklist.ownerBadge')}
+              </span>
+            )}
+          </div>
+          <p className="truncate text-xs text-slate-400">{user.email}</p>
         </div>
-        <p className="truncate text-xs text-slate-400">{user.email}</p>
-      </div>
 
-      <div className="flex shrink-0 items-center gap-2">
-        {showPromoteDemote && (
-          <Select value={currentRoleName} onValueChange={onPromoteDemote}>
-            <SelectTrigger className="h-8 w-36 rounded-md border-slate-200 bg-white text-xs text-slate-700">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="border-slate-200 bg-white">
-              {systemRoles.map((r) => (
-                <SelectItem key={r.id} value={r.name} className="text-slate-700">
-                  {r.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
+        <div className="flex shrink-0 items-center gap-2">
+          {showPromoteDemote && (
+            <Select value={currentRoleName} onValueChange={onPromoteDemote}>
+              <SelectTrigger className="h-8 w-36 rounded-md border-slate-200 bg-white text-xs text-slate-700">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="border-slate-200 bg-white">
+                {systemRoles.map((r) => (
+                  <SelectItem key={r.id} value={r.name} className="text-slate-700">
+                    {r.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
 
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
-                  disabled={user.is_primary || removing}
-                  onClick={onRemove}
-                  className="h-8 w-8 text-slate-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-40"
-                  aria-label={t('roleUsersSheet.removeRole')}
+                  onClick={onToggleExpand}
+                  className="h-8 w-8 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600"
+                  aria-label={t('userPermissionChecklist.togglePermissions')}
                 >
-                  {user.is_primary ? <Lock className="h-3.5 w-3.5" /> : <Trash2 className="h-3.5 w-3.5" />}
+                  {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ShieldCheck className="h-3.5 w-3.5" />}
                 </Button>
-              </span>
-            </TooltipTrigger>
-            <TooltipContent>
-              {user.is_primary ? t('roleUsersSheet.cannotRemovePrimary') : t('roleUsersSheet.removeRole')}
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+              </TooltipTrigger>
+              <TooltipContent>{t('userPermissionChecklist.togglePermissions')}</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    disabled={user.is_primary || removing}
+                    onClick={onRemove}
+                    className="h-8 w-8 text-slate-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-40"
+                    aria-label={t('roleUsersSheet.removeRole')}
+                  >
+                    {user.is_primary ? <Lock className="h-3.5 w-3.5" /> : <Trash2 className="h-3.5 w-3.5" />}
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                {user.is_primary ? t('roleUsersSheet.cannotRemovePrimary') : t('roleUsersSheet.removeRole')}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </div>
+
+      {expanded && (
+        <div className="border-t border-slate-100 p-2">
+          <UserPermissionChecklist userId={user.id} roleId={roleId} locked={locked} />
+        </div>
+      )}
     </div>
   )
 }

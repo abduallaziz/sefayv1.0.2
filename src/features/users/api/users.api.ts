@@ -115,6 +115,11 @@ export interface UserRoleAssignment {
   role: { id: string; name: string; description: string | null; is_system: boolean }
 }
 
+export interface PermissionOverride {
+  permission_key: string
+  action: 'GRANT' | 'DENY'
+}
+
 export interface LinkableUser {
   id: string
   name: string
@@ -166,6 +171,18 @@ export const usersApi = {
 
   removeUserRole: (id: string, roleId: string): Promise<{ user_id: string; role_id: string; removed: boolean }> =>
     apiClient.delete(`/users/${id}/roles/${roleId}`),
+
+  getPermissionOverrides: (id: string): Promise<PermissionOverride[]> =>
+    apiClient.get(`/users/${id}/permissions/overrides`),
+
+  setPermissionOverride: (id: string, permissionKey: string, action: 'GRANT' | 'DENY'): Promise<{ user_id: string; permission_key: string; action: string }> =>
+    apiClient.post(`/users/${id}/permissions/overrides`, { permission_key: permissionKey, action }),
+
+  removePermissionOverride: (id: string, permissionKey: string): Promise<{ user_id: string; permission_key: string; removed: boolean }> =>
+    apiClient.delete(`/users/${id}/permissions/overrides`, { data: { permission_key: permissionKey } }),
+
+  resetPermissionOverrides: (id: string): Promise<{ user_id: string; reset: boolean }> =>
+    apiClient.delete(`/users/${id}/permissions/overrides/reset-all`),
 
   remove: (id: string): Promise<void> =>
     apiClient.delete(`/users/${id}`),
