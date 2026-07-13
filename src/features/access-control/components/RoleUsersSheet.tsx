@@ -226,7 +226,18 @@ function UserRow({
               </SelectTrigger>
               <SelectContent className="border-slate-200 bg-white dark:border-[#1e2130] dark:bg-[#1a1f2e]">
                 {systemRoles.map((r) => (
-                  <SelectItem key={r.id} value={r.name} className="text-slate-700 dark:text-slate-200">
+                  // SelectItem's base styling hard-codes hover:/focus:bg-[#242938]
+                  // (dark) and an indigo checkmark — overriding both here rather
+                  // than in the shared component, since Select is used
+                  // elsewhere as an intentionally always-dark (superadmin-style)
+                  // control. [&_svg]:text-[#0C447C] retargets the checkmark
+                  // icon, which isn't reachable via className on SelectItem
+                  // itself (it's rendered by a nested SelectPrimitive.ItemIndicator).
+                  <SelectItem
+                    key={r.id}
+                    value={r.name}
+                    className="text-slate-700 hover:bg-slate-100 focus:bg-slate-100 dark:text-slate-200 dark:hover:bg-gray-800 dark:focus:bg-gray-800 [&_svg]:text-[#0C447C]"
+                  >
                     {r.name}
                   </SelectItem>
                 ))}
