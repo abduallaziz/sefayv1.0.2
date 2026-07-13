@@ -65,27 +65,18 @@ export function UserPermissionChecklist({ userId, roleId, locked }: UserPermissi
   const hasAnyOverride = (overrides ?? []).length > 0
   const loading = catalogLoading || roleLoading || overridesLoading
 
-  // Clicking a GRANT/DENY button that's already the active override toggles
-  // it OFF (removes the override, reverting to the inherited base-role
-  // state) instead of just re-sending the same action — reported live: the
-  // button stayed lit/red with no visible way to undo it short of hunting
-  // for the separate reset icon, which read as "did my click even do
-  // anything?"
+  // The row's own button visibility already guarantees handleGrant only
+  // fires when GRANT isn't already active (that button hides itself once
+  // active — see the row render below), and same for handleDeny/DENY.
+  // Canceling an active override is a separate path (handleReset), wired
+  // directly to the remaining button's onClick, not routed through these.
   function handleGrant(permissionKey: string) {
-    if (overrideMap.get(permissionKey) === 'GRANT') {
-      handleReset(permissionKey)
-      return
-    }
     setOverride.mutate(
       { userId, permissionKey, action: 'GRANT' },
       { onError: (err) => toast.error(err instanceof Error ? err.message : t('userPermissionChecklist.setError')) },
     )
   }
   function handleDeny(permissionKey: string) {
-    if (overrideMap.get(permissionKey) === 'DENY') {
-      handleReset(permissionKey)
-      return
-    }
     setOverride.mutate(
       { userId, permissionKey, action: 'DENY' },
       { onError: (err) => toast.error(err instanceof Error ? err.message : t('userPermissionChecklist.setError')) },
@@ -155,40 +146,46 @@ export function UserPermissionChecklist({ userId, roleId, locked }: UserPermissi
                 type="checkbox"
                 checked={row.effectiveGranted}
                 disabled
-                className="h-3.5 w-3.5 shrink-0 accent-[#0C447C]"
+                className={row.effectiveGranted ? 'h-3.5 w-3.5 shrink-0 accent-emerald-600' : 'h-3.5 w-3.5 shrink-0'}
                 aria-label={row.label}
               />
               <span className="truncate text-xs text-slate-700 dark:text-slate-200">{row.label}</span>
               {row.overrideAction && <StatusBadge label={t('customized')} tone="brand" />}
             </div>
 
+            {/* Exact interaction agreed on: with no override, both actions
+                show neutral. Clicking one applies it and HIDES the other
+                entirely — the remaining button is the one NOT chosen,
+                recolored red, now meaning "cancel this" (calls handleReset,
+                not the opposite action) rather than "this is denied." That
+                red is a transient undo affordance on a single button, not a
+                persistent status color, which is what earlier feedback
+                objected to. */}
             <div className="flex shrink-0 items-center gap-1">
-              <Button
-                type="button"
-                size="sm"
-                variant={row.overrideAction === 'GRANT' ? undefined : 'outline'}
-                disabled={anyPending}
-                onClick={() => handleGrant(row.key)}
-                className={row.overrideAction === 'GRANT' ? 'h-7 bg-emerald-600 px-2 text-xs text-white hover:bg-emerald-700' : 'h-7 px-2 text-xs'}
-              >
-                <Check className="h-3 w-3" />
-              </Button>
-              {/* Deliberately no active/red styling here, unlike the GRANT
-                  button above — feedback from live testing: red read as an
-                  alarming "something's wrong" state, not "this permission is
-                  denied." The unchecked checkbox already communicates the
-                  denied state; clicking this always looks the same,
-                  whether it's applying or removing the DENY override. */}
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                disabled={anyPending}
-                onClick={() => handleDeny(row.key)}
-                className="h-7 px-2 text-xs"
-              >
-                <X className="h-3 w-3" />
-              </Button>
+              {row.overrideAction !== 'GRANT' && (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={row.overrideAction === 'DENY' ? undefined : 'outline'}
+                  disabled={anyPending}
+                  onClick={() => (row.overrideAction === 'DENY' ? handleReset(row.key) : handleGrant(row.key))}
+                  className={row.overrideAction === 'DENY' ? 'h-7 bg-red-600 px-2 text-xs text-white hover:bg-red-700' : 'h-7 px-2 text-xs'}
+                >
+                  <Check className="h-3 w-3" />
+                </Button>
+              )}
+              {row.overrideAction !== 'DENY' && (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={row.overrideAction === 'GRANT' ? undefined : 'outline'}
+                  disabled={anyPending}
+                  onClick={() => (row.overrideAction === 'GRANT' ? handleReset(row.key) : handleDeny(row.key))}
+                  className={row.overrideAction === 'GRANT' ? 'h-7 bg-red-600 px-2 text-xs text-white hover:bg-red-700' : 'h-7 px-2 text-xs'}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              )}
             </div>
           </div>
         ))}
