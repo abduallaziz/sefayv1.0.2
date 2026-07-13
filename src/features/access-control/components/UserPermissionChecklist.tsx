@@ -142,11 +142,18 @@ export function UserPermissionChecklist({ userId, roleId, locked }: UserPermissi
             }
           >
             <div className="flex min-w-0 items-center gap-2">
+              {/* Green only for an explicit GRANT override the admin just
+                  clicked — not for a permission that's simply checked
+                  because the base role already grants it with no override
+                  at all. Reported live: every inherited-granted row (no
+                  override, row.overrideAction undefined) was rendering
+                  green too, looking like an activation nobody actually
+                  performed. */}
               <input
                 type="checkbox"
                 checked={row.effectiveGranted}
                 disabled
-                className={row.effectiveGranted ? 'h-3.5 w-3.5 shrink-0 accent-emerald-600' : 'h-3.5 w-3.5 shrink-0'}
+                className={row.overrideAction === 'GRANT' ? 'h-3.5 w-3.5 shrink-0 accent-emerald-600' : 'h-3.5 w-3.5 shrink-0'}
                 aria-label={row.label}
               />
               <span className="truncate text-xs text-slate-700 dark:text-slate-200">{row.label}</span>
