@@ -233,12 +233,20 @@ function UserRow({
                   // control. [&_svg]:text-[#0C447C] retargets the checkmark
                   // icon, which isn't reachable via className on SelectItem
                   // itself (it's rendered by a nested SelectPrimitive.ItemIndicator).
+                  //
+                  // r.name is the fixed backend enum value ('cashier',
+                  // 'inventory_clerk', ...) — same lookup useRoleDisplayName()
+                  // does, inlined here since hooks can't be called inside
+                  // .map(). SelectValue automatically shows whichever
+                  // SelectItem's rendered children matches the current value,
+                  // so translating the children here also fixes the trigger's
+                  // own display, not just the open dropdown.
                   <SelectItem
                     key={r.id}
                     value={r.name}
                     className="text-slate-700 hover:bg-slate-100 focus:bg-slate-100 dark:text-slate-200 dark:hover:bg-gray-800 dark:focus:bg-gray-800 [&_svg]:text-[#0C447C]"
                   >
-                    {r.name}
+                    {t.has(`roles.${r.name}.name`) ? t(`roles.${r.name}.name`) : r.name}
                   </SelectItem>
                 ))}
               </SelectContent>
