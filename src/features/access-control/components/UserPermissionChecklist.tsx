@@ -155,7 +155,7 @@ export function UserPermissionChecklist({ userId, roleId, locked }: UserPermissi
                 type="checkbox"
                 checked={row.effectiveGranted}
                 disabled
-                className="h-3.5 w-3.5 shrink-0 accent-indigo-600"
+                className="h-3.5 w-3.5 shrink-0 accent-[#0C447C]"
                 aria-label={row.label}
               />
               <span className="truncate text-xs text-slate-700 dark:text-slate-200">{row.label}</span>

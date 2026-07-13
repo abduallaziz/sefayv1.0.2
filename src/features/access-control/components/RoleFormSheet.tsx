@@ -110,7 +110,7 @@ function CreateRoleSheet({ open, onOpenChange }: { open: boolean; onOpenChange: 
               <Input
                 {...register('name')}
                 placeholder={t('sheet.roleNamePlaceholder')}
-                className="h-10 rounded-md bg-white dark:bg-[#141720] focus-visible:ring-indigo-500"
+                className="h-10 rounded-md bg-white dark:bg-[#141720] focus-visible:ring-[#0C447C]"
               />
               {errors.name && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.name.message}</p>}
             </div>
@@ -119,7 +119,7 @@ function CreateRoleSheet({ open, onOpenChange }: { open: boolean; onOpenChange: 
               <Input
                 {...register('description')}
                 placeholder={t('sheet.descriptionPlaceholder')}
-                className="h-10 rounded-md bg-white dark:bg-[#141720] focus-visible:ring-indigo-500"
+                className="h-10 rounded-md bg-white dark:bg-[#141720] focus-visible:ring-[#0C447C]"
               />
             </div>
           </SheetBody>
@@ -133,7 +133,7 @@ function CreateRoleSheet({ open, onOpenChange }: { open: boolean; onOpenChange: 
             type="submit"
             form="create-role-form"
             disabled={createRole.isPending}
-            className="bg-indigo-600 font-medium text-white hover:bg-indigo-700"
+            className="bg-[#0C447C] font-medium text-white hover:bg-[#0a3a6b]"
           >
             {createRole.isPending ? (
               <>
@@ -207,7 +207,7 @@ function ConfigureRoleSheet({
         </SheetBody>
 
         <SheetFooter>
-          <Button type="button" onClick={() => onOpenChange(false)} className="bg-indigo-600 font-medium text-white hover:bg-indigo-700">
+          <Button type="button" onClick={() => onOpenChange(false)} className="bg-[#0C447C] font-medium text-white hover:bg-[#0a3a6b]">
             {readOnly ? t('sheet.close') : t('sheet.done')}
           </Button>
         </SheetFooter>

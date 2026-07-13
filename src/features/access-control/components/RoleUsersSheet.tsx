@@ -114,13 +114,13 @@ function RoleUsersSheetContent({
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={t('roleUsersSheet.searchPlaceholder')}
-                className="h-10 rounded-md bg-white dark:bg-[#141720] ps-9 focus-visible:ring-indigo-500"
+                className="h-10 rounded-md bg-white dark:bg-[#141720] ps-9 focus-visible:ring-[#0C447C]"
               />
             </div>
             <Button
               type="button"
               onClick={() => setAddingOpen((v) => !v)}
-              className="h-10 shrink-0 bg-indigo-600 font-medium text-white hover:bg-indigo-700"
+              className="h-10 shrink-0 bg-[#0C447C] font-medium text-white hover:bg-[#0a3a6b]"
             >
               <UserPlus className="me-1.5 h-4 w-4" /> {t('roleUsersSheet.addUser')}
             </Button>

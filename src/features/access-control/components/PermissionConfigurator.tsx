@@ -89,6 +89,7 @@ export function PermissionConfigurator({
                     {locale === 'ar' ? group.name_ar : group.name_en}
                   </p>
                   <Switch
+                    className="data-[state=checked]:bg-[#0C447C]"
                     checked={allGranted}
                     disabled={readOnly}
                     // Indeterminate isn't a native Switch state — someGranted

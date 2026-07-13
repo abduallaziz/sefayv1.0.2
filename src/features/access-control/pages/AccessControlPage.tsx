@@ -71,7 +71,7 @@ export function AccessControlPage({ initialRoleId }: { initialRoleId?: string } 
           </div>
           <Button
             onClick={() => setSheet({ mode: 'create' })}
-            className="w-full rounded-md bg-indigo-600 px-4 py-2 font-medium text-white transition-colors hover:bg-indigo-700 sm:w-auto"
+            className="w-full rounded-md bg-[#0C447C] px-4 py-2 font-medium text-white transition-colors hover:bg-[#0a3a6b] sm:w-auto"
           >
             <Plus className="me-2 h-4 w-4" /> {t('createRoleCta')}
           </Button>
@@ -110,7 +110,7 @@ export function AccessControlPage({ initialRoleId }: { initialRoleId?: string } 
               action={
                 <Button
                   onClick={() => setSheet({ mode: 'create' })}
-                  className="rounded-md bg-indigo-600 font-medium text-white hover:bg-indigo-700"
+                  className="rounded-md bg-[#0C447C] font-medium text-white hover:bg-[#0a3a6b]"
                 >
                   <Plus className="me-2 h-4 w-4" /> {t('createRoleCta')}
                 </Button>

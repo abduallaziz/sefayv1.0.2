@@ -44,6 +44,7 @@ export function PermissionRow({ permission, label, advanced, readOnly, onToggle,
           </button>
         )}
         <Switch
+          className="data-[state=checked]:bg-[#0C447C]"
           checked={permission.granted}
           onCheckedChange={onToggle}
           disabled={readOnly}
