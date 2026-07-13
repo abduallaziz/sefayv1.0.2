@@ -142,20 +142,30 @@ export function UserPermissionChecklist({ userId, roleId, locked }: UserPermissi
             }
           >
             <div className="flex min-w-0 items-center gap-2">
-              {/* Green only for an explicit GRANT override the admin just
-                  clicked — not for a permission that's simply checked
-                  because the base role already grants it with no override
-                  at all. Reported live: every inherited-granted row (no
-                  override, row.overrideAction undefined) was rendering
-                  green too, looking like an activation nobody actually
-                  performed. */}
-              <input
-                type="checkbox"
-                checked={row.effectiveGranted}
-                disabled
-                className={row.overrideAction === 'GRANT' ? 'h-3.5 w-3.5 shrink-0 accent-emerald-600' : 'h-3.5 w-3.5 shrink-0'}
-                aria-label={row.label}
-              />
+              {/* A native checkbox's accent-color renders inconsistently
+                  across browsers/OS (reported live: didn't read clearly as
+                  a green checkmark) — for an explicit GRANT override, swap
+                  in a custom green badge with a crisp Check icon instead.
+                  Every other case (inherited-granted with no override,
+                  DENY, unchecked) keeps the plain native checkbox. */}
+              {row.overrideAction === 'GRANT' ? (
+                <span
+                  role="checkbox"
+                  aria-checked="true"
+                  aria-label={row.label}
+                  className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-sm bg-emerald-600"
+                >
+                  <Check className="h-2.5 w-2.5 text-white" strokeWidth={3} />
+                </span>
+              ) : (
+                <input
+                  type="checkbox"
+                  checked={row.effectiveGranted}
+                  disabled
+                  className="h-3.5 w-3.5 shrink-0"
+                  aria-label={row.label}
+                />
+              )}
               <span className="truncate text-xs text-slate-700 dark:text-slate-200">{row.label}</span>
               {row.overrideAction && <StatusBadge label={t('customized')} tone="brand" />}
             </div>
