@@ -196,3 +196,68 @@ Validation: tsc clean; eslint 1 pre-existing error (`catch (e: any)` in `handleA
 Defects/Findings discovered: none new.
 
 F1.2 + F1.3 together represent the POS page's primary visual transformation, reviewed together per user instruction rather than deploying after F1.2 alone.
+
+Deployed to production: commit `bbf40c4`, https://sefayv1-0-2.vercel.app/. Confirmed Ready, both URLs verified responding. Awaiting user visual review before F1.4.
+
+---
+
+## F1.4 — Payment Modal
+
+Date: 2026-07-16
+Files Changed: `src/features/pos/components/PaymentModal.tsx`
+
+Behavior Change Assessment: No logic changed. Payment method state (`method`), cash-tendered/change calculations, split-payment math, `handleApplyGiftCard` (real `/gift-cards/validate` API call), `redeemPointsNum` loyalty math, `canConfirm`, `handleConfirm` — all untouched. Cancel/Confirm buttons replaced with shared `Button` primitive (`variant="outline"` for Cancel, default for Confirm), `onClick`/`disabled` semantics identical.
+
+Design Consistency Check: No pos-cloud reference exists (payment flows aren't in the prototype). Derived from established `Dialog`/`ConfirmDialog` conventions per rule 5a — surface/border/text tokens matched exactly to those components; semantic colors mapped: gift card (`violet-*` → `posCloud-info`), loyalty (`amber-*` → `posCloud-warning`), error (`red-*` → `posCloud-danger`), change/success (`emerald-*` → `posCloud-success`) — using the same semantic-color family already established for `StatusBadge` (D3) and `ConfirmDialog` (E3).
+
+Consumer Count: 1 (`POSPage.tsx`) — unchanged.
+
+Visual Diff Summary: Close button converted from a text "✕" glyph to a Lucide `X` icon in a proper hit-target (matching Dialog's close-button pattern). All semantic-colored sections (gift card, loyalty, error, change) converted from raw Tailwind palette to `posCloud` semantic tokens. Footer buttons componentized. Animation Change: none.
+
+Validation: tsc clean; eslint 2 pre-existing errors (`catch (e: any)` at line 82, `t(m.labelKey as any)` at line 213 — both untouched, verified against pre-edit content); next build all 47 routes compiled.
+
+Defects/Findings discovered: none new.
+
+---
+
+## F1.5 — Receipt Modal
+
+Date: 2026-07-16
+Files Changed: `src/features/pos/components/ReceiptModal.tsx`
+
+Behavior Change Assessment: No logic changed. `handlePrint` (calls `window.print()` then `onNewOrder()`), all currency/date/percent formatting (`fmt`, `taxPct`, `now`) — untouched. Print/New Order buttons replaced with shared `Button` primitive.
+
+Design Consistency Check: No pos-cloud reference exists. Derived from established conventions — success checkmark converted from a text "✓" glyph to a Lucide `Check` icon inside a `posCloud-success-light` circle (matching the semantic-success treatment used in ConfirmDialog/PaymentModal). All colors converted to `posCloud`/`posCloudDark` tokens.
+
+Consumer Count: 1 (`POSPage.tsx`) — unchanged.
+
+Visual Diff Summary: Success icon glyph→Lucide icon; all raw palette colors → `posCloud` tokens; footer buttons componentized. Animation Change: none.
+
+Validation: tsc clean; eslint 1 pre-existing warning (`onClose` prop unused — confirmed already unused in the original file, not introduced); next build all 47 routes compiled.
+
+Defects/Findings discovered: none new.
+
+---
+
+## F1.6 — Customer Picker Modal
+
+Date: 2026-07-16
+Files Changed: `src/features/pos/components/CustomerPickerModal.tsx`
+
+Behavior Change Assessment: No logic changed. `QuickAddCustomerForm`'s dynamic tenant-configured field rendering (select/boolean/date/number/text field types), `useCustomerSearch`, `useCustomerFieldDefinitions`, `useCreateCustomer`, `useProfile` — all untouched. Standing rules re-verified intact: component already correctly used `SingleDatePicker` for the `date` field type (never native `<input type="date">`) and `NumberInput` for the `number` field type (numeral-forcing `lang="en"`/regex logic untouched) — confirmed, not modified. Cancel/Save buttons in `QuickAddCustomerForm` replaced with shared `Button`; the "Add new customer" affordance in the search view kept as a raw button (dashed-border style has no equivalent shared variant).
+
+Design Consistency Check: No pos-cloud reference exists (customer capture isn't in the prototype). Derived from established conventions — shared `inputClass` constant (used across all dynamic field types) converted once to `posCloud`/`posCloudDark` tokens, propagating consistently through every field type. Search result rows, modal shell, and dashed "add new" button all converted to token colors.
+
+Consumer Count: 1 (`POSPage.tsx`) — unchanged.
+
+Visual Diff Summary: All raw palette colors (`gray-*`, `red-*`, `[#0C447C]`) → `posCloud`/`posCloudDark` tokens across the shared input style, search results, and both Cancel/Save and Add-new buttons. Animation Change: none.
+
+Validation: tsc clean; eslint clean; next build all 47 routes compiled.
+
+Defects/Findings discovered: none new.
+
+---
+
+## F1 Complete
+
+All 6 children (F1.1–F1.6) done. F1.4–F1.6 validated together (tsc, eslint, build all clean/pre-existing-only). Dev server crashed once during this batch (Turbopack memory-threshold restart followed by a segfault) — confirmed unrelated to code changes via server log inspection, restarted cleanly, runtime re-verified healthy afterward.

@@ -161,20 +161,28 @@ F1 was assessed as too large for a single item (6 files, 1,181 lines, 6 independ
 #### F1.4 — Payment Modal
 - Category: Feature Page
 - Scope: `src/features/pos/components/PaymentModal.tsx`
-- pos-cloud reference: none — derive from established Dialog/ConfirmDialog conventions (rule 5a)
-- Status: Not Started
+- pos-cloud reference: none — derived from established Dialog/ConfirmDialog conventions (rule 5a)
+- Consumer Count: 1 (`POSPage.tsx`) — unchanged
+- Behavior Change Assessment: No logic changed — payment method state, cash/split/change calculations, gift card validation (real `/gift-cards/validate` API call), loyalty point redemption math, `handleConfirm` — all untouched. Cancel/Confirm buttons replaced with shared `Button` primitive.
+- Status: **Done**
 
 #### F1.5 — Receipt Modal
 - Category: Feature Page
 - Scope: `src/features/pos/components/ReceiptModal.tsx`
-- pos-cloud reference: none — derive from established conventions
-- Status: Not Started
+- pos-cloud reference: none — derived from established conventions
+- Consumer Count: 1 (`POSPage.tsx`) — unchanged
+- Behavior Change Assessment: No logic changed — `handlePrint`, all formatting logic untouched. Print/New Order buttons replaced with shared `Button` primitive.
+- Status: **Done**
 
 #### F1.6 — Customer Picker Modal
 - Category: Feature Page
 - Scope: `src/features/pos/components/CustomerPickerModal.tsx`
-- pos-cloud reference: none — derive from established conventions
-- Status: Not Started
+- pos-cloud reference: none — derived from established conventions
+- Consumer Count: 1 (`POSPage.tsx`) — unchanged
+- Behavior Change Assessment: No logic changed — `QuickAddCustomerForm`'s dynamic tenant-configured field rendering (select/boolean/date/number/text), `useCustomerSearch`, `useCreateCustomer` — all untouched. Already correctly used `SingleDatePicker` (not native date input) and `NumberInput` (numeral-forcing preserved) — standing rules confirmed intact, not modified. Cancel/Save/Add-new buttons: Cancel/Save replaced with shared `Button`; "Add new" kept as a raw button (dashed-border affordance style, not a standard button variant — no equivalent in the shared primitive).
+- Status: **Done**
+
+**F1 (all 6 children) is now complete.**
 
 ---
 

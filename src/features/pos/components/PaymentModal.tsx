@@ -2,10 +2,12 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
+import { X } from 'lucide-react'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
 import { giftCardsApi } from '@/features/gift-cards/api/gift-cards.api'
 import { Cart, PaymentData, PaymentMethod } from '../types/pos.types'
 import type { Customer } from '@/features/customers/types/customer.types'
+import { Button } from '@/shared/ui/button'
 
 interface Props {
   cart: Cart
@@ -105,47 +107,49 @@ export function PaymentModal({ cart, customer, loyaltyEnabled = true, onConfirm,
   ]
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl w-full max-w-md shadow-xl">
-        <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-gray-700">
-          <h3 className="font-bold text-lg text-gray-900 dark:text-white">{t('payment.title')}</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-white text-xl">✕</button>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-posCloud-surface dark:bg-posCloudDark-surface border border-posCloud-border dark:border-posCloudDark-border rounded-2xl w-full max-w-md shadow-xl">
+        <div className="flex items-center justify-between p-5 border-b border-posCloud-border dark:border-posCloudDark-border">
+          <h3 className="font-bold text-lg text-posCloud-text-primary dark:text-posCloudDark-text-primary">{t('payment.title')}</h3>
+          <button onClick={onClose} className="rounded p-1 opacity-70 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:opacity-100 transition-opacity">
+            <X className="w-4 h-4" />
+          </button>
         </div>
 
         <div className="p-5 space-y-4">
-          <div className="bg-gray-50 dark:bg-white/5 rounded-xl p-4 text-center">
-            <p className="text-sm text-gray-500 dark:text-gray-400">{t('payment.due')}</p>
-            <p className="text-3xl font-bold text-[#0C447C] dark:text-[#5B9BD5] mt-1">{fmt(remainingDue)} {currency}</p>
+          <div className="bg-posCloud-background dark:bg-posCloudDark-background rounded-xl p-4 text-center">
+            <p className="text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('payment.due')}</p>
+            <p className="text-3xl font-bold text-posCloud-primary mt-1">{fmt(remainingDue)} {currency}</p>
             {giftCardApplied && (
-              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+              <p className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary mt-1">
                 {fmt(cart.total)} {currency} − {fmt(giftCardAmountNum)} {currency} ({t('payment.giftCard')})
               </p>
             )}
           </div>
 
-          <div className="bg-violet-500/10 border border-violet-500/20 rounded-xl p-3 space-y-2">
+          <div className="bg-posCloud-info-light dark:bg-posCloud-info/15 border border-posCloud-info/20 rounded-xl p-3 space-y-2">
             {giftCardApplied ? (
               <div className="flex items-center justify-between text-sm">
-                <span className="text-violet-700 dark:text-violet-400 font-medium">
+                <span className="text-posCloud-info font-medium">
                   {t('payment.giftCardApplied')}: <span className="font-mono">{giftCardCode}</span> (−{fmt(giftCardAmountNum)} {currency})
                 </span>
                 <button
                   onClick={() => { setGiftCardApplied(false); setGiftCardCode('') }}
-                  className="text-xs text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 shrink-0"
+                  className="text-xs text-posCloud-danger hover:brightness-95 shrink-0"
                 >
                   {t('payment.giftCardRemove')}
                 </button>
               </div>
             ) : (
               <>
-                <span className="text-sm text-violet-700 dark:text-violet-400 font-medium">{t('payment.giftCard')}</span>
+                <span className="text-sm text-posCloud-info font-medium">{t('payment.giftCard')}</span>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     placeholder={t('payment.giftCardCode')}
                     value={giftCardCode}
                     onChange={(e) => { setGiftCardCode(e.target.value.toUpperCase()); setGiftCardError(null) }}
-                    className="flex-1 h-10 px-3 bg-white dark:bg-gray-900 border border-violet-500/30 text-gray-900 dark:text-white rounded-lg uppercase focus:outline-none focus:border-violet-500"
+                    className="flex-1 h-10 px-3 bg-posCloud-surface dark:bg-posCloudDark-surface border border-posCloud-info/30 text-posCloud-text-primary dark:text-posCloudDark-text-primary rounded-lg uppercase focus:outline-none focus:border-posCloud-info"
                   />
                   <input
                     type="number"
@@ -153,32 +157,32 @@ export function PaymentModal({ cart, customer, loyaltyEnabled = true, onConfirm,
                     step="0.01"
                     value={giftCardAmount}
                     onChange={(e) => setGiftCardAmount(e.target.value)}
-                    className="w-24 h-10 px-2 text-center bg-white dark:bg-gray-900 border border-violet-500/30 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-violet-500"
+                    className="w-24 h-10 px-2 text-center bg-posCloud-surface dark:bg-posCloudDark-surface border border-posCloud-info/30 text-posCloud-text-primary dark:text-posCloudDark-text-primary rounded-lg focus:outline-none focus:border-posCloud-info"
                   />
                   <button
                     disabled={!giftCardCode.trim() || !(parseFloat(giftCardAmount) > 0) || validatingGiftCard}
                     onClick={handleApplyGiftCard}
-                    className="px-3 h-10 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 text-white rounded-lg text-sm font-medium shrink-0"
+                    className="px-3 h-10 bg-posCloud-info hover:brightness-95 disabled:opacity-50 text-white rounded-lg text-sm font-medium shrink-0"
                   >
                     {validatingGiftCard ? t('checking') : t('payment.giftCardApply')}
                   </button>
                 </div>
-                {giftCardError && <p className="text-xs text-red-500 dark:text-red-400">{giftCardError}</p>}
+                {giftCardError && <p className="text-xs text-posCloud-danger">{giftCardError}</p>}
               </>
             )}
           </div>
 
           {error && (
-            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 text-sm text-red-600 dark:text-red-400">
+            <div className="bg-posCloud-danger-light dark:bg-posCloud-danger/15 border border-posCloud-danger/20 rounded-lg p-3 text-sm text-posCloud-danger">
               {error}
             </div>
           )}
 
           {customer && availablePoints > 0 && (
-            <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 space-y-2">
+            <div className="bg-posCloud-warning-light dark:bg-posCloud-warning/15 border border-posCloud-warning/20 rounded-xl p-3 space-y-2">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-amber-700 dark:text-amber-400 font-medium">{t('payment.redeemPoints')}</span>
-                <span className="text-xs text-gray-500 dark:text-gray-400">
+                <span className="text-posCloud-warning font-medium">{t('payment.redeemPoints')}</span>
+                <span className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
                   {t('payment.availablePoints', { points: availablePoints })}
                 </span>
               </div>
@@ -189,7 +193,7 @@ export function PaymentModal({ cart, customer, loyaltyEnabled = true, onConfirm,
                 placeholder="0"
                 value={redeemPoints}
                 onChange={(e) => setRedeemPoints(e.target.value)}
-                className="w-full h-10 text-center bg-white dark:bg-gray-900 border border-amber-500/30 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-amber-500"
+                className="w-full h-10 text-center bg-posCloud-surface dark:bg-posCloudDark-surface border border-posCloud-warning/30 text-posCloud-text-primary dark:text-posCloudDark-text-primary rounded-lg focus:outline-none focus:border-posCloud-warning"
               />
             </div>
           )}
@@ -201,8 +205,8 @@ export function PaymentModal({ cart, customer, loyaltyEnabled = true, onConfirm,
                 onClick={() => setMethod(m.id)}
                 className={`py-3 rounded-xl border text-sm font-medium transition-all flex flex-col items-center gap-1 ${
                   method === m.id
-                    ? 'border-[#0C447C] bg-[#0C447C]/10 text-[#0C447C] dark:text-[#5B9BD5]'
-                    : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-white/5 text-gray-500 dark:text-gray-400 hover:border-[#0C447C]/50'
+                    ? 'border-posCloud-primary bg-posCloud-primary-light dark:bg-posCloud-primary/15 text-posCloud-primary'
+                    : 'border-posCloud-border dark:border-posCloudDark-border bg-posCloud-background dark:bg-posCloudDark-background text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:border-posCloud-primary/50'
                 }`}
               >
                 <span className="text-xl">{m.icon}</span>
@@ -213,19 +217,19 @@ export function PaymentModal({ cart, customer, loyaltyEnabled = true, onConfirm,
 
           {method === 'cash' && (
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('payment.tendered')}</label>
+              <label className="text-sm font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{t('payment.tendered')}</label>
               <input
                 type="text"
                 inputMode="decimal"
                 placeholder={fmt(remainingDue)}
                 value={cashTendered}
                 onChange={(e) => setCashTendered(e.target.value)}
-                className="w-full text-lg h-12 text-center font-bold bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C]"
+                className="w-full text-lg h-12 text-center font-bold bg-posCloud-background dark:bg-posCloudDark-background border border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-primary dark:text-posCloudDark-text-primary rounded-lg focus:outline-none focus:border-posCloud-primary"
               />
               {change > 0 && (
-                <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3 text-center">
-                  <p className="text-sm text-emerald-600 dark:text-emerald-400">{t('payment.change')}</p>
-                  <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">{fmt(change)} {currency}</p>
+                <div className="bg-posCloud-success-light dark:bg-posCloud-success/15 border border-posCloud-success/20 rounded-lg p-3 text-center">
+                  <p className="text-sm text-posCloud-success">{t('payment.change')}</p>
+                  <p className="text-xl font-bold text-posCloud-success">{fmt(change)} {currency}</p>
                 </div>
               )}
             </div>
@@ -233,45 +237,42 @@ export function PaymentModal({ cart, customer, loyaltyEnabled = true, onConfirm,
 
           {method === 'split' && (
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('payment.splitCash')}</label>
+              <label className="text-sm font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{t('payment.splitCash')}</label>
               <input
                 type="text"
                 inputMode="decimal"
                 placeholder="0.00"
                 value={splitCash}
                 onChange={(e) => setSplitCash(e.target.value)}
-                className="w-full text-center h-12 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C]"
+                className="w-full text-center h-12 bg-posCloud-background dark:bg-posCloudDark-background border border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-primary dark:text-posCloudDark-text-primary rounded-lg focus:outline-none focus:border-posCloud-primary"
               />
               {splitCard > 0 && (
-                <div className="flex justify-between text-sm bg-gray-50 dark:bg-white/5 rounded-lg p-3">
-                  <span className="text-gray-500 dark:text-gray-400">{t('payment.splitCard')}</span>
-                  <span className="font-bold text-[#0C447C] dark:text-[#5B9BD5]">{fmt(splitCard)} {currency}</span>
+                <div className="flex justify-between text-sm bg-posCloud-background dark:bg-posCloudDark-background rounded-lg p-3">
+                  <span className="text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('payment.splitCard')}</span>
+                  <span className="font-bold text-posCloud-primary">{fmt(splitCard)} {currency}</span>
                 </div>
               )}
             </div>
           )}
 
           {method === 'card' && (
-            <div className="bg-[#0C447C]/10 border border-[#0C447C]/20 rounded-lg p-4 text-center text-sm text-[#0C447C] dark:text-[#5B9BD5]">
+            <div className="bg-posCloud-primary-light dark:bg-posCloud-primary/15 border border-posCloud-primary/20 rounded-lg p-4 text-center text-sm text-posCloud-primary">
               {t('payment.cardInstruction')}
             </div>
           )}
         </div>
 
         <div className="flex gap-3 p-5 pt-0">
-          <button
-            onClick={onClose}
-            className="flex-1 py-2.5 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-lg text-sm font-medium"
-          >
+          <Button variant="outline" onClick={onClose} className="flex-1">
             {t('payment.cancel')}
-          </button>
-          <button
+          </Button>
+          <Button
             disabled={!canConfirm()}
             onClick={handleConfirm}
-            className="flex-[2] py-2.5 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 text-white rounded-xl text-sm font-bold"
+            className="flex-[2] rounded-xl font-bold"
           >
             {isSubmitting ? t('common.processing') : t('payment.confirm')}
-          </button>
+          </Button>
         </div>
       </div>
     </div>
