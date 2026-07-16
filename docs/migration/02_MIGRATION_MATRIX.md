@@ -245,6 +245,56 @@ F2 was assessed as too large for a single item (6 files, 722 lines, 6 independen
 
 **F2 (all 6 children) is now complete.** Final visual-quality check performed per user instruction: the single "Total Products" stat tile (F2.1) was built at natural width (`w-fit`), not stretched into an empty 4-column grid — it reads as a self-contained compact stat callout, integrates naturally, does not create an obviously incomplete/unbalanced layout. Decision: **kept**. (Note: this judgment is based on code/layout reasoning, not a live authenticated screenshot — same visibility limitation noted throughout this migration; deploying to production for the user's own visual confirmation.)
 
+---
+
+### F3 Breakdown — Orders Page Child Items
+
+F3 assessed before implementation: 5 files, 482 lines. Notably, unlike F2, `OrdersPage.tsx` **already had 5 stat cards** (Total, Completed, Pending, Cancelled, Revenue) computed entirely from already-loaded `orders` data via `useMemo` — no Content/Data Gap needed for this page. Split per the standard methodology, execution order: F3.1 → F3.2 → F3.3 → F3.4 → F3.5. Executed autonomously per the new continuous-phase rule (no per-child approval stop).
+
+#### F3.1 — Orders Page Shell
+- Category: Feature Page
+- Scope: `src/features/orders/pages/OrdersPage.tsx`
+- pos-cloud reference: `pos-cloud/src/app/dashboard/orders/page.tsx` — header (lines 44-48), stat-card row (50-55)
+- Consumer Count: 1 (route-level) — unchanged
+- Behavior Change Assessment: No logic changed — `filteredOrders` memo, `stats` memo, `handleCancelConfirm`, all hooks (`useOrders`/`useOrder`/`useCancelOrder`) — untouched. Existing 5 stat cards restyled only, no new data/calls.
+- Status: **Done**
+
+#### F3.2 — Order Filters
+- Category: Feature Page
+- Scope: `src/features/orders/components/OrderFilters.tsx`
+- pos-cloud reference: none (pos-cloud's Orders page has no filters — Sefay-only feature, kept per rule 4)
+- Consumer Count: 1 (`OrdersPage.tsx`) — unchanged
+- Behavior Change Assessment: No logic changed. Already correctly used `DateRangePicker` (not native date inputs) — standing rule confirmed intact, not modified.
+- Status: **Done**
+
+#### F3.3 — Orders Table
+- Category: Feature Page
+- Scope: `src/features/orders/components/OrdersTable.tsx`
+- pos-cloud reference: `pos-cloud/src/app/dashboard/orders/page.tsx` lines 57-97
+- Consumer Count: 1 (`OrdersPage.tsx`) — unchanged
+- Behavior Change Assessment: No logic changed — `onViewOrder` handler, mobile-card/desktop-table breakpoint — untouched.
+- Status: **Done**
+
+#### F3.4 — Order Details Modal
+- Category: Feature Page
+- Scope: `src/features/orders/components/OrderDetailsModal.tsx`
+- pos-cloud reference: none — derived from established Dialog conventions
+- Consumer Count: 1 (`OrdersPage.tsx`) — unchanged
+- Behavior Change Assessment: No logic changed. Cancel-order button replaced with shared `Button` (`variant="destructive"`).
+- Status: **Done**
+
+#### F3.5 — Cancel Order Modal
+- Category: Feature Page
+- Scope: `src/features/orders/components/CancelOrderModal.tsx`
+- pos-cloud reference: none — already a thin `ConfirmDialog` (E3) wrapper, minimal work
+- Consumer Count: 1 (`OrdersPage.tsx`) — unchanged
+- Behavior Change Assessment: No logic changed — only color classes updated.
+- Status: **Done**
+
+**F3 (all 5 children) is now complete.**
+
+---
+
 **Sefay-only pages with no pos-cloud reference** (Extra Feature — visual direction is Sefay's own design-system tokens applied consistently, not a pos-cloud copy since no reference exists): `shifts`, `users`/`employees`, `attendance`, `schedules`, `payroll`, `leaves`, `coupons`, `gift-cards`, `loyalty-tiers`, `invoices`, `access-control`, `onboarding`, `superadmin/*`, `attend` (public mobile portal). These should use the already-migrated design-system primitives (D1–D6, E1–E7 once done) for consistency but have no 1:1 pos-cloud page to visually diff against.
 
 ---

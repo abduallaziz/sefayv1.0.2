@@ -368,3 +368,81 @@ tsc clean. eslint: 4 pre-existing errors + 1 pre-existing warning across the bat
 ## F2 Complete — Final Visual-Quality Check
 
 Per explicit user instruction, performed a final review of the whole F2 page: the single "Total Products" stat tile (F2.1) was deliberately built at natural width (`w-fit`), not stretched into an empty 4-column grid matching pos-cloud's 4-card layout. It reads as a self-contained compact stat callout that integrates naturally above the filter bar, rather than an obviously incomplete/unbalanced layout with 3 missing slots. **Decision: kept**, per the "based on overall visual quality and UX, not forcing visual parity" standard. This judgment is based on code/layout reasoning — genuine visual confirmation awaits the user's review of the production deployment, consistent with the visibility limitation noted throughout this migration (auth-gated pages can't be screenshotted directly).
+
+---
+
+## F3 — Orders Page — Size Assessment and Breakdown
+
+Date: 2026-07-16
+Files Changed: none (planning only).
+
+F3 assessed before implementation: 5 files, 482 lines. Notable finding: `OrdersPage.tsx` **already had 5 stat cards** (Total, Completed, Pending, Cancelled, Revenue) computed entirely from already-loaded `orders` data — unlike F2, no Content/Data Gap was needed here; the data was already fully wired, only the visual styling needed conversion. Split into F3.1–F3.5 per the standard methodology. Executed autonomously per the new continuous-phase execution rule (F3 onward: no per-child-item approval stop, only stop on business-logic/architecture/API/Product-Decision/conflict triggers — none occurred).
+
+---
+
+## F3.1 — Orders Page Shell
+
+Date: 2026-07-16
+Files Changed: `src/features/orders/pages/OrdersPage.tsx`
+
+Behavior Change Assessment: No logic changed — `filteredOrders` memo, `stats` memo (already-existing aggregation), `handleCancelConfirm`, `useOrders`/`useOrder`/`useCancelOrder` hooks — all untouched.
+
+Design Consistency Check: Header matched to pos-cloud's `text-2xl font-extrabold` + icon-chip pattern. Stat-card grid restyled to `posCloud`/`posCloudDark` tokens — pos-cloud has 4 cards, Sefay already had 5 (adds Revenue, an existing Sefay capability pos-cloud lacks — kept per rule 4/5).
+
+Consumer Count: 1 (route-level) — unchanged.
+
+---
+
+## F3.2 — Order Filters
+
+Date: 2026-07-16
+Files Changed: `src/features/orders/components/OrderFilters.tsx`
+
+Behavior Change Assessment: No logic changed. Already correctly used `DateRangePicker` (not native date inputs) — standing rule re-verified intact, not modified.
+
+Design Consistency Check: No pos-cloud reference (pos-cloud's Orders page has no filter bar at all — Sefay-only capability, kept per rule 4). Restyled with established token conventions.
+
+Consumer Count: 1 (`OrdersPage.tsx`) — unchanged.
+
+---
+
+## F3.3 — Orders Table
+
+Date: 2026-07-16
+Files Changed: `src/features/orders/components/OrdersTable.tsx`
+
+Behavior Change Assessment: No logic changed — `onViewOrder` handler, mobile-card/desktop-table breakpoint logic untouched.
+
+Design Consistency Check: Compared against pos-cloud lines 57-97. Table structure, borders, status badges converted to `posCloud`/`posCloudDark` semantic tokens (matching StatusBadge's success/warning/danger family).
+
+Consumer Count: 1 (`OrdersPage.tsx`) — unchanged.
+
+---
+
+## F3.4 — Order Details Modal
+
+Date: 2026-07-16
+Files Changed: `src/features/orders/components/OrderDetailsModal.tsx`
+
+Behavior Change Assessment: No logic changed. Cancel-order button replaced with shared `Button` (`variant="destructive"`), `onClick={() => onCancel(order)}` preserved exactly.
+
+Design Consistency Check: No pos-cloud reference exists (order-detail drill-down isn't in the prototype). Derived from established Dialog conventions.
+
+Consumer Count: 1 (`OrdersPage.tsx`) — unchanged.
+
+---
+
+## F3.5 — Cancel Order Modal
+
+Date: 2026-07-16
+Files Changed: `src/features/orders/components/CancelOrderModal.tsx`
+
+Behavior Change Assessment: No logic changed — only color classes updated on the confirmation text and reason textarea.
+
+Consumer Count: 1 (`OrdersPage.tsx`) — unchanged.
+
+---
+
+## F3 Complete — Batch Validation
+
+tsc clean. eslint: 5 pre-existing errors across the batch, all `t(... as any)` translation-key casts (the same recurring pre-existing pattern seen throughout this codebase) — confirmed untouched by these styling-only edits, verified against pre-edit content. `next build`: all 47 routes compiled. Dev server runtime: clean.

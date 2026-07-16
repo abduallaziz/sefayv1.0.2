@@ -47,11 +47,11 @@ export function OrdersPage() {
   }), [orders]);
 
   const statsConfig = [
-    { labelKey: 'totalInvoices', value: stats.total, color: 'text-slate-800 dark:text-white' },
-    { labelKey: 'completedCount', value: stats.completed, color: 'text-emerald-600 dark:text-emerald-400' },
-    { labelKey: 'pendingCount', value: stats.pending, color: 'text-amber-600 dark:text-amber-400' },
-    { labelKey: 'cancelledCount', value: stats.cancelled, color: 'text-red-600 dark:text-red-400' },
-    { labelKey: 'todayRevenue', value: `${stats.revenue.toLocaleString('en-US')} ${currency}`, color: 'text-[#0C447C] dark:text-[#5B9BD5]' },
+    { labelKey: 'totalInvoices', value: stats.total, color: 'text-posCloud-text-primary dark:text-posCloudDark-text-primary' },
+    { labelKey: 'completedCount', value: stats.completed, color: 'text-posCloud-success' },
+    { labelKey: 'pendingCount', value: stats.pending, color: 'text-posCloud-warning' },
+    { labelKey: 'cancelledCount', value: stats.cancelled, color: 'text-posCloud-danger' },
+    { labelKey: 'todayRevenue', value: `${stats.revenue.toLocaleString('en-US')} ${currency}`, color: 'text-posCloud-primary' },
   ];
 
   function handleCancelConfirm(id: string, reason: string) {
@@ -69,19 +69,19 @@ export function OrdersPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <div className="p-2.5 rounded-xl bg-[#E8F1FB] dark:bg-[#0C447C]/10">
-          <FileText size={22} className="text-[#0C447C] dark:text-[#5B9BD5]" />
+        <div className="p-2.5 rounded-xl bg-posCloud-primary-light dark:bg-posCloud-primary/15">
+          <FileText size={22} className="text-posCloud-primary" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-slate-800 dark:text-white">{t('title')}</h1>
-          <p className="text-sm text-slate-500">{t('subtitle')}</p>
+          <h1 className="text-2xl font-extrabold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{t('title')}</h1>
+          <p className="mt-1 text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('subtitle')}</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 items-stretch gap-4 sm:grid-cols-3 lg:grid-cols-5">
         {statsConfig.map(stat => (
-          <div key={stat.labelKey} className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-4">
-            <p className="text-xs text-slate-500 mb-1">{t(stat.labelKey as any)}</p>
+          <div key={stat.labelKey} className="bg-posCloud-surface dark:bg-posCloudDark-surface border border-posCloud-border dark:border-posCloudDark-border rounded-xl p-4">
+            <p className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary mb-1">{t(stat.labelKey as any)}</p>
             <p className={`text-xl font-bold ${stat.color}`}>{stat.value}</p>
           </div>
         ))}
@@ -90,7 +90,7 @@ export function OrdersPage() {
       <OrderFilters filters={filters} onChange={setFilters} />
 
       {isLoading ? (
-        <div className="text-center py-16 text-slate-500">{t('loading')}</div>
+        <div className="text-center py-16 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('loading')}</div>
       ) : (
         <OrdersTable orders={filteredOrders} onViewOrder={(order) => setSelectedOrderId(order.id)} />
       )}
