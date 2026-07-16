@@ -34,25 +34,26 @@ function defaultRange(): DateRange {
   return { from: today, to: today }
 }
 
-/* ── Theme tokens ── */
+/* ── Theme tokens — flat posCloud/posCloudDark palette, matching pos-cloud's
+   design language exactly instead of the previous glassmorphism treatment. ── */
 function useDashboardColors(isDark: boolean) {
   return {
-    cardBg: isDark ? 'rgba(22,27,34,0.78)' : 'rgba(255,255,255,0.74)',
-    cardBorder: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(255,255,255,0.95)',
-    cardShadow: isDark ? '0 4px 6px rgba(0,0,0,0.2),0 8px 24px rgba(0,0,0,0.25)' : '0 4px 6px rgba(10,22,40,0.03),0 8px 24px rgba(10,22,40,0.07)',
-    cardShadowHover: isDark ? '0 8px 16px rgba(0,0,0,0.25),0 20px 48px rgba(0,0,0,0.3)' : '0 8px 16px rgba(10,22,40,0.05),0 20px 48px rgba(10,22,40,0.12)',
-    textPrimary: isDark ? '#E6EDF3' : '#0A1628',
-    textSecondary: isDark ? '#8B949E' : '#54657C',
-    textMuted: isDark ? '#6E7681' : '#8C9CB2',
-    divider: isDark ? 'rgba(255,255,255,0.08)' : '#EEF2F7',
-    chipBg: isDark ? 'rgba(255,255,255,0.05)' : '#F5F8FC',
-    iconChipBg: isDark ? 'rgba(91,155,213,0.14)' : 'linear-gradient(135deg,#EAF2FB,#DBEAFE)',
-    iconColor: isDark ? '#5B9BD5' : '#0C447C',
-    tagNeutralBg: isDark ? 'rgba(255,255,255,0.07)' : '#F1F5F9',
-    tagNeutralBorder: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid #E2E8F1',
-    gridLine: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(10,22,40,0.04)',
-    axisTick: isDark ? '#6E7681' : '#94A3B8',
-    rankFallbackBg: isDark ? 'rgba(255,255,255,0.06)' : '#F1F5F9',
+    cardBg: isDark ? '#0f1b33' : '#ffffff',
+    cardBorder: isDark ? '1px solid #263352' : '1px solid #e2e8f0',
+    cardShadow: '0 1px 2px rgba(15,23,42,0.04)',
+    cardShadowHover: '0 4px 12px rgba(15,23,42,0.08)',
+    textPrimary: isDark ? '#f8fafc' : '#0f172a',
+    textSecondary: isDark ? '#cbd5e1' : '#334155',
+    textMuted: isDark ? '#94a3b8' : '#64748b',
+    divider: isDark ? '#263352' : '#e2e8f0',
+    chipBg: isDark ? '#0b1220' : '#f1f5f9',
+    iconChipBg: isDark ? 'rgba(37,99,235,0.15)' : '#dbeafe',
+    iconColor: isDark ? '#60a5fa' : '#2563eb',
+    tagNeutralBg: isDark ? '#0b1220' : '#f1f5f9',
+    tagNeutralBorder: isDark ? '1px solid #263352' : '1px solid #e2e8f0',
+    gridLine: isDark ? '#263352' : '#e2e8f0',
+    axisTick: isDark ? '#94a3b8' : '#64748b',
+    rankFallbackBg: isDark ? '#0b1220' : '#f1f5f9',
   }
 }
 
@@ -79,45 +80,42 @@ function StatCard({
   return (
     <div style={{
       background: c.cardBg,
-      backdropFilter: 'blur(20px) saturate(160%)',
-      WebkitBackdropFilter: 'blur(20px) saturate(160%)',
-      borderRadius: '20px',
+      borderRadius: '16px',
       border: c.cardBorder,
       boxShadow: c.cardShadow,
       position: 'relative', overflow: 'hidden',
-      transition: 'all .3s cubic-bezier(.4,0,.2,1)',
+      transition: 'transform .2s ease, box-shadow .2s ease',
       cursor: 'default',
     }}
-      onMouseEnter={e => { const el = e.currentTarget as HTMLDivElement; el.style.transform = 'translateY(-4px)'; el.style.boxShadow = c.cardShadowHover }}
+      onMouseEnter={e => { const el = e.currentTarget as HTMLDivElement; el.style.transform = 'translateY(-2px)'; el.style.boxShadow = c.cardShadowHover }}
       onMouseLeave={e => { const el = e.currentTarget as HTMLDivElement; el.style.transform = 'translateY(0)'; el.style.boxShadow = c.cardShadow }}
     >
-      <div style={{ position: 'absolute', top: 0, right: 0, left: 0, height: '3px', background: stripe }} />
-      <div style={{ padding: '18px 18px 0' }}>
+      <div style={{ padding: '18px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
           <div style={{
-            width: '42px', height: '42px', borderRadius: '13px', display: 'flex',
+            width: '36px', height: '36px', borderRadius: '10px', display: 'flex',
             alignItems: 'center', justifyContent: 'center',
-            background: stripe, boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+            background: stripe,
           }}>
-            <Icon size={20} color="#fff" strokeWidth={2.2} />
+            <Icon size={18} color="#fff" strokeWidth={2} />
           </div>
           {delta && (
             <div style={{
               fontSize: '11px', fontWeight: 700, padding: '4px 9px', borderRadius: '8px',
               display: 'flex', alignItems: 'center', gap: '3px',
-              background: deltaUp ? '#DCFCE7' : '#FEE2E2',
-              color: deltaUp ? '#15803D' : '#B91C1C',
+              background: deltaUp ? '#dcfce7' : '#fee2e2',
+              color: deltaUp ? '#16a34a' : '#ef4444',
             }}>
               {deltaUp ? '↑' : '↓'} {delta}
             </div>
           )}
         </div>
-        <div style={{ fontSize: '28px', fontWeight: 700, color: c.textPrimary, letterSpacing: '-1px', lineHeight: 1, marginBottom: '5px' }}>
+        <div style={{ fontSize: '26px', fontWeight: 700, color: c.textPrimary, letterSpacing: '-0.5px', lineHeight: 1, marginBottom: '5px' }}>
           {value}
         </div>
         <div style={{ fontSize: '12px', color: c.textSecondary, fontWeight: 500 }}>{title}</div>
       </div>
-      <div style={{ marginTop: '12px', marginRight: '-1px', marginLeft: '-1px', marginBottom: '-1px' }}>
+      <div style={{ marginTop: '4px' }}>
         <Sparkline data={spark} color={sparkColor} />
       </div>
     </div>
@@ -129,12 +127,10 @@ function GlassCard({ children, style, c }: { children: React.ReactNode; style?: 
   return (
     <div style={{
       background: c.cardBg,
-      backdropFilter: 'blur(20px) saturate(160%)',
-      WebkitBackdropFilter: 'blur(20px) saturate(160%)',
-      borderRadius: '20px',
+      borderRadius: '16px',
       border: c.cardBorder,
       boxShadow: c.cardShadow,
-      padding: '22px',
+      padding: '20px',
       ...style,
     }}>
       {children}
@@ -152,10 +148,9 @@ function CardHeader({ icon: Icon, title, sub, tag, c }: {
     <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '18px', gap: '10px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '11px' }}>
         <div style={{
-          width: '36px', height: '36px', borderRadius: '11px',
+          width: '36px', height: '36px', borderRadius: '10px',
           background: c.iconChipBg,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 1px 2px rgba(10,22,40,0.05)',
         }}>
           <Icon size={18} color={c.iconColor} strokeWidth={2} />
         </div>
@@ -166,10 +161,10 @@ function CardHeader({ icon: Icon, title, sub, tag, c }: {
       </div>
       {tag && (
         <div style={{
-          fontSize: '11px', fontWeight: 700, padding: '5px 11px', borderRadius: '9px',
+          fontSize: '11px', fontWeight: 700, padding: '5px 11px', borderRadius: '8px',
           display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap',
           ...(tag.color === 'green'
-            ? { background: '#DCFCE7', color: '#15803D' }
+            ? { background: '#dcfce7', color: '#16a34a' }
             : { background: c.tagNeutralBg, color: c.textSecondary, border: c.tagNeutralBorder, cursor: 'pointer' }),
         }}>
           {tag.label}
@@ -182,16 +177,16 @@ function CardHeader({ icon: Icon, title, sub, tag, c }: {
 /* ── Activity icon ── */
 function ActivityIcon({ type }: { type: 'order' | 'refund' | 'alert' }) {
   const cfg = {
-    order:  { bg: 'linear-gradient(135deg,#D1FAE5,#A7F3D0)', color: '#059669', Icon: CheckCircle },
-    refund: { bg: 'linear-gradient(135deg,#FEF3C7,#FDE68A)', color: '#D97706', Icon: RotateCcw },
-    alert:  { bg: 'linear-gradient(135deg,#FEE2E2,#FECACA)', color: '#DC2626', Icon: AlertCircle },
+    order:  { bg: '#dcfce7', color: '#16a34a', Icon: CheckCircle },
+    refund: { bg: '#fef3c7', color: '#f59e0b', Icon: RotateCcw },
+    alert:  { bg: '#fee2e2', color: '#ef4444', Icon: AlertCircle },
   }[type]
   return (
     <div style={{
-      width: '42px', height: '42px', borderRadius: '13px', flexShrink: 0,
+      width: '38px', height: '38px', borderRadius: '10px', flexShrink: 0,
       background: cfg.bg, display: 'flex', alignItems: 'center', justifyContent: 'center',
     }}>
-      <cfg.Icon size={19} color={cfg.color} strokeWidth={2.2} />
+      <cfg.Icon size={18} color={cfg.color} strokeWidth={2} />
     </div>
   )
 }
@@ -382,21 +377,17 @@ export function DashboardOverview() {
         </div>
       </div>
 
-      {/* ── Hero Band ── */}
+      {/* ── Hero Band — flat posCloud primary, matching pos-cloud's solid
+          brand-color bands instead of the previous multi-stop gradient mesh. ── */}
       <div style={{
-        position: 'relative', borderRadius: '22px', overflow: 'hidden',
+        position: 'relative', borderRadius: '16px', overflow: 'hidden',
         marginBottom: '18px',
-        background: isDark
-          ? 'linear-gradient(125deg,#0D1117 0%,#11161F 50%,#161D29 100%)'
-          : 'linear-gradient(125deg,#0C447C 0%,#155799 50%,#2671C4 100%)',
-        border: isDark ? '1px solid rgba(91,155,213,0.18)' : 'none',
-        boxShadow: isDark
-          ? '0 12px 32px rgba(0,0,0,0.5)'
-          : '0 12px 36px rgba(12,68,124,0.25),0 4px 12px rgba(12,68,124,0.18)',
+        background: isDark ? '#0f1b33' : '#2563eb',
+        border: isDark ? '1px solid #263352' : 'none',
         minHeight: '150px',
       }}>
         {/* Area chart bg */}
-        <div style={{ position: 'absolute', inset: 0, opacity: 0.35, zIndex: 0 }}>
+        <div style={{ position: 'absolute', inset: 0, opacity: 0.3, zIndex: 0 }}>
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={heroData.length ? heroData : [{ v: 0 }]} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
               <defs>
@@ -409,12 +400,6 @@ export function DashboardOverview() {
             </AreaChart>
           </ResponsiveContainer>
         </div>
-
-        {/* Mesh overlay */}
-        <div style={{
-          position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none',
-          background: 'radial-gradient(500px 250px at 95% 0%,rgba(99,102,241,0.18),transparent 60%),radial-gradient(420px 240px at 0% 100%,rgba(14,165,233,0.14),transparent 55%)',
-        }} />
 
         {/* Content */}
         <div style={{ position: 'relative', zIndex: 2, padding: '22px 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '24px', flexWrap: 'wrap' }}>
