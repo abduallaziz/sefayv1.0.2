@@ -95,8 +95,11 @@ export function SingleDatePicker({ value, onChange, placeholder, className }: Pr
 
   const display = value ? formatLabel(value, locale) : null;
 
-  const navBtnClass = 'px-2 py-0.5 text-sm font-semibold rounded-lg transition-colors text-slate-800 dark:text-white hover:bg-[#E8F1FB] dark:hover:bg-blue-500/10 hover:text-[#0C447C] dark:hover:text-blue-400';
-  const navActiveCls = 'text-[#0C447C] dark:text-blue-400 bg-[#E8F1FB] dark:bg-blue-500/10';
+  // Matrix D5: same posCloud-primary/surface/border/text reconciliation as
+  // DateRangePicker.tsx (shared brand-accent color family). Structure,
+  // props, and all date logic: untouched.
+  const navBtnClass = 'px-2 py-0.5 text-sm font-semibold rounded-lg transition-colors text-posCloud-text-primary dark:text-posCloudDark-text-primary hover:bg-posCloud-primary-light dark:hover:bg-posCloud-primary/10 hover:text-posCloud-primary dark:hover:text-posCloud-primary';
+  const navActiveCls = 'text-posCloud-primary bg-posCloud-primary-light dark:bg-posCloud-primary/10';
 
   const cv = calView as string;
 
@@ -116,13 +119,13 @@ export function SingleDatePicker({ value, onChange, placeholder, className }: Pr
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
-        className="flex items-center gap-2 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-slate-50 dark:bg-gray-950 text-slate-800 dark:text-white hover:border-[#0C447C] dark:hover:border-blue-500 transition-colors w-full"
+        className="flex items-center gap-2 border border-posCloud-border dark:border-posCloudDark-border rounded-lg px-3 py-2 text-sm bg-posCloud-background dark:bg-posCloudDark-background text-posCloud-text-primary dark:text-posCloudDark-text-primary hover:border-posCloud-primary dark:hover:border-posCloud-primary transition-colors w-full"
       >
-        <Calendar size={15} className="text-slate-400 shrink-0" />
+        <Calendar size={15} className="text-posCloud-text-tertiary shrink-0" />
         <span className="flex-1 text-right truncate">
-          {display ?? <span className="text-slate-400">{placeholder ?? t('placeholderSingle')}</span>}
+          {display ?? <span className="text-posCloud-text-tertiary">{placeholder ?? t('placeholderSingle')}</span>}
         </span>
-        {display && <X size={14} className="text-slate-400 hover:text-red-400 shrink-0" onClick={clear} />}
+        {display && <X size={14} className="text-posCloud-text-tertiary hover:text-posCloud-danger shrink-0" onClick={clear} />}
       </button>
 
       {open && createPortal(
@@ -130,18 +133,18 @@ export function SingleDatePicker({ value, onChange, placeholder, className }: Pr
           ref={panelRef}
           dir="rtl"
           style={{ position: 'fixed', top: pos?.top ?? -9999, left: pos?.left ?? -9999, visibility: pos ? 'visible' : 'hidden', zIndex: 9999 }}
-          className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 rounded-xl shadow-xl p-4 w-72 flex flex-col gap-3"
+          className="bg-posCloud-surface dark:bg-posCloudDark-surface border border-posCloud-border dark:border-posCloudDark-border rounded-xl shadow-xl p-4 w-72 flex flex-col gap-3"
         >
 
           {/* Nav */}
           <div className="flex items-center justify-between">
-            <button onClick={handleNavPrev} className="p-1 rounded hover:bg-slate-100 dark:hover:bg-gray-800">
-              <ChevronRight size={16} className="text-slate-600 dark:text-slate-400" />
+            <button onClick={handleNavPrev} className="p-1 rounded hover:bg-slate-100 dark:hover:bg-posCloudDark-border/40">
+              <ChevronRight size={16} className="text-posCloud-text-secondary dark:text-posCloudDark-text-secondary" />
             </button>
 
             <div className="flex items-center gap-1">
               {cv === 'years' ? (
-                <span className="text-sm font-semibold text-slate-800 dark:text-white">
+                <span className="text-sm font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary">
                   {yearRangeStart} — {yearRangeStart + 11}
                 </span>
               ) : (
@@ -156,8 +159,8 @@ export function SingleDatePicker({ value, onChange, placeholder, className }: Pr
               )}
             </div>
 
-            <button onClick={handleNavNext} className="p-1 rounded hover:bg-slate-100 dark:hover:bg-gray-800">
-              <ChevronLeft size={16} className="text-slate-600 dark:text-slate-400" />
+            <button onClick={handleNavNext} className="p-1 rounded hover:bg-slate-100 dark:hover:bg-posCloudDark-border/40">
+              <ChevronLeft size={16} className="text-posCloud-text-secondary dark:text-posCloudDark-text-secondary" />
             </button>
           </div>
 
@@ -165,7 +168,7 @@ export function SingleDatePicker({ value, onChange, placeholder, className }: Pr
           {cv === 'days' && (
             <>
               <div className="grid grid-cols-7">
-                {dayNames.map(d => <div key={d} className="text-center text-xs text-slate-400 py-1">{d}</div>)}
+                {dayNames.map(d => <div key={d} className="text-center text-xs text-posCloud-text-tertiary py-1">{d}</div>)}
               </div>
               <div className="grid grid-cols-7 -mt-2">
                 {cells.map((ymd, i) => {
@@ -176,7 +179,7 @@ export function SingleDatePicker({ value, onChange, placeholder, className }: Pr
                       <button
                         onClick={() => handleDayClick(ymd)}
                         className={`w-8 h-8 text-xs rounded-full transition-colors z-10 font-medium
-                          ${isSelected ? 'bg-[#0C447C] text-white' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-gray-800'}`}
+                          ${isSelected ? 'bg-posCloud-primary text-white' : 'text-posCloud-text-secondary dark:text-posCloudDark-text-secondary hover:bg-slate-100 dark:hover:bg-posCloudDark-border/40'}`}
                       >
                         {fromYMD(ymd).getDate()}
                       </button>
@@ -193,7 +196,7 @@ export function SingleDatePicker({ value, onChange, placeholder, className }: Pr
               {monthNames.map((name, i) => (
                 <button key={i} onClick={() => handleMonthClick(i)}
                   className={`py-2 text-sm rounded-lg transition-colors capitalize
-                    ${i === viewMonth ? 'bg-[#0C447C] text-white font-semibold' : 'text-slate-700 dark:text-slate-300 hover:bg-[#E8F1FB] dark:hover:bg-blue-500/10 hover:text-[#0C447C]'}`}>
+                    ${i === viewMonth ? 'bg-posCloud-primary text-white font-semibold' : 'text-posCloud-text-secondary dark:text-posCloudDark-text-secondary hover:bg-posCloud-primary-light dark:hover:bg-posCloud-primary/10 hover:text-posCloud-primary'}`}>
                   {name}
                 </button>
               ))}
@@ -206,7 +209,7 @@ export function SingleDatePicker({ value, onChange, placeholder, className }: Pr
               {Array.from({ length: 12 }, (_, i) => yearRangeStart + i).map(y => (
                 <button key={y} onClick={() => handleYearClick(y)}
                   className={`py-2 text-sm rounded-lg transition-colors
-                    ${y === viewYear ? 'bg-[#0C447C] text-white font-semibold' : 'text-slate-700 dark:text-slate-300 hover:bg-[#E8F1FB] dark:hover:bg-blue-500/10 hover:text-[#0C447C]'}`}>
+                    ${y === viewYear ? 'bg-posCloud-primary text-white font-semibold' : 'text-posCloud-text-secondary dark:text-posCloudDark-text-secondary hover:bg-posCloud-primary-light dark:hover:bg-posCloud-primary/10 hover:text-posCloud-primary'}`}>
                   {y}
                 </button>
               ))}
@@ -214,8 +217,8 @@ export function SingleDatePicker({ value, onChange, placeholder, className }: Pr
           )}
 
           {value && (
-            <div className="flex items-center justify-end pt-1 border-t border-slate-100 dark:border-gray-800">
-              <button onClick={clear} className="text-xs text-slate-400 hover:text-red-500 transition-colors">
+            <div className="flex items-center justify-end pt-1 border-t border-posCloud-border dark:border-posCloudDark-border">
+              <button onClick={clear} className="text-xs text-posCloud-text-tertiary hover:text-posCloud-danger transition-colors">
                 {t('clear')}
               </button>
             </div>

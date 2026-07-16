@@ -33,28 +33,30 @@ export function EmptyState({
     return (
       <div
         className={cn(
-          'flex flex-col items-center justify-center text-center px-4 bg-white dark:bg-gray-900 border border-dashed border-slate-200 dark:border-gray-800 rounded-xl',
+          'flex flex-col items-center justify-center text-center px-4 bg-posCloud-surface dark:bg-posCloudDark-surface border border-dashed border-posCloud-border dark:border-posCloudDark-border rounded-xl',
           s.padding,
           className,
         )}
       >
         {Icon && (
-          <div className="p-4 rounded-full bg-[#E8F1FB] dark:bg-[#0C447C]/10 mb-4">
-            <Icon size={32} className="text-[#0C447C] dark:text-[#5B9BD5]" />
+          <div className="p-4 rounded-full bg-posCloud-primary-light dark:bg-posCloud-primary/10 mb-4">
+            <Icon size={32} className="text-posCloud-primary" />
           </div>
         )}
-        <p className="text-base font-semibold text-slate-700 dark:text-gray-200">{title}</p>
+        <p className="text-base font-semibold text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{title}</p>
         {description && (
-          <p className="text-sm text-slate-500 mt-1 max-w-sm">{description}</p>
+          <p className="text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary mt-1 max-w-sm">{description}</p>
         )}
         {action && <div className="mt-4">{action}</div>}
       </div>
     );
   }
 
-  const iconBg   = theme === 'superadmin' ? 'bg-[#1e2436] text-[#64748b]' : 'bg-[#f1f5f9] text-[#94a3b8]';
-  const titleC   = theme === 'superadmin' ? 'text-[#e2e8f0]' : 'text-[#0f172a]';
-  const descC    = theme === 'superadmin' ? 'text-[#64748b]' : 'text-[#64748b]';
+  // Matrix D6: `theme` prop is a per-section variant, unrelated to the
+  // global light/dark toggle — preserved as-is, hex values tokenized only.
+  const iconBg   = theme === 'superadmin' ? 'bg-posCloudDark-border/40 text-posCloudDark-text-tertiary' : 'bg-posCloud-background text-posCloud-text-tertiary';
+  const titleC   = theme === 'superadmin' ? 'text-posCloudDark-text-secondary' : 'text-posCloud-text-primary';
+  const descC    = theme === 'superadmin' ? 'text-posCloudDark-text-tertiary' : 'text-posCloud-text-tertiary';
 
   return (
     <div className={cn('flex flex-col items-center justify-center text-center', s.padding, className)}>

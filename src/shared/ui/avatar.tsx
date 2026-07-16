@@ -25,7 +25,7 @@ function AvatarFallback({ className, ...props }: React.HTMLAttributes<HTMLDivEle
   return (
     <AvatarPrimitive.Fallback
       className={cn(
-        'flex h-full w-full items-center justify-center rounded-full bg-[#242938] text-sm font-medium text-white',
+        'flex h-full w-full items-center justify-center rounded-full bg-posCloud-border dark:bg-posCloudDark-border text-sm font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary',
         className
       )}
       {...props}

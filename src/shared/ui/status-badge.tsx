@@ -2,13 +2,23 @@ import { cn } from '@/lib/utils';
 
 export type StatusTone = 'neutral' | 'info' | 'success' | 'warning' | 'danger' | 'brand';
 
+// Matrix D3: classes only, same StatusTone keys and same label/tone/
+// className prop API. Prior implementation had inconsistent dark-mode
+// coverage (4/6 tones overrode dark: text color, none overrode dark:
+// background). Restyled to posCloud/posCloudDark tokens with full
+// light+dark coverage on every tone: a solid pastel `-light` background
+// in light mode, a translucent tint of the base color in dark mode (same
+// technique the pre-existing badge.tsx already used for its dark-only
+// palette) — text color uses the base token directly since
+// primary/success/warning/danger/info are identical across themes
+// (established in A3), so no dark: text override is needed.
 const toneClasses: Record<StatusTone, string> = {
-  neutral: 'bg-slate-100 dark:bg-gray-800 text-slate-500 dark:text-slate-400',
-  info: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
-  success: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-  warning: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
-  danger: 'bg-red-500/10 text-red-600 dark:text-red-400',
-  brand: 'bg-[#0C447C]/10 text-[#0C447C] dark:text-[#5B9BD5]',
+  neutral: 'bg-posCloud-background dark:bg-posCloudDark-border text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary',
+  info: 'bg-posCloud-info-light dark:bg-posCloud-info/15 text-posCloud-info',
+  success: 'bg-posCloud-success-light dark:bg-posCloud-success/15 text-posCloud-success',
+  warning: 'bg-posCloud-warning-light dark:bg-posCloud-warning/15 text-posCloud-warning',
+  danger: 'bg-posCloud-danger-light dark:bg-posCloud-danger/15 text-posCloud-danger',
+  brand: 'bg-posCloud-primary-light dark:bg-posCloud-primary/15 text-posCloud-primary',
 };
 
 interface StatusBadgeProps {

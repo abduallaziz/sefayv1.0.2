@@ -27,11 +27,13 @@ export function SectionCard({
   padding = 'md',
   className,
 }: SectionCardProps) {
-  const bgColor     = theme === 'superadmin' ? 'bg-[#1a1f2e]' : 'bg-white';
-  const borderColor = theme === 'superadmin' ? 'border-[#1e2130]' : 'border-[#e2e8f0]';
-  const textColor   = theme === 'superadmin' ? 'text-[#e2e8f0]' : 'text-[#0f172a]';
-  const mutedColor  = theme === 'superadmin' ? 'text-[#64748b]' : 'text-[#64748b]';
-  const divColor    = theme === 'superadmin' ? 'border-[#1e2130]' : 'border-[#f1f5f9]';
+  // Matrix D6: `theme` prop is a per-section variant, unrelated to the
+  // global light/dark toggle — preserved as-is, hex values tokenized only.
+  const bgColor     = theme === 'superadmin' ? 'bg-posCloudDark-surface' : 'bg-posCloud-surface';
+  const borderColor = theme === 'superadmin' ? 'border-posCloudDark-border' : 'border-posCloud-border';
+  const textColor   = theme === 'superadmin' ? 'text-posCloudDark-text-secondary' : 'text-posCloud-text-primary';
+  const mutedColor  = theme === 'superadmin' ? 'text-posCloudDark-text-tertiary' : 'text-posCloud-text-tertiary';
+  const divColor    = theme === 'superadmin' ? 'border-posCloudDark-border' : 'border-slate-100';
 
   const hasHeader = title || description || actions;
 

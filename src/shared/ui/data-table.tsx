@@ -30,13 +30,17 @@ export function DataTable<T>({
   emptyState,
   className,
 }: DataTableProps<T>) {
-  const bgColor       = theme === 'superadmin' ? 'bg-[#1a1f2e]'   : 'bg-white';
-  const borderColor   = theme === 'superadmin' ? 'border-[#1e2130]' : 'border-[#e2e8f0]';
-  const headerBg      = theme === 'superadmin' ? 'bg-[#141720]'    : 'bg-[#f8fafc]';
-  const headerText    = theme === 'superadmin' ? 'text-[#64748b]'  : 'text-[#64748b]';
-  const rowHover      = theme === 'superadmin' ? 'hover:bg-[#1e2436]' : 'hover:bg-[#f8fafc]';
-  const divColor      = theme === 'superadmin' ? 'divide-[#1e2130]' : 'divide-[#f1f5f9]';
-  const cellText      = theme === 'superadmin' ? 'text-[#e2e8f0]'  : 'text-[#0f172a]';
+  // Matrix D6: this `theme` prop is a per-section visual variant
+  // (superadmin area vs. regular dashboard), independent of the app's
+  // global light/dark toggle (theme.store.ts) — preserved exactly as-is,
+  // only the hardcoded hex values were tokenized to posCloud/posCloudDark.
+  const bgColor       = theme === 'superadmin' ? 'bg-posCloudDark-surface'     : 'bg-posCloud-surface';
+  const borderColor   = theme === 'superadmin' ? 'border-posCloudDark-border' : 'border-posCloud-border';
+  const headerBg      = theme === 'superadmin' ? 'bg-posCloudDark-background'  : 'bg-posCloud-sidebar';
+  const headerText    = theme === 'superadmin' ? 'text-posCloudDark-text-tertiary' : 'text-posCloud-text-tertiary';
+  const rowHover      = theme === 'superadmin' ? 'hover:bg-posCloudDark-border/40' : 'hover:bg-posCloud-sidebar';
+  const divColor      = theme === 'superadmin' ? 'divide-posCloudDark-border' : 'divide-slate-100';
+  const cellText      = theme === 'superadmin' ? 'text-posCloudDark-text-secondary' : 'text-posCloud-text-primary';
 
   const alignClass = (align?: string) => {
     if (align === 'center') return 'text-center';
@@ -73,7 +77,7 @@ export function DataTable<T>({
                     <td key={col.key} className="px-4 py-3">
                       <div className={cn(
                         'h-4 rounded animate-pulse',
-                        theme === 'superadmin' ? 'bg-[#1e2436]' : 'bg-[#f1f5f9]'
+                        theme === 'superadmin' ? 'bg-posCloudDark-border/40' : 'bg-posCloud-background'
                       )} />
                     </td>
                   ))}
@@ -83,7 +87,7 @@ export function DataTable<T>({
               <tr>
                 <td colSpan={columns.length} className="px-4 py-12 text-center">
                   {emptyState ?? (
-                    <span className={cn('text-sm', theme === 'superadmin' ? 'text-[#64748b]' : 'text-[#94a3b8]')}>
+                    <span className={cn('text-sm', theme === 'superadmin' ? 'text-posCloudDark-text-tertiary' : 'text-posCloud-text-tertiary')}>
                       لا توجد بيانات
                     </span>
                   )}

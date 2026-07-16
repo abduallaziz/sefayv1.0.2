@@ -64,7 +64,10 @@ export function LocationMapPicker({ lat, lng, radiusM, onPick }: Props) {
       <RecenterOnChange position={position} />
       {position && <Marker position={position} />}
       {position && radiusM && radiusM > 0 && (
-        <Circle center={position} radius={radiusM} pathOptions={{ color: '#0C447C', fillOpacity: 0.15 }} />
+        // Matrix D6: Leaflet's pathOptions take a raw color string, not a
+        // Tailwind class — updated to match posCloud-primary's hex value
+        // (#2563eb) directly, same reconciliation as everywhere else.
+        <Circle center={position} radius={radiusM} pathOptions={{ color: '#2563eb', fillOpacity: 0.15 }} />
       )}
     </MapContainer>
   )

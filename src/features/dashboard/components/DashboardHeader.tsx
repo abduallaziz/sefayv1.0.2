@@ -16,7 +16,6 @@ interface DashboardHeaderProps {
 export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
   const user = useAuthStore((s) => s.user)
   const { theme, toggle } = useThemeStore()
-  const isDark = theme === 'dark'
   const { mutate: logout } = useLogout()
   const [notifCount] = useState(3)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -62,324 +61,152 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
     setMenuOpen((v) => !v)
   }
 
+  // Matrix C1 (Checkpoint 2): full visual conversion to the posCloud/
+  // posCloudDark design language, per explicit approval for 100% visual
+  // parity with pos-cloud's flat topbar style. Every existing behavior is
+  // preserved exactly: branch + search remain non-functional placeholders
+  // (B6 decision — do not wire them up, do not remove them), language
+  // switch/theme toggle/notifications/avatar-dropdown-with-logout remain
+  // fully functional with identical logic, the ⌘K hint and user-email-in-
+  // dropdown are kept since they're existing Sefay features pos-cloud's
+  // own topbar doesn't have. Converted from inline style={{}} + manual
+  // isDark ternaries to Tailwind classes + dark: variants — the same
+  // mechanism already used by every other component in this migration,
+  // not a new pattern (this file was the outlier, not Checkpoint 1).
   return (
-    <header
-      className="dash-header"
-      style={{
-        height: '66px',
-        background: isDark
-          ? 'linear-gradient(115deg, #0D1117 0%, #11161F 50%, #161D29 100%)'
-          : 'linear-gradient(115deg, #082F5C 0%, #0C447C 42%, #1761B8 100%)',
-        borderBottom: isDark ? '1px solid rgba(91,155,213,0.16)' : 'none',
-        boxShadow: isDark
-          ? '0 6px 20px rgba(0,0,0,0.6)'
-          : '0 6px 28px rgba(8,47,92,0.42), 0 1px 0 rgba(255,255,255,0.1) inset',
-        position: 'sticky',
-        top: 0,
-        zIndex: 300,
-        display: 'flex',
-        alignItems: 'center',
-        padding: '0 16px',
-        gap: '12px',
-        flexShrink: 0,
-        minWidth: 0,
-        overflow: 'hidden',
-      }}
-    >
-      {/* Logo zone */}
-      <div
-        className="lg:w-[264px]"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          flexShrink: 0,
-        }}
+    <header className="sticky top-0 z-[300] flex h-[68px] shrink-0 items-center gap-2 border-b border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-3 sm:gap-3 sm:px-4 max-[480px]:px-2 max-[480px]:gap-[5px] max-[360px]:gap-[3px]">
+      {/* Mobile menu trigger */}
+      <button
+        onClick={onMenuClick}
+        className="rounded-lg border border-posCloud-border dark:border-posCloudDark-border p-2 text-posCloud-text-secondary dark:text-posCloudDark-text-secondary hover:bg-slate-100 dark:hover:bg-posCloudDark-border/40 lg:hidden max-[480px]:flex max-[480px]:h-8 max-[480px]:w-8 max-[480px]:items-center max-[480px]:justify-center max-[480px]:p-0"
+        aria-label="Open menu"
       >
-        {/* Mobile menu btn */}
-        <button
-          onClick={onMenuClick}
-          className="flex lg:hidden"
-          style={{
-            width: '36px', height: '36px',
-            borderRadius: '10px',
-            background: 'rgba(255,255,255,0.13)',
-            border: '1px solid rgba(255,255,255,0.22)',
-            alignItems: 'center', justifyContent: 'center',
-            color: '#fff', cursor: 'pointer', flexShrink: 0,
-          }}
-        >
-          <Menu size={18} />
-        </button>
+        <Menu size={18} />
+      </button>
 
-        {/* Logo mark */}
-        <div
-          style={{
-            width: '39px', height: '39px',
-            background: 'linear-gradient(135deg, rgba(255,255,255,0.3), rgba(255,255,255,0.12))',
-            borderRadius: '12px',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            border: '1px solid rgba(255,255,255,0.32)',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.18), 0 1px 0 rgba(255,255,255,0.25) inset',
-            flexShrink: 0,
-          }}
-        >
-          <svg width="21" height="21" viewBox="0 0 24 24" fill="white">
-            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-          </svg>
-        </div>
-
-        {/* Brand name */}
-        <span
-          className="brand-name"
-          style={{
-            fontSize: '21px', fontWeight: 700, color: '#fff',
-            letterSpacing: '-0.6px', textShadow: '0 1px 3px rgba(0,0,0,0.18)',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          Sefay
-        </span>
+      {/* Brand tile */}
+      <div className="hidden h-full shrink-0 items-center gap-2 rounded-xl bg-posCloud-navy-950 px-4 sm:flex lg:w-[240px]">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="#60a5fa" stroke="none" />
+        </svg>
+        <span className="whitespace-nowrap text-sm font-extrabold text-white max-[480px]:hidden">Sefay</span>
       </div>
 
-      {/* Spacer */}
-      <div style={{ flex: 1 }} />
+      {/* User identity — opens a profile/logout menu */}
+      <div className="relative shrink-0">
+        <button
+          ref={avatarBtnRef}
+          onClick={openMenu}
+          className="flex items-center gap-3 rounded-lg p-1.5 hover:bg-slate-100 dark:hover:bg-posCloudDark-border/40"
+        >
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-posCloud-primary-400 to-posCloud-primary text-sm font-bold text-white max-[480px]:h-8 max-[480px]:w-8 max-[480px]:text-[11px]">
+            {user?.name?.[0]?.toUpperCase() ?? 'U'}
+          </div>
+          <div className="hidden text-start sm:block" style={{ textAlign: isRTL ? 'right' : 'left' }}>
+            <div className="text-sm font-bold text-posCloud-text-primary dark:text-posCloudDark-text-primary">
+              {user?.name ?? '...'}
+            </div>
+            <p className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+              {user?.role ?? ''}
+            </p>
+          </div>
+        </button>
 
-      {/* Branch — compact icon button on mobile/tablet, full pill at lg+ */}
+        {menuOpen && typeof document !== 'undefined' && createPortal(
+          <div
+            ref={dropdownRef}
+            style={{ position: 'fixed', top: menuPos.top, left: menuPos.left }}
+            className="z-[1000] w-[180px] rounded-xl border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface p-1.5 shadow-lg"
+          >
+            <div className="border-b border-posCloud-border dark:border-posCloudDark-border px-3 py-2">
+              <div className="text-sm font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary">
+                {user?.name ?? '...'}
+              </div>
+              <div className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+                {user?.email ?? ''}
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                setMenuOpen(false)
+                logout()
+              }}
+              className="mt-1 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-posCloud-danger hover:bg-posCloud-danger-light"
+              style={{ textAlign: isRTL ? 'right' : 'left' }}
+            >
+              <LogOut size={15} />
+              {t('logout')}
+            </button>
+          </div>,
+          document.body
+        )}
+      </div>
+
+      <div className="hidden h-8 w-px shrink-0 bg-posCloud-border dark:bg-posCloudDark-border sm:block" />
+
+      {/* Branch — existing Sefay element, kept as a placeholder per B6 (no
+          store/backend exists yet for real branch switching); visual only */}
       <button
-        className="icon-btn flex lg:hidden"
-        style={{
-          width: '39px', height: '39px', borderRadius: '12px',
-          background: 'rgba(255,255,255,0.13)',
-          border: '1px solid rgba(255,255,255,0.22)',
-          alignItems: 'center', justifyContent: 'center',
-          color: '#fff', cursor: 'pointer', backdropFilter: 'blur(10px)',
-          flexShrink: 0,
-        }}
+        className="flex shrink-0 items-center gap-1.5 rounded-lg border border-posCloud-border dark:border-posCloudDark-border px-3 py-2 text-sm font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary hover:bg-slate-100 dark:hover:bg-posCloudDark-border/40 lg:hidden"
+        aria-label={t('branch')}
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
           <polyline points="9 22 9 12 15 12 15 22" />
         </svg>
       </button>
-      <div
-        style={{
-          alignItems: 'center', gap: '7px',
-          background: 'rgba(255,255,255,0.13)',
-          border: '1px solid rgba(255,255,255,0.22)',
-          borderRadius: '11px', padding: '8px 13px',
-          color: 'rgba(255,255,255,0.94)', fontSize: '12px', fontWeight: 500,
-          cursor: 'pointer', backdropFilter: 'blur(10px)',
-        }}
-        className="hidden lg:flex"
-      >
+      <button className="hidden shrink-0 items-center gap-1.5 rounded-lg border border-posCloud-border dark:border-posCloudDark-border px-3 py-2 text-sm font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary hover:bg-slate-100 dark:hover:bg-posCloudDark-border/40 lg:flex">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
           <polyline points="9 22 9 12 15 12 15 22" />
         </svg>
         <span>{t('branch')}</span>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.55 }}>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-55">
           <polyline points="6 9 12 15 18 9" />
         </svg>
-      </div>
+      </button>
 
-      {/* Search — compact icon button on mobile/tablet, full bar at lg+ */}
+      {/* Search — existing Sefay element (incl. ⌘K hint, absent from
+          pos-cloud), kept as a placeholder exactly as today; visual only */}
       <button
-        className="icon-btn flex lg:hidden"
-        style={{
-          width: '39px', height: '39px', borderRadius: '12px',
-          background: 'rgba(255,255,255,0.13)',
-          border: '1px solid rgba(255,255,255,0.22)',
-          alignItems: 'center', justifyContent: 'center',
-          color: '#fff', cursor: 'pointer', backdropFilter: 'blur(10px)',
-          flexShrink: 0,
-        }}
+        className="flex shrink-0 items-center justify-center rounded-lg border border-posCloud-border dark:border-posCloudDark-border p-2 text-posCloud-text-tertiary hover:bg-slate-100 dark:hover:bg-posCloudDark-border/40 lg:hidden"
+        aria-label={t('search')}
       >
         <Search size={16} />
       </button>
-      <div
-        style={{
-          alignItems: 'center', gap: '9px',
-          background: 'rgba(255,255,255,0.13)',
-          border: '1px solid rgba(255,255,255,0.22)',
-          borderRadius: '11px', padding: '9px 14px',
-          color: 'rgba(255,255,255,0.62)', fontSize: '13px',
-          width: '206px', backdropFilter: 'blur(10px)', cursor: 'text',
-        }}
-        className="hidden lg:flex"
-      >
-        <Search size={16} style={{ flexShrink: 0 }} />
-        <span style={{ flex: 1 }}>{t('search')}</span>
-        <kbd
-          style={{
-            fontSize: '10px',
-            background: 'rgba(255,255,255,0.16)',
-            padding: '2px 7px', borderRadius: '6px',
-            border: '1px solid rgba(255,255,255,0.16)',
-          }}
-        >
+      <div className="relative hidden min-w-0 flex-1 items-center gap-2 rounded-lg border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-background dark:bg-posCloudDark-background px-3 py-2 md:flex md:max-w-xs lg:max-w-sm">
+        <Search size={16} className="shrink-0 text-posCloud-text-tertiary" />
+        <span className="flex-1 truncate text-sm text-posCloud-text-tertiary">{t('search')}</span>
+        <kbd className="shrink-0 rounded-md border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-1.5 py-0.5 text-[10px] text-posCloud-text-tertiary">
           ⌘K
         </kbd>
       </div>
 
-      {/* Lang switcher */}
+      {/* Language switcher */}
       <button
         onClick={switchLocale}
-        className="lang-btn"
-        style={{
-          display: 'flex', alignItems: 'center', gap: '7px',
-          background: 'rgba(255,255,255,0.13)',
-          border: '1px solid rgba(255,255,255,0.22)',
-          borderRadius: '11px', padding: '8px 13px',
-          color: 'rgba(255,255,255,0.94)', fontSize: '12px', fontWeight: 500,
-          cursor: 'pointer', backdropFilter: 'blur(10px)', flexShrink: 0,
-        }}
+        className="flex shrink-0 items-center gap-1 rounded-lg p-2 text-xs font-semibold text-posCloud-text-tertiary hover:bg-slate-100 dark:hover:bg-posCloudDark-border/40 max-[480px]:px-2 max-[480px]:py-1.5 max-[480px]:text-[11px] max-[360px]:px-1.5 max-[360px]:py-1 max-[360px]:text-[10px]"
       >
         {otherLabel}
       </button>
 
-      {/* Theme toggle */}
+      {/* Dark mode toggle */}
       <button
         onClick={toggle}
-        className="icon-btn"
-        style={{
-          width: '39px', height: '39px', borderRadius: '12px',
-          background: 'rgba(255,255,255,0.13)',
-          border: '1px solid rgba(255,255,255,0.22)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: '#fff', cursor: 'pointer', backdropFilter: 'blur(10px)',
-          flexShrink: 0,
-        }}
+        className="shrink-0 rounded-lg border border-posCloud-border dark:border-posCloudDark-border p-2 text-posCloud-text-tertiary hover:bg-slate-100 dark:hover:bg-posCloudDark-border/40 max-[480px]:flex max-[480px]:h-8 max-[480px]:w-8 max-[480px]:items-center max-[480px]:justify-center max-[480px]:p-0"
       >
         {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
       </button>
 
       {/* Notifications */}
-      <button
-        className="icon-btn"
-        style={{
-          width: '39px', height: '39px', borderRadius: '12px',
-          background: 'rgba(255,255,255,0.13)',
-          border: '1px solid rgba(255,255,255,0.22)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: '#fff', cursor: 'pointer', backdropFilter: 'blur(10px)',
-          flexShrink: 0, position: 'relative',
-        }}
-      >
+      <button className="relative shrink-0 rounded-lg p-2 text-posCloud-text-tertiary hover:bg-slate-100 dark:hover:bg-posCloudDark-border/40 max-[480px]:flex max-[480px]:h-8 max-[480px]:w-8 max-[480px]:items-center max-[480px]:justify-center max-[480px]:p-0">
         <Bell size={18} />
         {notifCount > 0 && (
-          <span
-            style={{
-              position: 'absolute', top: '-5px', left: '-5px',
-              background: 'linear-gradient(135deg, #FB7185, #EF4444)',
-              color: '#fff', fontSize: '9px', fontWeight: 700,
-              width: '18px', height: '18px', borderRadius: '50%',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              border: isDark ? '2px solid #11161F' : '2px solid #0C447C',
-              boxShadow: '0 2px 8px rgba(239,68,68,0.55)',
-            }}
-          >
+          <span className="absolute -top-0.5 end-[-2px] flex h-4 w-4 items-center justify-center rounded-full bg-posCloud-danger text-[10px] font-bold text-white">
             {notifCount}
           </span>
         )}
       </button>
-
-      {/* User avatar + menu */}
-      <div style={{ position: 'relative', flexShrink: 0 }}>
-        <button
-          ref={avatarBtnRef}
-          onClick={openMenu}
-          style={{
-            display: 'flex', alignItems: 'center', gap: '10px',
-            background: 'transparent', border: 'none', cursor: 'pointer', padding: 0,
-          }}
-        >
-          <div
-            className="avatar-circle"
-            style={{
-              width: '39px', height: '39px', borderRadius: '50%',
-              background: 'linear-gradient(135deg, #3B82F6, #1D4ED8)',
-              border: '2px solid rgba(255,255,255,0.42)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '12px', fontWeight: 700, color: '#fff',
-              flexShrink: 0,
-              boxShadow: '0 2px 10px rgba(0,0,0,0.22)',
-            }}
-          >
-            {user?.name?.[0]?.toUpperCase() ?? 'U'}
-          </div>
-
-          {/* User name */}
-          <div className="hidden lg:block" style={{ minWidth: 0, textAlign: isRTL ? 'right' : 'left' }}>
-            <div style={{ fontSize: '12px', fontWeight: 600, color: '#fff', lineHeight: 1.3 }}>
-              {user?.name ?? '...'}
-            </div>
-            <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.6)' }}>
-              {user?.role ?? ''}
-            </div>
-          </div>
-        </button>
-      </div>
-
-      {menuOpen && typeof document !== 'undefined' && createPortal(
-        <div
-          ref={dropdownRef}
-          style={{
-            position: 'fixed',
-            top: menuPos.top,
-            left: menuPos.left,
-            minWidth: '180px',
-            background: '#fff',
-            borderRadius: '12px',
-            boxShadow: '0 8px 28px rgba(10,22,40,0.22)',
-            border: '1px solid rgba(10,22,40,0.06)',
-            overflow: 'hidden',
-            zIndex: 1000,
-          }}
-        >
-          <div style={{ padding: '12px 14px', borderBottom: '1px solid rgba(10,22,40,0.06)' }}>
-            <div style={{ fontSize: '13px', fontWeight: 600, color: '#0F172A' }}>
-              {user?.name ?? '...'}
-            </div>
-            <div style={{ fontSize: '11px', color: '#64748B' }}>
-              {user?.email ?? ''}
-            </div>
-          </div>
-          <button
-            onClick={() => {
-              setMenuOpen(false)
-              logout()
-            }}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '8px',
-              width: '100%', padding: '11px 14px',
-              background: 'transparent', border: 'none', cursor: 'pointer',
-              fontSize: '13px', fontWeight: 500, color: '#EF4444',
-              textAlign: isRTL ? 'right' : 'left',
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = '#FEF2F2' }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
-          >
-            <LogOut size={15} />
-            {t('logout')}
-          </button>
-        </div>,
-        document.body
-      )}
-
-      <style>{`
-        @media (max-width: 480px) {
-          .dash-header { padding: 0 8px !important; gap: 5px !important; }
-          .brand-name { display: none; }
-          .lang-btn { padding: 6px 8px !important; font-size: 11px !important; }
-          .icon-btn { width: 32px !important; height: 32px !important; }
-          .avatar-circle { width: 32px !important; height: 32px !important; font-size: 11px !important; }
-        }
-        @media (max-width: 360px) {
-          .dash-header { gap: 3px !important; }
-          .lang-btn { padding: 5px 6px !important; font-size: 10px !important; }
-        }
-      `}</style>
     </header>
   )
 }

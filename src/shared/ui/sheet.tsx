@@ -47,12 +47,12 @@ function SheetOverlay({ className, ...props }: React.ComponentProps<typeof Dialo
 // — adding `h-full` here would fight that (height:100% ignores the bottom
 // offset) and overflow past the viewport whenever top is non-zero.
 const sheetVariants = cva(
-  'fixed z-50 flex flex-col gap-0 bg-white dark:bg-[#1a1f2e] shadow-xl transition ease-in-out data-[state=closed]:duration-200 data-[state=open]:duration-300',
+  'fixed z-50 flex flex-col gap-0 bg-posCloud-surface dark:bg-posCloudDark-surface shadow-xl transition ease-in-out data-[state=closed]:duration-200 data-[state=open]:duration-300',
   {
     variants: {
       side: {
-        start: 'top-0 bottom-0 start-0 w-full border-e border-slate-200 dark:border-[#1e2130] sm:max-w-xl',
-        end: 'top-0 bottom-0 end-0 w-full border-s border-slate-200 dark:border-[#1e2130] sm:max-w-xl',
+        start: 'top-0 bottom-0 start-0 w-full border-e border-posCloud-border dark:border-posCloudDark-border sm:max-w-xl',
+        end: 'top-0 bottom-0 end-0 w-full border-s border-posCloud-border dark:border-posCloudDark-border sm:max-w-xl',
       },
     },
     defaultVariants: { side: 'end' },
@@ -77,7 +77,7 @@ function SheetContent({ side = 'end', className, children, ...props }: SheetCont
       <SheetOverlay />
       <DialogPrimitive.Content className={cn(sheetVariants({ side }), animationClass, className)} {...props}>
         {children}
-        <DialogPrimitive.Close className="absolute end-4 top-4 rounded opacity-70 text-slate-500 dark:text-[#64748b] transition-opacity hover:opacity-100 focus:outline-none">
+        <DialogPrimitive.Close className="absolute end-4 top-4 rounded opacity-70 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary transition-opacity hover:opacity-100 focus:outline-none">
           <X className="h-4 w-4" />
         </DialogPrimitive.Close>
       </DialogPrimitive.Content>
@@ -86,20 +86,20 @@ function SheetContent({ side = 'end', className, children, ...props }: SheetCont
 }
 
 function SheetHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn('flex flex-col gap-1 p-6 border-b border-slate-200 dark:border-[#1e2130]', className)} {...props} />
+  return <div className={cn('flex flex-col gap-1 p-6 border-b border-posCloud-border dark:border-posCloudDark-border', className)} {...props} />
 }
 
 function SheetTitle({ className, ...props }: React.ComponentProps<typeof DialogPrimitive.Title>) {
   return (
     <DialogPrimitive.Title
-      className={cn('text-lg font-semibold text-slate-900 dark:text-white tracking-tight', className)}
+      className={cn('text-lg font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary tracking-tight', className)}
       {...props}
     />
   )
 }
 
 function SheetDescription({ className, ...props }: React.ComponentProps<typeof DialogPrimitive.Description>) {
-  return <DialogPrimitive.Description className={cn('text-sm text-slate-500', className)} {...props} />
+  return <DialogPrimitive.Description className={cn('text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary', className)} {...props} />
 }
 
 function SheetBody({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
@@ -112,7 +112,7 @@ function SheetFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElemen
   return (
     <div
       className={cn(
-        'absolute bottom-0 inset-x-0 flex items-center justify-end gap-3 p-4 border-t border-slate-200 dark:border-[#1e2130] bg-slate-50 dark:bg-[#161B22]',
+        'absolute bottom-0 inset-x-0 flex items-center justify-end gap-3 p-4 border-t border-posCloud-border dark:border-posCloudDark-border bg-posCloud-background dark:bg-posCloudDark-background',
         className
       )}
       {...props}

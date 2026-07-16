@@ -116,13 +116,13 @@ export function POSPage() {
     <div className="flex flex-col h-full min-h-0 overflow-hidden">
 
       {/* Mobile Tabs */}
-      <div className="flex lg:hidden border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shrink-0">
+      <div className="flex lg:hidden border-b border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface shrink-0">
         <button
           onClick={() => setMobileTab('items')}
           className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors ${
             mobileTab === 'items'
-              ? 'text-[#0C447C] border-b-2 border-[#0C447C]'
-              : 'text-gray-500 dark:text-gray-400'
+              ? 'text-posCloud-primary border-b-2 border-posCloud-primary'
+              : 'text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary'
           }`}
         >
           <Grid className="w-4 h-4" />
@@ -132,14 +132,14 @@ export function POSPage() {
           onClick={() => setMobileTab('cart')}
           className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors ${
             mobileTab === 'cart'
-              ? 'text-[#0C447C] border-b-2 border-[#0C447C]'
-              : 'text-gray-500 dark:text-gray-400'
+              ? 'text-posCloud-primary border-b-2 border-posCloud-primary'
+              : 'text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary'
           }`}
         >
           <ShoppingCart className="w-4 h-4" />
           {t('currentOrder')}
           {cart.items.length > 0 && (
-            <span className="bg-[#0C447C] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+            <span className="bg-posCloud-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
               {cart.items.length}
             </span>
           )}
@@ -147,7 +147,7 @@ export function POSPage() {
       </div>
 
       {/* Desktop: side by side — Mobile: tabs */}
-      <div className="flex flex-1 min-h-0 gap-4 p-4 overflow-hidden">
+      <div className="flex flex-1 min-h-0 gap-5 p-4 sm:p-6 overflow-hidden">
 
         {/* Items Grid */}
         <div className={`flex-1 min-w-0 min-h-0 overflow-hidden flex flex-col ${mobileTab === 'cart' ? 'hidden lg:flex' : 'flex'}`}>
@@ -157,7 +157,7 @@ export function POSPage() {
         </div>
 
         {/* Cart Panel */}
-        <div className={`lg:w-80 lg:shrink-0 w-full min-h-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 flex flex-col overflow-hidden ${mobileTab === 'items' ? 'hidden lg:flex' : 'flex'}`}>
+        <div className={`lg:w-[340px] lg:shrink-0 w-full min-h-0 bg-posCloud-surface dark:bg-posCloudDark-surface border border-posCloud-border dark:border-posCloudDark-border rounded-2xl p-5 flex flex-col overflow-hidden ${mobileTab === 'items' ? 'hidden lg:flex' : 'flex'}`}>
           <CartPanel
             cart={cart}
             onUpdateQty={updateQty}
