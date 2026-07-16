@@ -145,13 +145,18 @@ F1 was assessed as too large for a single item (6 files, 1,181 lines, 6 independ
 - Category: Feature Page
 - Scope: `src/features/pos/components/ItemGrid.tsx`
 - pos-cloud reference: `pos-cloud/src/app/dashboard/pos/page.tsx` lines 183–236 (search bar, category chips, product card grid)
-- Status: Not Started
+- Consumer Count: 1 (`POSPage.tsx`) — unchanged
+- Behavior Change Assessment: No logic changed — search/category filtering, `handleItemClick`, `VariantModal` open/close, all `useItems`/`useCategories`/`useItemVariants` data fetching untouched. Only layout/classes changed.
+- Known content gap: pos-cloud's product cards include a photo; Sefay's real `Item` data model has no `image_url` field (confirmed via `item.types.ts`/`items.api.ts` — `POSItem.image_url` exists only in the unused POS-local type). Images were not added — would require inventing backend functionality, explicitly out of scope. Card layout matches pos-cloud's structure minus the image slot.
+- Status: **Done**
 
 #### F1.3 — Cart Panel
 - Category: Feature Page
 - Scope: `src/features/pos/components/CartPanel.tsx`
 - pos-cloud reference: `pos-cloud/src/app/dashboard/pos/page.tsx` lines 239–432 (cart lines, promo/loyalty/gift-card, totals, checkout button)
-- Status: Not Started
+- Consumer Count: 1 (`POSPage.tsx`) — unchanged
+- Behavior Change Assessment: No logic changed — `handleApplyCoupon` (real `/coupons/validate` API call), qty/remove handlers, customer clear, `onCheckout` — all untouched. Checkout `<button>` replaced with the shared `Button` primitive (D1) — same `onClick`/`disabled` semantics, zero behavior change, confirmed before implementation per user's explicit evaluation request.
+- Status: **Done**
 
 #### F1.4 — Payment Modal
 - Category: Feature Page

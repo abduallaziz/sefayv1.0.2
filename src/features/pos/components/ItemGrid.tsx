@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
+import { Search } from 'lucide-react'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
 import { POSItem, POSVariant } from '../types/pos.types'
 import { useItems, useCategories, useItemVariants } from '@/features/items/hooks/useItems'
@@ -20,20 +21,20 @@ function VariantModal({ item, onAddItem, onClose, t }: {
   const currency = useTenantStore((s) => s.currency_symbol)
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl p-5 w-full max-w-sm">
-        <h3 className="font-semibold text-lg text-gray-900 dark:text-white mb-1">{item.name_ar}</h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{t('variant.title')}</p>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-posCloud-surface dark:bg-posCloudDark-surface border border-posCloud-border dark:border-posCloudDark-border rounded-2xl p-5 w-full max-w-sm">
+        <h3 className="font-semibold text-lg text-posCloud-text-primary dark:text-posCloudDark-text-primary mb-1">{item.name_ar}</h3>
+        <p className="text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary mb-4">{t('variant.title')}</p>
         <div className="grid grid-cols-1 gap-2 max-h-64 overflow-y-auto">
           {isLoading ? (
-            <div className="h-10 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />
+            <div className="h-10 bg-posCloud-background dark:bg-posCloudDark-background rounded animate-pulse" />
           ) : variants.length === 0 ? (
             <button
               onClick={() => { onAddItem(item); onClose(); }}
-              className="flex justify-between items-center p-3 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-[#0C447C] hover:bg-[#E8F0FB]0/5 transition-all"
+              className="flex justify-between items-center p-3 rounded-xl border border-posCloud-border dark:border-posCloudDark-border hover:border-posCloud-primary/40 hover:bg-posCloud-primary-light/50 dark:hover:bg-white/5 transition-all"
             >
-              <span className="font-medium text-gray-900 dark:text-white">{item.name_ar}</span>
-              <span className="text-[#0C447C] dark:text-[#5B9BD5] font-bold">{item.price.toLocaleString('en-US')} {currency}</span>
+              <span className="font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary">{item.name_ar}</span>
+              <span className="text-posCloud-primary font-bold">{item.price.toLocaleString('en-US')} {currency}</span>
             </button>
           ) : (
             variants.map((v: any) => (
@@ -47,10 +48,10 @@ function VariantModal({ item, onAddItem, onClose, t }: {
                   });
                   onClose();
                 }}
-                className="flex justify-between items-center p-3 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-[#0C447C] hover:bg-[#E8F0FB]0/5 transition-all"
+                className="flex justify-between items-center p-3 rounded-xl border border-posCloud-border dark:border-posCloudDark-border hover:border-posCloud-primary/40 hover:bg-posCloud-primary-light/50 dark:hover:bg-white/5 transition-all"
               >
-                <span className="font-medium text-gray-900 dark:text-white">{v.name}</span>
-                <span className="text-[#0C447C] dark:text-[#5B9BD5] font-bold">
+                <span className="font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary">{v.name}</span>
+                <span className="text-posCloud-primary font-bold">
                   {(item.price + (v.price_adjustment ?? 0)).toLocaleString('en-US')} {currency}
                 </span>
               </button>
@@ -58,7 +59,7 @@ function VariantModal({ item, onAddItem, onClose, t }: {
           )}
         </div>
         <button
-          className="w-full mt-3 py-2 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-lg text-sm transition-colors"
+          className="w-full mt-3 py-2 border border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary rounded-lg text-sm transition-colors"
           onClick={onClose}
         >
           {t('variant.cancel')}
@@ -106,21 +107,24 @@ export function ItemGrid({ onAddItem }: Props) {
   }
 
   return (
-    <div className="flex flex-col h-full min-h-0 gap-3">
-      <input
-        placeholder={t('search')}
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C] placeholder-gray-400 dark:placeholder-gray-600"
-      />
+    <div className="flex flex-col h-full min-h-0 gap-4">
+      <div className="flex items-center gap-2 rounded-lg border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-3 py-2 text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+        <Search className="h-4 w-4 shrink-0" />
+        <input
+          placeholder={t('search')}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full bg-transparent outline-none placeholder:text-posCloud-text-tertiary dark:placeholder:text-posCloudDark-text-tertiary text-posCloud-text-primary dark:text-posCloudDark-text-primary"
+        />
+      </div>
 
       <div className="flex gap-2 flex-wrap">
         <button
           onClick={() => setActiveCategory('all')}
-          className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+          className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
             activeCategory === 'all'
-              ? 'bg-[#0C447C] text-white'
-              : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              ? 'bg-posCloud-primary text-white'
+              : 'bg-posCloud-surface dark:bg-posCloudDark-surface text-posCloud-text-secondary dark:text-posCloudDark-text-secondary border border-posCloud-border dark:border-posCloudDark-border hover:bg-slate-50 dark:hover:bg-white/5'
           }`}
         >
           {t('categories.all')}
@@ -129,10 +133,10 @@ export function ItemGrid({ onAddItem }: Props) {
           <button
             key={cat.id}
             onClick={() => setActiveCategory(cat.id)}
-            className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+            className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
               activeCategory === cat.id
-                ? 'bg-[#0C447C] text-white'
-                : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                ? 'bg-posCloud-primary text-white'
+                : 'bg-posCloud-surface dark:bg-posCloudDark-surface text-posCloud-text-secondary dark:text-posCloudDark-text-secondary border border-posCloud-border dark:border-posCloudDark-border hover:bg-slate-50 dark:hover:bg-white/5'
             }`}
           >
             {cat.name}
@@ -141,27 +145,27 @@ export function ItemGrid({ onAddItem }: Props) {
       </div>
 
       {isLoading ? (
-        <div className="flex-1 flex items-center justify-center text-gray-500 dark:text-gray-400 text-sm">{t('loading')}</div>
+        <div className="flex-1 flex items-center justify-center text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary text-sm">{t('loading')}</div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto flex-1 min-h-0 pb-2">
+        <div className="grid grid-cols-2 gap-4 overflow-y-auto flex-1 min-h-0 pb-2 sm:grid-cols-3 xl:grid-cols-4">
           {filtered.length === 0 && (
-            <p className="col-span-3 text-center text-gray-500 dark:text-gray-400 text-sm py-8">{t('noItems')}</p>
+            <p className="col-span-full text-center text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary text-sm py-10">{t('noItems')}</p>
           )}
           {filtered.map((item) => (
             <button
               key={item.id}
               onClick={() => handleItemClick(item)}
-              className="relative bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-3 text-right hover:border-[#0C447C] hover:shadow-sm transition-all active:scale-95"
+              className="relative flex flex-col overflow-hidden rounded-2xl border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface text-center shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-transform hover:-translate-y-0.5 hover:border-posCloud-primary/40"
             >
               {item.type === 'service' && (
-                <span className="absolute top-2 left-2 text-xs bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 px-1.5 py-0.5 rounded">{t('service')}</span>
+                <span className="absolute top-2 left-2 text-xs bg-posCloud-background dark:bg-posCloudDark-background text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary px-1.5 py-0.5 rounded">{t('service')}</span>
               )}
               {item.has_variants && (
-                <span className="absolute top-2 right-2 text-xs bg-[#0C447C]/10 text-[#0C447C] dark:text-[#5B9BD5] px-1.5 py-0.5 rounded">{t('multiple')}</span>
+                <span className="absolute top-2 right-2 text-xs bg-posCloud-primary-light text-posCloud-primary px-1.5 py-0.5 rounded">{t('multiple')}</span>
               )}
-              <div className="mt-4">
-                <p className="font-medium text-sm text-gray-900 dark:text-white truncate">{item.name_ar}</p>
-                <p className="text-[#0C447C] dark:text-[#5B9BD5] font-bold text-base mt-2">{item.price.toLocaleString('en-US')} {currency}</p>
+              <div className="p-3">
+                <p className="font-semibold text-sm text-posCloud-text-primary dark:text-posCloudDark-text-primary truncate">{item.name_ar}</p>
+                <p className="text-posCloud-primary font-bold text-sm mt-1">{item.price.toLocaleString('en-US')} {currency}</p>
               </div>
             </button>
           ))}

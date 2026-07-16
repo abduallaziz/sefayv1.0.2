@@ -21,16 +21,18 @@ Status: LIVE — update after every Matrix item.
 | E6 | number-input.tsx — No Action Required (no color classes exist) | Checkpoint 3 |
 | E7 | stat-card.tsx — Skipped (Dead Component), logged as deletion candidate AF-9, supersedes DEF-4 | Checkpoint 3 |
 | F1 (planning) | POS Page — size assessment, split into F1.1–F1.6 | Checkpoint 4 |
-| F1.1 | POS Page Shell | Checkpoint 4 |
+| F1.1 | POS Page Shell — deployed to production, visual review approved | Checkpoint 4 |
+| F1.2 | Item Grid | Checkpoint 4 |
+| F1.3 | Cart Panel — checkout button swapped to shared Button primitive | Checkpoint 4 |
 
 ## Current Item
 
-F1.1 complete. Deployment to production pending, then awaiting user's visual review approval before F1.2.
+F1.2 + F1.3 complete, reviewed together per user instruction. Deploying to production next, then awaiting visual review before F1.4.
 
 ## Remaining Items
 
 See `02_MIGRATION_MATRIX.md` for full detail:
-- F1.2–F1.6: POS page sections (Item Grid, Cart Panel, Payment Modal, Receipt Modal, Customer Picker Modal)
+- F1.4–F1.6: POS page sections (Payment Modal, Receipt Modal, Customer Picker Modal)
 - F2–F11: remaining feature pages (Products/Items, Orders, Customers, Suppliers, Expenses, Reports, Settings, Tables, Kitchen, Inventory-suite)
 - Sefay-only pages (no pos-cloud reference): shifts, users/employees, attendance, schedules, payroll, leaves, coupons, gift-cards, loyalty-tiers, invoices, access-control, onboarding, superadmin/*, attend
 
@@ -39,11 +41,11 @@ See `02_MIGRATION_MATRIX.md` for full detail:
 - **Checkpoint 1** (Design System primitives, D1–D6): Complete.
 - **Checkpoint 2** (Dashboard Shell, C1–C4): Complete.
 - **Checkpoint 3** (remaining Design System primitives, E1–E7): **Complete.** Final tally: E1 Done, E2 Skipped (dead), E3 Done, E4 Skipped (dead), E5 Done (scope-corrected), E6 No Action Required, E7 Skipped (dead).
-- **Checkpoint 4** (Feature Pages, F1–F11 and Sefay-only pages): In progress. F1 split into F1.1–F1.6; F1.1 (Page Shell) complete, awaiting production visual review before F1.2.
+- **Checkpoint 4** (Feature Pages, F1–F11 and Sefay-only pages): In progress. F1 split into F1.1–F1.6; F1.1 deployed and approved, F1.2 + F1.3 complete (POS page's primary visual transformation), deploying together for review.
 
 ## Progress
 
-Shell: 100% (4/4 items). Design System: 100% resolved (7/7 E-series items — 3 styled, 3 confirmed dead/deleted-candidate, 1 no-action-needed; plus 16 from D1–D6/E1/E3/E5 total actually restyled). Feature Pages: F1.1/6 of F1's children complete (1/~60+ total across all Feature Page items, not yet fully sequenced).
+Shell: 100% (4/4 items). Design System: 100% resolved (7/7 E-series items — 3 styled, 3 confirmed dead/deleted-candidate, 1 no-action-needed; plus 16 from D1–D6/E1/E3/E5 total actually restyled). Feature Pages: 3/6 of F1's children complete (F1.1, F1.2, F1.3), out of ~60+ total across all Feature Page items, not yet fully sequenced.
 
 ## Temporary Deviations
 

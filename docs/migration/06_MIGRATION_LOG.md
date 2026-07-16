@@ -145,4 +145,54 @@ Visual Diff Summary: Mobile tab active/inactive colors, badge color, gap/padding
 
 Validation: tsc clean; eslint 5 pre-existing errors (all `@typescript-eslint/no-explicit-any` on data-fetching/error-handling lines untouched by this edit — lines 32, 38, 54, 86, 92, verified against pre-edit content); next build all 47 routes compiled; dev server runtime clean.
 
+Defects/Findings discovered: none new (DEF-6 logged separately).
+
+Deployed to production: commit `f3c9b50`, https://sefayv1-0-2.vercel.app/. User visual review found F1.1's visible impact minimal — expected, since the shell change doesn't touch the two components rendering ~100% of the page's visible content (`ItemGrid.tsx`, `CartPanel.tsx`). Confirmed by user as F1.1 having achieved exactly its intended (limited) scope; approved to proceed.
+
+---
+
+## F1.2 — Item Grid
+
+Date: 2026-07-16
+Files Changed: `src/features/pos/components/ItemGrid.tsx`
+
+Behavior Change Assessment: No logic changed. Search/category filtering (`filtered`), `handleItemClick`, `VariantModal` open/close and its own add-to-cart logic, all `useItems`/`useCategories`/`useItemVariants` data fetching — all untouched. Only layout/classes changed (added a `Search` icon import for the search field, no logic import).
+
+Design Consistency Check: Compared against pos-cloud lines 183–236. Search field: wrapped in a bordered/surfaced container with an inline `Search` icon (previously a bare input), matching pos-cloud exactly. Category chips: `rounded-lg px-4 py-2` (was `rounded-lg px-3 py-1`), active `bg-posCloud-primary`, inactive `bg-posCloud-surface border` (was borderless `bg-gray-100`) — Exact Match. Product grid: `gap-4` + `xl:grid-cols-4` breakpoint added (was `gap-3`, capped at `sm:grid-cols-3`) — Exact Match. Product cards: `rounded-2xl` (was `rounded-xl`), added `shadow-[0_1px_2px_rgba(15,23,42,0.04)]` and `hover:-translate-y-0.5 hover:border-primary/40` (was `hover:shadow-sm active:scale-95`), text alignment `text-center` (was `text-right`) — Exact Match to pos-cloud's card treatment. Sefay-only badges (`service` type tag, `has_variants` "multiple" tag — not present in pos-cloud) kept per rule 4, restyled with `posCloud` tokens instead of hardcoded hex.
+
+Known content gap (not a styling gap): pos-cloud's product cards display a photo. Sefay's real `Item` type (`item.types.ts`) has no `image_url` field — confirmed via direct inspection of the type and the API-backed `useItems` hook. The `POSItem.image_url?: string` field in the POS-local type is unused/unpopulated. Images were not added, since doing so would require inventing backend functionality (placeholder or fabricated image data), which is explicitly out of scope. Card structure otherwise matches pos-cloud exactly, minus the image slot.
+
+Button evaluation (requested by user, applies to F1.3 not F1.2): confirmed `shared/ui/button.tsx`'s `Button` can fully replace `CartPanel.tsx`'s raw checkout `<button>` with zero behavior change (`onClick`/`disabled` semantics identical, `size="lg"` + className override reproduces the exact `h-12` sizing). Will be applied during F1.3.
+
+Consumer Count: 1 before / 1 after (`POSPage.tsx`) — unchanged.
+
+Visual Diff Summary: Search field gained a bordered container + icon; category chips gained padding/border changes; product cards gained rounded-2xl radius, shadow, lift-on-hover, and center-aligned text; all colors converted from hardcoded hex/`gray-*` to `posCloud`/`posCloudDark` tokens. Animation Change: `active:scale-95` (tap-down) replaced by pos-cloud's `hover:-translate-y-0.5` (lift-on-hover) — a real interaction-pattern change matching pos-cloud exactly, not just a color change.
+
+Validation: tsc clean; eslint 2 pre-existing errors (`t: any` prop, `v: any` in variants map — both untouched by this edit, verified against pre-edit content); next build all 47 routes compiled; dev server runtime clean.
+
 Defects/Findings discovered: none new.
+
+Not deployed after F1.2 per user instruction — reviewed together with F1.3.
+
+---
+
+## F1.3 — Cart Panel
+
+Date: 2026-07-16
+Files Changed: `src/features/pos/components/CartPanel.tsx`
+
+Behavior Change Assessment: No logic changed. `handleApplyCoupon` (real `/coupons/validate` API call via `couponsApi.validate`), `onUpdateQty`, `onRemoveItem`, `onClearCoupon`, `onClearCustomer`, `onCheckout` — all untouched. The raw checkout `<button>` was replaced with the shared `Button` primitive (`shared/ui/button.tsx`, migrated in D1) — `onClick={onCheckout}` and `disabled={cart.items.length === 0}` preserved exactly, `size="lg"` + `className="w-full h-12"` reproduces the prior sizing. Confirmed zero behavior change before implementation, per user's explicit evaluation request in F1.2.
+
+Design Consistency Check: Compared against pos-cloud lines 239–432. Cart line items: `rounded-xl bg-background` (was `rounded-lg bg-gray-50`) — Exact Match. Qty buttons: bordered (`border border-posCloud-border`) instead of filled gray background — Exact Match to pos-cloud's bordered qty-button style. Coupon input/apply button: `bg-posCloud-primary-light` apply button (was solid `bg-[#0C447C]`) — Exact Match to pos-cloud's `bg-primary-light` coupon-apply treatment. Totals block: `text-xs` line items + `text-base font-extrabold` total (was `text-sm` + `font-bold`) — Exact Match. Checkout button: now the shared `Button` primitive, matching pos-cloud's use of its own shared `Button` component structurally (both use a design-system button instead of a raw one) — Exact Match in approach.
+
+Sefay production features kept, restyled only: coupon apply/remove flow (real API validation — not in pos-cloud, which has no equivalent), customer info display (`customerCaptureEnabled`/`selectedCustomer` — not in pos-cloud). Both retained per rule 4, now using `posCloud`/`posCloudDark` tokens.
+
+Consumer Count: 1 before / 1 after (`POSPage.tsx`) — unchanged.
+
+Visual Diff Summary: Cart line radius/background, qty button style (filled→bordered), coupon apply button color, totals typography weight/size, checkout button now componentized via shared `Button` instead of a duplicate raw `<button>` with its own hardcoded styling. Animation Change: none (`transition-colors` retained; `Button`'s own `transition-colors` inherited).
+
+Validation: tsc clean; eslint 1 pre-existing error (`catch (e: any)` in `handleApplyCoupon`, untouched by this edit, verified against pre-edit content); next build all 47 routes compiled; dev server runtime clean.
+
+Defects/Findings discovered: none new.
+
+F1.2 + F1.3 together represent the POS page's primary visual transformation, reviewed together per user instruction rather than deploying after F1.2 alone.
