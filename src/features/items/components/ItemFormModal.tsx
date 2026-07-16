@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { X, Plus, Trash2 } from 'lucide-react';
 import type { Item, Category, CreateItemDTO } from '../types/item.types';
+import { Button } from '@/shared/ui/button';
 
 const schema = z.object({
   name: z.string().min(1),
@@ -33,8 +34,8 @@ interface Props {
   isLoading?: boolean;
 }
 
-const inputClass = "w-full px-3 py-2 text-sm bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 text-slate-800 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C] dark:focus:border-[#0C447C]";
-const labelClass = "block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1";
+const inputClass = "w-full px-3 py-2 text-sm bg-posCloud-background dark:bg-posCloudDark-background border border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-primary dark:text-posCloudDark-text-primary rounded-lg focus:outline-none focus:border-posCloud-primary";
+const labelClass = "block text-xs font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary mb-1";
 
 export function ItemFormModal({ open, onClose, onSubmit, item, categories, isLoading }: Props) {
   const t = useTranslations('items');
@@ -84,13 +85,13 @@ export function ItemFormModal({ open, onClose, onSubmit, item, categories, isLoa
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-gray-800 sticky top-0 bg-white dark:bg-gray-900 z-10">
-          <h2 className="text-base font-semibold text-slate-800 dark:text-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <div className="bg-posCloud-surface dark:bg-posCloudDark-surface border border-posCloud-border dark:border-posCloudDark-border rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between p-5 border-b border-posCloud-border dark:border-posCloudDark-border sticky top-0 bg-posCloud-surface dark:bg-posCloudDark-surface z-10">
+          <h2 className="text-base font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary">
             {item ? t('editItem') : t('addItem')}
           </h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-800 text-slate-400 hover:text-slate-600 dark:hover:text-white">
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -99,7 +100,7 @@ export function ItemFormModal({ open, onClose, onSubmit, item, categories, isLoa
           <div>
             <label className={labelClass}>{t('name')}</label>
             <input {...register('name')} className={inputClass} />
-            {errors.name && <p className="text-xs text-red-500 mt-1">{t('required')}</p>}
+            {errors.name && <p className="text-xs text-posCloud-danger mt-1">{t('required')}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -139,27 +140,27 @@ export function ItemFormModal({ open, onClose, onSubmit, item, categories, isLoa
           </div>
 
           <div className="flex gap-6">
-            <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300 cursor-pointer">
-              <input type="checkbox" {...register('has_inventory')} className="w-4 h-4 accent-[#0C447C]" />
+            <label className="flex items-center gap-2 text-sm text-posCloud-text-secondary dark:text-posCloudDark-text-secondary cursor-pointer">
+              <input type="checkbox" {...register('has_inventory')} className="w-4 h-4 accent-posCloud-primary" />
               {t('hasInventory')}
             </label>
-            <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300 cursor-pointer">
-              <input type="checkbox" {...register('has_variants')} className="w-4 h-4 accent-[#0C447C]" />
+            <label className="flex items-center gap-2 text-sm text-posCloud-text-secondary dark:text-posCloudDark-text-secondary cursor-pointer">
+              <input type="checkbox" {...register('has_variants')} className="w-4 h-4 accent-posCloud-primary" />
               {t('hasVariants')}
             </label>
           </div>
 
           {hasVariants && (
-            <div className="border border-slate-200 dark:border-gray-700 rounded-lg p-4 space-y-3">
+            <div className="border border-posCloud-border dark:border-posCloudDark-border rounded-lg p-4 space-y-3">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-slate-800 dark:text-white">{t('variants')}</p>
-                <button type="button" onClick={addVariant} className="flex items-center gap-1 text-xs text-[#0C447C] dark:text-[#5B9BD5] hover:underline">
+                <p className="text-sm font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary">{t('variants')}</p>
+                <button type="button" onClick={addVariant} className="flex items-center gap-1 text-xs text-posCloud-primary hover:underline">
                   <Plus className="w-3 h-3" />
                   {t('addVariant')}
                 </button>
               </div>
               {variants.length === 0 && (
-                <p className="text-xs text-slate-400 text-center py-2">{t('noVariants')}</p>
+                <p className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary text-center py-2">{t('noVariants')}</p>
               )}
               {variants.map((v, i) => (
                 <div key={i} className="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
@@ -175,7 +176,7 @@ export function ItemFormModal({ open, onClose, onSubmit, item, categories, isLoa
                     onChange={(e) => updateVariant(i, 'price_adjustment', Number(e.target.value))}
                     className={inputClass}
                   />
-                  <button type="button" onClick={() => removeVariant(i)} className="p-2 text-slate-400 hover:text-red-500">
+                  <button type="button" onClick={() => removeVariant(i)} className="p-2 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-danger">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
@@ -184,12 +185,12 @@ export function ItemFormModal({ open, onClose, onSubmit, item, categories, isLoa
           )}
 
           <div className="flex gap-3 pt-2">
-            <button type="submit" disabled={isLoading} className="flex-1 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] text-white rounded-lg text-sm font-medium disabled:opacity-50">
+            <Button type="submit" disabled={isLoading} className="flex-1">
               {isLoading ? t('saving') : t('save')}
-            </button>
-            <button type="button" onClick={onClose} className="flex-1 py-2 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-800 rounded-lg text-sm">
+            </Button>
+            <Button type="button" variant="outline" onClick={onClose} className="flex-1">
               {t('cancel')}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

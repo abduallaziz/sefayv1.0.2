@@ -89,3 +89,13 @@ Discovered during Matrix Item E7 pre-implementation consumer count — this also
 **Deletion candidate.** Not styled, not deleted — deferred to the same future architectural cleanup task as AF-6/AF-7/AF-8.
 
 Status: Open, logged as a deletion candidate. E7 marked Skipped (Dead Component). DEF-4 superseded — see `07_DEFECT_LOG.md`.
+
+---
+
+## AF-10 — Content/Data Gap: Item stock data not available for Products page stat cards
+
+pos-cloud's Products page shows 4 stat cards: Total Products, Low Stock, Out of Stock, Total Inventory Value. Investigated during F2.1 pre-implementation: Sefay's `Item` type (`src/features/items/api/items.api.ts`) has **no stock/quantity field**. Stock only exists on `ItemVariant.stock_quantity`, fetched lazily per-item via `GET /items/{id}/variants` — never loaded in bulk with the `GET /items` list response `useItems()` consumes.
+
+**Only "Total Products" was implemented** (`items.length`, zero new API calls, pure aggregation of already-loaded data). Low Stock, Out of Stock, and Total Inventory Value were **not implemented** — per explicit user instruction, no placeholders or mock data were used, and no new backend endpoint or business logic was invented.
+
+Status: Open. Not a defect, not a blocker. If real stock-aggregate data becomes available on the frontend in the future (e.g. a bulk stock summary endpoint), these 3 cards can be added as their own scoped item at that time — not before.

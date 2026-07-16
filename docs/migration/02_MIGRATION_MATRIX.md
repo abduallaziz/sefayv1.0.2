@@ -186,6 +186,65 @@ F1 was assessed as too large for a single item (6 files, 1,181 lines, 6 independ
 
 ---
 
+### F2 Breakdown — Products/Items Page Child Items
+
+F2 was assessed as too large for a single item (6 files, 722 lines, 6 independent visual areas). Split per the standard child-item methodology (established in F1), execution order: F2.1 → F2.2 → F2.3 → F2.4 → F2.5 → F2.6.
+
+**F2 Stat-Card Data Investigation** (required by user before F2.1): checked `Item` type (`items.api.ts`) against pos-cloud's 4 stat cards (Total Products, Low Stock, Out of Stock, Total Value). Result: `Item` has no stock/quantity field — stock only exists on `ItemVariant.stock_quantity`, fetched lazily per-item via a separate endpoint, never loaded in bulk with the items list. **Total Products** (`items.length`) is the only card computable from already-loaded data with zero new API calls and zero new logic beyond simple aggregation. The other 3 are logged as a **Content/Data Gap**, not implemented, no placeholders/mock data used.
+
+#### F2.1 — Products Page Shell
+- Category: Feature Page
+- Scope: `src/features/items/ItemsPage.tsx`
+- pos-cloud reference: `pos-cloud/src/app/dashboard/products/page.tsx` — header (lines 57-66), stat-card row (68-73)
+- Consumer Count: 1 (route-level) — unchanged
+- Behavior Change Assessment: No logic changed — `filtered` memo, `handleSubmit`, `handleToggleActive`, `handleDelete`, all mutation hooks, all modal open/close state — untouched. `activeCount` aggregation (already existing) unchanged. Added stat tile computes `items.length` only — same already-loaded data, no new call.
+- Content/Data Gap: Low Stock, Out of Stock, and Total Inventory Value cards from pos-cloud are **not implemented** — `Item` type has no stock-quantity data in the bulk list response. Logged as AF-10.
+- "Add item" raw button replaced with shared `Button` primitive.
+- Status: **Done**
+
+#### F2.2 — Item Filters
+- Category: Feature Page
+- Scope: `src/features/items/components/ItemFilters.tsx`
+- pos-cloud reference: `pos-cloud/src/app/dashboard/products/page.tsx` lines 77-85 (search field only — pos-cloud has no type/category/status dropdown filters)
+- Consumer Count: 1 (`ItemsPage.tsx`) — unchanged
+- Behavior Change Assessment: No logic changed — `onChange` filter-state updates for search/type/category/status all untouched.
+- Sefay-only dropdown filters (type/category/status — not in pos-cloud) kept per rule 4, restyled with tokens.
+- Status: **Done**
+
+#### F2.3 — Items Table
+- Category: Feature Page
+- Scope: `src/features/items/components/ItemsTable.tsx`
+- pos-cloud reference: `pos-cloud/src/app/dashboard/products/page.tsx` lines 87-132
+- Consumer Count: 1 (`ItemsPage.tsx`) — unchanged
+- Behavior Change Assessment: No logic changed — `onEdit`/`onDelete`/`onVariants`/`onToggleActive` handlers, mobile-card vs desktop-table breakpoint logic — all untouched.
+- Status: **Done**
+
+#### F2.4 — Item Form Modal
+- Category: Feature Page
+- Scope: `src/features/items/components/ItemFormModal.tsx`
+- pos-cloud reference: none — derived from established Dialog conventions
+- Consumer Count: 1 (`ItemsPage.tsx`) — unchanged
+- Behavior Change Assessment: No logic changed — `react-hook-form`/`zod` validation schema, `handleFormSubmit`, variant row add/remove/update — all untouched. Save/Cancel buttons replaced with shared `Button`.
+- Status: **Done**
+
+#### F2.5 — Variants Modal
+- Category: Feature Page
+- Scope: `src/features/items/components/VariantsModal.tsx`
+- pos-cloud reference: none — derived from established conventions
+- Consumer Count: 1 (`ItemsPage.tsx`) — unchanged
+- Behavior Change Assessment: No logic changed — `useItemVariants` data fetching, `handleAdd`, `onDeleteVariant` — untouched. "Add variant" button replaced with shared `Button`.
+- Status: **Done**
+
+#### F2.6 — Delete Item Modal
+- Category: Feature Page
+- Scope: `src/features/items/components/DeleteItemModal.tsx`
+- pos-cloud reference: none — already a thin `ConfirmDialog` (E3) wrapper, minimal work
+- Consumer Count: 1 (`ItemsPage.tsx`) — unchanged
+- Behavior Change Assessment: No logic changed — only one hardcoded text-color class updated.
+- Status: **Done**
+
+**F2 (all 6 children) is now complete.** Final visual-quality check performed per user instruction: the single "Total Products" stat tile (F2.1) was built at natural width (`w-fit`), not stretched into an empty 4-column grid — it reads as a self-contained compact stat callout, integrates naturally, does not create an obviously incomplete/unbalanced layout. Decision: **kept**. (Note: this judgment is based on code/layout reasoning, not a live authenticated screenshot — same visibility limitation noted throughout this migration; deploying to production for the user's own visual confirmation.)
+
 **Sefay-only pages with no pos-cloud reference** (Extra Feature — visual direction is Sefay's own design-system tokens applied consistently, not a pos-cloud copy since no reference exists): `shifts`, `users`/`employees`, `attendance`, `schedules`, `payroll`, `leaves`, `coupons`, `gift-cards`, `loyalty-tiers`, `invoices`, `access-control`, `onboarding`, `superadmin/*`, `attend` (public mobile portal). These should use the already-migrated design-system primitives (D1–D6, E1–E7 once done) for consistency but have no 1:1 pos-cloud page to visually diff against.
 
 ---

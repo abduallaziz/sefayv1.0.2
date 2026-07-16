@@ -261,3 +261,110 @@ Defects/Findings discovered: none new.
 ## F1 Complete
 
 All 6 children (F1.1–F1.6) done. F1.4–F1.6 validated together (tsc, eslint, build all clean/pre-existing-only). Dev server crashed once during this batch (Turbopack memory-threshold restart followed by a segfault) — confirmed unrelated to code changes via server log inspection, restarted cleanly, runtime re-verified healthy afterward.
+
+**F1 marked Complete in Manifest**: Production validated: Yes. Deployment: `755ab1f`.
+
+---
+
+## F2 — Products/Items Page — Size Assessment, Stat-Card Investigation, and Breakdown
+
+Date: 2026-07-16
+Files Changed: none (planning + investigation only, prior to F2.1).
+
+F2 assessed before implementation: 6 files, 722 lines, 6 independent visual areas. Split into F2.1–F2.6 per the standard methodology (adopted permanently after F1). Before F2.1, investigated whether pos-cloud's 4 stat cards could be reproduced from already-loaded data per explicit user requirement: confirmed only "Total Products" is computable (pure `items.length` aggregation); Low Stock/Out of Stock/Total Value require stock-quantity data that doesn't exist in the bulk items list (only per-variant, lazily fetched). Logged as AF-10 (Content/Data Gap), not implemented, no placeholders used.
+
+---
+
+## F2.1 — Products Page Shell
+
+Date: 2026-07-16
+Files Changed: `src/features/items/ItemsPage.tsx`
+
+Behavior Change Assessment: No logic changed. `filtered` memo, `handleSubmit`, `handleToggleActive`, `handleDelete`, all mutation hooks (`useCreateItem`/`useUpdateItem`/`useDeleteItem`/`useDeleteVariant`), all modal open/close state — untouched. `activeCount` (pre-existing derived aggregation) unchanged. New stat tile computes `items.length` only, from the same already-loaded `useItems()` data — no new query, no new derived business logic beyond a single count.
+
+Design Consistency Check: Compared against pos-cloud lines 55-73. Container: `mx-auto max-w-[1400px]` — Exact Match. Header: `text-2xl font-extrabold` title, `flex flex-wrap items-center justify-between gap-3` — Exact Match. Stat tile: built inline (no reusable Sefay stat-card exists — `stat-card.tsx` is confirmed dead code, AF-9, not revived), matching pos-cloud's icon-chip + label + value structure using `posCloud` tokens — Near Match (pos-cloud shows 4 cards in a `grid-cols-4`; Sefay shows 1 card at natural width, not stretched into an empty 4-column grid, per the AF-10 data gap). "Add item" button replaced with shared `Button` primitive, matching pos-cloud's use of its own shared `Button`.
+
+Consumer Count: 1 (route-level) — unchanged.
+
+Visual Diff Summary: Header typography/spacing matched to pos-cloud exactly; new Total Products stat tile added (previously no stat cards existed on this page at all); raw "Add item" button → shared `Button`; remaining `slate-*` text colors converted to `posCloud` tokens. Animation Change: none.
+
+Content/Data Gap: Low Stock, Out of Stock, Total Inventory Value cards not implemented — see AF-10.
+
+Validation: tsc clean; eslint 1 pre-existing error (`newItem: any` at line 59, untouched, verified against pre-edit content); next build all 47 routes compiled; dev server runtime clean.
+
+Defects/Findings discovered: AF-10 (Content/Data Gap, logged).
+
+---
+
+## F2.2 — Item Filters
+
+Date: 2026-07-16
+Files Changed: `src/features/items/components/ItemFilters.tsx`
+
+Behavior Change Assessment: No logic changed — `onChange` filter-state updates for search/type/category/status untouched.
+
+Design Consistency Check: Search field converted to a bordered/surfaced container with inline icon, matching pos-cloud lines 77-85 exactly (and consistent with F1.2/F2.1's search-field pattern). Type/category/status dropdown filters have no pos-cloud equivalent (kept per rule 4), restyled with `posCloud`/`posCloudDark` tokens.
+
+Consumer Count: 1 (`ItemsPage.tsx`) — unchanged.
+
+Validation: covered in the F2.2-F2.6 batch validation below.
+
+---
+
+## F2.3 — Items Table
+
+Date: 2026-07-16
+Files Changed: `src/features/items/components/ItemsTable.tsx`
+
+Behavior Change Assessment: No logic changed — `onEdit`/`onDelete`/`onVariants`/`onToggleActive` handlers, mobile-card vs desktop-table responsive breakpoint — untouched.
+
+Design Consistency Check: Compared against pos-cloud lines 87-132. Table structure, row striping, borders converted to `posCloud`/`posCloudDark` tokens; type badges (product/service/custom) mapped to the same semantic-color family as StatusBadge (primary/info/warning) instead of raw `violet-*`/`amber-*`.
+
+Consumer Count: 1 (`ItemsPage.tsx`) — unchanged.
+
+---
+
+## F2.4 — Item Form Modal
+
+Date: 2026-07-16
+Files Changed: `src/features/items/components/ItemFormModal.tsx`
+
+Behavior Change Assessment: No logic changed — `react-hook-form`/`zod` schema validation, `handleFormSubmit`, variant row add/remove/update logic — untouched. Save/Cancel buttons replaced with shared `Button` primitive.
+
+Design Consistency Check: No pos-cloud reference exists (add/edit flow isn't in the prototype). Derived from established Dialog conventions — surface/border/text tokens matched exactly.
+
+Consumer Count: 1 (`ItemsPage.tsx`) — unchanged.
+
+---
+
+## F2.5 — Variants Modal
+
+Date: 2026-07-16
+Files Changed: `src/features/items/components/VariantsModal.tsx`
+
+Behavior Change Assessment: No logic changed — `useItemVariants` data fetching, `handleAdd`, `onDeleteVariant` — untouched. "Add variant" button replaced with shared `Button` primitive.
+
+Design Consistency Check: No pos-cloud reference exists. Derived from established conventions, consistent with F2.4's treatment.
+
+Consumer Count: 1 (`ItemsPage.tsx`) — unchanged.
+
+---
+
+## F2.6 — Delete Item Modal
+
+Date: 2026-07-16
+Files Changed: `src/features/items/components/DeleteItemModal.tsx`
+
+Behavior Change Assessment: No logic changed — single hardcoded text-color class updated (`text-slate-700 dark:text-white` → `posCloud` tokens). Already a thin `ConfirmDialog` (E3) wrapper.
+
+Consumer Count: 1 (`ItemsPage.tsx`) — unchanged.
+
+---
+
+## F2.2–F2.6 Batch Validation
+
+tsc clean. eslint: 4 pre-existing errors + 1 pre-existing warning across the batch — `data: any` in `ItemFormModal.tsx`'s `handleFormSubmit` (line 81), the `watch()` React Compiler memoization warning tied to `useForm` itself (line 54), `(item as any).variants_count` ×2 in `ItemsTable.tsx` (lines 69, 127), `v: any` in `VariantsModal.tsx`'s variants map (line 58) — all confirmed untouched by these styling-only edits, verified against pre-edit content. `next build`: all 47 routes compiled. Dev server runtime: clean.
+
+## F2 Complete — Final Visual-Quality Check
+
+Per explicit user instruction, performed a final review of the whole F2 page: the single "Total Products" stat tile (F2.1) was deliberately built at natural width (`w-fit`), not stretched into an empty 4-column grid matching pos-cloud's 4-card layout. It reads as a self-contained compact stat callout that integrates naturally above the filter bar, rather than an obviously incomplete/unbalanced layout with 3 missing slots. **Decision: kept**, per the "based on overall visual quality and UX, not forcing visual parity" standard. This judgment is based on code/layout reasoning — genuine visual confirmation awaits the user's review of the production deployment, consistent with the visibility limitation noted throughout this migration (auth-gated pages can't be screenshotted directly).

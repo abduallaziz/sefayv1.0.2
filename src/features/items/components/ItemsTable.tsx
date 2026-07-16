@@ -18,14 +18,14 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onToggleActive
   const currency = useTenantStore((s) => s.currency_symbol);
 
   const typeColors: Record<string, string> = {
-    product: 'bg-[#0C447C]/10 text-[#0C447C] dark:text-[#5B9BD5]',
-    service: 'bg-violet-500/10 text-violet-600 dark:text-violet-400',
-    custom: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
+    product: 'bg-posCloud-primary-light dark:bg-posCloud-primary/15 text-posCloud-primary',
+    service: 'bg-posCloud-info-light dark:bg-posCloud-info/15 text-posCloud-info',
+    custom: 'bg-posCloud-warning-light dark:bg-posCloud-warning/15 text-posCloud-warning',
   };
 
   if (items.length === 0) {
     return (
-      <div className="text-center py-16 text-slate-500">
+      <div className="text-center py-16 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
         <p className="text-lg">{t('noItems')}</p>
       </div>
     );
@@ -36,35 +36,35 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onToggleActive
       {/* Mobile cards */}
       <div className="md:hidden space-y-2">
         {items.map((item) => (
-          <div key={item.id} className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-3">
+          <div key={item.id} className="bg-posCloud-surface dark:bg-posCloudDark-surface border border-posCloud-border dark:border-posCloudDark-border rounded-xl p-3">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <p className="font-medium text-slate-800 dark:text-white truncate">{item.name}</p>
+                <p className="font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary truncate">{item.name}</p>
                 <div className="flex items-center gap-2 mt-1">
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${typeColors[item.type]}`}>
                     {t(item.type)}
                   </span>
                   {item.category_name && (
-                    <span className="text-xs text-slate-500 truncate">{item.category_name}</span>
+                    <span className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary truncate">{item.category_name}</span>
                   )}
                 </div>
               </div>
               <div className="flex items-center gap-1 shrink-0">
-                <button onClick={() => onEdit(item)} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-700 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors">
+                <button onClick={() => onEdit(item)} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary transition-colors">
                   <Edit className="w-3.5 h-3.5" />
                 </button>
-                <button onClick={() => onDelete(item)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors">
+                <button onClick={() => onDelete(item)} className="p-1.5 rounded-lg hover:bg-posCloud-danger-light dark:hover:bg-posCloud-danger/15 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-danger transition-colors">
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
-            <div className="flex items-center justify-between mt-3 pt-2 border-t border-slate-100 dark:border-gray-800">
-              <span className="font-semibold text-slate-800 dark:text-white tabular-nums">
+            <div className="flex items-center justify-between mt-3 pt-2 border-t border-posCloud-border dark:border-posCloudDark-border">
+              <span className="font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary tabular-nums">
                 {item.price.toLocaleString('en-US')} {currency}
               </span>
               <div className="flex items-center gap-3">
                 {item.has_variants && (
-                  <button onClick={() => onVariants(item)} className="flex items-center gap-1 text-[#0C447C] dark:text-[#5B9BD5] hover:underline text-xs">
+                  <button onClick={() => onVariants(item)} className="flex items-center gap-1 text-posCloud-primary hover:underline text-xs">
                     <Layers className="w-3 h-3" />
                     {(item as any).variants_count ?? 0}
                   </button>
@@ -72,7 +72,7 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onToggleActive
                 <button
                   onClick={() => onToggleActive(item)}
                   className={`flex items-center gap-1 text-xs font-medium ${
-                    item.is_active ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'
+                    item.is_active ? 'text-posCloud-success' : 'text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary'
                   }`}
                 >
                   {item.is_active
@@ -87,23 +87,23 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onToggleActive
       </div>
 
       {/* Desktop table */}
-      <div className="hidden md:block overflow-x-auto rounded-xl border border-slate-200 dark:border-gray-800">
+      <div className="hidden md:block overflow-x-auto rounded-xl border border-posCloud-border dark:border-posCloudDark-border">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 dark:bg-gray-800/50 border-b border-slate-200 dark:border-gray-800">
+          <thead className="bg-posCloud-background dark:bg-posCloudDark-background border-b border-posCloud-border dark:border-posCloudDark-border">
             <tr>
-              <th className="text-start px-3 py-3 font-medium text-slate-500">{t('name')}</th>
-              <th className="text-start px-3 py-3 font-medium text-slate-500">{t('type')}</th>
-              <th className="text-start px-3 py-3 font-medium text-slate-500">{t('category')}</th>
-              <th className="text-start px-3 py-3 font-medium text-slate-500 w-24">{t('price')}</th>
-              <th className="text-start px-3 py-3 font-medium text-slate-500">{t('variants')}</th>
-              <th className="text-start px-3 py-3 font-medium text-slate-500 w-20">{t('status')}</th>
+              <th className="text-start px-3 py-3 font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('name')}</th>
+              <th className="text-start px-3 py-3 font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('type')}</th>
+              <th className="text-start px-3 py-3 font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('category')}</th>
+              <th className="text-start px-3 py-3 font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary w-24">{t('price')}</th>
+              <th className="text-start px-3 py-3 font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('variants')}</th>
+              <th className="text-start px-3 py-3 font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary w-20">{t('status')}</th>
               <th className="px-3 py-3 w-16" />
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 dark:divide-gray-800">
+          <tbody className="divide-y divide-posCloud-border dark:divide-posCloudDark-border">
             {items.map((item, i) => (
-              <tr key={item.id} className={`hover:bg-slate-50 dark:hover:bg-gray-800/30 transition-colors ${i % 2 === 1 ? 'bg-slate-50/40 dark:bg-gray-800/10' : ''}`}>
-                <td className="px-3 py-3 font-medium text-slate-800 dark:text-white max-w-[160px] truncate">
+              <tr key={item.id} className={`hover:bg-slate-50 dark:hover:bg-white/5 transition-colors ${i % 2 === 1 ? 'bg-posCloud-background/40 dark:bg-white/[0.02]' : ''}`}>
+                <td className="px-3 py-3 font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary max-w-[160px] truncate">
                   {item.name}
                 </td>
                 <td className="px-3 py-3">
@@ -111,30 +111,30 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onToggleActive
                     {t(item.type)}
                   </span>
                 </td>
-                <td className="px-3 py-3 text-slate-500 max-w-[140px] truncate">
+                <td className="px-3 py-3 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary max-w-[140px] truncate">
                   {item.category_name ?? '—'}
                 </td>
-                <td className="px-3 py-3 font-semibold text-slate-800 dark:text-white w-24 tabular-nums">
+                <td className="px-3 py-3 font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary w-24 tabular-nums">
                   {item.price.toLocaleString('en-US')} {currency}
                 </td>
                 <td className="px-3 py-3">
                   {item.has_variants ? (
                     <button
                       onClick={() => onVariants(item)}
-                      className="flex items-center gap-1 text-[#0C447C] dark:text-[#5B9BD5] hover:underline text-xs"
+                      className="flex items-center gap-1 text-posCloud-primary hover:underline text-xs"
                     >
                       <Layers className="w-3 h-3" />
                       {(item as any).variants_count ?? 0} {t('variants')}
                     </button>
                   ) : (
-                    <span className="text-slate-400 text-xs">—</span>
+                    <span className="text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary text-xs">—</span>
                   )}
                 </td>
                 <td className="px-3 py-3 w-20">
                   <button
                     onClick={() => onToggleActive(item)}
                     className={`flex items-center gap-1 text-xs font-medium ${
-                      item.is_active ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'
+                      item.is_active ? 'text-posCloud-success' : 'text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary'
                     }`}
                   >
                     {item.is_active
@@ -147,13 +147,13 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onToggleActive
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => onEdit(item)}
-                      className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-700 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors"
+                      className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary transition-colors"
                     >
                       <Edit className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={() => onDelete(item)}
-                      className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                      className="p-1.5 rounded-lg hover:bg-posCloud-danger-light dark:hover:bg-posCloud-danger/15 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-danger transition-colors"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>

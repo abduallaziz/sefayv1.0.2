@@ -2,7 +2,8 @@
 
 import { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { Plus } from 'lucide-react';
+import { Plus, Package } from 'lucide-react';
+import { Button } from '@/shared/ui/button';
 import { useItems, useCategories, useCreateItem, useUpdateItem, useDeleteItem, useDeleteVariant } from './hooks/useItems';
 import { itemsApi } from './api/items.api';
 import { ItemFiltersBar } from './components/ItemFilters';
@@ -79,27 +80,39 @@ export function ItemsPage() {
   const activeCount = items.filter(i => i.is_active).length;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="mx-auto max-w-[1400px] space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-slate-800 dark:text-white">{t('title')}</h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <h1 className="text-2xl font-extrabold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{t('title')}</h1>
+          <p className="mt-1 text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
             {items.length} {t('totalItems')} • {activeCount} {t('active')}
           </p>
         </div>
-        <button
-          onClick={() => { setSelectedItem(null); setFormOpen(true); }}
-          className="flex items-center gap-2 px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] text-white rounded-lg text-sm font-medium transition-colors"
-        >
+        <Button onClick={() => { setSelectedItem(null); setFormOpen(true); }}>
           <Plus className="w-4 h-4" />
           {t('addItem')}
-        </button>
+        </Button>
+      </div>
+
+      {/* Total Products — the only stat pos-cloud shows that Sefay's frontend
+          can compute from already-loaded data (see F2 Content/Data Gap note:
+          Low Stock / Out of Stock / Total Value need stock_quantity, which
+          only exists per-variant via a separate lazy-loaded endpoint, never
+          in the bulk items list). */}
+      <div className="flex items-center gap-3 rounded-2xl border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface p-4 w-fit">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-posCloud-primary-light dark:bg-posCloud-primary/15">
+          <Package className="h-5 w-5 text-posCloud-primary" />
+        </div>
+        <div>
+          <p className="text-xs font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('totalItems')}</p>
+          <p className="text-xl font-bold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{items.length}</p>
+        </div>
       </div>
 
       <ItemFiltersBar filters={filters} onChange={setFilters} categories={categories} />
 
       {isLoading ? (
-        <div className="text-center py-16 text-slate-500">{t('loading')}</div>
+        <div className="text-center py-16 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('loading')}</div>
       ) : (
         <ItemsTable
           items={filtered}

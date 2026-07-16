@@ -6,6 +6,7 @@ import { X, Plus, Trash2 } from 'lucide-react'
 import { Item } from '../types/item.types'
 import { useItemVariants } from '../hooks/useItems'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
+import { Button } from '@/shared/ui/button'
 
 interface Props {
   open: boolean
@@ -36,36 +37,36 @@ export function VariantsModal({ open, onClose, item, onAddVariant, onDeleteVaria
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl w-full max-w-lg max-h-[85vh] flex flex-col">
-        <div className="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-700 shrink-0">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <div className="bg-posCloud-surface dark:bg-posCloudDark-surface border border-posCloud-border dark:border-posCloudDark-border rounded-xl shadow-xl w-full max-w-lg max-h-[85vh] flex flex-col">
+        <div className="flex items-center justify-between p-5 border-b border-posCloud-border dark:border-posCloudDark-border shrink-0">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{t('variants')}</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{item.name}</p>
+            <h2 className="text-lg font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{t('variants')}</h2>
+            <p className="text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{item.name}</p>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors">
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-5 space-y-2">
           {isLoading ? (
-            <div className="h-10 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />
+            <div className="h-10 bg-posCloud-background dark:bg-posCloudDark-background rounded animate-pulse" />
           ) : variants.length === 0 ? (
-            <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">{t('noVariants')}</p>
+            <p className="text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary text-center py-4">{t('noVariants')}</p>
           ) : (
             variants.map((v: any) => (
-              <div key={v.id} className="flex items-center justify-between p-3 rounded-lg border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+              <div key={v.id} className="flex items-center justify-between p-3 rounded-lg border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-background dark:bg-posCloudDark-background">
                 <div>
-                  <p className="font-medium text-sm text-gray-900 dark:text-white">{v.name}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                  <p className="font-medium text-sm text-posCloud-text-primary dark:text-posCloudDark-text-primary">{v.name}</p>
+                  <p className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
                     {v.price_adjustment > 0 ? `+${v.price_adjustment}` : v.price_adjustment} {currency}
                     {v.sku ? ` • ${v.sku}` : ''}
                   </p>
                 </div>
                 <button
                   onClick={() => onDeleteVariant(item.id, v.id)}
-                  className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                  className="p-1.5 rounded-lg hover:bg-posCloud-danger-light dark:hover:bg-posCloud-danger/15 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-danger transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -74,20 +75,20 @@ export function VariantsModal({ open, onClose, item, onAddVariant, onDeleteVaria
           )}
         </div>
 
-        <div className="border-t border-gray-100 dark:border-gray-700 p-5 shrink-0">
-          <p className="text-sm font-medium text-gray-900 dark:text-white mb-3">{t('addVariant')}</p>
+        <div className="border-t border-posCloud-border dark:border-posCloudDark-border p-5 shrink-0">
+          <p className="text-sm font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary mb-3">{t('addVariant')}</p>
           <div className="grid grid-cols-2 gap-2">
             <input
               placeholder={t('variantName')}
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C] placeholder-gray-400 dark:placeholder-gray-600"
+              className="px-3 py-2 text-sm bg-posCloud-background dark:bg-posCloudDark-background border border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-primary dark:text-posCloudDark-text-primary rounded-lg focus:outline-none focus:border-posCloud-primary placeholder:text-posCloud-text-tertiary dark:placeholder:text-posCloudDark-text-tertiary"
             />
             <input
               placeholder={t('sku')}
               value={form.sku}
               onChange={(e) => setForm({ ...form, sku: e.target.value })}
-              className="px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C] placeholder-gray-400 dark:placeholder-gray-600"
+              className="px-3 py-2 text-sm bg-posCloud-background dark:bg-posCloudDark-background border border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-primary dark:text-posCloudDark-text-primary rounded-lg focus:outline-none focus:border-posCloud-primary placeholder:text-posCloud-text-tertiary dark:placeholder:text-posCloudDark-text-tertiary"
             />
             <input
               type="text"
@@ -95,7 +96,7 @@ export function VariantsModal({ open, onClose, item, onAddVariant, onDeleteVaria
               placeholder={t('priceAdjustment')}
               value={form.price_adjustment}
               onChange={(e) => setForm({ ...form, price_adjustment: e.target.value })}
-              className="px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C] placeholder-gray-400 dark:placeholder-gray-600"
+              className="px-3 py-2 text-sm bg-posCloud-background dark:bg-posCloudDark-background border border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-primary dark:text-posCloudDark-text-primary rounded-lg focus:outline-none focus:border-posCloud-primary placeholder:text-posCloud-text-tertiary dark:placeholder:text-posCloudDark-text-tertiary"
             />
             <input
               type="text"
@@ -103,16 +104,13 @@ export function VariantsModal({ open, onClose, item, onAddVariant, onDeleteVaria
               placeholder={t('stock')}
               value={form.stock_quantity}
               onChange={(e) => setForm({ ...form, stock_quantity: e.target.value })}
-              className="px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C] placeholder-gray-400 dark:placeholder-gray-600"
+              className="px-3 py-2 text-sm bg-posCloud-background dark:bg-posCloudDark-background border border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-primary dark:text-posCloudDark-text-primary rounded-lg focus:outline-none focus:border-posCloud-primary placeholder:text-posCloud-text-tertiary dark:placeholder:text-posCloudDark-text-tertiary"
             />
           </div>
-          <button
-            onClick={handleAdd}
-            className="mt-3 w-full flex items-center justify-center gap-2 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] text-white rounded-lg text-sm font-medium transition-colors"
-          >
+          <Button onClick={handleAdd} className="mt-3 w-full">
             <Plus className="w-4 h-4" />
             {t('addVariant')}
-          </button>
+          </Button>
         </div>
       </div>
     </div>
