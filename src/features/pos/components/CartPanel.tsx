@@ -195,7 +195,7 @@ export function CartPanel({
         size="lg"
         disabled={cart.items.length === 0}
         onClick={onCheckout}
-        className="w-full h-12"
+        className="w-full"
       >
         {t('checkout')} — {fmt(cart.total)} {currency}
       </Button>

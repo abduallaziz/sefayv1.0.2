@@ -139,8 +139,15 @@ Two categories:
   product images.
 - **What's needed**: A database column, an upload endpoint (likely to blob
   storage), and a form field to attach it — real backend + frontend work.
-- **Status**: Documented, not implemented. POS/Products cards currently
-  render without an image slot.
+- **Status**: **Temporary stand-in added 2026-07-17 (POS page only)** — per
+  explicit user decision, POS item cards now show a stock photo pulled from
+  a public image service (loremflickr.com), keyed by the item's own real
+  name and locked to its id (same technique pos-cloud's own mock data
+  uses). This is acknowledged as imprecise — a random photo may not match
+  the actual product — and is explicitly a placeholder, not a substitute
+  for real upload. **Products page grid still has no image slot** — apply
+  the same treatment there if/when requested. Real upload feature (DB
+  column + endpoint + form field) still not built.
 
 ### B4 — Invoices table (Dashboard) / per-branch sales breakdown
 - **What pos-cloud shows**: A "recent invoices" table distinct from the

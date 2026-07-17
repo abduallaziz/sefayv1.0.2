@@ -3,9 +3,21 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Search } from 'lucide-react'
+import Image from 'next/image'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
 import { POSItem, POSVariant } from '../types/pos.types'
 import { useItems, useCategories, useItemVariants } from '@/features/items/hooks/useItems'
+
+// Sefay's real Item model has no image_url field anywhere (confirmed — no
+// backend upload feature exists yet, see docs/rebuild/PARKING_LOT.md B3).
+// Per explicit user decision, a temporary stand-in photo is pulled from a
+// public stock-photo service keyed by the item's own name (real, tenant-
+// specific text — not a fabricated value) and locked to the item's id so
+// the same item always gets the same photo across renders, exactly the
+// technique pos-cloud's own mock data uses (loremflickr, ?lock=id).
+function itemImageUrl(item: POSItem) {
+  return `https://loremflickr.com/300/300/${encodeURIComponent(item.name_ar || item.name)}?lock=${item.id}`
+}
 
 interface Props {
   onAddItem: (item: POSItem, variant?: POSVariant) => void
@@ -108,14 +120,17 @@ export function ItemGrid({ onAddItem }: Props) {
 
   return (
     <div className="flex flex-col h-full min-h-0 gap-4">
-      <div className="flex items-center gap-2 rounded-lg border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-3 py-2 text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-        <Search className="h-4 w-4 shrink-0" />
-        <input
-          placeholder={t('search')}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full bg-transparent outline-none placeholder:text-posCloud-text-tertiary dark:placeholder:text-posCloudDark-text-tertiary text-posCloud-text-primary dark:text-posCloudDark-text-primary"
-        />
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-xl font-extrabold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{t('title')}</h1>
+        <div className="flex items-center gap-2 rounded-lg border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-3 py-2 text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+          <Search className="h-4 w-4 shrink-0" />
+          <input
+            placeholder={t('search')}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full bg-transparent outline-none placeholder:text-posCloud-text-tertiary dark:placeholder:text-posCloudDark-text-tertiary text-posCloud-text-primary dark:text-posCloudDark-text-primary sm:w-56"
+          />
+        </div>
       </div>
 
       <div className="flex gap-2 flex-wrap">
@@ -163,6 +178,9 @@ export function ItemGrid({ onAddItem }: Props) {
               {item.has_variants && (
                 <span className="absolute top-2 right-2 text-xs bg-posCloud-primary-light text-posCloud-primary px-1.5 py-0.5 rounded">{t('multiple')}</span>
               )}
+              <div className="relative h-24 w-full shrink-0 bg-posCloud-background dark:bg-posCloudDark-background">
+                <Image src={itemImageUrl(item)} alt={item.name_ar} fill sizes="200px" className="object-cover" unoptimized />
+              </div>
               <div className="p-3">
                 <p className="font-semibold text-sm text-posCloud-text-primary dark:text-posCloudDark-text-primary truncate">{item.name_ar}</p>
                 <p className="text-posCloud-primary font-bold text-sm mt-1">{item.price.toLocaleString('en-US')} {currency}</p>
