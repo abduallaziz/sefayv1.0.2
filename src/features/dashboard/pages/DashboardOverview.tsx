@@ -305,6 +305,11 @@ export function DashboardOverview() {
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .slice(0, 5)
 
+  // "Recent Activity" excludes order/invoice entries now that they have
+  // their own dedicated "Recent Invoices" card — avoids showing the same
+  // event twice in two different cards.
+  const nonOrderActivity = (recentActivity?.activity ?? []).filter((item) => item.type !== 'order')
+
   return (
     <div className="mx-auto max-w-[1400px]">
 
@@ -387,7 +392,7 @@ export function DashboardOverview() {
             title={t('salesOver7Days')}
             action={<span className="rounded-lg border border-posCloud-border dark:border-posCloudDark-border px-3 py-1.5 text-xs font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{isRTL ? 'آخر 7 أيام' : 'Last 7 days'}</span>}
           />
-          <div className="h-[240px]">
+          <div className="h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={barData} margin={{ top: 10, right: 8, left: -20, bottom: 0 }}>
                 <defs>
@@ -496,7 +501,7 @@ export function DashboardOverview() {
           anywhere (no branch backend exists — PARKING_LOT.md B2) and shows
           "Soon" instead of fabricated branch names/figures. Best Selling
           uses the same real topItems data as before. ── */}
-      <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-3">
+      <div className="mt-5 grid grid-cols-1 items-stretch gap-5 lg:grid-cols-3">
 
         <SectionCard>
           <SectionHeader
@@ -588,7 +593,7 @@ export function DashboardOverview() {
           real data anywhere (no branch backend, no branches-list endpoint —
           confirmed via direct search, PARKING_LOT.md B2) and shows a "Soon"
           placeholder instead of fabricated branch names/status/sales. ── */}
-      <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-3">
+      <div className="mt-5 grid grid-cols-1 items-stretch gap-5 lg:grid-cols-3">
 
         <SectionCard>
           <SectionHeader
@@ -604,15 +609,14 @@ export function DashboardOverview() {
         <SectionCard>
           <SectionHeader title={t('recentActivity')} />
           <div>
-            {(recentActivity?.activity ?? []).length === 0 && (
+            {nonOrderActivity.length === 0 && (
               <p className="py-4 text-center text-[13px] text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('noActivity')}</p>
             )}
-            {(recentActivity?.activity ?? []).slice(0, 5).map((item, i, arr) => (
+            {nonOrderActivity.slice(0, 5).map((item, i, arr) => (
               <div key={i} className={cn('flex items-start gap-3 py-3', i < arr.length - 1 && 'border-b border-posCloud-border dark:border-posCloudDark-border')}>
                 <div className={cn(
                   'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg',
-                  item.type === 'order' ? 'bg-posCloud-success-light dark:bg-posCloud-success/15 text-posCloud-success'
-                    : item.type === 'refund' ? 'bg-posCloud-warning-light dark:bg-posCloud-warning/15 text-posCloud-warning'
+                  item.type === 'refund' ? 'bg-posCloud-warning-light dark:bg-posCloud-warning/15 text-posCloud-warning'
                     : 'bg-posCloud-danger-light dark:bg-posCloud-danger/15 text-posCloud-danger'
                 )}>
                   <BarChart3 className="h-4 w-4" />
