@@ -185,25 +185,25 @@ export function POSPage() {
   }
 
   return (
-    <div className="flex flex-col lg:h-full lg:min-h-0 lg:overflow-hidden">
+    <div className="flex flex-col">
 
-      {/* Desktop: fixed two-pane layout, each side scrolls internally.
-          Mobile: normal block flow — the dashboard shell's own <main> is the
-          single scroll container, so the page scrolls down naturally instead
-          of nesting a second clipped scroll box that can visually overlap. */}
-      <div className="flex flex-col gap-5 p-4 sm:p-6 lg:flex-1 lg:min-h-0 lg:flex-row lg:overflow-hidden">
+      {/* Matches pos-cloud's own POS page structure exactly: no internal
+          scroll container anywhere. Both columns size to their natural
+          content height (lg:items-start / lg:self-start on the cart), and
+          the dashboard shell's own <main> is the single scroll container
+          for the whole page — this is what pos-cloud does, and avoids the
+          nested competing-scrollbox bugs the fixed-height version had. */}
+      <div className="flex flex-col gap-5 p-4 sm:p-6 lg:flex-row lg:items-start">
 
         {/* Items Grid */}
-        <div className="flex h-[60vh] min-h-0 min-w-0 flex-col overflow-hidden lg:h-full lg:flex-1">
+        <div className="flex min-w-0 flex-1 flex-col">
           <ItemGrid onAddItem={(item, variant) => {
             addItem(item, variant)
           }} />
         </div>
 
-        {/* Cart Panel — bounded to the row's height and scrollable on desktop
-            (lg) so the checkout button stays reachable regardless of how much
-            content (items + accordion rows + notes) is above it. */}
-        <div className="flex w-full flex-col rounded-2xl border border-posCloud-border bg-posCloud-surface p-5 dark:border-posCloudDark-border dark:bg-posCloudDark-surface lg:h-full lg:min-h-0 lg:overflow-y-auto lg:w-[340px] lg:shrink-0">
+        {/* Cart Panel */}
+        <div className="flex w-full shrink-0 flex-col rounded-2xl border border-posCloud-border bg-posCloud-surface p-5 dark:border-posCloudDark-border dark:bg-posCloudDark-surface lg:w-[340px] lg:self-start">
           <CartPanel
             cart={cart}
             onUpdateQty={updateQty}

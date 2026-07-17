@@ -145,7 +145,7 @@ export function ItemGrid({ onAddItem }: Props) {
   }
 
   return (
-    <div className="flex flex-col h-full min-h-0 gap-4">
+    <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-xl font-extrabold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{t('title')}</h1>
         <div className="flex items-center gap-2 rounded-lg border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-3 py-2 text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
@@ -186,9 +186,9 @@ export function ItemGrid({ onAddItem }: Props) {
       </div>
 
       {isLoading ? (
-        <div className="flex-1 flex items-center justify-center text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary text-sm">{t('loading')}</div>
+        <div className="flex items-center justify-center py-10 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary text-sm">{t('loading')}</div>
       ) : (
-        <div className="grid grid-cols-2 gap-3 overflow-y-auto flex-1 min-h-0 pb-2 xs:gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        <div className="grid grid-cols-2 gap-3 pb-2 xs:gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {filtered.length === 0 && (
             <p className="col-span-full text-center text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary text-sm py-10">{t('noItems')}</p>
           )}

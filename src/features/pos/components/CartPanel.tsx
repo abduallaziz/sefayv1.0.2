@@ -148,7 +148,7 @@ export function CartPanel({
   }
 
   return (
-    <div className="flex flex-col h-full min-h-0">
+    <div className="flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <h2 className="font-bold text-[15px] text-posCloud-text-primary dark:text-posCloudDark-text-primary">{t('currentOrder')}</h2>
         {cart.items.length > 0 && (
@@ -159,7 +159,7 @@ export function CartPanel({
       </div>
 
       {cart.items.length === 0 ? (
-        <div className="flex flex-1 flex-col items-center justify-center text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+        <div className="flex flex-col items-center py-10 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
           <span className="text-4xl mb-2">🛒</span>
           <p className="text-sm">{t('noItems')}</p>
         </div>
