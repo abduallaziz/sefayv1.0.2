@@ -403,6 +403,21 @@ export function DashboardOverview() {
               <span className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary mt-1">{isRTL ? 'إجمالي المبيعات' : 'Total Sales'} {currency}</span>
             </div>
           </div>
+          {/* pos-cloud's exact legend format (payment-donut-chart.tsx):
+              single column, colored dot + label + real percentage. Only
+              real data (donutData already filters to non-zero real
+              amounts) — no fabricated rows. */}
+          <div className="mt-3 space-y-2">
+            {donutData.map((d) => (
+              <div key={d.key} className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2 text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">
+                  <span className="h-2 w-2 rounded-full" style={{ background: d.color }} />
+                  {d.label}
+                </div>
+                <span className="font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{d.pct}%</span>
+              </div>
+            ))}
+          </div>
         </SectionCard>
 
         <SectionCard>
