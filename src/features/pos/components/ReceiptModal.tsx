@@ -34,8 +34,12 @@ export function ReceiptModal({ cart, payment, invoiceNumber, taxRate, total, onC
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-posCloud-surface dark:bg-posCloudDark-surface border border-posCloud-border dark:border-posCloudDark-border rounded-2xl w-full max-w-sm shadow-xl">
-        <div className="p-5">
+      {/* Bounded to the viewport (max-h-[85vh]) so long orders never push the
+          buttons off-screen. Only the item list scrolls internally — header,
+          totals, and payment info stay put, and the action buttons are a
+          sticky footer, never covered or pushed out of reach. */}
+      <div className="flex max-h-[85vh] w-full max-w-sm flex-col overflow-hidden rounded-2xl border border-posCloud-border bg-posCloud-surface shadow-xl dark:border-posCloudDark-border dark:bg-posCloudDark-surface">
+        <div className="shrink-0 px-5 pt-5">
           <div className="text-center mb-4">
             <div className="w-16 h-16 bg-posCloud-success-light dark:bg-posCloud-success/15 rounded-full flex items-center justify-center mx-auto mb-3">
               <Check className="w-8 h-8 text-posCloud-success" strokeWidth={2.5} />
@@ -44,7 +48,9 @@ export function ReceiptModal({ cart, payment, invoiceNumber, taxRate, total, onC
             <p className="text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary mt-1">{t('receipt.invoiceNumber', { number: invoiceNumber })}</p>
             <p className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{now}</p>
           </div>
+        </div>
 
+        <div className="min-h-0 flex-1 overflow-y-auto px-5">
           <div className="border-t border-dashed border-posCloud-border dark:border-posCloudDark-border py-3 space-y-1.5">
             {cart.items.map((item) => (
               <div key={item.id} className="flex justify-between text-sm">
@@ -55,7 +61,9 @@ export function ReceiptModal({ cart, payment, invoiceNumber, taxRate, total, onC
               </div>
             ))}
           </div>
+        </div>
 
+        <div className="shrink-0 px-5 pb-5">
           <div className="border-t border-dashed border-posCloud-border dark:border-posCloudDark-border py-3 space-y-1.5 text-sm">
             <div className="flex justify-between text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
               <span>{t('subtotal')}</span><span>{fmt(cart.subtotal)}</span>
@@ -89,7 +97,7 @@ export function ReceiptModal({ cart, payment, invoiceNumber, taxRate, total, onC
           </div>
         </div>
 
-        <div className="flex gap-3 p-5 pt-0">
+        <div className="flex shrink-0 gap-3 border-t border-posCloud-border dark:border-posCloudDark-border p-5">
           <Button variant="outline" onClick={handlePrint} className="flex-1 rounded-xl">
             {t('receipt.printButton')}
           </Button>
