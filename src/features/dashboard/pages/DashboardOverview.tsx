@@ -386,43 +386,22 @@ export function DashboardOverview() {
         </SectionCard>
 
         <SectionCard>
-          <SectionHeader title={t('paymentMethods')} />
-          {donutData.length > 0 && (
-            <div className="relative h-[140px] mb-3">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={donutData} dataKey="value" nameKey="key" innerRadius={45} outerRadius={65} paddingAngle={2} stroke="none">
-                    {donutData.map((entry, i) => (
-                      <Cell key={i} fill={entry.color} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-lg font-extrabold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{donutTotal.toLocaleString('en-US')}</span>
-                <span className="text-[10px] text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('totalSalesLabel')} {currency}</span>
-              </div>
+          <SectionHeader title={isRTL ? 'المبيعات حسب طرق الدفع' : 'Sales by Payment Method'} />
+          <div className="relative h-[200px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={donutData.length ? donutData : [{ key: 'none', value: 1, color: '#f1f5f9' }]}
+                  dataKey="value" nameKey="key" innerRadius={62} outerRadius={90} paddingAngle={2} stroke="none">
+                  {(donutData.length ? donutData : [{ key: 'none', color: '#f1f5f9' }]).map((entry, i) => (
+                    <Cell key={i} fill={entry.color} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+              <span className="text-2xl font-extrabold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{donutTotal.toLocaleString('en-US')}</span>
+              <span className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary mt-1">{isRTL ? 'إجمالي المبيعات' : 'Total Sales'} {currency}</span>
             </div>
-          )}
-          {/* Full method list, 2 columns — real % where data exists, muted
-              "soon" badge where it doesn't (never a fabricated number).
-              See docs/rebuild/PARKING_LOT.md for full backend wiring. */}
-          <div className="grid grid-cols-2 gap-2">
-            {paymentRows.map((row) => (
-              <div key={row.key} className="flex items-center gap-2 rounded-lg border border-posCloud-border dark:border-posCloudDark-border p-2">
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md" style={{ background: `${row.color}1a` }}>
-                  <row.icon className="h-3.5 w-3.5" style={{ color: row.color }} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-[11px] font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{row.label}</p>
-                  {row.pct !== null ? (
-                    <p className="text-xs font-bold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{row.pct}%</p>
-                  ) : (
-                    <p className="text-[10px] text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{isRTL ? 'قريبًا' : 'Soon'}</p>
-                  )}
-                </div>
-              </div>
-            ))}
           </div>
         </SectionCard>
 
