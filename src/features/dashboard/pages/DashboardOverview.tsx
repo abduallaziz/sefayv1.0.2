@@ -403,18 +403,27 @@ export function DashboardOverview() {
               <span className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary mt-1">{isRTL ? 'إجمالي المبيعات' : 'Total Sales'} {currency}</span>
             </div>
           </div>
-          {/* pos-cloud's exact legend format (payment-donut-chart.tsx):
-              single column, colored dot + label + real percentage. Only
-              real data (donutData already filters to non-zero real
-              amounts) — no fabricated rows. */}
-          <div className="mt-3 space-y-2">
-            {donutData.map((d) => (
-              <div key={d.key} className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2 text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">
-                  <span className="h-2 w-2 rounded-full" style={{ background: d.color }} />
-                  {d.label}
+          {/* Full 8-method list, 2 columns, per explicit user request —
+              extends pos-cloud's simpler 4-category legend with Sefay's
+              actual accepted payment methods. Real % where data exists in
+              revenue.by_payment_method; muted "Soon" badge where it
+              doesn't yet — never a fabricated number. Tabby/Tamara will be
+              added to this same list later (see docs/rebuild/PARKING_LOT.md
+              B6) once real backend support exists. */}
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            {paymentRows.map((row) => (
+              <div key={row.key} className="flex items-center gap-2 rounded-lg border border-posCloud-border dark:border-posCloudDark-border p-2">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md" style={{ background: `${row.color}1a` }}>
+                  <row.icon className="h-3.5 w-3.5" style={{ color: row.color }} />
                 </div>
-                <span className="font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{d.pct}%</span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-[11px] font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{row.label}</p>
+                  {row.pct !== null ? (
+                    <p className="text-xs font-bold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{row.pct}%</p>
+                  ) : (
+                    <p className="text-[10px] text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{isRTL ? 'قريبًا' : 'Soon'}</p>
+                  )}
+                </div>
               </div>
             ))}
           </div>
