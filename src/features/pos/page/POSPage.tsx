@@ -13,7 +13,6 @@ import { createOrder } from '@/features/orders/api/orders.api'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { apiClient } from '@/lib/api'
 import { useTranslations } from 'next-intl'
-import { ShoppingCart, Grid } from 'lucide-react'
 import type { Customer } from '@/features/customers/types/customer.types'
 
 export function POSPage() {
@@ -23,7 +22,6 @@ export function POSPage() {
   const [receipt, setReceipt] = useState<{ payment: PaymentData; invoiceNumber: string; taxRate: number; total: number } | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [paymentError, setPaymentError] = useState<string | null>(null)
-  const [mobileTab, setMobileTab] = useState<'items' | 'cart'>('items')
   const [showCustomerPicker, setShowCustomerPicker] = useState(false)
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
 
@@ -115,49 +113,18 @@ export function POSPage() {
   return (
     <div className="flex flex-col h-full min-h-0 overflow-hidden">
 
-      {/* Mobile Tabs */}
-      <div className="flex lg:hidden border-b border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface shrink-0">
-        <button
-          onClick={() => setMobileTab('items')}
-          className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors ${
-            mobileTab === 'items'
-              ? 'text-posCloud-primary border-b-2 border-posCloud-primary'
-              : 'text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary'
-          }`}
-        >
-          <Grid className="w-4 h-4" />
-          {t('items')}
-        </button>
-        <button
-          onClick={() => setMobileTab('cart')}
-          className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors ${
-            mobileTab === 'cart'
-              ? 'text-posCloud-primary border-b-2 border-posCloud-primary'
-              : 'text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary'
-          }`}
-        >
-          <ShoppingCart className="w-4 h-4" />
-          {t('currentOrder')}
-          {cart.items.length > 0 && (
-            <span className="bg-posCloud-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-              {cart.items.length}
-            </span>
-          )}
-        </button>
-      </div>
-
-      {/* Desktop: side by side — Mobile: tabs */}
-      <div className="flex flex-1 min-h-0 gap-5 p-4 sm:p-6 overflow-hidden">
+      {/* Desktop: side by side — Mobile: stacked */}
+      <div className="flex flex-1 min-h-0 flex-col gap-5 overflow-auto p-4 sm:p-6 lg:flex-row lg:overflow-hidden">
 
         {/* Items Grid */}
-        <div className={`flex-1 min-w-0 min-h-0 overflow-hidden flex flex-col ${mobileTab === 'cart' ? 'hidden lg:flex' : 'flex'}`}>
+        <div className="flex h-[65vh] min-h-0 min-w-0 flex-1 flex-col overflow-hidden lg:h-auto">
           <ItemGrid onAddItem={(item, variant) => {
             addItem(item, variant)
           }} />
         </div>
 
         {/* Cart Panel */}
-        <div className={`lg:w-[340px] lg:shrink-0 w-full min-h-0 bg-posCloud-surface dark:bg-posCloudDark-surface border border-posCloud-border dark:border-posCloudDark-border rounded-2xl p-5 flex flex-col overflow-hidden ${mobileTab === 'items' ? 'hidden lg:flex' : 'flex'}`}>
+        <div className="flex h-[60vh] min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-posCloud-border bg-posCloud-surface p-5 dark:border-posCloudDark-border dark:bg-posCloudDark-surface lg:h-auto lg:w-[340px] lg:shrink-0">
           <CartPanel
             cart={cart}
             onUpdateQty={updateQty}

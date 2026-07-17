@@ -191,6 +191,26 @@ Two categories:
   tenant-wide. This is real backend/business-logic work, not styling —
   do it as its own scoped item later, not silently during a visual pass.
 
+### B7 — Cart panel: inline gift-card / loyalty-points fields — 🟡 DEFERRED (2026-07-17)
+- **What pos-cloud's reference shows**: Gift-card code field and a "use
+  loyalty points" checkbox inline in the cart panel, above the totals,
+  alongside the coupon field.
+- **Why it's deferred, not built**: Sefay's real gift-card validation
+  (`giftCardsApi.validate`) and loyalty-point redemption both already exist
+  and work — but only inside `PaymentModal.tsx`, applied at the moment of
+  confirming payment, wired to `handleConfirmPayment` in `POSPage.tsx`.
+  Duplicating that state into `CartPanel.tsx` would mean two independent
+  copies of the same real logic (risk of desync) — not a styling change.
+- **What's needed**: A real refactor to lift `giftCardCode`/`giftCardApplied`/
+  `redeemPoints` state up from `PaymentModal` into `POSPage` (or a shared
+  cart-level hook) so both the cart panel and payment modal read/write the
+  same source of truth. Scope this as its own task, not silently during a
+  visual pass.
+- **What was done now**: Only the coupon field (the one real cart-level
+  discount already owned by `CartPanel`) was restyled to match the
+  reference's pill-input layout. Gift card / loyalty fields were **not**
+  added to the cart panel to avoid a non-functional duplicate UI.
+
 ### B5 — Full Activity Log page
 - **What**: A dedicated `/dashboard/activity-log` page showing the complete
   activity history (the dashboard widget only shows the latest few).

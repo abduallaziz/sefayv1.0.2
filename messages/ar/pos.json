@@ -20,6 +20,8 @@
   "service": "خدمة",
   "multiple": "متعدد",
   "items": "المنتجات",
+  "showMoreItems": "عرض المزيد من المنتجات",
+  "showLess": "عرض أقل",
   "common": {
     "processing": "جاري المعالجة..."
   },

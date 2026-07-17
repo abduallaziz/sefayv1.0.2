@@ -20,6 +20,8 @@
   "service": "Service",
   "multiple": "Variants",
   "items": "Items",
+  "showMoreItems": "Show more items",
+  "showLess": "Show less",
   "common": {
     "processing": "Processing..."
   },
