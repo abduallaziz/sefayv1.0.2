@@ -122,9 +122,12 @@ Two categories:
   store, and a "switch active branch" flow. Significant scope — a full
   feature, not a styling task.
 - **Status**: Standing decision (B6, prior migration phase): keep the header
-  element as a non-functional placeholder until this is built. Per-branch
-  bar chart on the dashboard and a dedicated Branches page are both blocked
-  on this.
+  element as a non-functional placeholder until this is built. Confirmed
+  2026-07-17 via direct search: no branches-list endpoint exists anywhere
+  in the codebase. Three dashboard slots are blocked on this and show a
+  "Soon" placeholder instead of fabricated data: the "Sales by Branch" bar
+  chart, the "Branches Overview" card (per-branch open/closed + monthly
+  sales), and a dedicated Branches page.
 
 ### B3 — Product images
 - **What pos-cloud shows**: Real product photos on POS item cards and the

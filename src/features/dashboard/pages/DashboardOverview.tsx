@@ -583,10 +583,23 @@ export function DashboardOverview() {
         </SectionCard>
       </div>
 
-      {/* ── Third row — Sefay-only extras (Recent Activity, Quick Actions),
-          no pos-cloud equivalent, kept per rule 4/5 rather than removed
-          when row 2 was rebuilt to match pos-cloud exactly. ── */}
-      <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
+      {/* ── Third row — Branches Overview (pos-cloud reference) + Sefay-only
+          extras (Recent Activity, Quick Actions). Branches Overview has no
+          real data anywhere (no branch backend, no branches-list endpoint —
+          confirmed via direct search, PARKING_LOT.md B2) and shows a "Soon"
+          placeholder instead of fabricated branch names/status/sales. ── */}
+      <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-3">
+
+        <SectionCard>
+          <SectionHeader
+            title={isRTL ? 'ملخص الفروع' : 'Branches Overview'}
+            action={<span className="text-xs font-semibold text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{isRTL ? 'عرض الكل' : 'View all'}</span>}
+          />
+          <div className="flex h-[180px] flex-col items-center justify-center gap-2 text-center">
+            <Landmark className="h-8 w-8 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary" />
+            <p className="text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{isRTL ? 'قريبًا — يحتاج نظام فروع حقيقي' : 'Soon — needs a real branch system'}</p>
+          </div>
+        </SectionCard>
 
         <SectionCard>
           <SectionHeader title={t('recentActivity')} />
