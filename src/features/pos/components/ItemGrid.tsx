@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { Search } from 'lucide-react'
+import { Search, ImageOff } from 'lucide-react'
 import Image from 'next/image'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
 import { POSItem, POSVariant } from '../types/pos.types'
@@ -17,6 +17,32 @@ import { useItems, useCategories, useItemVariants } from '@/features/items/hooks
 // technique pos-cloud's own mock data uses (loremflickr, ?lock=id).
 function itemImageUrl(item: POSItem) {
   return `https://loremflickr.com/300/300/${encodeURIComponent(item.name_ar || item.name)}?lock=${item.id}`
+}
+
+// Premium product-card image: fills its slot edge-to-edge (object-cover,
+// no letterboxing), and on load failure swaps to a placeholder that
+// occupies exactly the same space — the card layout never collapses or
+// reflows either way.
+function ProductImage({ item }: { item: POSItem }) {
+  const [failed, setFailed] = useState(false)
+  if (failed) {
+    return (
+      <div className="flex h-full w-full items-center justify-center bg-posCloud-background dark:bg-posCloudDark-background">
+        <ImageOff className="h-7 w-7 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary" strokeWidth={1.5} />
+      </div>
+    )
+  }
+  return (
+    <Image
+      src={itemImageUrl(item)}
+      alt={item.name_ar}
+      fill
+      sizes="180px"
+      className="object-cover"
+      unoptimized
+      onError={() => setFailed(true)}
+    />
+  )
 }
 
 interface Props {
@@ -162,7 +188,10 @@ export function ItemGrid({ onAddItem }: Props) {
       {isLoading ? (
         <div className="flex-1 flex items-center justify-center text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary text-sm">{t('loading')}</div>
       ) : (
-        <div className="grid grid-cols-2 gap-4 overflow-y-auto flex-1 min-h-0 pb-2 sm:grid-cols-3 xl:grid-cols-4">
+        <div
+          className="grid gap-4 overflow-y-auto flex-1 min-h-0 pb-2"
+          style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))' }}
+        >
           {filtered.length === 0 && (
             <p className="col-span-full text-center text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary text-sm py-10">{t('noItems')}</p>
           )}
@@ -170,20 +199,23 @@ export function ItemGrid({ onAddItem }: Props) {
             <button
               key={item.id}
               onClick={() => handleItemClick(item)}
-              className="relative flex flex-col overflow-hidden rounded-2xl border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface text-center shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-transform hover:-translate-y-0.5 hover:border-posCloud-primary/40"
+              className="group relative flex flex-col overflow-hidden rounded-[18px] bg-posCloud-surface dark:bg-posCloudDark-surface text-start shadow-[0_1px_3px_rgba(15,23,42,0.06)] transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(15,23,42,0.12)]"
+              style={{ height: '240px' }}
             >
               {item.type === 'service' && (
-                <span className="absolute top-2 left-2 text-xs bg-posCloud-background dark:bg-posCloudDark-background text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary px-1.5 py-0.5 rounded">{t('service')}</span>
+                <span className="absolute top-2 left-2 z-10 text-[10px] font-medium bg-black/55 text-white px-1.5 py-0.5 rounded backdrop-blur-sm">{t('service')}</span>
               )}
               {item.has_variants && (
-                <span className="absolute top-2 right-2 text-xs bg-posCloud-primary-light text-posCloud-primary px-1.5 py-0.5 rounded">{t('multiple')}</span>
+                <span className="absolute top-2 right-2 z-10 text-[10px] font-medium bg-posCloud-primary text-white px-1.5 py-0.5 rounded">{t('multiple')}</span>
               )}
-              <div className="relative h-24 w-full shrink-0 bg-posCloud-background dark:bg-posCloudDark-background">
-                <Image src={itemImageUrl(item)} alt={item.name_ar} fill sizes="200px" className="object-cover" unoptimized />
+              {/* Image dominates ~77% of card height, edge-to-edge, no margins */}
+              <div className="relative w-full shrink-0" style={{ height: '185px' }}>
+                <ProductImage item={item} />
               </div>
-              <div className="p-3">
-                <p className="font-semibold text-sm text-posCloud-text-primary dark:text-posCloudDark-text-primary truncate">{item.name_ar}</p>
-                <p className="text-posCloud-primary font-bold text-sm mt-1">{item.price.toLocaleString('en-US')} {currency}</p>
+              {/* Compact info area — name (1 line, ellipsis) then price directly below */}
+              <div className="flex min-h-0 flex-1 flex-col justify-center px-2.5 py-1.5">
+                <p className="truncate text-[13px] font-bold leading-tight text-posCloud-text-primary dark:text-posCloudDark-text-primary">{item.name_ar}</p>
+                <p className="mt-0.5 text-[13px] font-medium text-posCloud-primary">{item.price.toLocaleString('en-US')} {currency}</p>
               </div>
             </button>
           ))}
