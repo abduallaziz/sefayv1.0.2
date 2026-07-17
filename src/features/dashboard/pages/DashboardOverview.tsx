@@ -13,6 +13,7 @@ import {
   TrendingUp, TrendingDown, ShoppingCart, Users, Wallet, Tag,
   BarChart3, Star, Zap, AlertCircle, UtensilsCrossed,
   Banknote, CreditCard, Landmark, Smartphone, WalletCards,
+  Boxes, PackageOpen, Layers3, Receipt,
 } from 'lucide-react'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
@@ -20,6 +21,7 @@ import { reportsApi } from '@/features/reports/api/reports.api'
 import { shiftsApi } from '@/features/shifts/api/shifts.api'
 import { customersApi } from '@/features/customers/api/customers.api'
 import { tablesApi } from '@/features/tables/api/tables.api'
+import { itemsApi } from '@/features/items/api/items.api'
 import { useBusinessType } from '@/shared/hooks/useBusinessType'
 import { DateRangePicker, type DateRange } from '@/shared/ui/date-range-picker'
 import { cn } from '@/lib/utils'
@@ -183,6 +185,17 @@ export function DashboardOverview() {
     queryKey: ['dashboard', 'expenses', range.from, range.to],
     queryFn: () => reportsApi.getExpenses(rangeQuery),
     enabled: !!user && !!range.from && !!range.to, refetchInterval: 120000, staleTime: 60000,
+  })
+
+  // Reuses the existing items.api.ts endpoint (already used by the Products
+  // page) — Total Products is a real count. Low Stock / Total Stock / Due
+  // Invoices have no real data anywhere in the system (no stock-quantity
+  // field exists — see docs/rebuild/PARKING_LOT.md B1) and are shown as
+  // "Soon" rather than pos-cloud's mock numbers.
+  const { data: items } = useQuery({
+    queryKey: ['dashboard', 'items-count'],
+    queryFn: () => itemsApi.getAll(),
+    enabled: !!user, staleTime: 120000,
   })
 
   // Reuses the existing tables.api.ts endpoint (already used by the Tables
@@ -429,22 +442,34 @@ export function DashboardOverview() {
           </div>
         </SectionCard>
 
+        {/* ── Overview — matches pos-cloud's OverviewCard exactly (icon
+            square + label + value rows). Total Products is real (reused
+            items.api.ts count); the other 3 rows have no real data
+            anywhere in the system — see docs/rebuild/PARKING_LOT.md (B1) —
+            shown as "Soon" rather than pos-cloud's mock numbers (1,245 /
+            23 / 8,752 / 5). ── */}
         <SectionCard>
-          <SectionHeader title={t('quickActions')} />
-          <div className="grid grid-cols-2 gap-2.5">
+          <SectionHeader title={isRTL ? 'نظرة عامة' : 'Overview'} />
+          <div className="space-y-4">
             {[
-              { label: t('newInvoice'), href: '/dashboard/pos', color: 'bg-posCloud-primary' },
-              { label: t('newCustomer'), href: '/dashboard/customers', color: 'bg-posCloud-success' },
-              { label: t('newExpense'), href: '/dashboard/expenses', color: 'bg-posCloud-warning' },
-              { label: t('todayReport'), href: '/dashboard/reports', color: 'bg-posCloud-info' },
-            ].map((a, i) => (
-              <Link key={i} href={`/${locale}${a.href}`}
-                className="flex flex-col items-center gap-2 rounded-xl border border-posCloud-border dark:border-posCloudDark-border p-3 text-center transition-colors hover:bg-slate-100 dark:hover:bg-white/5">
-                <div className={cn('flex h-9 w-9 items-center justify-center rounded-lg', a.color)}>
-                  <Zap size={16} className="text-white" />
+              { icon: Boxes, color: 'text-posCloud-primary bg-posCloud-primary-light dark:bg-posCloud-primary/15', label: isRTL ? 'إجمالي المنتجات' : 'Total Products', value: (items ?? []).length.toLocaleString('en-US') },
+              { icon: PackageOpen, color: 'text-posCloud-warning bg-posCloud-warning-light dark:bg-posCloud-warning/15', label: isRTL ? 'المنتجات منخفضة المخزون' : 'Low Stock', value: null },
+              { icon: Layers3, color: 'text-posCloud-info bg-posCloud-info-light dark:bg-posCloud-info/15', label: isRTL ? 'إجمالي المخزون' : 'Total Stock', value: null },
+              { icon: Receipt, color: 'text-posCloud-danger bg-posCloud-danger-light dark:bg-posCloud-danger/15', label: isRTL ? 'الفواتير المستحقة' : 'Due Invoices', value: null },
+            ].map((row, i) => (
+              <div key={i} className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={cn('flex h-9 w-9 items-center justify-center rounded-lg', row.color)}>
+                    <row.icon className="h-4 w-4" />
+                  </div>
+                  <span className="text-[13px] text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{row.label}</span>
                 </div>
-                <span className="text-[11px] font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{a.label}</span>
-              </Link>
+                {row.value !== null ? (
+                  <span className="text-sm font-bold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{row.value}</span>
+                ) : (
+                  <span className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{isRTL ? 'قريبًا' : 'Soon'}</span>
+                )}
+              </div>
             ))}
           </div>
         </SectionCard>
@@ -458,7 +483,7 @@ export function DashboardOverview() {
           separate "recent invoices" feed distinct from Activity, so those
           two slots are intentionally omitted rather than filled with
           invented data. ── */}
-      <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
+      <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-3">
 
         <SectionCard>
           <SectionHeader
@@ -520,6 +545,29 @@ export function DashboardOverview() {
                   </p>
                 </div>
               </div>
+            ))}
+          </div>
+        </SectionCard>
+
+        {/* ── Quick Actions — Sefay-only capability (no pos-cloud
+            equivalent), restyled to match the requested colored-square
+            2x2 layout exactly. All 4 links are real navigation. ── */}
+        <SectionCard>
+          <SectionHeader title={t('quickActions')} />
+          <div className="grid grid-cols-2 gap-2.5">
+            {[
+              { label: t('newCustomer'), href: '/dashboard/customers', color: 'bg-posCloud-success' },
+              { label: t('newInvoice'), href: '/dashboard/pos', color: 'bg-posCloud-primary' },
+              { label: t('todayReport'), href: '/dashboard/reports', color: 'bg-posCloud-info' },
+              { label: t('newExpense'), href: '/dashboard/expenses', color: 'bg-posCloud-warning' },
+            ].map((a, i) => (
+              <Link key={i} href={`/${locale}${a.href}`}
+                className="flex flex-col items-center gap-2 rounded-xl border border-posCloud-border dark:border-posCloudDark-border p-3 text-center transition-colors hover:bg-slate-100 dark:hover:bg-white/5">
+                <div className={cn('flex h-9 w-9 items-center justify-center rounded-lg', a.color)}>
+                  <Zap size={16} className="text-white" />
+                </div>
+                <span className="text-[11px] font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{a.label}</span>
+              </Link>
             ))}
           </div>
         </SectionCard>

@@ -104,8 +104,12 @@ Two categories:
 - **What's needed**: A backend endpoint that returns aggregate stock counts
   across all items/variants (e.g. `GET /items/stock-summary` or similar) —
   real database work, not a frontend task.
-- **Status**: Logged previously as AF-10. Not implemented anywhere with
-  placeholders.
+- **Status**: Logged previously as AF-10. **Dashboard OverviewCard added
+  2026-07-17**: Total Products shows a real count (reused `itemsApi.getAll()`
+  length, same endpoint the Products page already uses). Low Stock, Total
+  Stock, and Due Invoices show a muted "Soon" badge instead of pos-cloud's
+  mock numbers (1,245 / 23 / 8,752 / 5) — still blocked on the same real
+  backend aggregate endpoint described above.
 
 ### B2 — Real branch backend
 - **What pos-cloud shows**: A working branch switcher (header dropdown) and
