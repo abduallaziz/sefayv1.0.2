@@ -25,6 +25,13 @@ export function ReceiptModal({ cart, payment, invoiceNumber, taxRate, total, onC
     cash: t('payment.cash'),
     card: t('payment.card'),
     split: t('receipt.methodSplit'),
+    mada: t('payment.mada'),
+    visa: t('payment.visa'),
+    mastercard: t('payment.mastercard'),
+    wallet: t('payment.wallet'),
+    apple_pay: t('payment.applePay'),
+    stc_pay: t('payment.stcPay'),
+    tab: t('payment.card'),
   }[payment.method]
 
   const handlePrint = () => {

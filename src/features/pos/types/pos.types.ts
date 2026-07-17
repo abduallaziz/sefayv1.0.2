@@ -37,7 +37,22 @@ export interface Cart {
   total: number
 }
 
-export type PaymentMethod = 'cash' | 'card' | 'split'
+// Matches CreateInvoiceDto.payment_method on the backend exactly (see
+// api/src/modules/invoices/dto/create-invoice.dto.ts) — all 9 values are
+// real, accepted, and persisted by invoices.service.ts today. Only 'cash'
+// and 'split' need an amount-tendered/change flow; every other method is
+// treated as "paid in full via that method", same as 'card' already was.
+export type PaymentMethod =
+  | 'cash'
+  | 'card'
+  | 'split'
+  | 'wallet'
+  | 'mada'
+  | 'visa'
+  | 'mastercard'
+  | 'stc_pay'
+  | 'apple_pay'
+  | 'tab'
 
 export interface PaymentData {
   method: PaymentMethod
