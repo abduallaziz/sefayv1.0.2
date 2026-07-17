@@ -10,7 +10,7 @@ import {
   X, Zap, Truck, Warehouse, ClipboardList, PackageCheck, Boxes, SlidersHorizontal,
   ChevronDown, ArrowLeftRight, FileBarChart, Layers, ClipboardCheck, MapPin,
   Utensils, ChefHat, CalendarClock, CalendarDays, Wallet, ClipboardCheck as LeavesIcon,
-  IdCard, Ticket, Gift,
+  IdCard, Ticket, Gift, StickyNote,
 } from 'lucide-react'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { useBusinessType } from '@/shared/hooks/useBusinessType'
@@ -44,6 +44,7 @@ const ALL_NAV_ITEMS: NavItem[] = [
   { key: 'kitchen',   href: '/dashboard/kitchen',    icon: ChefHat,         section: 'sales' },
   { key: 'coupons',   href: '/dashboard/coupons',    icon: Ticket,          section: 'sales',    roles: ['owner', 'manager'] },
   { key: 'giftCards', href: '/dashboard/gift-cards', icon: Gift,            section: 'sales',    roles: ['owner', 'manager'] },
+  { key: 'notePresets', href: '/dashboard/note-presets', icon: StickyNote, section: 'sales',    roles: ['owner', 'manager'] },
   { key: 'reports',   href: '/dashboard/reports',    icon: BarChart3,       section: 'reports',  roles: ['owner', 'manager'] },
   { key: 'users',     href: '/dashboard/users',      icon: UserCog,         section: 'hr',       roles: ['owner', 'manager'] },
   { key: 'employees', href: '/dashboard/employees',  icon: IdCard,          section: 'hr',       roles: ['owner', 'manager'] },

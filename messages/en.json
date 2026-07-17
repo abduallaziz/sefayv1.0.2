@@ -45,7 +45,8 @@
     "leaves": "Leave Requests",
     "employees": "Employees",
     "coupons": "Coupons",
-    "giftCards": "Gift Cards"
+    "giftCards": "Gift Cards",
+    "notePresets": "Order Notes"
   },
   "common": {
     "save": "Save",

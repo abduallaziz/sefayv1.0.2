@@ -188,7 +188,10 @@ export function ItemGrid({ onAddItem }: Props) {
       {isLoading ? (
         <div className="flex-1 flex items-center justify-center text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary text-sm">{t('loading')}</div>
       ) : (
-        <div className="grid grid-cols-2 gap-3 overflow-y-auto flex-1 min-h-0 pb-2 xs:gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        <div
+          className="grid grid-cols-2 gap-3 overflow-y-auto flex-1 min-h-0 pb-2 xs:gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+          style={{ gridAutoRows: 'minmax(190px, 1fr)' }}
+        >
           {filtered.length === 0 && (
             <p className="col-span-full text-center text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary text-sm py-10">{t('noItems')}</p>
           )}
@@ -196,8 +199,7 @@ export function ItemGrid({ onAddItem }: Props) {
             <button
               key={item.id}
               onClick={() => handleItemClick(item)}
-              className="group relative flex flex-col overflow-hidden rounded-[18px] bg-posCloud-surface dark:bg-posCloudDark-surface text-start shadow-[0_1px_3px_rgba(15,23,42,0.06)] transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(15,23,42,0.12)]"
-              style={{ height: '240px' }}
+              className="group relative flex h-full flex-col overflow-hidden rounded-[18px] bg-posCloud-surface dark:bg-posCloudDark-surface text-start shadow-[0_1px_3px_rgba(15,23,42,0.06)] transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(15,23,42,0.12)]"
             >
               {item.type === 'service' && (
                 <span className="absolute top-2 left-2 z-10 text-[10px] font-medium bg-black/55 text-white px-1.5 py-0.5 rounded backdrop-blur-sm">{t('service')}</span>
@@ -205,12 +207,13 @@ export function ItemGrid({ onAddItem }: Props) {
               {item.has_variants && (
                 <span className="absolute top-2 right-2 z-10 text-[10px] font-medium bg-posCloud-primary text-white px-1.5 py-0.5 rounded">{t('multiple')}</span>
               )}
-              {/* Image dominates ~77% of card height, edge-to-edge, no margins */}
-              <div className="relative w-full shrink-0" style={{ height: '185px' }}>
+              {/* Image fills all remaining row height after the info section below —
+                  the grid row (not this element) decides the card's total height. */}
+              <div className="relative w-full min-h-0 flex-1">
                 <ProductImage item={item} />
               </div>
-              {/* Compact info area — name (1 line, ellipsis) then price directly below */}
-              <div className="flex min-h-0 flex-1 flex-col justify-center px-2.5 py-1.5">
+              {/* Compact info area — natural height, always pinned to the bottom */}
+              <div className="flex shrink-0 flex-col justify-center px-2.5 py-1.5">
                 <p className="truncate text-[13px] font-bold leading-tight text-posCloud-text-primary dark:text-posCloudDark-text-primary">{item.name_ar}</p>
                 <p className="mt-0.5 text-[13px] font-medium text-posCloud-primary">{item.price.toLocaleString('en-US')} {currency}</p>
               </div>

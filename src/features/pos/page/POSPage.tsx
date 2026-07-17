@@ -11,6 +11,7 @@ import { useCart } from '../hooks/useCart'
 import { PaymentData } from '../types/pos.types'
 import { createOrder } from '@/features/orders/api/orders.api'
 import { giftCardsApi } from '@/features/gift-cards/api/gift-cards.api'
+import { useActiveNotePresets } from '@/features/note-presets/hooks/useNotePresets'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { apiClient } from '@/lib/api'
 import { useTranslations } from 'next-intl'
@@ -35,6 +36,13 @@ export function POSPage() {
   const [giftCardAmount, setGiftCardAmount] = useState('')
   const [giftCardError, setGiftCardError] = useState<string | null>(null)
   const [validatingGiftCard, setValidatingGiftCard] = useState(false)
+
+  // Order notes: either preset selections or one free-text note, joined into the
+  // single real `Order.notes` string at checkout — the contract itself never changes.
+  const [noteTab, setNoteTab] = useState<'list' | 'custom'>('list')
+  const [selectedPresetIds, setSelectedPresetIds] = useState<string[]>([])
+  const [customNote, setCustomNote] = useState('')
+  const { data: notePresets = [] } = useActiveNotePresets()
 
   const { data: branches } = useQuery({
     queryKey: ['branches'],
@@ -95,6 +103,20 @@ export function POSPage() {
     setRedeemPoints('')
   }
 
+  const togglePreset = (id: string) => {
+    setSelectedPresetIds((prev) => (prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]))
+  }
+
+  const resetNotes = () => {
+    setNoteTab('list')
+    setSelectedPresetIds([])
+    setCustomNote('')
+  }
+
+  const finalNotes = noteTab === 'custom'
+    ? customNote.trim()
+    : notePresets.filter((p) => selectedPresetIds.includes(p.id)).map((p) => p.text).join('، ')
+
   const handleConfirmPayment = async (data: PaymentData) => {
     if (isSubmitting) return
     setIsSubmitting(true)
@@ -112,6 +134,7 @@ export function POSPage() {
         coupon_code: cart.coupon_code,
         gift_card_code: data.gift_card_code,
         gift_card_amount: data.gift_card_amount,
+        notes: finalNotes || undefined,
         items: cart.items.map(item => ({
           item_id: item.item_id,
           item_name: item.name,
@@ -158,6 +181,7 @@ export function POSPage() {
     setReceipt(null)
     setSelectedCustomer(null)
     resetGiftCardAndLoyalty()
+    resetNotes()
   }
 
   return (
@@ -182,7 +206,7 @@ export function POSPage() {
             onApplyCoupon={applyCoupon}
             onClearCoupon={clearCoupon}
             onCheckout={handleCheckoutClick}
-            onClear={() => { clearCart(); resetGiftCardAndLoyalty() }}
+            onClear={() => { clearCart(); resetGiftCardAndLoyalty(); resetNotes() }}
             customerCaptureEnabled={customerCaptureEnabled}
             selectedCustomer={selectedCustomer}
             onClearCustomer={() => setSelectedCustomer(null)}
@@ -197,6 +221,13 @@ export function POSPage() {
             onGiftCardCodeChange={(v) => { setGiftCardCode(v); setGiftCardError(null) }}
             onApplyGiftCard={handleApplyGiftCard}
             onRemoveGiftCard={handleRemoveGiftCard}
+            notePresets={notePresets}
+            noteTab={noteTab}
+            onNoteTabChange={setNoteTab}
+            selectedPresetIds={selectedPresetIds}
+            onTogglePreset={togglePreset}
+            customNote={customNote}
+            onCustomNoteChange={setCustomNote}
           />
         </div>
       </div>

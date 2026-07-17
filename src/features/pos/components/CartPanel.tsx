@@ -2,13 +2,44 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { User, X, ChevronDown, ImageOff } from 'lucide-react'
+import { User, X, ChevronDown, ChevronLeft, ImageOff, Tag, Gift, Sparkles, List, PenLine } from 'lucide-react'
 import Image from 'next/image'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
 import { couponsApi } from '@/features/coupons/api/coupons.api'
 import { Cart, CartItem } from '../types/pos.types'
 import type { Customer } from '@/features/customers/types/customer.types'
+import type { NotePreset } from '@/features/note-presets/api/note-presets.api'
 import { Button } from '@/shared/ui/button'
+
+// Shared collapsed/expanded row shape for coupon / gift card / loyalty points —
+// same icon+label+chevron shell, only the expanded body differs per section.
+function AccordionRow({
+  icon: Icon, label, sublabel, applied, expanded, onToggle, children,
+}: {
+  icon: React.ElementType
+  label: string
+  sublabel?: string
+  applied?: boolean
+  expanded: boolean
+  onToggle: () => void
+  children: React.ReactNode
+}) {
+  return (
+    <div className="border-t border-posCloud-border dark:border-posCloudDark-border py-2.5 first:border-t-0 first:pt-0">
+      <button onClick={onToggle} className="flex w-full items-center gap-2.5 text-start">
+        <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${applied ? 'bg-posCloud-success-light text-posCloud-success' : 'bg-posCloud-background text-posCloud-text-tertiary dark:bg-posCloudDark-background'}`}>
+          <Icon className="h-4 w-4" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-sm font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary">{label}</span>
+          {sublabel && <span className="block text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{sublabel}</span>}
+        </span>
+        <ChevronLeft className={`h-4 w-4 shrink-0 text-posCloud-text-tertiary transition-transform ${expanded ? '-rotate-90' : ''}`} />
+      </button>
+      {expanded && <div className="mt-2.5 ps-[42px]">{children}</div>}
+    </div>
+  )
+}
 
 // Same temporary stand-in-photo technique as ItemGrid (see PARKING_LOT.md B3) —
 // keyed by the line's real product name, locked to its cart-item id.
@@ -65,6 +96,13 @@ interface Props {
   onGiftCardCodeChange: (v: string) => void
   onApplyGiftCard: () => void
   onRemoveGiftCard: () => void
+  notePresets: NotePreset[]
+  noteTab: 'list' | 'custom'
+  onNoteTabChange: (tab: 'list' | 'custom') => void
+  selectedPresetIds: string[]
+  onTogglePreset: (id: string) => void
+  customNote: string
+  onCustomNoteChange: (v: string) => void
 }
 
 const fmt = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -75,13 +113,18 @@ export function CartPanel({
   loyaltyEnabled, availablePoints, redeemPoints, onRedeemPointsChange,
   giftCardCode, giftCardApplied, giftCardError, validatingGiftCard,
   onGiftCardCodeChange, onApplyGiftCard, onRemoveGiftCard,
+  notePresets, noteTab, onNoteTabChange, selectedPresetIds, onTogglePreset, customNote, onCustomNoteChange,
 }: Props) {
   const t = useTranslations('pos')
+  const tNotes = useTranslations('notePresets')
   const currency = useTenantStore((s) => s.currency_symbol)
   const [couponInput, setCouponInput] = useState('')
   const [couponError, setCouponError] = useState<string | null>(null)
   const [validatingCoupon, setValidatingCoupon] = useState(false)
   const [showAllItems, setShowAllItems] = useState(false)
+  const [openSection, setOpenSection] = useState<'coupon' | 'giftcard' | 'loyalty' | 'notes' | null>(null)
+  const toggleSection = (key: 'coupon' | 'giftcard' | 'loyalty' | 'notes') =>
+    setOpenSection((prev) => (prev === key ? null : key))
 
   const hiddenCount = Math.max(0, cart.items.length - VISIBLE_ROWS)
   const visibleItems = showAllItems ? cart.items : cart.items.slice(0, VISIBLE_ROWS)
@@ -186,47 +229,87 @@ export function CartPanel({
         </div>
       )}
 
-      {/* الكود يُتحقَّق منه فعليًا عبر /coupons/validate وقت التطبيق — نسبة/قيمة الخصم
-          تُجلَب من تعريف الكوبون نفسه بالسيرفر، لا تُحدَّد يدويًا هنا أبدًا. أي تعديل على
-          محتويات السلة بعد التطبيق يُلغي الكوبون تلقائيًا (راجع useCart) لتفادي عرض مبلغ
-          خصم غير محدَّث. */}
-      <div className="border-t border-posCloud-border dark:border-posCloudDark-border pt-3 mb-3">
-        {cart.coupon_code ? (
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-posCloud-primary font-medium">
-              ✓ {t('couponCode')}: <span className="font-mono">{cart.coupon_code}</span> (−{fmt(cart.coupon_discount_amount)} {currency})
-            </span>
-            <button
-              onClick={onClearCoupon}
-              className="text-xs text-posCloud-danger hover:brightness-90"
-            >
+      {/* الكود يُتحقَّق منه فعليًا عبر /coupons/validate و/gift-cards/validate وقت التطبيق —
+          القيم الحقيقية (نسبة/مبلغ الخصم) تُجلَب من السيرفر، لا تُحدَّد يدويًا هنا أبدًا. */}
+      <div className="border-t border-posCloud-border dark:border-posCloudDark-border pt-1 mb-3">
+        <AccordionRow
+          icon={Tag}
+          label={cart.coupon_code ? `${t('couponCode')}: ${cart.coupon_code}` : t('addCoupon').replace('+ ', '')}
+          sublabel={cart.coupon_discount_amount > 0 ? `−${fmt(cart.coupon_discount_amount)} ${currency}` : undefined}
+          applied={!!cart.coupon_code}
+          expanded={openSection === 'coupon'}
+          onToggle={() => toggleSection('coupon')}
+        >
+          {cart.coupon_code ? (
+            <button onClick={onClearCoupon} className="text-xs text-posCloud-danger hover:brightness-90">
               {t('removeCoupon')}
             </button>
-          </div>
-        ) : (
-          <div className="space-y-1.5">
-            <div className="flex gap-2">
-              <button
-                onClick={handleApplyCoupon}
-                disabled={!couponInput.trim() || validatingCoupon}
-                className="shrink-0 rounded-full bg-posCloud-primary-light px-4 text-xs font-semibold text-posCloud-primary disabled:opacity-50"
-              >
-                {validatingCoupon ? t('checking') : t('apply')}
-              </button>
-              <input
-                placeholder={t('couponCode')}
-                value={couponInput}
-                onChange={(e) => { setCouponInput(e.target.value.toUpperCase()); setCouponError(null) }}
-                className="flex-1 min-w-0 rounded-full border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-background dark:bg-posCloudDark-background px-3.5 py-2 text-xs uppercase text-posCloud-text-primary dark:text-posCloudDark-text-primary outline-none placeholder:normal-case placeholder:text-posCloud-text-tertiary dark:placeholder:text-posCloudDark-text-tertiary"
-              />
+          ) : (
+            <div className="space-y-1.5">
+              <div className="flex gap-2">
+                <input
+                  placeholder={t('couponCode')}
+                  value={couponInput}
+                  onChange={(e) => { setCouponInput(e.target.value.toUpperCase()); setCouponError(null) }}
+                  className="flex-1 min-w-0 rounded-full border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-background dark:bg-posCloudDark-background px-3.5 py-2 text-xs uppercase text-posCloud-text-primary dark:text-posCloudDark-text-primary outline-none placeholder:normal-case placeholder:text-posCloud-text-tertiary dark:placeholder:text-posCloudDark-text-tertiary"
+                />
+                <button
+                  onClick={handleApplyCoupon}
+                  disabled={!couponInput.trim() || validatingCoupon}
+                  className="shrink-0 rounded-full bg-posCloud-primary-light px-4 text-xs font-semibold text-posCloud-primary disabled:opacity-50"
+                >
+                  {validatingCoupon ? t('checking') : t('apply')}
+                </button>
+              </div>
+              {couponError && <p className="text-[11px] text-posCloud-danger">{couponError}</p>}
             </div>
-            {couponError && <p className="text-[11px] text-posCloud-danger">{couponError}</p>}
-          </div>
-        )}
+          )}
+        </AccordionRow>
+
+        <AccordionRow
+          icon={Gift}
+          label={t('payment.giftCard')}
+          sublabel={giftCardApplied ? giftCardCode : undefined}
+          applied={giftCardApplied}
+          expanded={openSection === 'giftcard'}
+          onToggle={() => toggleSection('giftcard')}
+        >
+          {giftCardApplied ? (
+            <button onClick={onRemoveGiftCard} className="text-xs text-posCloud-danger hover:brightness-90">
+              {t('payment.giftCardRemove')}
+            </button>
+          ) : (
+            <div className="space-y-1.5">
+              <div className="flex gap-2">
+                <input
+                  placeholder={t('payment.giftCardCode')}
+                  value={giftCardCode}
+                  onChange={(e) => onGiftCardCodeChange(e.target.value.toUpperCase())}
+                  className="flex-1 min-w-0 rounded-full border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-background dark:bg-posCloudDark-background px-3.5 py-2 text-xs uppercase text-posCloud-text-primary dark:text-posCloudDark-text-primary outline-none placeholder:normal-case placeholder:text-posCloud-text-tertiary dark:placeholder:text-posCloudDark-text-tertiary"
+                />
+                <button
+                  onClick={onApplyGiftCard}
+                  disabled={!giftCardCode.trim() || validatingGiftCard}
+                  className="shrink-0 rounded-full bg-posCloud-primary-light px-4 text-xs font-semibold text-posCloud-primary disabled:opacity-50"
+                >
+                  {validatingGiftCard ? t('checking') : t('apply')}
+                </button>
+              </div>
+              {giftCardError && <p className="text-[11px] text-posCloud-danger">{giftCardError}</p>}
+            </div>
+          )}
+        </AccordionRow>
 
         {loyaltyEnabled && (
-          <label className={`mt-2 flex items-center justify-between gap-2 text-xs text-posCloud-text-secondary dark:text-posCloudDark-text-secondary ${availablePoints > 0 ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'}`}>
-            <span className="flex items-center gap-1.5">
+          <AccordionRow
+            icon={Sparkles}
+            label={t('payment.redeemPoints')}
+            sublabel={t('payment.availablePoints', { points: availablePoints })}
+            applied={!!redeemPoints && parseInt(redeemPoints, 10) > 0}
+            expanded={openSection === 'loyalty'}
+            onToggle={() => toggleSection('loyalty')}
+          >
+            <label className={`flex items-center gap-2 text-xs text-posCloud-text-secondary dark:text-posCloudDark-text-secondary ${availablePoints > 0 ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'}`}>
               <input
                 type="checkbox"
                 disabled={availablePoints === 0}
@@ -234,41 +317,70 @@ export function CartPanel({
                 onChange={(e) => onRedeemPointsChange(e.target.checked ? String(availablePoints) : '')}
                 className="h-3.5 w-3.5 rounded border-posCloud-border dark:border-posCloudDark-border accent-posCloud-primary"
               />
-              {t('payment.redeemPoints')}
-            </span>
-            <span>{t('payment.availablePoints', { points: availablePoints })}</span>
-          </label>
+              {t('payment.redeemPoints')} ({t('payment.availablePoints', { points: availablePoints })})
+            </label>
+          </AccordionRow>
         )}
 
-        <div className="mt-2 space-y-1.5">
-          {giftCardApplied ? (
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-posCloud-info font-medium">
-                ✓ {t('payment.giftCard')}: <span className="font-mono">{giftCardCode}</span>
-              </span>
-              <button onClick={onRemoveGiftCard} className="text-xs text-posCloud-danger hover:brightness-90">
-                {t('payment.giftCardRemove')}
-              </button>
-            </div>
-          ) : (
-            <div className="flex gap-2">
+        <AccordionRow
+          icon={PenLine}
+          label={tNotes('notesLabel')}
+          sublabel={
+            noteTab === 'custom'
+              ? (customNote.trim() || undefined)
+              : (selectedPresetIds.length > 0 ? `${selectedPresetIds.length}` : undefined)
+          }
+          applied={noteTab === 'custom' ? !!customNote.trim() : selectedPresetIds.length > 0}
+          expanded={openSection === 'notes'}
+          onToggle={() => toggleSection('notes')}
+        >
+          <div className="space-y-2">
+            <div className="flex gap-1 rounded-lg bg-posCloud-background p-1 dark:bg-posCloudDark-background">
               <button
-                onClick={onApplyGiftCard}
-                disabled={!giftCardCode.trim() || validatingGiftCard}
-                className="shrink-0 rounded-full bg-posCloud-primary-light px-4 text-xs font-semibold text-posCloud-primary disabled:opacity-50"
+                onClick={() => onNoteTabChange('list')}
+                className={`flex flex-1 items-center justify-center gap-1.5 rounded-md py-1.5 text-xs font-medium transition-colors ${noteTab === 'list' ? 'bg-posCloud-surface text-posCloud-primary shadow-sm dark:bg-posCloudDark-surface' : 'text-posCloud-text-tertiary'}`}
               >
-                {validatingGiftCard ? t('checking') : t('apply')}
+                <List className="h-3.5 w-3.5" />
+                {tNotes('chooseFromList')}
               </button>
-              <input
-                placeholder={t('payment.giftCardCode')}
-                value={giftCardCode}
-                onChange={(e) => onGiftCardCodeChange(e.target.value.toUpperCase())}
-                className="flex-1 min-w-0 rounded-full border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-background dark:bg-posCloudDark-background px-3.5 py-2 text-xs uppercase text-posCloud-text-primary dark:text-posCloudDark-text-primary outline-none placeholder:normal-case placeholder:text-posCloud-text-tertiary dark:placeholder:text-posCloudDark-text-tertiary"
-              />
+              <button
+                onClick={() => onNoteTabChange('custom')}
+                className={`flex flex-1 items-center justify-center gap-1.5 rounded-md py-1.5 text-xs font-medium transition-colors ${noteTab === 'custom' ? 'bg-posCloud-surface text-posCloud-primary shadow-sm dark:bg-posCloudDark-surface' : 'text-posCloud-text-tertiary'}`}
+              >
+                <PenLine className="h-3.5 w-3.5" />
+                {tNotes('writeNote')}
+              </button>
             </div>
-          )}
-          {giftCardError && <p className="text-[11px] text-posCloud-danger">{giftCardError}</p>}
-        </div>
+
+            {noteTab === 'list' ? (
+              notePresets.length === 0 ? (
+                <p className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{tNotes('noPresets')}</p>
+              ) : (
+                <div className="max-h-40 space-y-1 overflow-y-auto">
+                  {notePresets.map((p) => (
+                    <label key={p.id} className="flex cursor-pointer items-center gap-2 rounded-lg px-1.5 py-1 text-xs text-posCloud-text-secondary hover:bg-posCloud-background dark:text-posCloudDark-text-secondary dark:hover:bg-posCloudDark-background">
+                      <input
+                        type="checkbox"
+                        checked={selectedPresetIds.includes(p.id)}
+                        onChange={() => onTogglePreset(p.id)}
+                        className="h-3.5 w-3.5 rounded border-posCloud-border dark:border-posCloudDark-border accent-posCloud-primary"
+                      />
+                      {p.text}
+                    </label>
+                  ))}
+                </div>
+              )
+            ) : (
+              <textarea
+                value={customNote}
+                onChange={(e) => onCustomNoteChange(e.target.value)}
+                placeholder={tNotes('customPlaceholder')}
+                rows={3}
+                className="w-full resize-none rounded-lg border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-background dark:bg-posCloudDark-background px-3 py-2 text-xs text-posCloud-text-primary dark:text-posCloudDark-text-primary outline-none placeholder:text-posCloud-text-tertiary dark:placeholder:text-posCloudDark-text-tertiary"
+              />
+            )}
+          </div>
+        </AccordionRow>
       </div>
 
       <div className="space-y-1.5 text-xs border-t border-posCloud-border dark:border-posCloudDark-border pt-3 mb-3">

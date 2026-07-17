@@ -1,0 +1,17 @@
+{
+  "title": "Order Notes",
+  "subtitle": "Build a preset list cashiers can pick from instead of typing the same note every time",
+  "addPlaceholder": "Type a new note...",
+  "add": "Add",
+  "empty": "No preset notes yet",
+  "emptyHint": "Add a note for cashiers to pick from at checkout",
+  "deleteTitle": "Delete Note",
+  "deleteConfirm": "Are you sure you want to delete \"{text}\"?",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "chooseFromList": "Choose from list",
+  "writeNote": "Write a note",
+  "customPlaceholder": "Type your note here...",
+  "noPresets": "No preset notes available",
+  "notesLabel": "Order notes (optional)"
+}
