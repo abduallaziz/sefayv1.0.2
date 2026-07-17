@@ -205,17 +205,17 @@ export function PaymentModal({
           actually created) and no "bank transfer" button (no matching
           backend payment_method value — see METHODS comment below). */}
       <div className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-posCloud-border bg-posCloud-surface shadow-xl dark:border-posCloudDark-border dark:bg-posCloudDark-surface">
-        <div className="shrink-0 border-b border-posCloud-border p-5 dark:border-posCloudDark-border">
-          <div className="flex items-center justify-between">
-            <button onClick={onClose} className="rounded p-1 opacity-70 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:opacity-100 transition-opacity">
+        <div className="shrink-0 border-b border-posCloud-border px-6 py-5 dark:border-posCloudDark-border">
+          <div className="flex items-center justify-between gap-3">
+            <button onClick={onClose} className="shrink-0 rounded p-1.5 opacity-70 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:opacity-100 transition-opacity">
               <X className="w-4 h-4" />
             </button>
-            <h3 className="font-bold text-lg text-posCloud-text-primary dark:text-posCloudDark-text-primary">{t('payment.title')}</h3>
-            <button onClick={() => window.print()} className="rounded p-1 opacity-70 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:opacity-100 transition-opacity">
+            <h3 className="flex-1 text-center font-bold text-lg text-posCloud-text-primary dark:text-posCloudDark-text-primary">{t('payment.title')}</h3>
+            <button onClick={() => window.print()} className="shrink-0 rounded p-1.5 opacity-70 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:opacity-100 transition-opacity">
               <Printer className="w-4 h-4" />
             </button>
           </div>
-          <div className="mt-2 flex items-center justify-between text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+          <div className="mt-3 flex items-center justify-between text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
             <span>{t('payment.customer')}</span>
             <span className="font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary">
               {customer?.full_name || t('payment.generalCustomer')}
@@ -224,7 +224,7 @@ export function PaymentModal({
         </div>
 
         <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[1fr_320px]">
-          {/* Left: item table, its own scroll region */}
+          {/* Left: item table — the only scrollable region in the body */}
           <div className="flex min-h-0 flex-col border-posCloud-border dark:border-posCloudDark-border lg:border-e">
             <p className="shrink-0 px-5 pt-4 text-xs font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
               {t('payment.productsCount', { count: cart.items.length })}
@@ -261,8 +261,10 @@ export function PaymentModal({
             </div>
           </div>
 
-          {/* Right: totals, gift card, loyalty, payment method, amount — its own scroll region */}
-          <div className="min-h-0 space-y-3 overflow-y-auto p-5">
+          {/* Right: totals, gift card, loyalty, payment method, amount — never
+              scrolls on its own; always renders in full, only the item table
+              on the left scrolls. */}
+          <div className="space-y-3 p-5">
             <div className="space-y-1 text-sm">
               <div className="flex justify-between text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
                 <span>{t('subtotal')}</span><span>{fmt(cart.subtotal)}</span>
