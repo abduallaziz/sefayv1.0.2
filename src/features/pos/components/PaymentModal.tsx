@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { X, ImageOff, Banknote, Wallet as WalletIcon, Apple } from 'lucide-react'
+import { X, ImageOff, Banknote, Wallet as WalletIcon, Apple, Printer, Check } from 'lucide-react'
 import Image from 'next/image'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
 import { Cart, CartItem, PaymentData, PaymentMethod } from '../types/pos.types'
@@ -198,14 +198,21 @@ export function PaymentModal({
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      {/* Same bounded header / scrollable-middle / sticky-footer pattern as
-          ReceiptModal — only the item table scrolls, everything else stays put. */}
-      <div className="flex max-h-[90vh] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-posCloud-border bg-posCloud-surface shadow-xl dark:border-posCloudDark-border dark:bg-posCloudDark-surface">
+      {/* Two-column layout matching the reference exactly: wide item table on
+          one side, totals/gift-card/loyalty/payment-method on the other,
+          both bounded to the modal height and independently scrollable. No
+          fake order number shown (no real invoice exists until the order is
+          actually created) and no "bank transfer" button (no matching
+          backend payment_method value — see METHODS comment below). */}
+      <div className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-posCloud-border bg-posCloud-surface shadow-xl dark:border-posCloudDark-border dark:bg-posCloudDark-surface">
         <div className="shrink-0 border-b border-posCloud-border p-5 dark:border-posCloudDark-border">
           <div className="flex items-center justify-between">
-            <h3 className="font-bold text-lg text-posCloud-text-primary dark:text-posCloudDark-text-primary">{t('payment.title')}</h3>
             <button onClick={onClose} className="rounded p-1 opacity-70 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:opacity-100 transition-opacity">
               <X className="w-4 h-4" />
+            </button>
+            <h3 className="font-bold text-lg text-posCloud-text-primary dark:text-posCloudDark-text-primary">{t('payment.title')}</h3>
+            <button onClick={() => window.print()} className="rounded p-1 opacity-70 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:opacity-100 transition-opacity">
+              <Printer className="w-4 h-4" />
             </button>
           </div>
           <div className="mt-2 flex items-center justify-between text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
@@ -216,191 +223,210 @@ export function PaymentModal({
           </div>
         </div>
 
-        {/* Item table — the only scrollable region */}
-        <div className="min-h-0 flex-1 overflow-y-auto px-5">
-          <table className="w-full text-sm">
-            <thead className="sticky top-0 bg-posCloud-surface dark:bg-posCloudDark-surface">
-              <tr className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-                <th className="py-2 text-start font-medium">{t('payment.product')}</th>
-                <th className="py-2 text-center font-medium">{t('payment.quantity')}</th>
-                <th className="py-2 text-center font-medium">{t('payment.price')}</th>
-                <th className="py-2 text-end font-medium">{t('payment.lineTotal')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {cart.items.map((item) => (
-                <tr key={item.id} className="border-t border-posCloud-border dark:border-posCloudDark-border">
-                  <td className="py-2">
-                    <div className="flex items-center gap-2">
-                      <LineImage cartItem={item} />
-                      <div className="min-w-0">
-                        <p className="truncate font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary">{item.name}</p>
-                        {item.variant_name && <p className="truncate text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{item.variant_name}</p>}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="py-2 text-center text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{item.quantity}</td>
-                  <td className="py-2 text-center text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{fmt(item.unit_price)}</td>
-                  <td className="py-2 text-end font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary">{fmt(item.total_price)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Sticky footer: totals, gift card / loyalty, payment method, confirm */}
-        <div className="shrink-0 space-y-3 border-t border-posCloud-border p-5 dark:border-posCloudDark-border">
-          <div className="space-y-1 text-sm">
-            <div className="flex justify-between text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-              <span>{t('subtotal')}</span><span>{fmt(cart.subtotal)}</span>
-            </div>
-            <div className="flex justify-between text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-              <span>{t('tax')}</span><span>{fmt(cart.tax_amount)}</span>
-            </div>
-            {totalDiscount > 0 && (
-              <div className="flex justify-between text-posCloud-success">
-                <span>{t('discount')}</span><span>−{fmt(totalDiscount)}</span>
-              </div>
-            )}
-            <div className="flex justify-between border-t border-posCloud-border pt-1.5 text-base font-bold dark:border-posCloudDark-border">
-              <span className="text-posCloud-text-primary dark:text-posCloudDark-text-primary">{t('total')}</span>
-              <span className="text-posCloud-primary">{fmt(remainingDue)} {currency}</span>
+        <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[1fr_320px]">
+          {/* Left: item table, its own scroll region */}
+          <div className="flex min-h-0 flex-col border-posCloud-border dark:border-posCloudDark-border lg:border-e">
+            <p className="shrink-0 px-5 pt-4 text-xs font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+              {t('payment.productsCount', { count: cart.items.length })}
+            </p>
+            <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-4">
+              <table className="w-full text-sm">
+                <thead className="sticky top-0 bg-posCloud-surface dark:bg-posCloudDark-surface">
+                  <tr className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+                    <th className="py-2 text-start font-medium">{t('payment.product')}</th>
+                    <th className="py-2 text-center font-medium">{t('payment.quantity')}</th>
+                    <th className="py-2 text-center font-medium">{t('payment.price')}</th>
+                    <th className="py-2 text-end font-medium">{t('payment.lineTotal')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cart.items.map((item) => (
+                    <tr key={item.id} className="border-t border-posCloud-border dark:border-posCloudDark-border">
+                      <td className="py-2">
+                        <div className="flex items-center gap-2">
+                          <LineImage cartItem={item} />
+                          <div className="min-w-0">
+                            <p className="truncate font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary">{item.name}</p>
+                            {item.variant_name && <p className="truncate text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{item.variant_name}</p>}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-2 text-center text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{item.quantity}</td>
+                      <td className="py-2 text-center text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{fmt(item.unit_price)}</td>
+                      <td className="py-2 text-end font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary">{fmt(item.total_price)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
 
-          <div className="rounded-xl border border-posCloud-info/20 bg-posCloud-info-light p-3 space-y-2 dark:bg-posCloud-info/15">
-            {giftCardApplied ? (
-              <div className="flex items-center justify-between text-sm">
-                <span className="font-medium text-posCloud-info">
-                  {t('payment.giftCardApplied')}: <span className="font-mono">{giftCardCode}</span> (−{fmt(giftCardAmountNum)})
-                </span>
-                <button onClick={onRemoveGiftCard} className="shrink-0 text-xs text-posCloud-danger hover:brightness-95">
-                  {t('payment.giftCardRemove')}
-                </button>
+          {/* Right: totals, gift card, loyalty, payment method, amount — its own scroll region */}
+          <div className="min-h-0 space-y-3 overflow-y-auto p-5">
+            <div className="space-y-1 text-sm">
+              <div className="flex justify-between text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+                <span>{t('subtotal')}</span><span>{fmt(cart.subtotal)}</span>
               </div>
-            ) : (
-              <>
-                <span className="text-sm font-medium text-posCloud-info">{t('payment.giftCard')}</span>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder={t('payment.giftCardCode')}
-                    value={giftCardCode}
-                    onChange={(e) => onGiftCardCodeChange(e.target.value.toUpperCase())}
-                    className="h-9 flex-1 rounded-lg border border-posCloud-info/30 bg-posCloud-surface px-3 uppercase text-posCloud-text-primary outline-none focus:border-posCloud-info dark:bg-posCloudDark-surface dark:text-posCloudDark-text-primary"
-                  />
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    value={giftCardAmount}
-                    onChange={(e) => onGiftCardAmountChange(e.target.value)}
-                    className="h-9 w-20 rounded-lg border border-posCloud-info/30 bg-posCloud-surface px-2 text-center text-posCloud-text-primary outline-none focus:border-posCloud-info dark:bg-posCloudDark-surface dark:text-posCloudDark-text-primary"
-                  />
-                  <button
-                    disabled={!giftCardCode.trim() || !(parseFloat(giftCardAmount) > 0) || validatingGiftCard}
-                    onClick={onApplyGiftCard}
-                    className="h-9 shrink-0 rounded-lg bg-posCloud-info px-3 text-sm font-medium text-white hover:brightness-95 disabled:opacity-50"
-                  >
-                    {validatingGiftCard ? t('checking') : t('payment.giftCardApply')}
+              <div className="flex justify-between text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+                <span>{t('tax')}</span><span>{fmt(cart.tax_amount)}</span>
+              </div>
+              {totalDiscount > 0 && (
+                <div className="flex justify-between text-posCloud-success">
+                  <span>{t('discount')}</span><span>−{fmt(totalDiscount)}</span>
+                </div>
+              )}
+              <div className="flex justify-between border-t border-posCloud-border pt-1.5 text-base font-bold dark:border-posCloudDark-border">
+                <span className="text-posCloud-text-primary dark:text-posCloudDark-text-primary">{t('total')}</span>
+                <span className="text-posCloud-primary">{fmt(remainingDue)} {currency}</span>
+              </div>
+            </div>
+
+            {/* Confirmed-method summary — a distinct green checkmark card,
+                separate from the highlighted grid button, per reference. */}
+            <div className="flex items-center justify-between rounded-xl border border-posCloud-success/30 bg-posCloud-success-light p-3 dark:bg-posCloud-success/15">
+              <span className="flex items-center gap-2 text-sm font-medium text-posCloud-success">
+                <MethodMark id={method} />
+                {t(METHODS.find((m) => m.id === method)!.labelKey as Parameters<typeof t>[0])}
+              </span>
+              <Check className="h-4 w-4 text-posCloud-success" />
+            </div>
+
+            <div className="rounded-xl border border-posCloud-info/20 bg-posCloud-info-light p-3 space-y-2 dark:bg-posCloud-info/15">
+              {giftCardApplied ? (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-medium text-posCloud-info">
+                    {t('payment.giftCardApplied')}: <span className="font-mono">{giftCardCode}</span> (−{fmt(giftCardAmountNum)})
+                  </span>
+                  <button onClick={onRemoveGiftCard} className="shrink-0 text-xs text-posCloud-danger hover:brightness-95">
+                    {t('payment.giftCardRemove')}
                   </button>
                 </div>
-                {giftCardError && <p className="text-xs text-posCloud-danger">{giftCardError}</p>}
-              </>
+              ) : (
+                <>
+                  <span className="text-sm font-medium text-posCloud-info">{t('payment.giftCard')}</span>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder={t('payment.giftCardCode')}
+                      value={giftCardCode}
+                      onChange={(e) => onGiftCardCodeChange(e.target.value.toUpperCase())}
+                      className="h-9 flex-1 rounded-lg border border-posCloud-info/30 bg-posCloud-surface px-3 uppercase text-posCloud-text-primary outline-none focus:border-posCloud-info dark:bg-posCloudDark-surface dark:text-posCloudDark-text-primary"
+                    />
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={giftCardAmount}
+                      onChange={(e) => onGiftCardAmountChange(e.target.value)}
+                      className="h-9 w-20 rounded-lg border border-posCloud-info/30 bg-posCloud-surface px-2 text-center text-posCloud-text-primary outline-none focus:border-posCloud-info dark:bg-posCloudDark-surface dark:text-posCloudDark-text-primary"
+                    />
+                    <button
+                      disabled={!giftCardCode.trim() || !(parseFloat(giftCardAmount) > 0) || validatingGiftCard}
+                      onClick={onApplyGiftCard}
+                      className="h-9 shrink-0 rounded-lg bg-posCloud-info px-3 text-sm font-medium text-white hover:brightness-95 disabled:opacity-50"
+                    >
+                      {validatingGiftCard ? t('checking') : t('payment.giftCardApply')}
+                    </button>
+                  </div>
+                  {giftCardError && <p className="text-xs text-posCloud-danger">{giftCardError}</p>}
+                </>
+              )}
+            </div>
+
+            {error && (
+              <div className="rounded-lg border border-posCloud-danger/20 bg-posCloud-danger-light p-3 text-sm text-posCloud-danger dark:bg-posCloud-danger/15">
+                {error}
+              </div>
+            )}
+
+            {availablePoints > 0 && (
+              <div className="space-y-2 rounded-xl border border-posCloud-warning/20 bg-posCloud-warning-light p-3 dark:bg-posCloud-warning/15">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-medium text-posCloud-warning">{t('payment.redeemPoints')}</span>
+                  <span className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+                    {t('payment.availablePoints', { points: availablePoints })}
+                  </span>
+                </div>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="0"
+                  value={redeemPoints}
+                  onChange={(e) => {
+                    const digitsOnly = e.target.value.replace(/[^0-9]/g, '')
+                    const clamped = digitsOnly === '' ? '' : String(Math.min(parseInt(digitsOnly, 10), availablePoints))
+                    onRedeemPointsChange(clamped)
+                  }}
+                  className="h-9 w-full rounded-lg border border-posCloud-warning/30 bg-posCloud-surface text-center text-posCloud-text-primary outline-none focus:border-posCloud-warning dark:bg-posCloudDark-surface dark:text-posCloudDark-text-primary"
+                />
+              </div>
+            )}
+
+            <p className="text-xs font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('payment.methodLabel')}</p>
+            <div className="grid grid-cols-4 gap-2">
+              {METHODS.map((m) => (
+                <button
+                  key={m.id}
+                  onClick={() => setMethod(m.id)}
+                  className={`flex flex-col items-center gap-1 rounded-xl border py-2.5 text-[11px] font-medium transition-all ${
+                    method === m.id
+                      ? 'border-posCloud-primary bg-posCloud-primary-light text-posCloud-primary dark:bg-posCloud-primary/15'
+                      : 'border-posCloud-border bg-posCloud-background text-posCloud-text-tertiary hover:border-posCloud-primary/50 dark:border-posCloudDark-border dark:bg-posCloudDark-background'
+                  }`}
+                >
+                  <MethodMark id={m.id} />
+                  {t(m.labelKey as Parameters<typeof t>[0])}
+                </button>
+              ))}
+            </div>
+
+            {method === 'cash' && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <label className="font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{t('payment.tendered')}</label>
+                  {change > 0 && <span className="text-xs text-posCloud-success">{t('payment.change')}: {fmt(change)} {currency}</span>}
+                </div>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  placeholder={fmt(remainingDue)}
+                  value={cashTendered}
+                  onChange={(e) => setCashTendered(e.target.value)}
+                  className="w-full h-11 text-center text-lg font-bold rounded-lg border border-posCloud-border bg-posCloud-background text-posCloud-text-primary outline-none focus:border-posCloud-primary dark:border-posCloudDark-border dark:bg-posCloudDark-background dark:text-posCloudDark-text-primary"
+                />
+              </div>
+            )}
+
+            {method === 'split' && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <label className="font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{t('payment.splitCash')}</label>
+                  {splitCard > 0 && <span className="text-xs text-posCloud-primary font-medium">{t('payment.splitCard')}: {fmt(splitCard)} {currency}</span>}
+                </div>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="0.00"
+                  value={splitCash}
+                  onChange={(e) => setSplitCash(e.target.value)}
+                  className="w-full h-11 text-center rounded-lg border border-posCloud-border bg-posCloud-background text-posCloud-text-primary outline-none focus:border-posCloud-primary dark:border-posCloudDark-border dark:bg-posCloudDark-background dark:text-posCloudDark-text-primary"
+                />
+              </div>
             )}
           </div>
+        </div>
 
-          {error && (
-            <div className="rounded-lg border border-posCloud-danger/20 bg-posCloud-danger-light p-3 text-sm text-posCloud-danger dark:bg-posCloud-danger/15">
-              {error}
-            </div>
-          )}
-
-          {availablePoints > 0 && (
-            <div className="space-y-2 rounded-xl border border-posCloud-warning/20 bg-posCloud-warning-light p-3 dark:bg-posCloud-warning/15">
-              <div className="flex items-center justify-between text-sm">
-                <span className="font-medium text-posCloud-warning">{t('payment.redeemPoints')}</span>
-                <span className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-                  {t('payment.availablePoints', { points: availablePoints })}
-                </span>
-              </div>
-              <input
-                type="text"
-                inputMode="numeric"
-                placeholder="0"
-                value={redeemPoints}
-                onChange={(e) => {
-                  const digitsOnly = e.target.value.replace(/[^0-9]/g, '')
-                  const clamped = digitsOnly === '' ? '' : String(Math.min(parseInt(digitsOnly, 10), availablePoints))
-                  onRedeemPointsChange(clamped)
-                }}
-                className="h-9 w-full rounded-lg border border-posCloud-warning/30 bg-posCloud-surface text-center text-posCloud-text-primary outline-none focus:border-posCloud-warning dark:bg-posCloudDark-surface dark:text-posCloudDark-text-primary"
-              />
-            </div>
-          )}
-
-          <div className="grid grid-cols-4 gap-2">
-            {METHODS.map((m) => (
-              <button
-                key={m.id}
-                onClick={() => setMethod(m.id)}
-                className={`flex flex-col items-center gap-1 rounded-xl border py-2.5 text-[11px] font-medium transition-all ${
-                  method === m.id
-                    ? 'border-posCloud-primary bg-posCloud-primary-light text-posCloud-primary dark:bg-posCloud-primary/15'
-                    : 'border-posCloud-border bg-posCloud-background text-posCloud-text-tertiary hover:border-posCloud-primary/50 dark:border-posCloudDark-border dark:bg-posCloudDark-background'
-                }`}
-              >
-                <MethodMark id={m.id} />
-                {t(m.labelKey as Parameters<typeof t>[0])}
-              </button>
-            ))}
-          </div>
-
-          {method === 'cash' && (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <label className="font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{t('payment.tendered')}</label>
-                {change > 0 && <span className="text-xs text-posCloud-success">{t('payment.change')}: {fmt(change)} {currency}</span>}
-              </div>
-              <input
-                type="text"
-                inputMode="decimal"
-                placeholder={fmt(remainingDue)}
-                value={cashTendered}
-                onChange={(e) => setCashTendered(e.target.value)}
-                className="w-full h-11 text-center text-lg font-bold rounded-lg border border-posCloud-border bg-posCloud-background text-posCloud-text-primary outline-none focus:border-posCloud-primary dark:border-posCloudDark-border dark:bg-posCloudDark-background dark:text-posCloudDark-text-primary"
-              />
-            </div>
-          )}
-
-          {method === 'split' && (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <label className="font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{t('payment.splitCash')}</label>
-                {splitCard > 0 && <span className="text-xs text-posCloud-primary font-medium">{t('payment.splitCard')}: {fmt(splitCard)} {currency}</span>}
-              </div>
-              <input
-                type="text"
-                inputMode="decimal"
-                placeholder="0.00"
-                value={splitCash}
-                onChange={(e) => setSplitCash(e.target.value)}
-                className="w-full h-11 text-center rounded-lg border border-posCloud-border bg-posCloud-background text-posCloud-text-primary outline-none focus:border-posCloud-primary dark:border-posCloudDark-border dark:bg-posCloudDark-background dark:text-posCloudDark-text-primary"
-              />
-            </div>
-          )}
-
-          <div className="flex gap-3">
-            <Button variant="outline" onClick={onClose} className="flex-1">
-              {t('payment.cancel')}
-            </Button>
-            <Button
-              disabled={!canConfirm()}
-              onClick={handleConfirm}
-              className="flex-[2] rounded-xl font-bold"
-            >
-              {isSubmitting ? t('common.processing') : t('payment.confirm')}
-            </Button>
-          </div>
+        {/* Footer — full width, pinned under both columns */}
+        <div className="flex shrink-0 gap-3 border-t border-posCloud-border p-5 dark:border-posCloudDark-border">
+          <Button variant="outline" onClick={onClose} className="flex-1">
+            {t('payment.cancel')}
+          </Button>
+          <Button
+            disabled={!canConfirm()}
+            onClick={handleConfirm}
+            className="flex-[2] rounded-xl font-bold"
+          >
+            {isSubmitting ? t('common.processing') : t('payment.confirm')}
+          </Button>
         </div>
       </div>
     </div>

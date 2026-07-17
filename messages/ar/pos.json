@@ -59,6 +59,8 @@
     "price": "السعر",
     "lineTotal": "الإجمالي",
     "remaining": "المتبقي",
+    "productsCount": "المنتجات ({count})",
+    "methodLabel": "طريقة الدفع",
     "redeemPoints": "استرداد نقاط الولاء",
     "availablePoints": "{points} نقطة متاحة",
     "giftCard": "بطاقة هدايا",
