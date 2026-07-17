@@ -207,7 +207,7 @@ Two categories:
   the same shared state instead of its own local copies). One real,
   server-validated source of truth, no duplicate logic.
 
-### B8 — Order notes (note presets) — ⚠️ BACKEND BUILT, MIGRATION NOT YET RUN (2026-07-17)
+### B8 — Order notes (note presets) — ✅ MIGRATION APPLIED (2026-07-17)
 - **What**: A dedicated "order notes" feature — cashier picks from a
   tenant-managed preset list or writes a custom note at checkout, saved to
   the existing real `Order.notes` field. Full scope per explicit user
@@ -224,15 +224,14 @@ Two categories:
   change. All code pushed to `main` on both repos; Railway auto-deployed the
   backend (confirmed via `curl` on `/note-presets/active` → `401`, meaning
   the route is live and guarded).
-- **What's blocking full end-to-end function**: The migration itself has
-  **not been run yet** — per this project's own workflow
-  (`api/src/database/README.md`), migrations are always run manually in the
-  Supabase SQL Editor, never automatically. Until `091_order_note_presets.sql`
-  is run, the `note_presets` table doesn't exist and every real call to the
-  new API will fail (admin page will show empty/error, POS "choose from
-  list" tab will show no presets). The "write a note" custom-text tab
-  works today regardless, since it only touches the pre-existing
-  `Order.notes` field directly.
+- **Migration status**: `091_order_note_presets.sql` was run manually by the
+  user in the Supabase SQL Editor on 2026-07-17 (confirmed: `✅ Applied:
+  091_order_note_presets.sql`, 20:15:17). The `note_presets` table now
+  exists in production. Backend route sanity-checked post-migration via
+  `curl` on `/note-presets/active` → still `401` (guard active, route
+  live) — full authenticated verification (admin page CRUD + POS "choose
+  from list" tab actually listing a real preset) still needs the user's
+  own logged-in browser session, since Claude cannot log in.
 
 ### B5 — Full Activity Log page
 - **What**: A dedicated `/dashboard/activity-log` page showing the complete
