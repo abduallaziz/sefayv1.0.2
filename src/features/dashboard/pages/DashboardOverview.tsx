@@ -11,13 +11,16 @@ import {
 } from 'recharts'
 import {
   TrendingUp, TrendingDown, ShoppingCart, Users, Wallet, Tag,
-  BarChart3, Star, Zap, AlertCircle,
+  BarChart3, Star, Zap, AlertCircle, UtensilsCrossed,
+  Banknote, CreditCard, Landmark, Smartphone, WalletCards,
 } from 'lucide-react'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
 import { reportsApi } from '@/features/reports/api/reports.api'
 import { shiftsApi } from '@/features/shifts/api/shifts.api'
 import { customersApi } from '@/features/customers/api/customers.api'
+import { tablesApi } from '@/features/tables/api/tables.api'
+import { useBusinessType } from '@/shared/hooks/useBusinessType'
 import { DateRangePicker, type DateRange } from '@/shared/ui/date-range-picker'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
@@ -105,8 +108,33 @@ const PAYMENT_COLORS: Record<string, string> = {
   cash: '#16a34a',
   card: '#2563eb',
   split: '#7c3aed',
-  unknown: '#f59e0b',
+  wallet: '#f59e0b',
+  mada: '#0ea5e9',
+  visa: '#1d4ed8',
+  mastercard: '#dc2626',
+  stc_pay: '#7c3aed',
+  apple_pay: '#0f172a',
+  unknown: '#94a3b8',
 }
+
+/* Full payment-method list per explicit request. Keys that appear in the
+   real `revenue.by_payment_method` response (cash/card/split/wallet today;
+   mada/visa/mastercard/stc_pay/apple_pay only if a tenant's real orders were
+   created via the dine-in checkout flow, which already accepts these as real
+   input values — see tables.api.ts CheckoutDineInInput) show their real
+   percentage. Keys with no matching real data show a muted "soon" badge
+   instead of a fabricated number — visual-only for now, tracked in
+   docs/rebuild/PARKING_LOT.md for full backend wiring later. */
+const PAYMENT_METHOD_DEFS: { key: string; labelAr: string; labelEn: string; icon: React.ElementType }[] = [
+  { key: 'cash', labelAr: 'نقدي', labelEn: 'Cash', icon: Banknote },
+  { key: 'mada', labelAr: 'مدى', labelEn: 'mada', icon: CreditCard },
+  { key: 'visa', labelAr: 'فيزا', labelEn: 'Visa', icon: CreditCard },
+  { key: 'mastercard', labelAr: 'ماستر كارد', labelEn: 'Mastercard', icon: CreditCard },
+  { key: 'apple_pay', labelAr: 'آبل باي', labelEn: 'Apple Pay', icon: Smartphone },
+  { key: 'stc_pay', labelAr: 'STC Pay', labelEn: 'STC Pay', icon: Smartphone },
+  { key: 'bank_transfer', labelAr: 'تحويل بنكي', labelEn: 'Bank Transfer', icon: Landmark },
+  { key: 'wallet', labelAr: 'محفظة إلكترونية', labelEn: 'E-Wallet', icon: WalletCards },
+]
 
 export function DashboardOverview() {
   const user = useAuthStore((s) => s.user)
@@ -115,19 +143,34 @@ export function DashboardOverview() {
   const locale = useLocale()
   const [range, setRange] = useState<DateRange>(defaultRange)
   const t = useTranslations('dashboard')
+  const { config } = useBusinessType()
   const isRTL = locale === 'ar'
   const vsYesterdayLabel = isRTL ? 'مقارنة بالأمس' : 'vs yesterday'
+  const showTables = config.sidebar.includes('tables')
 
   useEffect(() => {
     if (!user) router.replace(`/${locale}/login`)
   }, [user, router, locale])
 
   const rangeQuery = { period: 'custom' as const, from: range.from, to: range.to }
+  // Fixed last-7-days window for the sales chart specifically — independent
+  // of the top date-range picker, matching pos-cloud's static "last 7 days"
+  // framing. Reuses the same existing getRevenue endpoint, just a second
+  // real call with a fixed range instead of the picker's range.
+  const sevenDaysAgo = new Date()
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6)
+  const last7 = { from: toYMD(sevenDaysAgo), to: toYMD(new Date()) }
 
   const { data: revenue, error: revenueError } = useQuery({
     queryKey: ['dashboard', 'revenue', range.from, range.to],
     queryFn: () => reportsApi.getRevenue(rangeQuery),
     enabled: !!user && !!range.from && !!range.to, refetchInterval: 120000, staleTime: 60000,
+  })
+
+  const { data: revenue7d, error: revenue7dError } = useQuery({
+    queryKey: ['dashboard', 'revenue-7d', last7.from, last7.to],
+    queryFn: () => reportsApi.getRevenue({ period: 'custom', from: last7.from, to: last7.to }),
+    enabled: !!user, refetchInterval: 120000, staleTime: 60000,
   })
 
   const { data: payments, error: paymentsError } = useQuery({
@@ -140,6 +183,16 @@ export function DashboardOverview() {
     queryKey: ['dashboard', 'expenses', range.from, range.to],
     queryFn: () => reportsApi.getExpenses(rangeQuery),
     enabled: !!user && !!range.from && !!range.to, refetchInterval: 120000, staleTime: 60000,
+  })
+
+  // Reuses the existing tables.api.ts endpoint (already used by the Tables
+  // page) — no new API, just consumed from this page too. Occupied count is
+  // a simple aggregation of the already-fetched list, matching pos-cloud's
+  // food-service-only "occupied tables" stat card exactly.
+  const { data: tables } = useQuery({
+    queryKey: ['dashboard', 'tables'],
+    queryFn: () => tablesApi.getAll(),
+    enabled: !!user && showTables, refetchInterval: 30000, staleTime: 15000,
   })
 
   const { data: shift, error: shiftError } = useQuery({
@@ -177,7 +230,7 @@ export function DashboardOverview() {
   // getAuditSummary() endpoints themselves are untouched; they'll be
   // called from their own future sidebar page instead.
 
-  const dashboardError = revenueError || paymentsError || expensesError || shiftError
+  const dashboardError = revenueError || revenue7dError || paymentsError || expensesError || shiftError
     || customerStatsError || sparklinesError || topItemsError || recentActivityError
 
   if (!user) return null
@@ -192,18 +245,27 @@ export function DashboardOverview() {
 
   const dateLocale = locale === 'ar' ? 'ar-SA-u-nu-latn' : 'en-US'
 
-  const barData = (revenue?.daily_breakdown ?? []).map((d) => ({
+  const barData = (revenue7d?.daily_breakdown ?? []).map((d) => ({
     label: new Date(d.date).toLocaleDateString(dateLocale, { weekday: 'short' }),
     value: d.total,
   }))
 
-  const donutData = Object.entries(revenue?.by_payment_method ?? {}).map(([key, val]) => ({
-    key,
-    name: key === 'cash' ? t('cash') : key === 'card' ? t('card') : key === 'split' ? t('split') : t('other'),
-    value: val.total,
-    color: PAYMENT_COLORS[key] ?? '#94a3b8',
-  }))
-  const donutTotal = donutData.reduce((s, d) => s + d.value, 0)
+  const realPaymentData = revenue?.by_payment_method ?? {}
+  const donutTotal = Object.values(realPaymentData).reduce((s, v) => s + v.total, 0)
+  // Every method in the requested list, with real data where it exists in
+  // realPaymentData (by key match) and null (shown as a "soon" badge, never
+  // a fabricated number) where it doesn't yet.
+  const paymentRows = PAYMENT_METHOD_DEFS.map((def) => {
+    const real = realPaymentData[def.key]
+    return {
+      ...def,
+      label: isRTL ? def.labelAr : def.labelEn,
+      color: PAYMENT_COLORS[def.key] ?? '#94a3b8',
+      value: real?.total ?? null,
+      pct: real && donutTotal > 0 ? Math.round((real.total / donutTotal) * 100) : null,
+    }
+  })
+  const donutData = paymentRows.filter((r) => r.value !== null && r.value > 0)
 
   const sp = sparklines ?? { sales: [0,0,0,0,0,0,0], orders: [0,0,0,0,0,0,0], customers: [0,0,0,0,0,0,0], expenses: [0,0,0,0,0,0,0] }
 
@@ -212,6 +274,9 @@ export function DashboardOverview() {
     : ''
 
   const rankColor = ['bg-amber-400', 'bg-slate-300', 'bg-amber-700', 'bg-slate-200 text-posCloud-text-tertiary', 'bg-slate-200 text-posCloud-text-tertiary']
+
+  const occupiedTables = (tables ?? []).filter((tb) => tb.status === 'occupied').length
+  const totalTables = (tables ?? []).length
 
   return (
     <div className="mx-auto max-w-[1400px]">
@@ -270,6 +335,19 @@ export function DashboardOverview() {
           Dashboard home is overview-only now, matching pos-cloud's card
           count exactly; those real stats move to their own sidebar page. */}
 
+      {/* ── Occupied Tables — matches pos-cloud's food-service-only stat
+          card exactly (same conditional-visibility rule as the sidebar's
+          "Tables"/"Kitchen Display" entries). Real data: reuses tables.api.ts
+          (already used by the Tables page), occupied count is a simple
+          aggregation of the already-fetched list. ── */}
+      {showTables && (
+        <div className="mt-4 grid grid-cols-2 items-stretch gap-4 sm:grid-cols-4">
+          <StatCard icon={UtensilsCrossed} iconBg="bg-posCloud-warning-light dark:bg-posCloud-warning/15" iconColor="text-posCloud-warning"
+            label={t('occupiedTables')} value={`${occupiedTables} / ${totalTables}`}
+            delta={null} vsYesterdayLabel={vsYesterdayLabel} />
+        </div>
+      )}
+
       {/* ── Charts row — matches pos-cloud's SalesLineChart (2-col) +
           PaymentDonutChart + a third card layout exactly. Third slot uses
           Sefay's real Quick Actions (existing capability, no pos-cloud
@@ -279,8 +357,8 @@ export function DashboardOverview() {
 
         <SectionCard className="lg:col-span-2">
           <SectionHeader
-            title={t('dailySales')}
-            action={<span className="rounded-lg border border-posCloud-border dark:border-posCloudDark-border px-3 py-1.5 text-xs font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{rangeLabel}</span>}
+            title={t('salesOver7Days')}
+            action={<span className="rounded-lg border border-posCloud-border dark:border-posCloudDark-border px-3 py-1.5 text-xs font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{isRTL ? 'آخر 7 أيام' : 'Last 7 days'}</span>}
           />
           <div className="h-[240px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -309,32 +387,40 @@ export function DashboardOverview() {
 
         <SectionCard>
           <SectionHeader title={t('paymentMethods')} />
-          <div className="relative h-[180px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={donutData.length ? donutData : [{ key: 'none', name: t('noDataLabel'), value: 1, color: '#f1f5f9' }]}
-                  dataKey="value" nameKey="key" innerRadius={58} outerRadius={80} paddingAngle={2} stroke="none">
-                  {(donutData.length ? donutData : [{ key: 'none', color: '#f1f5f9' }]).map((entry, i) => (
-                    <Cell key={i} fill={entry.color} />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-xl font-extrabold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{donutTotal.toLocaleString('en-US')}</span>
-              <span className="text-[11px] text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('totalSalesLabel')} {currency}</span>
+          {donutData.length > 0 && (
+            <div className="relative h-[140px] mb-3">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={donutData} dataKey="value" nameKey="key" innerRadius={45} outerRadius={65} paddingAngle={2} stroke="none">
+                    {donutData.map((entry, i) => (
+                      <Cell key={i} fill={entry.color} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-lg font-extrabold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{donutTotal.toLocaleString('en-US')}</span>
+                <span className="text-[10px] text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('totalSalesLabel')} {currency}</span>
+              </div>
             </div>
-          </div>
-          <div className="mt-2 space-y-2">
-            {donutData.map((d) => (
-              <div key={d.key} className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2 text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">
-                  <span className="h-2 w-2 rounded-full" style={{ background: d.color }} />
-                  {d.name}
+          )}
+          {/* Full method list, 2 columns — real % where data exists, muted
+              "soon" badge where it doesn't (never a fabricated number).
+              See docs/rebuild/PARKING_LOT.md for full backend wiring. */}
+          <div className="grid grid-cols-2 gap-2">
+            {paymentRows.map((row) => (
+              <div key={row.key} className="flex items-center gap-2 rounded-lg border border-posCloud-border dark:border-posCloudDark-border p-2">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md" style={{ background: `${row.color}1a` }}>
+                  <row.icon className="h-3.5 w-3.5" style={{ color: row.color }} />
                 </div>
-                <span className="font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary">
-                  {donutTotal > 0 ? Math.round((d.value / donutTotal) * 100) : 0}%
-                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-[11px] font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{row.label}</p>
+                  {row.pct !== null ? (
+                    <p className="text-xs font-bold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{row.pct}%</p>
+                  ) : (
+                    <p className="text-[10px] text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{isRTL ? 'قريبًا' : 'Soon'}</p>
+                  )}
+                </div>
               </div>
             ))}
           </div>

@@ -713,6 +713,8 @@
     "statAuditPayrollToday": "إجراءات الرواتب اليوم",
     "statAuditAttendanceToday": "إجراءات الحضور اليوم",
     "dailySales": "المبيعات اليومية",
+    "salesOver7Days": "المبيعات خلال 7 أيام",
+    "occupiedTables": "الطاولات المشغولة",
     "growth": "نمو",
     "paymentMethods": "طرق الدفع",
     "periodDistribution": "توزيع الفترة",

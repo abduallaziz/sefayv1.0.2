@@ -713,6 +713,8 @@
     "statAuditPayrollToday": "Payroll Actions Today",
     "statAuditAttendanceToday": "Attendance Actions Today",
     "dailySales": "Daily Sales",
+    "salesOver7Days": "Sales Over 7 Days",
+    "occupiedTables": "Occupied Tables",
     "growth": "Growth",
     "paymentMethods": "Payment Methods",
     "periodDistribution": "Distribution for the period",

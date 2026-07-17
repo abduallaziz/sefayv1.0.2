@@ -147,6 +147,30 @@ Two categories:
 - **Status**: Omitted from the current dashboard rebuild rather than filled
   with fake rows.
 
+### B6 — Payment methods breakdown (mada / Visa / Mastercard / Apple Pay / STC Pay / bank transfer) — ⚠️ VISUAL-ONLY ADDED (2026-07-17)
+- **What pos-cloud shows**: A payment-methods donut+legend with generic
+  cash/card/bank-transfer/wallet categories.
+- **What was actually requested**: A specific 8-method list (Cash, mada,
+  Visa, Mastercard, Apple Pay, STC Pay, Bank Transfer, E-Wallet), 2 columns.
+- **Why it's a gap**: Sefay's real payment system (`PaymentMethod` type,
+  `pos.types.ts`) only has `cash | card | split` at checkout. The dine-in
+  checkout flow (`tables.api.ts` `CheckoutDineInInput.payment_method`) does
+  accept a broader set (`wallet | mada | visa | mastercard | stc_pay |
+  apple_pay`) as real input, so `revenue.by_payment_method` *could* contain
+  these keys for tenants using dine-in checkout with those methods — but
+  regular POS checkout never produces them, and "bank transfer" doesn't
+  exist as an accepted value anywhere.
+- **What was done now (2026-07-17)**: Added the full 8-method list to the
+  Dashboard's payment card, 2 columns, per explicit user instruction to add
+  it "visual only for now." Each row shows a **real** percentage when the
+  key exists in `revenue.by_payment_method` with data > 0; otherwise it
+  shows a muted "قريبًا / Soon" badge — never a fabricated number.
+- **What's needed for full completion**: Confirm/extend POS checkout (not
+  just dine-in) to accept the same granular method set, and verify the
+  backend's `by_payment_method` aggregation reliably surfaces all 8 keys
+  tenant-wide. This is real backend/business-logic work, not styling —
+  do it as its own scoped item later, not silently during a visual pass.
+
 ### B5 — Full Activity Log page
 - **What**: A dedicated `/dashboard/activity-log` page showing the complete
   activity history (the dashboard widget only shows the latest few).
