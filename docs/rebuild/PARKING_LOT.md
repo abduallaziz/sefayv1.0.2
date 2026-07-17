@@ -191,25 +191,48 @@ Two categories:
   tenant-wide. This is real backend/business-logic work, not styling —
   do it as its own scoped item later, not silently during a visual pass.
 
-### B7 — Cart panel: inline gift-card / loyalty-points fields — 🟡 DEFERRED (2026-07-17)
+### B7 — Cart panel: inline gift-card / loyalty-points fields — ✅ RESOLVED (2026-07-17)
 - **What pos-cloud's reference shows**: Gift-card code field and a "use
   loyalty points" checkbox inline in the cart panel, above the totals,
   alongside the coupon field.
-- **Why it's deferred, not built**: Sefay's real gift-card validation
-  (`giftCardsApi.validate`) and loyalty-point redemption both already exist
-  and work — but only inside `PaymentModal.tsx`, applied at the moment of
-  confirming payment, wired to `handleConfirmPayment` in `POSPage.tsx`.
-  Duplicating that state into `CartPanel.tsx` would mean two independent
-  copies of the same real logic (risk of desync) — not a styling change.
-- **What's needed**: A real refactor to lift `giftCardCode`/`giftCardApplied`/
-  `redeemPoints` state up from `PaymentModal` into `POSPage` (or a shared
-  cart-level hook) so both the cart panel and payment modal read/write the
-  same source of truth. Scope this as its own task, not silently during a
-  visual pass.
-- **What was done now**: Only the coupon field (the one real cart-level
-  discount already owned by `CartPanel`) was restyled to match the
-  reference's pill-input layout. Gift card / loyalty fields were **not**
-  added to the cart panel to avoid a non-functional duplicate UI.
+- **Original gap**: Sefay's real gift-card validation (`giftCardsApi.validate`)
+  and loyalty-point redemption both existed — but only inside
+  `PaymentModal.tsx`. Duplicating that state into `CartPanel.tsx` would have
+  meant two independent copies of the same real logic (risk of desync).
+- **Resolution (2026-07-17)**: Lifted `giftCardCode`/`giftCardApplied`/
+  `giftCardAmount`/`giftCardError`/`validatingGiftCard`/`redeemPoints` state
+  and `handleApplyGiftCard`/`handleRemoveGiftCard` up from `PaymentModal`
+  into `POSPage.tsx`, passed down as props to both `CartPanel` (new inline
+  accordion row) and `PaymentModal` (unchanged confirm-time UI, now reading
+  the same shared state instead of its own local copies). One real,
+  server-validated source of truth, no duplicate logic.
+
+### B8 — Order notes (note presets) — ⚠️ BACKEND BUILT, MIGRATION NOT YET RUN (2026-07-17)
+- **What**: A dedicated "order notes" feature — cashier picks from a
+  tenant-managed preset list or writes a custom note at checkout, saved to
+  the existing real `Order.notes` field. Full scope per explicit user
+  decision (not a UI-only placeholder): real DB table, full CRUD + reorder
+  API, admin management page, POS tabbed UI.
+- **What's built**: `note_presets` table + RLS + `note_presets.manage`
+  permission (migration `091_order_note_presets.sql`, apiv1.0.2), full
+  `NotePresetsModule` (repository/service/controller/DTOs, mirrors the
+  `coupons` module exactly) — see apiv1.0.2 STATUS.md §90. Admin page at
+  `/dashboard/note-presets` (add/edit/delete/reorder/enable-disable). 4th
+  accordion row in `CartPanel.tsx` with "choose from list" (multi-select
+  checkboxes) / "write a note" (Textarea) tabs — the result joins into
+  `Order.notes` at checkout via `POSPage.tsx`'s `finalNotes`, no contract
+  change. All code pushed to `main` on both repos; Railway auto-deployed the
+  backend (confirmed via `curl` on `/note-presets/active` → `401`, meaning
+  the route is live and guarded).
+- **What's blocking full end-to-end function**: The migration itself has
+  **not been run yet** — per this project's own workflow
+  (`api/src/database/README.md`), migrations are always run manually in the
+  Supabase SQL Editor, never automatically. Until `091_order_note_presets.sql`
+  is run, the `note_presets` table doesn't exist and every real call to the
+  new API will fail (admin page will show empty/error, POS "choose from
+  list" tab will show no presets). The "write a note" custom-text tab
+  works today regardless, since it only touches the pre-existing
+  `Order.notes` field directly.
 
 ### B5 — Full Activity Log page
 - **What**: A dedicated `/dashboard/activity-log` page showing the complete
@@ -217,3 +240,41 @@ Two categories:
 - **Status**: Already tracked as a known future task (see task list item
   "FUTURE: build full Activity Log page"). Not pos-cloud-driven — a
   pre-existing Sefay roadmap item, unrelated to this rebuild's scope.
+
+---
+
+## Decisions Log — tried and explicitly rejected/reverted
+
+Not gaps or pending work — approaches that were built, shown to the user,
+and explicitly reverted. Logged so they aren't tried again unprompted.
+
+### ItemGrid product card height: adaptive (`grid-auto-rows: minmax(190px, 1fr)`) — ❌ REVERTED (2026-07-17)
+- **What was tried**: Per an explicit user request to make the page control
+  card height instead of a fixed pixel height, `ItemGrid.tsx`'s grid used
+  `style={{ gridAutoRows: 'minmax(190px, 1fr)' }}` with each card's image
+  area as `flex-1` (grows to fill whatever row height the grid gives it).
+- **Why reverted**: When a tenant's product/category filter results in only
+  one row of cards, that single row stretches to fill the *entire* remaining
+  container height, and since the image is `flex-1`, the product photos
+  stretched into tall, awkward portrait crops. User confirmed via screenshot
+  and asked to revert.
+- **Current state**: Back to the fixed `height: 240px` card / `height: 185px`
+  image (the "premium product card" spec from earlier in this rebuild).
+  If page-driven card sizing is revisited later, it needs a **max** row
+  height cap (not just a min) so a single row can't stretch indefinitely —
+  this was offered to the user but not yet approved.
+
+### POS mobile/desktop layout: independent fixed-vh scroll boxes — ❌ REVERTED (2026-07-17)
+- **What was tried**: To keep the checkout button reachable, the cart panel
+  (and separately the items grid) were each given a fixed `vh` height with
+  their own internal `overflow-y-auto`, nested inside the dashboard shell's
+  already-scrollable `<main>`.
+- **Why reverted**: Three competing/nested scroll containers produced a
+  visibly broken layout — the cart panel appeared to float over/cover the
+  product grid on mobile, and clipped the checkout button entirely on
+  desktop once accordion content grew past the fixed row height.
+- **Current state**: Mobile is a normal flowing page (no forced heights,
+  scrolled once by the shell's `<main>`); desktop keeps the fixed two-pane
+  layout but the cart column is bounded to the row's actual height
+  (`lg:h-full`) and scrolls internally (`lg:overflow-y-auto`) — a single,
+  correctly-nested scroll region instead of three.
