@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { X, ImageOff, Banknote, CreditCard, Wallet as WalletIcon, Smartphone } from 'lucide-react'
+import { X, ImageOff, Banknote, Wallet as WalletIcon, Apple } from 'lucide-react'
 import Image from 'next/image'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
 import { Cart, CartItem, PaymentData, PaymentMethod } from '../types/pos.types'
@@ -70,16 +70,71 @@ interface Props {
 // but intentionally not offered as buttons here — 'tab' requires a selected
 // customer and deserves its own dedicated flow, and pos-cloud's reference
 // design lists specific card networks instead of a generic "card" button.
-const METHODS: { id: PaymentMethod; labelKey: string; icon: React.ElementType }[] = [
-  { id: 'cash', labelKey: 'payment.cash', icon: Banknote },
-  { id: 'mada', labelKey: 'payment.mada', icon: CreditCard },
-  { id: 'visa', labelKey: 'payment.visa', icon: CreditCard },
-  { id: 'mastercard', labelKey: 'payment.mastercard', icon: CreditCard },
-  { id: 'apple_pay', labelKey: 'payment.applePay', icon: Smartphone },
-  { id: 'stc_pay', labelKey: 'payment.stcPay', icon: Smartphone },
-  { id: 'wallet', labelKey: 'payment.wallet', icon: WalletIcon },
-  { id: 'split', labelKey: 'payment.split', icon: CreditCard },
+const METHODS: { id: PaymentMethod; labelKey: string }[] = [
+  { id: 'cash', labelKey: 'payment.cash' },
+  { id: 'mada', labelKey: 'payment.mada' },
+  { id: 'visa', labelKey: 'payment.visa' },
+  { id: 'mastercard', labelKey: 'payment.mastercard' },
+  { id: 'apple_pay', labelKey: 'payment.applePay' },
+  { id: 'stc_pay', labelKey: 'payment.stcPay' },
+  { id: 'wallet', labelKey: 'payment.wallet' },
+  { id: 'split', labelKey: 'payment.split' },
 ]
+
+// Brand-styled marks (not official trademarked logo files — recognizable
+// approximations built from CSS/wordmarks/lucide icons) rather than a single
+// generic card icon for every network, per explicit user request to make
+// each method visually distinguishable like a real POS terminal.
+function MethodMark({ id }: { id: PaymentMethod }) {
+  switch (id) {
+    case 'cash':
+      return <Banknote className="h-5 w-5" />
+    case 'mada':
+      return (
+        <span className="flex h-5 items-center gap-[1px] text-[13px] font-black italic tracking-tighter">
+          <span className="text-[#00847E]">m</span>
+          <span className="text-[#54B948]">a</span>
+          <span className="text-[#00847E]">d</span>
+          <span className="text-[#54B948]">a</span>
+        </span>
+      )
+    case 'visa':
+      return <span className="text-[15px] font-black italic tracking-tighter text-[#1A1F71]">VISA</span>
+    case 'mastercard':
+      return (
+        <span className="flex h-5 items-center">
+          <span className="h-4 w-4 rounded-full bg-[#EB001B]" />
+          <span className="-ms-1.5 h-4 w-4 rounded-full bg-[#F79E1B] opacity-90" />
+        </span>
+      )
+    case 'apple_pay':
+      return (
+        <span className="flex items-center gap-0.5">
+          <Apple className="h-4 w-4 fill-current" />
+          <span className="text-[13px] font-semibold">Pay</span>
+        </span>
+      )
+    case 'stc_pay':
+      return (
+        <span className="text-[12px] font-black tracking-tight">
+          <span className="text-[#4B0F73]">STC</span>{' '}
+          <span className="italic text-[#84BD00]">pay</span>
+        </span>
+      )
+    case 'wallet':
+      return <WalletIcon className="h-5 w-5" />
+    case 'split':
+      return (
+        <span className="flex items-center gap-0.5">
+          <Banknote className="h-4 w-4" />
+          <span className="text-xs font-bold">+</span>
+          <span className="h-4 w-5 rounded-sm border-2 border-current" />
+        </span>
+      )
+    default:
+      return null
+  }
+}
 
 export function PaymentModal({
   cart, customer, onConfirm, onClose, isSubmitting, error,
@@ -294,7 +349,7 @@ export function PaymentModal({
                     : 'border-posCloud-border bg-posCloud-background text-posCloud-text-tertiary hover:border-posCloud-primary/50 dark:border-posCloudDark-border dark:bg-posCloudDark-background'
                 }`}
               >
-                <m.icon className="h-4 w-4" />
+                <MethodMark id={m.id} />
                 {t(m.labelKey as Parameters<typeof t>[0])}
               </button>
             ))}
