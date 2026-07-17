@@ -235,9 +235,8 @@ export function PaymentModal({
                     className="h-9 flex-1 rounded-lg border border-posCloud-info/30 bg-posCloud-surface px-3 uppercase text-posCloud-text-primary outline-none focus:border-posCloud-info dark:bg-posCloudDark-surface dark:text-posCloudDark-text-primary"
                   />
                   <input
-                    type="number"
-                    min={0.01}
-                    step="0.01"
+                    type="text"
+                    inputMode="decimal"
                     value={giftCardAmount}
                     onChange={(e) => onGiftCardAmountChange(e.target.value)}
                     className="h-9 w-20 rounded-lg border border-posCloud-info/30 bg-posCloud-surface px-2 text-center text-posCloud-text-primary outline-none focus:border-posCloud-info dark:bg-posCloudDark-surface dark:text-posCloudDark-text-primary"
@@ -270,12 +269,15 @@ export function PaymentModal({
                 </span>
               </div>
               <input
-                type="number"
-                min={0}
-                max={availablePoints}
+                type="text"
+                inputMode="numeric"
                 placeholder="0"
                 value={redeemPoints}
-                onChange={(e) => onRedeemPointsChange(e.target.value)}
+                onChange={(e) => {
+                  const digitsOnly = e.target.value.replace(/[^0-9]/g, '')
+                  const clamped = digitsOnly === '' ? '' : String(Math.min(parseInt(digitsOnly, 10), availablePoints))
+                  onRedeemPointsChange(clamped)
+                }}
                 className="h-9 w-full rounded-lg border border-posCloud-warning/30 bg-posCloud-surface text-center text-posCloud-text-primary outline-none focus:border-posCloud-warning dark:bg-posCloudDark-surface dark:text-posCloudDark-text-primary"
               />
             </div>
