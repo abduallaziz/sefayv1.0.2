@@ -12,7 +12,6 @@ import {
 import {
   TrendingUp, TrendingDown, ShoppingCart, Users, Wallet, Tag,
   BarChart3, Star, Zap, AlertCircle,
-  UserCheck, UserX, CalendarClock, CalendarCheck, History, CalendarDays,
 } from 'lucide-react'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
@@ -173,18 +172,10 @@ export function DashboardOverview() {
     enabled: !!user, refetchInterval: 120000, staleTime: 60000,
   })
 
-  const canViewHrKpis = !!user?.permissions?.includes('attendance.view.all')
-  const { data: hrSummary } = useQuery({
-    queryKey: ['dashboard', 'hr-summary'],
-    queryFn: () => reportsApi.getHrSummary(),
-    enabled: !!user && canViewHrKpis, refetchInterval: 120000, staleTime: 60000,
-  })
-
-  const { data: auditSummary } = useQuery({
-    queryKey: ['dashboard', 'audit-summary'],
-    queryFn: () => reportsApi.getAuditSummary(),
-    enabled: !!user && canViewHrKpis, refetchInterval: 120000, staleTime: 60000,
-  })
+  // HR/Audit summary queries removed from this page — see
+  // docs/rebuild/PARKING_LOT.md (A1). The reportsApi.getHrSummary()/
+  // getAuditSummary() endpoints themselves are untouched; they'll be
+  // called from their own future sidebar page instead.
 
   const dashboardError = revenueError || paymentsError || expensesError || shiftError
     || customerStatsError || sparklinesError || topItemsError || recentActivityError
@@ -275,27 +266,9 @@ export function DashboardOverview() {
           delta={computeDelta(sp.expenses)} vsYesterdayLabel={vsYesterdayLabel} />
       </div>
 
-      {/* ── Extra Sefay-only KPI rows (HR / Audit) — kept per standing rule
-          "never remove an existing Sefay capability"; no pos-cloud equivalent
-          exists, so no visual reference to match — restyled with the same
-          StatCard pattern for internal consistency. ── */}
-      {canViewHrKpis && hrSummary && (
-        <div className="mt-4 grid grid-cols-2 items-stretch gap-4 sm:grid-cols-4">
-          <StatCard icon={UserCheck} iconBg="bg-posCloud-success-light dark:bg-posCloud-success/15" iconColor="text-posCloud-success" label={t('statPresentToday')} value={hrSummary.present_today.toLocaleString('en-US')} delta={null} vsYesterdayLabel={vsYesterdayLabel} />
-          <StatCard icon={UserX} iconBg="bg-posCloud-danger-light dark:bg-posCloud-danger/15" iconColor="text-posCloud-danger" label={t('statAbsentToday')} value={hrSummary.absent_today.toLocaleString('en-US')} delta={null} vsYesterdayLabel={vsYesterdayLabel} />
-          <StatCard icon={CalendarClock} iconBg="bg-posCloud-warning-light dark:bg-posCloud-warning/15" iconColor="text-posCloud-warning" label={t('statPendingLeaves')} value={hrSummary.pending_leaves.toLocaleString('en-US')} delta={null} vsYesterdayLabel={vsYesterdayLabel} />
-          <StatCard icon={CalendarCheck} iconBg="bg-posCloud-primary-light dark:bg-posCloud-primary/15" iconColor="text-posCloud-primary" label={t('statApprovedLeavesMonth')} value={hrSummary.approved_leaves_this_month.toLocaleString('en-US')} delta={null} vsYesterdayLabel={vsYesterdayLabel} />
-        </div>
-      )}
-
-      {canViewHrKpis && auditSummary && (
-        <div className="mt-4 grid grid-cols-2 items-stretch gap-4 sm:grid-cols-4">
-          <StatCard icon={History} iconBg="bg-posCloud-primary-light dark:bg-posCloud-primary/15" iconColor="text-posCloud-primary" label={t('statAuditTotalToday')} value={auditSummary.total_today.toLocaleString('en-US')} delta={null} vsYesterdayLabel={vsYesterdayLabel} />
-          <StatCard icon={CalendarDays} iconBg="bg-posCloud-info-light dark:bg-posCloud-info/15" iconColor="text-posCloud-info" label={t('statAuditLeaveToday')} value={auditSummary.leave_today.toLocaleString('en-US')} delta={null} vsYesterdayLabel={vsYesterdayLabel} />
-          <StatCard icon={Wallet} iconBg="bg-posCloud-warning-light dark:bg-posCloud-warning/15" iconColor="text-posCloud-warning" label={t('statAuditPayrollToday')} value={auditSummary.payroll_today.toLocaleString('en-US')} delta={null} vsYesterdayLabel={vsYesterdayLabel} />
-          <StatCard icon={UserCheck} iconBg="bg-posCloud-success-light dark:bg-posCloud-success/15" iconColor="text-posCloud-success" label={t('statAuditAttendanceToday')} value={auditSummary.attendance_today.toLocaleString('en-US')} delta={null} vsYesterdayLabel={vsYesterdayLabel} />
-        </div>
-      )}
+      {/* HR/Audit KPI rows moved out — see docs/rebuild/PARKING_LOT.md (A1).
+          Dashboard home is overview-only now, matching pos-cloud's card
+          count exactly; those real stats move to their own sidebar page. */}
 
       {/* ── Charts row — matches pos-cloud's SalesLineChart (2-col) +
           PaymentDonutChart + a third card layout exactly. Third slot uses
