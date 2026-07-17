@@ -22,6 +22,7 @@ import { shiftsApi } from '@/features/shifts/api/shifts.api'
 import { customersApi } from '@/features/customers/api/customers.api'
 import { tablesApi } from '@/features/tables/api/tables.api'
 import { itemsApi } from '@/features/items/api/items.api'
+import { fetchOrders } from '@/features/orders/api/orders.api'
 import { useBusinessType } from '@/shared/hooks/useBusinessType'
 import { DateRangePicker, type DateRange } from '@/shared/ui/date-range-picker'
 import { cn } from '@/lib/utils'
@@ -198,6 +199,15 @@ export function DashboardOverview() {
     enabled: !!user, staleTime: 120000,
   })
 
+  // Reuses the existing orders.api.ts fetchOrders() (already used by the
+  // Orders page) for a real "Recent Invoices" list — real customer_name,
+  // total, status (completed/pending/cancelled mapped to paid/due badges).
+  const { data: recentOrders } = useQuery({
+    queryKey: ['dashboard', 'recent-orders'],
+    queryFn: () => fetchOrders({}),
+    enabled: !!user, staleTime: 60000,
+  })
+
   // Reuses the existing tables.api.ts endpoint (already used by the Tables
   // page) — no new API, just consumed from this page too. Occupied count is
   // a simple aggregation of the already-fetched list, matching pos-cloud's
@@ -290,6 +300,10 @@ export function DashboardOverview() {
 
   const occupiedTables = (tables ?? []).filter((tb) => tb.status === 'occupied').length
   const totalTables = (tables ?? []).length
+
+  const invoiceRows = [...(recentOrders ?? [])]
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, 5)
 
   return (
     <div className="mx-auto max-w-[1400px]">
@@ -475,15 +489,67 @@ export function DashboardOverview() {
         </SectionCard>
       </div>
 
-      {/* ── Second row — matches pos-cloud's BestSellers + ActivityLog list
-          pattern exactly, using real topItems/recentActivity data. Content
-          gap: pos-cloud also shows a per-branch bar chart and a raw invoices
-          table here — Sefay has no real per-branch sales breakdown (no
-          branch backend exists, per the standing B6 decision) and no
-          separate "recent invoices" feed distinct from Activity, so those
-          two slots are intentionally omitted rather than filled with
-          invented data. ── */}
+      {/* ── Second row — matches pos-cloud's exact Recent Invoices +
+          Sales by Branch + Best Selling layout. Recent Invoices reuses
+          orders.api.ts's fetchOrders() (already used by the Orders page) —
+          real customer_name/total/status. Sales by Branch has no real data
+          anywhere (no branch backend exists — PARKING_LOT.md B2) and shows
+          "Soon" instead of fabricated branch names/figures. Best Selling
+          uses the same real topItems data as before. ── */}
       <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-3">
+
+        <SectionCard>
+          <SectionHeader
+            title={isRTL ? 'آخر الفواتير' : 'Recent Invoices'}
+            action={<Link href={`/${locale}/dashboard/orders`} className="text-xs font-semibold text-posCloud-primary">{isRTL ? 'عرض الكل' : 'View all'}</Link>}
+          />
+          <div className="overflow-x-auto">
+            {invoiceRows.length === 0 ? (
+              <p className="py-4 text-center text-[13px] text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('noDataLabel')}</p>
+            ) : (
+              <table className="w-full text-start text-[13px]">
+                <thead>
+                  <tr className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+                    <th className="pb-3 font-medium">{isRTL ? 'رقم الفاتورة' : 'Invoice'}</th>
+                    <th className="pb-3 font-medium">{isRTL ? 'العميل' : 'Customer'}</th>
+                    <th className="pb-3 font-medium">{isRTL ? 'المبلغ' : 'Amount'}</th>
+                    <th className="pb-3 font-medium">{isRTL ? 'الحالة' : 'Status'}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {invoiceRows.map((o) => (
+                    <tr key={o.id} className="border-t border-posCloud-border dark:border-posCloudDark-border">
+                      <td className="py-3 font-semibold text-posCloud-primary">#{o.id.slice(-6).toUpperCase()}</td>
+                      <td className="py-3 text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{o.customer_name || '—'}</td>
+                      <td className="py-3 font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{o.total.toLocaleString('en-US')} {currency}</td>
+                      <td className="py-3">
+                        <span className={cn(
+                          'px-2 py-0.5 rounded-full text-xs font-medium',
+                          o.status === 'completed' ? 'bg-posCloud-success-light dark:bg-posCloud-success/15 text-posCloud-success'
+                            : o.status === 'pending' ? 'bg-posCloud-warning-light dark:bg-posCloud-warning/15 text-posCloud-warning'
+                            : 'bg-posCloud-danger-light dark:bg-posCloud-danger/15 text-posCloud-danger'
+                        )}>
+                          {o.status === 'completed' ? (isRTL ? 'مدفوعة' : 'Paid') : o.status === 'pending' ? (isRTL ? 'مستحقة' : 'Due') : (isRTL ? 'ملغاة' : 'Cancelled')}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </SectionCard>
+
+        <SectionCard>
+          <SectionHeader
+            title={isRTL ? 'المبيعات حسب الفروع' : 'Sales by Branch'}
+            action={<span className="rounded-lg border border-posCloud-border dark:border-posCloudDark-border px-3 py-1.5 text-xs font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{isRTL ? 'هذا الشهر' : 'This month'}</span>}
+          />
+          <div className="flex h-[220px] flex-col items-center justify-center gap-2 text-center">
+            <BarChart3 className="h-8 w-8 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary" />
+            <p className="text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{isRTL ? 'قريبًا — يحتاج نظام فروع حقيقي' : 'Soon — needs a real branch system'}</p>
+          </div>
+        </SectionCard>
 
         <SectionCard>
           <SectionHeader
@@ -515,6 +581,12 @@ export function DashboardOverview() {
             ))}
           </div>
         </SectionCard>
+      </div>
+
+      {/* ── Third row — Sefay-only extras (Recent Activity, Quick Actions),
+          no pos-cloud equivalent, kept per rule 4/5 rather than removed
+          when row 2 was rebuilt to match pos-cloud exactly. ── */}
+      <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
 
         <SectionCard>
           <SectionHeader title={t('recentActivity')} />
@@ -549,9 +621,6 @@ export function DashboardOverview() {
           </div>
         </SectionCard>
 
-        {/* ── Quick Actions — Sefay-only capability (no pos-cloud
-            equivalent), restyled to match the requested colored-square
-            2x2 layout exactly. All 4 links are real navigation. ── */}
         <SectionCard>
           <SectionHeader title={t('quickActions')} />
           <div className="grid grid-cols-2 gap-2.5">

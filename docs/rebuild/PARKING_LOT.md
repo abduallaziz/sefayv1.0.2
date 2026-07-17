@@ -148,8 +148,14 @@ Two categories:
 - **What's needed**: Either confirm `recentActivity` is sufficient (design
   decision, not dev work) or build a dedicated invoices-list endpoint;
   per-branch chart is blocked on B2.
-- **Status**: Omitted from the current dashboard rebuild rather than filled
-  with fake rows.
+- **Status**: **Invoices table added 2026-07-17** — reused `fetchOrders()`
+  from `orders.api.ts` (already used by the Orders page) for a real "Recent
+  Invoices" list: real invoice #, customer_name, total, status
+  (completed→Paid, pending→Due, cancelled→Cancelled). `recentActivity`
+  stays as a separate additional widget (Sefay-only extra, third row) since
+  it covers a broader event set (orders/refunds/alerts) that invoices alone
+  don't. **Per-branch chart still blocked on B2** — shows a "Soon — needs a
+  real branch system" placeholder instead of fabricated branch names/figures.
 
 ### B6 — Payment methods breakdown (mada / Visa / Mastercard / Apple Pay / STC Pay / bank transfer) — ⚠️ VISUAL-ONLY ADDED (2026-07-17)
 - **What pos-cloud shows**: A payment-methods donut+legend with generic
