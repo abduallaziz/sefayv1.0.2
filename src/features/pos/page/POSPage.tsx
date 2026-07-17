@@ -185,20 +185,23 @@ export function POSPage() {
   }
 
   return (
-    <div className="flex flex-col h-full min-h-0 overflow-hidden">
+    <div className="flex flex-col lg:h-full lg:min-h-0 lg:overflow-hidden">
 
-      {/* Desktop: side by side — Mobile: stacked */}
-      <div className="flex flex-1 min-h-0 flex-col gap-5 overflow-auto p-4 sm:p-6 lg:flex-row lg:overflow-hidden">
+      {/* Desktop: fixed two-pane layout, each side scrolls internally.
+          Mobile: normal block flow — the dashboard shell's own <main> is the
+          single scroll container, so the page scrolls down naturally instead
+          of nesting a second clipped scroll box that can visually overlap. */}
+      <div className="flex flex-col gap-5 p-4 sm:p-6 lg:flex-1 lg:min-h-0 lg:flex-row lg:overflow-hidden">
 
         {/* Items Grid */}
-        <div className="flex h-[65vh] min-h-0 min-w-0 flex-1 flex-col overflow-hidden lg:h-auto">
+        <div className="flex h-[60vh] min-h-0 min-w-0 flex-col overflow-hidden lg:h-auto lg:flex-1">
           <ItemGrid onAddItem={(item, variant) => {
             addItem(item, variant)
           }} />
         </div>
 
         {/* Cart Panel */}
-        <div className="flex h-[60vh] min-h-0 w-full flex-col overflow-y-auto overflow-x-hidden rounded-2xl border border-posCloud-border bg-posCloud-surface p-5 dark:border-posCloudDark-border dark:bg-posCloudDark-surface lg:h-auto lg:overflow-hidden lg:w-[340px] lg:shrink-0">
+        <div className="flex w-full flex-col rounded-2xl border border-posCloud-border bg-posCloud-surface p-5 dark:border-posCloudDark-border dark:bg-posCloudDark-surface lg:h-auto lg:min-h-0 lg:overflow-hidden lg:w-[340px] lg:shrink-0">
           <CartPanel
             cart={cart}
             onUpdateQty={updateQty}
