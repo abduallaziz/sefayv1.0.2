@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { X } from 'lucide-react'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
-import { giftCardsApi } from '@/features/gift-cards/api/gift-cards.api'
 import { Cart, PaymentData, PaymentMethod } from '../types/pos.types'
 import type { Customer } from '@/features/customers/types/customer.types'
 import { Button } from '@/shared/ui/button'
@@ -17,27 +16,35 @@ interface Props {
   onClose: () => void
   isSubmitting?: boolean
   error?: string | null
+  availablePoints: number
+  redeemPoints: string
+  onRedeemPointsChange: (v: string) => void
+  giftCardCode: string
+  giftCardApplied: boolean
+  giftCardAmount: string
+  giftCardError: string | null
+  validatingGiftCard: boolean
+  onGiftCardCodeChange: (v: string) => void
+  onGiftCardAmountChange: (v: string) => void
+  onApplyGiftCard: () => void
+  onRemoveGiftCard: () => void
 }
 
-export function PaymentModal({ cart, customer, loyaltyEnabled = true, onConfirm, onClose, isSubmitting, error }: Props) {
+export function PaymentModal({
+  cart, onConfirm, onClose, isSubmitting, error,
+  availablePoints, redeemPoints, onRedeemPointsChange,
+  giftCardCode, giftCardApplied, giftCardAmount, giftCardError, validatingGiftCard,
+  onGiftCardCodeChange, onGiftCardAmountChange, onApplyGiftCard, onRemoveGiftCard,
+}: Props) {
   const t = useTranslations('pos')
   const currency = useTenantStore((s) => s.currency_symbol)
   const [method, setMethod] = useState<PaymentMethod>('cash')
   const [cashTendered, setCashTendered] = useState(cart.total.toFixed(2))
   const [splitCash, setSplitCash] = useState('')
-  const [redeemPoints, setRedeemPoints] = useState('')
-  const [giftCardCode, setGiftCardCode] = useState('')
-  const [giftCardApplied, setGiftCardApplied] = useState(false)
-  const [giftCardAmount, setGiftCardAmount] = useState(cart.total.toFixed(2))
-  const [giftCardError, setGiftCardError] = useState<string | null>(null)
-  const [validatingGiftCard, setValidatingGiftCard] = useState(false)
 
   const fmt = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
-  const availablePoints = loyaltyEnabled ? (customer?.loyalty_points ?? 0) : 0
-  const redeemPointsNum = loyaltyEnabled
-    ? Math.min(parseInt(redeemPoints || '0', 10) || 0, availablePoints)
-    : 0
+  const redeemPointsNum = Math.min(parseInt(redeemPoints || '0', 10) || 0, availablePoints)
 
   // The gift card pays down the total directly, before any payment method is even
   // relevant (mirrors InvoicesService.create on the backend: amountDueAfterGiftCard).
@@ -66,24 +73,6 @@ export function PaymentModal({ cart, customer, loyaltyEnabled = true, onConfirm,
       return !isNaN(c) && c > 0 && c < remainingDue
     }
     return false
-  }
-
-  // يتحقق فعليًا من الكود والمبلغ عبر /gift-cards/validate قبل قبول البطاقة —
-  // لا تُعرَض كمطبَّقة أبدًا إلا بعد تأكيد رصيدها الحقيقي من السيرفر.
-  const handleApplyGiftCard = async () => {
-    const code = giftCardCode.trim()
-    const amount = parseFloat(giftCardAmount)
-    if (!code || !(amount > 0)) return
-    setValidatingGiftCard(true)
-    setGiftCardError(null)
-    try {
-      await giftCardsApi.validate(code, amount)
-      setGiftCardApplied(true)
-    } catch (e: any) {
-      setGiftCardError(e?.message ?? t('payment.giftCardInvalid'))
-    } finally {
-      setValidatingGiftCard(false)
-    }
   }
 
   const handleConfirm = () => {
@@ -134,7 +123,7 @@ export function PaymentModal({ cart, customer, loyaltyEnabled = true, onConfirm,
                   {t('payment.giftCardApplied')}: <span className="font-mono">{giftCardCode}</span> (−{fmt(giftCardAmountNum)} {currency})
                 </span>
                 <button
-                  onClick={() => { setGiftCardApplied(false); setGiftCardCode('') }}
+                  onClick={onRemoveGiftCard}
                   className="text-xs text-posCloud-danger hover:brightness-95 shrink-0"
                 >
                   {t('payment.giftCardRemove')}
@@ -148,7 +137,7 @@ export function PaymentModal({ cart, customer, loyaltyEnabled = true, onConfirm,
                     type="text"
                     placeholder={t('payment.giftCardCode')}
                     value={giftCardCode}
-                    onChange={(e) => { setGiftCardCode(e.target.value.toUpperCase()); setGiftCardError(null) }}
+                    onChange={(e) => onGiftCardCodeChange(e.target.value.toUpperCase())}
                     className="flex-1 h-10 px-3 bg-posCloud-surface dark:bg-posCloudDark-surface border border-posCloud-info/30 text-posCloud-text-primary dark:text-posCloudDark-text-primary rounded-lg uppercase focus:outline-none focus:border-posCloud-info"
                   />
                   <input
@@ -156,12 +145,12 @@ export function PaymentModal({ cart, customer, loyaltyEnabled = true, onConfirm,
                     min={0.01}
                     step="0.01"
                     value={giftCardAmount}
-                    onChange={(e) => setGiftCardAmount(e.target.value)}
+                    onChange={(e) => onGiftCardAmountChange(e.target.value)}
                     className="w-24 h-10 px-2 text-center bg-posCloud-surface dark:bg-posCloudDark-surface border border-posCloud-info/30 text-posCloud-text-primary dark:text-posCloudDark-text-primary rounded-lg focus:outline-none focus:border-posCloud-info"
                   />
                   <button
                     disabled={!giftCardCode.trim() || !(parseFloat(giftCardAmount) > 0) || validatingGiftCard}
-                    onClick={handleApplyGiftCard}
+                    onClick={onApplyGiftCard}
                     className="px-3 h-10 bg-posCloud-info hover:brightness-95 disabled:opacity-50 text-white rounded-lg text-sm font-medium shrink-0"
                   >
                     {validatingGiftCard ? t('checking') : t('payment.giftCardApply')}
@@ -178,7 +167,7 @@ export function PaymentModal({ cart, customer, loyaltyEnabled = true, onConfirm,
             </div>
           )}
 
-          {customer && availablePoints > 0 && (
+          {availablePoints > 0 && (
             <div className="bg-posCloud-warning-light dark:bg-posCloud-warning/15 border border-posCloud-warning/20 rounded-xl p-3 space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-posCloud-warning font-medium">{t('payment.redeemPoints')}</span>
@@ -192,7 +181,7 @@ export function PaymentModal({ cart, customer, loyaltyEnabled = true, onConfirm,
                 max={availablePoints}
                 placeholder="0"
                 value={redeemPoints}
-                onChange={(e) => setRedeemPoints(e.target.value)}
+                onChange={(e) => onRedeemPointsChange(e.target.value)}
                 className="w-full h-10 text-center bg-posCloud-surface dark:bg-posCloudDark-surface border border-posCloud-warning/30 text-posCloud-text-primary dark:text-posCloudDark-text-primary rounded-lg focus:outline-none focus:border-posCloud-warning"
               />
             </div>

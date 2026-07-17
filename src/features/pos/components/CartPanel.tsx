@@ -54,6 +54,17 @@ interface Props {
   customerCaptureEnabled?: boolean
   selectedCustomer?: Customer | null
   onClearCustomer?: () => void
+  loyaltyEnabled?: boolean
+  availablePoints: number
+  redeemPoints: string
+  onRedeemPointsChange: (v: string) => void
+  giftCardCode: string
+  giftCardApplied: boolean
+  giftCardError: string | null
+  validatingGiftCard: boolean
+  onGiftCardCodeChange: (v: string) => void
+  onApplyGiftCard: () => void
+  onRemoveGiftCard: () => void
 }
 
 const fmt = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -61,6 +72,9 @@ const fmt = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2,
 export function CartPanel({
   cart, onUpdateQty, onRemoveItem, onApplyCoupon, onClearCoupon, onCheckout, onClear,
   customerCaptureEnabled, selectedCustomer, onClearCustomer,
+  availablePoints, redeemPoints, onRedeemPointsChange,
+  giftCardCode, giftCardApplied, giftCardError, validatingGiftCard,
+  onGiftCardCodeChange, onApplyGiftCard, onRemoveGiftCard,
 }: Props) {
   const t = useTranslations('pos')
   const currency = useTenantStore((s) => s.currency_symbol)
@@ -209,6 +223,51 @@ export function CartPanel({
             {couponError && <p className="text-[11px] text-posCloud-danger">{couponError}</p>}
           </div>
         )}
+
+        {availablePoints > 0 && (
+          <label className="mt-2 flex cursor-pointer items-center justify-between gap-2 text-xs text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">
+            <span className="flex items-center gap-1.5">
+              <input
+                type="checkbox"
+                checked={!!redeemPoints && parseInt(redeemPoints, 10) > 0}
+                onChange={(e) => onRedeemPointsChange(e.target.checked ? String(availablePoints) : '')}
+                className="h-3.5 w-3.5 rounded border-posCloud-border dark:border-posCloudDark-border accent-posCloud-primary"
+              />
+              {t('payment.redeemPoints')}
+            </span>
+            <span>{t('payment.availablePoints', { points: availablePoints })}</span>
+          </label>
+        )}
+
+        <div className="mt-2 space-y-1.5">
+          {giftCardApplied ? (
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-posCloud-info font-medium">
+                ✓ {t('payment.giftCard')}: <span className="font-mono">{giftCardCode}</span>
+              </span>
+              <button onClick={onRemoveGiftCard} className="text-xs text-posCloud-danger hover:brightness-90">
+                {t('payment.giftCardRemove')}
+              </button>
+            </div>
+          ) : (
+            <div className="flex gap-2">
+              <button
+                onClick={onApplyGiftCard}
+                disabled={!giftCardCode.trim() || validatingGiftCard}
+                className="shrink-0 rounded-full bg-posCloud-primary-light px-4 text-xs font-semibold text-posCloud-primary disabled:opacity-50"
+              >
+                {validatingGiftCard ? t('checking') : t('apply')}
+              </button>
+              <input
+                placeholder={t('payment.giftCardCode')}
+                value={giftCardCode}
+                onChange={(e) => onGiftCardCodeChange(e.target.value.toUpperCase())}
+                className="flex-1 min-w-0 rounded-full border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-background dark:bg-posCloudDark-background px-3.5 py-2 text-xs uppercase text-posCloud-text-primary dark:text-posCloudDark-text-primary outline-none placeholder:normal-case placeholder:text-posCloud-text-tertiary dark:placeholder:text-posCloudDark-text-tertiary"
+              />
+            </div>
+          )}
+          {giftCardError && <p className="text-[11px] text-posCloud-danger">{giftCardError}</p>}
+        </div>
       </div>
 
       <div className="space-y-1.5 text-xs border-t border-posCloud-border dark:border-posCloudDark-border pt-3 mb-3">

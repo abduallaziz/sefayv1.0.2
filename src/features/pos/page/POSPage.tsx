@@ -10,6 +10,7 @@ import { CustomerPickerModal } from '../components/CustomerPickerModal'
 import { useCart } from '../hooks/useCart'
 import { PaymentData } from '../types/pos.types'
 import { createOrder } from '@/features/orders/api/orders.api'
+import { giftCardsApi } from '@/features/gift-cards/api/gift-cards.api'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { apiClient } from '@/lib/api'
 import { useTranslations } from 'next-intl'
@@ -24,6 +25,16 @@ export function POSPage() {
   const [paymentError, setPaymentError] = useState<string | null>(null)
   const [showCustomerPicker, setShowCustomerPicker] = useState(false)
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
+
+  // Gift-card and loyalty-points state lives here (not in CartPanel or PaymentModal)
+  // so the same real, server-validated selection is shared by both the cart panel's
+  // preview row and the payment modal's confirm step — never two independent copies.
+  const [redeemPoints, setRedeemPoints] = useState('')
+  const [giftCardCode, setGiftCardCode] = useState('')
+  const [giftCardApplied, setGiftCardApplied] = useState(false)
+  const [giftCardAmount, setGiftCardAmount] = useState('')
+  const [giftCardError, setGiftCardError] = useState<string | null>(null)
+  const [validatingGiftCard, setValidatingGiftCard] = useState(false)
 
   const { data: branches } = useQuery({
     queryKey: ['branches'],
@@ -50,6 +61,39 @@ export function POSPage() {
   const { cart, addItem, removeItem, updateQty, applyCoupon, clearCoupon, clearCart } = useCart(taxRate)
 
   const branchId = user?.branchId ?? (branches as any)?.[0]?.id ?? ''
+
+  const availablePoints = loyaltyEnabled ? (selectedCustomer?.loyalty_points ?? 0) : 0
+
+  // يتحقق فعليًا من الكود والمبلغ عبر /gift-cards/validate قبل قبول البطاقة —
+  // لا تُعرَض كمطبَّقة أبدًا إلا بعد تأكيد رصيدها الحقيقي من السيرفر.
+  const handleApplyGiftCard = async () => {
+    const code = giftCardCode.trim()
+    if (!code || cart.total <= 0) return
+    setValidatingGiftCard(true)
+    setGiftCardError(null)
+    try {
+      await giftCardsApi.validate(code, cart.total)
+      setGiftCardApplied(true)
+      setGiftCardAmount(cart.total.toFixed(2))
+    } catch (error: any) {
+      setGiftCardError(error?.message ?? t('payment.giftCardInvalid'))
+    } finally {
+      setValidatingGiftCard(false)
+    }
+  }
+
+  const handleRemoveGiftCard = () => {
+    setGiftCardApplied(false)
+    setGiftCardCode('')
+  }
+
+  const resetGiftCardAndLoyalty = () => {
+    setGiftCardApplied(false)
+    setGiftCardCode('')
+    setGiftCardAmount('')
+    setGiftCardError(null)
+    setRedeemPoints('')
+  }
 
   const handleConfirmPayment = async (data: PaymentData) => {
     if (isSubmitting) return
@@ -96,11 +140,16 @@ export function POSPage() {
     }
   }
 
+  const openPayment = () => {
+    if (!giftCardAmount) setGiftCardAmount(cart.total.toFixed(2))
+    setShowPayment(true)
+  }
+
   const handleCheckoutClick = () => {
     if (customerCaptureEnabled && !selectedCustomer) {
       setShowCustomerPicker(true)
     } else {
-      setShowPayment(true)
+      openPayment()
     }
   }
 
@@ -108,6 +157,7 @@ export function POSPage() {
     clearCart()
     setReceipt(null)
     setSelectedCustomer(null)
+    resetGiftCardAndLoyalty()
   }
 
   return (
@@ -132,10 +182,21 @@ export function POSPage() {
             onApplyCoupon={applyCoupon}
             onClearCoupon={clearCoupon}
             onCheckout={handleCheckoutClick}
-            onClear={clearCart}
+            onClear={() => { clearCart(); resetGiftCardAndLoyalty() }}
             customerCaptureEnabled={customerCaptureEnabled}
             selectedCustomer={selectedCustomer}
             onClearCustomer={() => setSelectedCustomer(null)}
+            loyaltyEnabled={loyaltyEnabled}
+            availablePoints={availablePoints}
+            redeemPoints={redeemPoints}
+            onRedeemPointsChange={setRedeemPoints}
+            giftCardCode={giftCardCode}
+            giftCardApplied={giftCardApplied}
+            giftCardError={giftCardError}
+            validatingGiftCard={validatingGiftCard}
+            onGiftCardCodeChange={(v) => { setGiftCardCode(v); setGiftCardError(null) }}
+            onApplyGiftCard={handleApplyGiftCard}
+            onRemoveGiftCard={handleRemoveGiftCard}
           />
         </div>
       </div>
@@ -149,6 +210,18 @@ export function POSPage() {
           onClose={() => { setShowPayment(false); setPaymentError(null) }}
           isSubmitting={isSubmitting}
           error={paymentError}
+          availablePoints={availablePoints}
+          redeemPoints={redeemPoints}
+          onRedeemPointsChange={setRedeemPoints}
+          giftCardCode={giftCardCode}
+          giftCardApplied={giftCardApplied}
+          giftCardAmount={giftCardAmount}
+          giftCardError={giftCardError}
+          validatingGiftCard={validatingGiftCard}
+          onGiftCardCodeChange={(v) => { setGiftCardCode(v); setGiftCardError(null) }}
+          onGiftCardAmountChange={setGiftCardAmount}
+          onApplyGiftCard={handleApplyGiftCard}
+          onRemoveGiftCard={handleRemoveGiftCard}
         />
       )}
 
@@ -157,7 +230,7 @@ export function POSPage() {
           onSelect={(customer) => {
             setSelectedCustomer(customer)
             setShowCustomerPicker(false)
-            setShowPayment(true)
+            openPayment()
           }}
           onClose={() => setShowCustomerPicker(false)}
         />
