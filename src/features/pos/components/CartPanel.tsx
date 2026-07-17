@@ -72,7 +72,7 @@ const fmt = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2,
 export function CartPanel({
   cart, onUpdateQty, onRemoveItem, onApplyCoupon, onClearCoupon, onCheckout, onClear,
   customerCaptureEnabled, selectedCustomer, onClearCustomer,
-  availablePoints, redeemPoints, onRedeemPointsChange,
+  loyaltyEnabled, availablePoints, redeemPoints, onRedeemPointsChange,
   giftCardCode, giftCardApplied, giftCardError, validatingGiftCard,
   onGiftCardCodeChange, onApplyGiftCard, onRemoveGiftCard,
 }: Props) {
@@ -224,11 +224,12 @@ export function CartPanel({
           </div>
         )}
 
-        {availablePoints > 0 && (
-          <label className="mt-2 flex cursor-pointer items-center justify-between gap-2 text-xs text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">
+        {loyaltyEnabled && (
+          <label className={`mt-2 flex items-center justify-between gap-2 text-xs text-posCloud-text-secondary dark:text-posCloudDark-text-secondary ${availablePoints > 0 ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'}`}>
             <span className="flex items-center gap-1.5">
               <input
                 type="checkbox"
+                disabled={availablePoints === 0}
                 checked={!!redeemPoints && parseInt(redeemPoints, 10) > 0}
                 onChange={(e) => onRedeemPointsChange(e.target.checked ? String(availablePoints) : '')}
                 className="h-3.5 w-3.5 rounded border-posCloud-border dark:border-posCloudDark-border accent-posCloud-primary"

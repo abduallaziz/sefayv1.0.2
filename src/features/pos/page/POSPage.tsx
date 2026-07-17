@@ -174,7 +174,7 @@ export function POSPage() {
         </div>
 
         {/* Cart Panel */}
-        <div className="flex h-[60vh] min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-posCloud-border bg-posCloud-surface p-5 dark:border-posCloudDark-border dark:bg-posCloudDark-surface lg:h-auto lg:w-[340px] lg:shrink-0">
+        <div className="flex h-[60vh] min-h-0 w-full flex-col overflow-y-auto overflow-x-hidden rounded-2xl border border-posCloud-border bg-posCloud-surface p-5 dark:border-posCloudDark-border dark:bg-posCloudDark-surface lg:h-auto lg:overflow-hidden lg:w-[340px] lg:shrink-0">
           <CartPanel
             cart={cart}
             onUpdateQty={updateQty}
