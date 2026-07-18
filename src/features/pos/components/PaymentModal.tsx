@@ -263,7 +263,7 @@ export function PaymentModal({
 
           {/* Right: totals, gift card, loyalty, payment method, amount —
               never scrolls, compact enough to always fit in full. */}
-          <div className="space-y-1.5 p-3">
+          <div className="space-y-1 p-2.5">
             <div className="space-y-0.5 text-sm">
               <div className="flex justify-between text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
                 <span>{t('subtotal')}</span><span>{fmt(cart.subtotal)}</span>
