@@ -223,7 +223,17 @@ export function PaymentModal({
           </div>
         </div>
 
-        <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)] lg:grid-cols-[1fr_320px]">
+        {/* No flex-1 / forced row height here on purpose. The row is sized by
+            its content — specifically by the right column, which has no
+            scroll and must always render in full. CSS Grid's default
+            align-items: stretch then matches the left column's outer box to
+            that same height, and the left column's own inner min-h-0 +
+            overflow-y-auto (the ONE legitimate scrollbar in this modal)
+            scrolls within whatever height that turns out to be. If the row
+            (header + this + footer) would exceed the modal's max-h, the
+            product list is the only thing that shrinks — right column and
+            footer are never touched. */}
+        <div className="grid min-h-0 grid-cols-1 lg:grid-cols-[1fr_320px]">
           {/* Left: item table — the only scrollable region in the body */}
           <div className="flex min-h-0 flex-col border-posCloud-border dark:border-posCloudDark-border lg:border-e">
             <p className="shrink-0 px-5 pt-4 text-xs font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
