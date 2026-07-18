@@ -47,7 +47,7 @@ function SheetOverlay({ className, ...props }: React.ComponentProps<typeof Dialo
 // — adding `h-full` here would fight that (height:100% ignores the bottom
 // offset) and overflow past the viewport whenever top is non-zero.
 const sheetVariants = cva(
-  'fixed z-50 flex flex-col gap-0 bg-posCloud-surface dark:bg-posCloudDark-surface shadow-xl transition ease-in-out data-[state=closed]:duration-200 data-[state=open]:duration-300',
+  'fixed z-[400] flex flex-col gap-0 bg-posCloud-surface dark:bg-posCloudDark-surface shadow-xl transition ease-in-out data-[state=closed]:duration-200 data-[state=open]:duration-300',
   {
     variants: {
       side: {

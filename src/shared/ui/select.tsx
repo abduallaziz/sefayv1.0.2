@@ -31,7 +31,7 @@ function SelectContent({ className, children, position = 'popper', ...props }: R
       <SelectPrimitive.Content
         position={position}
         className={cn(
-          'relative z-50 min-w-[8rem] overflow-hidden rounded-lg border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface shadow-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+          'relative z-[310] min-w-[8rem] overflow-hidden rounded-lg border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface shadow-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
           className
         )}
         {...props}

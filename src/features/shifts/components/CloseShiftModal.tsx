@@ -33,7 +33,7 @@ export function CloseShiftModal({ shift, onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+    <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/60">
       <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl shadow-xl w-full max-w-sm mx-4 p-6">
         <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-1">{t('close_shift')}</h2>
         <p className="text-sm text-slate-500 mb-4">

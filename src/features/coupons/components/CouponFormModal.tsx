@@ -56,7 +56,7 @@ export function CouponFormModal({ coupon, onClose }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/60 z-[400] flex items-center justify-center p-4">
       <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl p-5 w-full max-w-md max-h-[90vh] overflow-y-auto">
         <h3 className="font-semibold text-lg text-gray-900 dark:text-white mb-4">
           {isEdit ? t('editCoupon') : t('newCoupon')}

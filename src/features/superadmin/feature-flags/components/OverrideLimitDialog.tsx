@@ -37,7 +37,7 @@ export function OverrideLimitDialog({ tenantId, feature, open, onClose }: Props)
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+    <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/60">
       <div className="w-full max-w-sm rounded-xl border border-slate-200 dark:border-[#1e2130] bg-white dark:bg-[#141720] p-6 shadow-2xl">
         <h3 className="text-base font-semibold text-slate-800 dark:text-white mb-1">
           {t('overrideLimit')}

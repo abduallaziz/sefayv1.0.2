@@ -92,7 +92,7 @@ function ServiceChip({ label, status, metric, detail, icon }: ServiceChipProps) 
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 6 }}
             transition={{ duration: 0.15 }}
-            className="absolute bottom-full left-0 mb-2 z-50 rounded-lg px-3 py-2 text-xs shadow-xl whitespace-nowrap bg-white dark:bg-[#0d0d18] border"
+            className="absolute bottom-full left-0 mb-2 z-[310] rounded-lg px-3 py-2 text-xs shadow-xl whitespace-nowrap bg-white dark:bg-[#0d0d18] border"
             style={{ borderColor: cfg.border }}
           >
             <p className="font-semibold" style={{ color: cfg.color }}>{status}</p>

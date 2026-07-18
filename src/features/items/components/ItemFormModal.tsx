@@ -85,7 +85,7 @@ export function ItemFormModal({ open, onClose, onSubmit, item, categories, isLoa
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       <div className="bg-posCloud-surface dark:bg-posCloudDark-surface border border-posCloud-border dark:border-posCloudDark-border rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-5 border-b border-posCloud-border dark:border-posCloudDark-border sticky top-0 bg-posCloud-surface dark:bg-posCloudDark-surface z-10">
           <h2 className="text-base font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary">

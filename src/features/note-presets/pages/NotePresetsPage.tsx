@@ -131,7 +131,7 @@ export function NotePresetsPage() {
       )}
 
       {deleteTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+        <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/60 p-4">
           <div className="w-full max-w-sm rounded-2xl border border-posCloud-border bg-posCloud-surface p-5 dark:border-posCloudDark-border dark:bg-posCloudDark-surface">
             <h3 className="mb-2 text-lg font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{t('deleteTitle')}</h3>
             <p className="mb-5 text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('deleteConfirm', { text: deleteTarget.text })}</p>

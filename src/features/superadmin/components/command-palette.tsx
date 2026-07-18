@@ -99,7 +99,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-50"
+            className="fixed inset-0 z-[400]"
             style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}
           />
 
@@ -108,7 +108,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: -20 }}
             transition={{ duration: 0.15 }}
-            className="fixed left-1/2 top-[20%] z-50 w-full max-w-xl -translate-x-1/2 rounded-2xl shadow-2xl overflow-hidden bg-white dark:bg-[#0a0a0f] border border-slate-200 dark:border-[rgba(255,255,255,0.08)]"
+            className="fixed left-1/2 top-[20%] z-[400] w-full max-w-xl -translate-x-1/2 rounded-2xl shadow-2xl overflow-hidden bg-white dark:bg-[#0a0a0f] border border-slate-200 dark:border-[rgba(255,255,255,0.08)]"
           >
             <div className="flex items-center gap-3 px-4 py-3.5 border-b border-slate-200 dark:border-white/5">
               <Search className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/30" />

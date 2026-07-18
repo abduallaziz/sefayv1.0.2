@@ -217,7 +217,7 @@ function LinkExistingUserModal({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-[400] bg-black/40 flex items-center justify-center p-4" onClick={onClose}>
       <div
         className="bg-white dark:bg-gray-900 rounded-2xl w-full max-w-md max-h-[80vh] flex flex-col shadow-2xl"
         onClick={(e) => e.stopPropagation()}
