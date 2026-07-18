@@ -237,7 +237,7 @@ export function PaymentModal({
             ONE legitimate scrollbar in this modal) is always the thing that
             absorbs whatever space is left, whether columns are side-by-side
             (lg:flex-row) or stacked (flex-col on mobile). */}
-        <div className="flex min-h-0 flex-col lg:flex-row">
+        <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
           {/* Left: item table — the only scrollable region in the body */}
           <div className="flex min-h-0 flex-1 flex-col border-posCloud-border dark:border-posCloudDark-border lg:border-e">
             <p className="shrink-0 px-5 pt-4 text-xs font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
