@@ -146,7 +146,7 @@ export function CustomerPickerModal({ onSelect, onClose }: Props) {
   const { data: results, isLoading } = useCustomerSearch(search)
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[400] flex items-center justify-center p-4">
       <div className="bg-posCloud-surface dark:bg-posCloudDark-surface border border-posCloud-border dark:border-posCloudDark-border rounded-2xl w-full max-w-md shadow-xl max-h-[85vh] flex flex-col">
         <div className="flex items-center justify-between p-5 border-b border-posCloud-border dark:border-posCloudDark-border">
           <h3 className="font-bold text-lg text-posCloud-text-primary dark:text-posCloudDark-text-primary">{mode === 'search' ? t('selectTitle') : t('newTitle')}</h3>

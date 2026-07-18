@@ -40,7 +40,7 @@ export function ReceiptModal({ cart, payment, invoiceNumber, taxRate, total, onC
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[400] flex items-center justify-center p-4">
       {/* Bounded to the viewport (max-h-[85vh]) so long orders never push the
           buttons off-screen. Only the item list scrolls internally — header,
           totals, and payment info stay put, and the action buttons are a
