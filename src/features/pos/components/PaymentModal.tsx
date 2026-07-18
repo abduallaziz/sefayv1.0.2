@@ -225,17 +225,21 @@ export function PaymentModal({
 
         {/* No flex-1 / forced row height here on purpose. The row is sized by
             its content — specifically by the right column, which has no
-            scroll and must always render in full. CSS Grid's default
-            align-items: stretch then matches the left column's outer box to
-            that same height, and the left column's own inner min-h-0 +
-            overflow-y-auto (the ONE legitimate scrollbar in this modal)
-            scrolls within whatever height that turns out to be. If the row
-            (header + this + footer) would exceed the modal's max-h, the
-            product list is the only thing that shrinks — right column and
-            footer are never touched. */}
-        <div className="grid min-h-0 grid-cols-1 lg:grid-cols-[1fr_320px]">
+            scroll and must always render in full. Flexbox (not CSS Grid) on
+            purpose: Grid's single-column auto-row-sizing collapsed the left
+            column to 0 height on narrower desktop widths, because the row
+            container itself had no shrink-0 and got compressed by the
+            modal's flex-col budget before grid could size its rows from
+            content. Flexbox's shrink/grow model handles this correctly in
+            both directions — the right column is shrink-0 (protected, full
+            content, never touched) on every screen size, and the left
+            column is flex-1 min-h-0, so its own inner overflow-y-auto (the
+            ONE legitimate scrollbar in this modal) is always the thing that
+            absorbs whatever space is left, whether columns are side-by-side
+            (lg:flex-row) or stacked (flex-col on mobile). */}
+        <div className="flex min-h-0 flex-col lg:flex-row">
           {/* Left: item table — the only scrollable region in the body */}
-          <div className="flex min-h-0 flex-col border-posCloud-border dark:border-posCloudDark-border lg:border-e">
+          <div className="flex min-h-0 flex-1 flex-col border-posCloud-border dark:border-posCloudDark-border lg:border-e">
             <p className="shrink-0 px-5 pt-4 text-xs font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
               {t('payment.productsCount', { count: cart.items.length })}
             </p>
@@ -272,8 +276,9 @@ export function PaymentModal({
           </div>
 
           {/* Right: totals, gift card, loyalty, payment method, amount —
-              never scrolls, compact enough to always fit in full. */}
-          <div className="space-y-1 p-2.5">
+              shrink-0 so it's never compressed; never scrolls, compact
+              enough to always fit in full. */}
+          <div className="w-full shrink-0 space-y-1 p-2.5 lg:w-[320px]">
             <div className="space-y-0.5 text-sm">
               <div className="flex justify-between text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
                 <span>{t('subtotal')}</span><span>{fmt(cart.subtotal)}</span>
