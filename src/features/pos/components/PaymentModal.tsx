@@ -204,8 +204,8 @@ export function PaymentModal({
           fake order number shown (no real invoice exists until the order is
           actually created) and no "bank transfer" button (no matching
           backend payment_method value — see METHODS comment below). */}
-      <div className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-posCloud-border bg-posCloud-surface shadow-xl dark:border-posCloudDark-border dark:bg-posCloudDark-surface">
-        <div className="shrink-0 border-b border-posCloud-border px-6 py-5 dark:border-posCloudDark-border">
+      <div className="flex max-h-[96vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-posCloud-border bg-posCloud-surface shadow-xl dark:border-posCloudDark-border dark:bg-posCloudDark-surface">
+        <div className="shrink-0 border-b border-posCloud-border px-5 py-3 dark:border-posCloudDark-border">
           <div className="flex items-center justify-between gap-3">
             <button onClick={onClose} className="shrink-0 rounded p-1.5 opacity-70 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:opacity-100 transition-opacity">
               <X className="w-4 h-4" />
@@ -215,7 +215,7 @@ export function PaymentModal({
               <Printer className="w-4 h-4" />
             </button>
           </div>
-          <div className="mt-3 flex items-center justify-between text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+          <div className="mt-1.5 flex items-center justify-between text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
             <span>{t('payment.customer')}</span>
             <span className="font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary">
               {customer?.full_name || t('payment.generalCustomer')}
@@ -261,14 +261,9 @@ export function PaymentModal({
             </div>
           </div>
 
-          {/* Right: totals, gift card, loyalty, payment method, amount.
-              min-h-0 + overflow-y-auto is a safety net, not a visible
-              scrollbar by default — on any viewport tall enough to fit this
-              column's natural content (the normal case) it renders in full
-              with no scroll at all. It only engages on unusually short
-              windows, where the alternative is the column silently
-              overflowing past the grid row and overlapping the footer. */}
-          <div className="min-h-0 space-y-3 overflow-y-auto p-5">
+          {/* Right: totals, gift card, loyalty, payment method, amount —
+              never scrolls, compact enough to always fit in full. */}
+          <div className="space-y-2 p-4">
             <div className="space-y-1 text-sm">
               <div className="flex justify-between text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
                 <span>{t('subtotal')}</span><span>{fmt(cart.subtotal)}</span>
@@ -287,17 +282,16 @@ export function PaymentModal({
               </div>
             </div>
 
-            {/* Confirmed-method summary — a distinct green checkmark card,
-                separate from the highlighted grid button, per reference. */}
-            <div className="flex items-center justify-between rounded-xl border border-posCloud-success/30 bg-posCloud-success-light p-3 dark:bg-posCloud-success/15">
-              <span className="flex items-center gap-2 text-sm font-medium text-posCloud-success">
+            {/* Confirmed-method summary — compact single line, not a padded card. */}
+            <div className="flex items-center justify-between rounded-lg border border-posCloud-success/30 bg-posCloud-success-light px-2.5 py-1.5 dark:bg-posCloud-success/15">
+              <span className="flex items-center gap-1.5 text-xs font-medium text-posCloud-success">
                 <MethodMark id={method} />
                 {t(METHODS.find((m) => m.id === method)!.labelKey as Parameters<typeof t>[0])}
               </span>
-              <Check className="h-4 w-4 text-posCloud-success" />
+              <Check className="h-3.5 w-3.5 text-posCloud-success" />
             </div>
 
-            <div className="rounded-xl border border-posCloud-info/20 bg-posCloud-info-light p-3 space-y-2 dark:bg-posCloud-info/15">
+            <div className="rounded-lg border border-posCloud-info/20 bg-posCloud-info-light p-2.5 space-y-1.5 dark:bg-posCloud-info/15">
               {giftCardApplied ? (
                 <div className="flex items-center justify-between text-sm">
                   <span className="font-medium text-posCloud-info">
@@ -309,26 +303,26 @@ export function PaymentModal({
                 </div>
               ) : (
                 <>
-                  <span className="text-sm font-medium text-posCloud-info">{t('payment.giftCard')}</span>
-                  <div className="flex gap-2">
+                  <span className="text-xs font-medium text-posCloud-info">{t('payment.giftCard')}</span>
+                  <div className="flex gap-1.5">
                     <input
                       type="text"
                       placeholder={t('payment.giftCardCode')}
                       value={giftCardCode}
                       onChange={(e) => onGiftCardCodeChange(e.target.value.toUpperCase())}
-                      className="h-9 flex-1 rounded-lg border border-posCloud-info/30 bg-posCloud-surface px-3 uppercase text-posCloud-text-primary outline-none focus:border-posCloud-info dark:bg-posCloudDark-surface dark:text-posCloudDark-text-primary"
+                      className="h-8 flex-1 rounded-lg border border-posCloud-info/30 bg-posCloud-surface px-2.5 text-xs uppercase text-posCloud-text-primary outline-none focus:border-posCloud-info dark:bg-posCloudDark-surface dark:text-posCloudDark-text-primary"
                     />
                     <input
                       type="text"
                       inputMode="decimal"
                       value={giftCardAmount}
                       onChange={(e) => onGiftCardAmountChange(e.target.value)}
-                      className="h-9 w-20 rounded-lg border border-posCloud-info/30 bg-posCloud-surface px-2 text-center text-posCloud-text-primary outline-none focus:border-posCloud-info dark:bg-posCloudDark-surface dark:text-posCloudDark-text-primary"
+                      className="h-8 w-16 rounded-lg border border-posCloud-info/30 bg-posCloud-surface px-1.5 text-center text-xs text-posCloud-text-primary outline-none focus:border-posCloud-info dark:bg-posCloudDark-surface dark:text-posCloudDark-text-primary"
                     />
                     <button
                       disabled={!giftCardCode.trim() || !(parseFloat(giftCardAmount) > 0) || validatingGiftCard}
                       onClick={onApplyGiftCard}
-                      className="h-9 shrink-0 rounded-lg bg-posCloud-info px-3 text-sm font-medium text-white hover:brightness-95 disabled:opacity-50"
+                      className="h-8 shrink-0 rounded-lg bg-posCloud-info px-2.5 text-xs font-medium text-white hover:brightness-95 disabled:opacity-50"
                     >
                       {validatingGiftCard ? t('checking') : t('payment.giftCardApply')}
                     </button>
@@ -339,16 +333,16 @@ export function PaymentModal({
             </div>
 
             {error && (
-              <div className="rounded-lg border border-posCloud-danger/20 bg-posCloud-danger-light p-3 text-sm text-posCloud-danger dark:bg-posCloud-danger/15">
+              <div className="rounded-lg border border-posCloud-danger/20 bg-posCloud-danger-light p-2 text-xs text-posCloud-danger dark:bg-posCloud-danger/15">
                 {error}
               </div>
             )}
 
             {availablePoints > 0 && (
-              <div className="space-y-2 rounded-xl border border-posCloud-warning/20 bg-posCloud-warning-light p-3 dark:bg-posCloud-warning/15">
-                <div className="flex items-center justify-between text-sm">
+              <div className="space-y-1.5 rounded-lg border border-posCloud-warning/20 bg-posCloud-warning-light p-2.5 dark:bg-posCloud-warning/15">
+                <div className="flex items-center justify-between text-xs">
                   <span className="font-medium text-posCloud-warning">{t('payment.redeemPoints')}</span>
-                  <span className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+                  <span className="text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
                     {t('payment.availablePoints', { points: availablePoints })}
                   </span>
                 </div>
@@ -362,18 +356,18 @@ export function PaymentModal({
                     const clamped = digitsOnly === '' ? '' : String(Math.min(parseInt(digitsOnly, 10), availablePoints))
                     onRedeemPointsChange(clamped)
                   }}
-                  className="h-9 w-full rounded-lg border border-posCloud-warning/30 bg-posCloud-surface text-center text-posCloud-text-primary outline-none focus:border-posCloud-warning dark:bg-posCloudDark-surface dark:text-posCloudDark-text-primary"
+                  className="h-8 w-full rounded-lg border border-posCloud-warning/30 bg-posCloud-surface text-center text-xs text-posCloud-text-primary outline-none focus:border-posCloud-warning dark:bg-posCloudDark-surface dark:text-posCloudDark-text-primary"
                 />
               </div>
             )}
 
             <p className="text-xs font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('payment.methodLabel')}</p>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-4 gap-1.5">
               {METHODS.map((m) => (
                 <button
                   key={m.id}
                   onClick={() => setMethod(m.id)}
-                  className={`flex flex-col items-center gap-1 rounded-xl border py-2.5 text-[11px] font-medium transition-all ${
+                  className={`flex flex-col items-center gap-0.5 rounded-lg border py-1.5 text-[10px] font-medium transition-all ${
                     method === m.id
                       ? 'border-posCloud-primary bg-posCloud-primary-light text-posCloud-primary dark:bg-posCloud-primary/15'
                       : 'border-posCloud-border bg-posCloud-background text-posCloud-text-tertiary hover:border-posCloud-primary/50 dark:border-posCloudDark-border dark:bg-posCloudDark-background'
@@ -386,10 +380,10 @@ export function PaymentModal({
             </div>
 
             {method === 'cash' && (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-xs">
                   <label className="font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{t('payment.tendered')}</label>
-                  {change > 0 && <span className="text-xs text-posCloud-success">{t('payment.change')}: {fmt(change)} {currency}</span>}
+                  {change > 0 && <span className="text-posCloud-success">{t('payment.change')}: {fmt(change)} {currency}</span>}
                 </div>
                 <input
                   type="text"
@@ -397,16 +391,16 @@ export function PaymentModal({
                   placeholder={fmt(remainingDue)}
                   value={cashTendered}
                   onChange={(e) => setCashTendered(e.target.value)}
-                  className="w-full h-11 text-center text-lg font-bold rounded-lg border border-posCloud-border bg-posCloud-background text-posCloud-text-primary outline-none focus:border-posCloud-primary dark:border-posCloudDark-border dark:bg-posCloudDark-background dark:text-posCloudDark-text-primary"
+                  className="w-full h-9 text-center text-base font-bold rounded-lg border border-posCloud-border bg-posCloud-background text-posCloud-text-primary outline-none focus:border-posCloud-primary dark:border-posCloudDark-border dark:bg-posCloudDark-background dark:text-posCloudDark-text-primary"
                 />
               </div>
             )}
 
             {method === 'split' && (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-xs">
                   <label className="font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{t('payment.splitCash')}</label>
-                  {splitCard > 0 && <span className="text-xs text-posCloud-primary font-medium">{t('payment.splitCard')}: {fmt(splitCard)} {currency}</span>}
+                  {splitCard > 0 && <span className="text-posCloud-primary font-medium">{t('payment.splitCard')}: {fmt(splitCard)} {currency}</span>}
                 </div>
                 <input
                   type="text"
@@ -414,7 +408,7 @@ export function PaymentModal({
                   placeholder="0.00"
                   value={splitCash}
                   onChange={(e) => setSplitCash(e.target.value)}
-                  className="w-full h-11 text-center rounded-lg border border-posCloud-border bg-posCloud-background text-posCloud-text-primary outline-none focus:border-posCloud-primary dark:border-posCloudDark-border dark:bg-posCloudDark-background dark:text-posCloudDark-text-primary"
+                  className="w-full h-9 text-center rounded-lg border border-posCloud-border bg-posCloud-background text-posCloud-text-primary outline-none focus:border-posCloud-primary dark:border-posCloudDark-border dark:bg-posCloudDark-background dark:text-posCloudDark-text-primary"
                 />
               </div>
             )}
@@ -422,7 +416,7 @@ export function PaymentModal({
         </div>
 
         {/* Footer — full width, pinned under both columns */}
-        <div className="flex shrink-0 gap-3 border-t border-posCloud-border p-5 dark:border-posCloudDark-border">
+        <div className="flex shrink-0 gap-3 border-t border-posCloud-border p-4 dark:border-posCloudDark-border">
           <Button variant="outline" onClick={onClose} className="flex-1">
             {t('payment.cancel')}
           </Button>
