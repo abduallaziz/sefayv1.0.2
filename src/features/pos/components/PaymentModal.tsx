@@ -205,7 +205,7 @@ export function PaymentModal({
           actually created) and no "bank transfer" button (no matching
           backend payment_method value — see METHODS comment below). */}
       <div className="flex max-h-[96vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-posCloud-border bg-posCloud-surface shadow-xl dark:border-posCloudDark-border dark:bg-posCloudDark-surface">
-        <div className="shrink-0 border-b border-posCloud-border px-5 py-3 dark:border-posCloudDark-border">
+        <div className="shrink-0 border-b border-posCloud-border px-5 pb-3 pt-4 dark:border-posCloudDark-border">
           <div className="flex items-center justify-between gap-3">
             <button onClick={onClose} className="shrink-0 rounded p-1.5 opacity-70 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:opacity-100 transition-opacity">
               <X className="w-4 h-4" />
