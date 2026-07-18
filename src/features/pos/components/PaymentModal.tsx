@@ -263,8 +263,8 @@ export function PaymentModal({
 
           {/* Right: totals, gift card, loyalty, payment method, amount —
               never scrolls, compact enough to always fit in full. */}
-          <div className="space-y-2 p-4">
-            <div className="space-y-1 text-sm">
+          <div className="space-y-1.5 p-3">
+            <div className="space-y-0.5 text-sm">
               <div className="flex justify-between text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
                 <span>{t('subtotal')}</span><span>{fmt(cart.subtotal)}</span>
               </div>
@@ -291,7 +291,7 @@ export function PaymentModal({
               <Check className="h-3.5 w-3.5 text-posCloud-success" />
             </div>
 
-            <div className="rounded-lg border border-posCloud-info/20 bg-posCloud-info-light p-2.5 space-y-1.5 dark:bg-posCloud-info/15">
+            <div className="rounded-lg border border-posCloud-info/20 bg-posCloud-info-light p-2 dark:bg-posCloud-info/15">
               {giftCardApplied ? (
                 <div className="flex items-center justify-between text-sm">
                   <span className="font-medium text-posCloud-info">
@@ -303,7 +303,6 @@ export function PaymentModal({
                 </div>
               ) : (
                 <>
-                  <span className="text-xs font-medium text-posCloud-info">{t('payment.giftCard')}</span>
                   <div className="flex gap-1.5">
                     <input
                       type="text"
@@ -362,12 +361,12 @@ export function PaymentModal({
             )}
 
             <p className="text-xs font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('payment.methodLabel')}</p>
-            <div className="grid grid-cols-4 gap-1.5">
+            <div className="grid grid-cols-4 gap-1">
               {METHODS.map((m) => (
                 <button
                   key={m.id}
                   onClick={() => setMethod(m.id)}
-                  className={`flex flex-col items-center gap-0.5 rounded-lg border py-1.5 text-[10px] font-medium transition-all ${
+                  className={`flex flex-col items-center gap-0.5 rounded-lg border py-1 text-[10px] font-medium transition-all ${
                     method === m.id
                       ? 'border-posCloud-primary bg-posCloud-primary-light text-posCloud-primary dark:bg-posCloud-primary/15'
                       : 'border-posCloud-border bg-posCloud-background text-posCloud-text-tertiary hover:border-posCloud-primary/50 dark:border-posCloudDark-border dark:bg-posCloudDark-background'
@@ -416,7 +415,7 @@ export function PaymentModal({
         </div>
 
         {/* Footer — full width, pinned under both columns */}
-        <div className="flex shrink-0 gap-3 border-t border-posCloud-border p-4 dark:border-posCloudDark-border">
+        <div className="flex shrink-0 gap-3 border-t border-posCloud-border p-3 dark:border-posCloudDark-border">
           <Button variant="outline" onClick={onClose} className="flex-1">
             {t('payment.cancel')}
           </Button>
