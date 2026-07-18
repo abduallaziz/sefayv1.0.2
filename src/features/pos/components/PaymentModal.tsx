@@ -223,7 +223,7 @@ export function PaymentModal({
           </div>
         </div>
 
-        <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[1fr_320px]">
+        <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)] lg:grid-cols-[1fr_320px]">
           {/* Left: item table — the only scrollable region in the body */}
           <div className="flex min-h-0 flex-col border-posCloud-border dark:border-posCloudDark-border lg:border-e">
             <p className="shrink-0 px-5 pt-4 text-xs font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
@@ -261,10 +261,14 @@ export function PaymentModal({
             </div>
           </div>
 
-          {/* Right: totals, gift card, loyalty, payment method, amount — never
-              scrolls on its own; always renders in full, only the item table
-              on the left scrolls. */}
-          <div className="space-y-3 p-5">
+          {/* Right: totals, gift card, loyalty, payment method, amount.
+              min-h-0 + overflow-y-auto is a safety net, not a visible
+              scrollbar by default — on any viewport tall enough to fit this
+              column's natural content (the normal case) it renders in full
+              with no scroll at all. It only engages on unusually short
+              windows, where the alternative is the column silently
+              overflowing past the grid row and overlapping the footer. */}
+          <div className="min-h-0 space-y-3 overflow-y-auto p-5">
             <div className="space-y-1 text-sm">
               <div className="flex justify-between text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
                 <span>{t('subtotal')}</span><span>{fmt(cart.subtotal)}</span>
