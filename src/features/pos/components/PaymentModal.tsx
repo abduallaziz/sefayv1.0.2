@@ -197,14 +197,14 @@ export function PaymentModal({
   const totalDiscount = cart.coupon_discount_amount + giftCardAmountNum
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-1.5">
       {/* Two-column layout matching the reference exactly: wide item table on
           one side, totals/gift-card/loyalty/payment-method on the other,
           both bounded to the modal height and independently scrollable. No
           fake order number shown (no real invoice exists until the order is
           actually created) and no "bank transfer" button (no matching
           backend payment_method value — see METHODS comment below). */}
-      <div className="flex max-h-[96vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-posCloud-border bg-posCloud-surface shadow-xl dark:border-posCloudDark-border dark:bg-posCloudDark-surface">
+      <div className="flex max-h-full w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-posCloud-border bg-posCloud-surface shadow-xl dark:border-posCloudDark-border dark:bg-posCloudDark-surface">
         <div className="shrink-0 border-b border-posCloud-border px-5 pb-3 pt-4 dark:border-posCloudDark-border">
           <div className="flex items-center justify-between gap-3">
             <button onClick={onClose} className="shrink-0 rounded p-1.5 opacity-70 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:opacity-100 transition-opacity">
@@ -313,25 +313,25 @@ export function PaymentModal({
                 </div>
               ) : (
                 <>
-                  <div className="flex gap-1.5">
+                  <div className="flex h-8 w-fit max-w-full overflow-hidden rounded-lg border border-posCloud-info/30">
                     <input
                       type="text"
                       placeholder={t('payment.giftCardCode')}
                       value={giftCardCode}
                       onChange={(e) => onGiftCardCodeChange(e.target.value.toUpperCase())}
-                      className="h-8 flex-1 rounded-lg border border-posCloud-info/30 bg-posCloud-surface px-2.5 text-xs uppercase text-posCloud-text-primary outline-none focus:border-posCloud-info dark:bg-posCloudDark-surface dark:text-posCloudDark-text-primary"
+                      className="h-full w-24 min-w-0 border-0 bg-posCloud-surface px-2 text-xs uppercase text-posCloud-text-primary outline-none focus:bg-posCloud-info-light/40 dark:bg-posCloudDark-surface dark:text-posCloudDark-text-primary"
                     />
                     <input
                       type="text"
                       inputMode="decimal"
                       value={giftCardAmount}
                       onChange={(e) => onGiftCardAmountChange(e.target.value)}
-                      className="h-8 w-16 rounded-lg border border-posCloud-info/30 bg-posCloud-surface px-1.5 text-center text-xs text-posCloud-text-primary outline-none focus:border-posCloud-info dark:bg-posCloudDark-surface dark:text-posCloudDark-text-primary"
+                      className="h-full w-12 shrink-0 border-0 border-s border-posCloud-info/30 bg-posCloud-surface px-1 text-center text-xs text-posCloud-text-primary outline-none focus:bg-posCloud-info-light/40 dark:bg-posCloudDark-surface dark:text-posCloudDark-text-primary"
                     />
                     <button
                       disabled={!giftCardCode.trim() || !(parseFloat(giftCardAmount) > 0) || validatingGiftCard}
                       onClick={onApplyGiftCard}
-                      className="h-8 shrink-0 rounded-lg bg-posCloud-info px-2.5 text-xs font-medium text-white hover:brightness-95 disabled:opacity-50"
+                      className="h-full shrink-0 border-0 border-s border-posCloud-info/30 bg-posCloud-info px-2.5 text-xs font-medium text-white hover:brightness-95 disabled:opacity-50"
                     >
                       {validatingGiftCard ? t('checking') : t('payment.giftCardApply')}
                     </button>
