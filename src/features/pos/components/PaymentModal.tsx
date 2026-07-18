@@ -278,7 +278,7 @@ export function PaymentModal({
           {/* Right: totals, gift card, loyalty, payment method, amount —
               shrink-0 so it's never compressed; never scrolls, compact
               enough to always fit in full. */}
-          <div className="w-full shrink-0 space-y-1 p-2.5 lg:w-[320px]">
+          <div className="w-full shrink-0 space-y-1 p-2.5 pb-3 lg:w-[320px]">
             <div className="space-y-0.5 text-sm">
               <div className="flex justify-between text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
                 <span>{t('subtotal')}</span><span>{fmt(cart.subtotal)}</span>
