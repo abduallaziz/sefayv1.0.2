@@ -197,7 +197,7 @@ export function PaymentModal({
   const totalDiscount = cart.coupon_discount_amount + giftCardAmountNum
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center px-4 py-8">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center px-4 py-[50px]">
       {/* Two-column layout matching the reference exactly: wide item table on
           one side, totals/gift-card/loyalty/payment-method on the other,
           both bounded to the modal height and independently scrollable. No
