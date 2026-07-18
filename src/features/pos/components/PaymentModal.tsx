@@ -313,13 +313,13 @@ export function PaymentModal({
                 </div>
               ) : (
                 <>
-                  <div className="flex h-8 w-fit max-w-full overflow-hidden rounded-lg border border-posCloud-info/30">
+                  <div className="flex h-8 w-full overflow-hidden rounded-lg border border-posCloud-info/30">
                     <input
                       type="text"
                       placeholder={t('payment.giftCardCode')}
                       value={giftCardCode}
                       onChange={(e) => onGiftCardCodeChange(e.target.value.toUpperCase())}
-                      className="h-full w-24 min-w-0 border-0 bg-posCloud-surface px-2 text-xs uppercase text-posCloud-text-primary outline-none focus:bg-posCloud-info-light/40 dark:bg-posCloudDark-surface dark:text-posCloudDark-text-primary"
+                      className="h-full min-w-0 flex-1 border-0 bg-posCloud-surface px-2 text-xs uppercase text-posCloud-text-primary outline-none focus:bg-posCloud-info-light/40 dark:bg-posCloudDark-surface dark:text-posCloudDark-text-primary"
                     />
                     <input
                       type="text"
