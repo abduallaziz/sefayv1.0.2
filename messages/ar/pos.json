@@ -59,6 +59,8 @@
     "price": "السعر",
     "lineTotal": "الإجمالي",
     "remaining": "المتبقي",
+    "fullyCoveredByGiftCard": "مغطى بالكامل ببطاقة الهدايا",
+    "giftCardMethod": "بطاقة هدايا",
     "productsCount": "المنتجات ({count})",
     "methodLabel": "طريقة الدفع",
     "redeemPoints": "استرداد نقاط الولاء",

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { X, ImageOff, Banknote, Wallet as WalletIcon, Apple, Printer, Check } from 'lucide-react'
+import { X, ImageOff, Banknote, Wallet as WalletIcon, Apple, Printer, Check, Gift } from 'lucide-react'
 import Image from 'next/image'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
 import { Cart, CartItem, PaymentData, PaymentMethod } from '../types/pos.types'
@@ -131,6 +131,8 @@ function MethodMark({ id }: { id: PaymentMethod }) {
           <span className="h-4 w-5 rounded-sm border-2 border-current" />
         </span>
       )
+    case 'gift_card':
+      return <Gift className="h-5 w-5" />
     default:
       return null
   }
@@ -180,9 +182,17 @@ export function PaymentModal({
     return true
   }
 
+  // Mirrors InvoicesService.create's own override (api/src/modules/invoices/
+  // invoices.service.ts) — when the gift card covers the entire total, no
+  // cash/card/etc. ever changes hands, so the server stores 'gift_card'
+  // regardless of what's picked in the grid above. Doing the same override
+  // here means the receipt shown immediately after confirming already
+  // matches what the server actually persisted, with no extra round-trip.
+  const effectiveMethod: PaymentMethod = remainingDue <= 0 ? 'gift_card' : method
+
   const handleConfirm = () => {
     const data: PaymentData = {
-      method,
+      method: effectiveMethod,
       cash_tendered: method === 'cash' ? parseFloat(cashTendered) : undefined,
       change: method === 'cash' ? change : undefined,
       split_cash: method === 'split' ? parseFloat(splitCash) : undefined,
@@ -297,11 +307,15 @@ export function PaymentModal({
               </div>
             </div>
 
-            {/* Confirmed-method summary — compact single line, not a padded card. */}
+            {/* Confirmed-method summary — compact single line, not a padded card.
+                When the gift card covers the entire total, this shows that
+                honestly instead of whatever method happens to still be
+                selected in the (now hidden) grid below — no cash/card/etc.
+                actually changed hands, so claiming one would be fabricated. */}
             <div className="flex items-center justify-between rounded-lg border border-posCloud-success/30 bg-posCloud-success-light px-2.5 py-1.5 dark:bg-posCloud-success/15">
               <span className="flex items-center gap-1.5 text-xs font-medium text-posCloud-success">
-                <MethodMark id={method} />
-                {t(METHODS.find((m) => m.id === method)!.labelKey as Parameters<typeof t>[0])}
+                <MethodMark id={effectiveMethod} />
+                {remainingDue <= 0 ? t('payment.fullyCoveredByGiftCard') : t(METHODS.find((m) => m.id === method)!.labelKey as Parameters<typeof t>[0])}
               </span>
               <Check className="h-3.5 w-3.5 text-posCloud-success" />
             </div>
@@ -375,56 +389,64 @@ export function PaymentModal({
               </div>
             )}
 
-            <p className="text-xs font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('payment.methodLabel')}</p>
-            <div className="grid grid-cols-4 gap-1">
-              {METHODS.map((m) => (
-                <button
-                  key={m.id}
-                  onClick={() => setMethod(m.id)}
-                  className={`flex flex-col items-center gap-0.5 rounded-lg border py-1 text-[10px] font-medium transition-all ${
-                    method === m.id
-                      ? 'border-posCloud-primary bg-posCloud-primary-light text-posCloud-primary dark:bg-posCloud-primary/15'
-                      : 'border-posCloud-border bg-posCloud-background text-posCloud-text-tertiary hover:border-posCloud-primary/50 dark:border-posCloudDark-border dark:bg-posCloudDark-background'
-                  }`}
-                >
-                  <MethodMark id={m.id} />
-                  {t(m.labelKey as Parameters<typeof t>[0])}
-                </button>
-              ))}
-            </div>
-
-            {method === 'cash' && (
-              <div className="space-y-1">
-                <div className="flex items-center justify-between text-xs">
-                  <label className="font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{t('payment.tendered')}</label>
-                  {change > 0 && <span className="text-posCloud-success">{t('payment.change')}: {fmt(change)} {currency}</span>}
+            {/* Method grid + amount fields only matter when something is
+                actually still owed after the gift card — showing them when
+                the gift card already covers everything would let a cashier
+                "pick" a payment method for a transaction where none occurs. */}
+            {remainingDue > 0 && (
+              <>
+                <p className="text-xs font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('payment.methodLabel')}</p>
+                <div className="grid grid-cols-4 gap-1">
+                  {METHODS.map((m) => (
+                    <button
+                      key={m.id}
+                      onClick={() => setMethod(m.id)}
+                      className={`flex flex-col items-center gap-0.5 rounded-lg border py-1 text-[10px] font-medium transition-all ${
+                        method === m.id
+                          ? 'border-posCloud-primary bg-posCloud-primary-light text-posCloud-primary dark:bg-posCloud-primary/15'
+                          : 'border-posCloud-border bg-posCloud-background text-posCloud-text-tertiary hover:border-posCloud-primary/50 dark:border-posCloudDark-border dark:bg-posCloudDark-background'
+                      }`}
+                    >
+                      <MethodMark id={m.id} />
+                      {t(m.labelKey as Parameters<typeof t>[0])}
+                    </button>
+                  ))}
                 </div>
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  placeholder={fmt(remainingDue)}
-                  value={cashTendered}
-                  onChange={(e) => setCashTendered(e.target.value)}
-                  className="w-full h-9 text-center text-base font-bold rounded-lg border border-posCloud-border bg-posCloud-background text-posCloud-text-primary outline-none focus:border-posCloud-primary dark:border-posCloudDark-border dark:bg-posCloudDark-background dark:text-posCloudDark-text-primary"
-                />
-              </div>
-            )}
 
-            {method === 'split' && (
-              <div className="space-y-1">
-                <div className="flex items-center justify-between text-xs">
-                  <label className="font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{t('payment.splitCash')}</label>
-                  {splitCard > 0 && <span className="text-posCloud-primary font-medium">{t('payment.splitCard')}: {fmt(splitCard)} {currency}</span>}
-                </div>
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  placeholder="0.00"
-                  value={splitCash}
-                  onChange={(e) => setSplitCash(e.target.value)}
-                  className="w-full h-9 text-center rounded-lg border border-posCloud-border bg-posCloud-background text-posCloud-text-primary outline-none focus:border-posCloud-primary dark:border-posCloudDark-border dark:bg-posCloudDark-background dark:text-posCloudDark-text-primary"
-                />
-              </div>
+                {method === 'cash' && (
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between text-xs">
+                      <label className="font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{t('payment.tendered')}</label>
+                      {change > 0 && <span className="text-posCloud-success">{t('payment.change')}: {fmt(change)} {currency}</span>}
+                    </div>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      placeholder={fmt(remainingDue)}
+                      value={cashTendered}
+                      onChange={(e) => setCashTendered(e.target.value)}
+                      className="w-full h-9 text-center text-base font-bold rounded-lg border border-posCloud-border bg-posCloud-background text-posCloud-text-primary outline-none focus:border-posCloud-primary dark:border-posCloudDark-border dark:bg-posCloudDark-background dark:text-posCloudDark-text-primary"
+                    />
+                  </div>
+                )}
+
+                {method === 'split' && (
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between text-xs">
+                      <label className="font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{t('payment.splitCash')}</label>
+                      {splitCard > 0 && <span className="text-posCloud-primary font-medium">{t('payment.splitCard')}: {fmt(splitCard)} {currency}</span>}
+                    </div>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      placeholder="0.00"
+                      value={splitCash}
+                      onChange={(e) => setSplitCash(e.target.value)}
+                      className="w-full h-9 text-center rounded-lg border border-posCloud-border bg-posCloud-background text-posCloud-text-primary outline-none focus:border-posCloud-primary dark:border-posCloudDark-border dark:bg-posCloudDark-background dark:text-posCloudDark-text-primary"
+                    />
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>

@@ -42,6 +42,12 @@ export interface Cart {
 // real, accepted, and persisted by invoices.service.ts today. Only 'cash'
 // and 'split' need an amount-tendered/change flow; every other method is
 // treated as "paid in full via that method", same as 'card' already was.
+// 'gift_card' is never manually selected by the cashier — InvoicesService
+// derives it server-side (overriding whatever method was picked) when a
+// gift card covers the entire total, since no cash/card/etc. actually
+// changed hands. The frontend mirrors that same override locally so the
+// receipt shown immediately after confirming matches what the server
+// actually stored (see PaymentModal.handleConfirm).
 export type PaymentMethod =
   | 'cash'
   | 'card'
@@ -51,6 +57,7 @@ export type PaymentMethod =
   | 'visa'
   | 'mastercard'
   | 'stc_pay'
+  | 'gift_card'
   | 'apple_pay'
   | 'tab'
 

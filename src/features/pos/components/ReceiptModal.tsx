@@ -32,6 +32,7 @@ export function ReceiptModal({ cart, payment, invoiceNumber, taxRate, total, onC
     apple_pay: t('payment.applePay'),
     stc_pay: t('payment.stcPay'),
     tab: t('payment.card'),
+    gift_card: t('payment.giftCardMethod'),
   }[payment.method]
 
   const handlePrint = () => {

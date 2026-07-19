@@ -59,6 +59,8 @@
     "price": "Price",
     "lineTotal": "Total",
     "remaining": "Remaining",
+    "fullyCoveredByGiftCard": "Fully covered by gift card",
+    "giftCardMethod": "Gift Card",
     "productsCount": "Products ({count})",
     "methodLabel": "Payment method",
     "redeemPoints": "Redeem Loyalty Points",
