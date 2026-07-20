@@ -9,6 +9,8 @@
   "date": "Date",
   "notes": "Notes",
   "back": "Back",
+  "generalCustomer": "General Customer",
+  "noNotes": "No notes",
   "searchPlaceholder": "Search...",
   "noOrders": "No orders found",
   "tryFilters": "Try changing the filters",
@@ -38,6 +40,10 @@
     "subtotal": "Subtotal",
     "discount": "Discount",
     "tax": "Tax (15%)",
+    "summary": "Financial Summary",
+    "journalEntry": "Journal Entry",
+    "downloadPdf": "Download PDF",
+    "sendPdf": "Send PDF",
     "print": "Print"
   },
   "edit": {

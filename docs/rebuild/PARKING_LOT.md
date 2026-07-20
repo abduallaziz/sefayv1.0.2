@@ -262,6 +262,24 @@ Two categories:
   how it re-affects stock/shift/reports) + `PATCH /invoices/:id` endpoint +
   real edit form UI.
 
+### B10 — Invoice details: accounting journal entry + PDF download/send — ⚠️ VISUAL-ONLY PLACEHOLDERS (2026-07-20)
+- **What**: `OrderDetailsModal` was redesigned per a reference screenshot
+  the user shared (a richer invoice-detail layout: info cards, items table,
+  notes/financial-summary split, an accounting journal-entry row, and
+  footer actions for downloading/sending a PDF and viewing as a receipt).
+- **Why it's a gap**: No accounting/ledger module exists (no journal entry
+  data tied to an invoice), and there's no PDF generation/email-sending
+  backend for invoices.
+- **Done so far**: Per explicit user instruction ("نعمل الشكل الكامل
+  ونجعله قريبا" — build the full shape, mark it as coming soon), the full
+  visual layout was built, but the journal-entry row and the
+  download/send-PDF buttons are disabled with a "قريباً" badge/tooltip —
+  no fake data anywhere. Only "طباعة" (Print, `window.print()`) is real,
+  reusing the browser-print pattern already used in `ReceiptModal`.
+- **Still open**: A real accounting/ledger module (journal entries per
+  invoice) and PDF generation + email-sending backend, before these
+  buttons can be wired up.
+
 ---
 
 ## Decisions Log — tried and explicitly rejected/reverted

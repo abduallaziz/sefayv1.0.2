@@ -13,6 +13,8 @@
   "tryFilters": "جرّب تغيير الفلاتر",
   "loading": "جاري التحميل...",
   "back": "رجوع",
+  "generalCustomer": "عميل عام",
+  "noNotes": "لا توجد ملاحظات",
   "totalInvoices": "إجمالي الفواتير",
   "completedCount": "مكتملة",
   "pendingCount": "معلقة",
@@ -44,6 +46,10 @@
     "subtotal": "المجموع الفرعي",
     "discount": "الخصم",
     "tax": "الضريبة (15%)",
+    "summary": "الملخص المالي",
+    "journalEntry": "القيد المحاسبي",
+    "downloadPdf": "تنزيل PDF",
+    "sendPdf": "إرسال PDF",
     "print": "طباعة"
   },
   "actions": {
