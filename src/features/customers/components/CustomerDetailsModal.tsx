@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { X, Phone, Mail, Star, ShoppingBag, TrendingUp } from 'lucide-react';
 import { Customer } from '../types/customer.types';
 import { useCustomerHistory } from '../hooks/useCustomers';
-import { useTenantStore } from '@/core/tenant/stores/tenant.store';
+import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store';
 
 interface Props {
   customer: Customer;
@@ -14,7 +14,7 @@ interface Props {
 
 export function CustomerDetailsModal({ customer, onClose, onEdit }: Props) {
   const t = useTranslations('customers');
-  const currency = useTenantStore((s) => s.currency_symbol);
+  const currency = useCurrencyDisplay();
   const { data: orders, isLoading } = useCustomerHistory(customer.id);
 
   const statusColors: Record<string, string> = {

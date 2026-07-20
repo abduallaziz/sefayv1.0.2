@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { X, ImageOff, Printer, Check } from 'lucide-react'
 import Image from 'next/image'
-import { useTenantStore } from '@/core/tenant/stores/tenant.store'
+import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { Cart, CartItem, PaymentData, PaymentMethod } from '../types/pos.types'
 import type { Customer } from '@/features/customers/types/customer.types'
 import { Button } from '@/shared/ui/button'
@@ -89,7 +89,7 @@ export function PaymentModal({
   onGiftCardCodeChange, onGiftCardAmountChange, onApplyGiftCard, onRemoveGiftCard,
 }: Props) {
   const t = useTranslations('pos')
-  const currency = useTenantStore((s) => s.currency_symbol)
+  const currency = useCurrencyDisplay()
   const [method, setMethod] = useState<PaymentMethod>('cash')
   const [cashTendered, setCashTendered] = useState(cart.total.toFixed(2))
   const [splitCash, setSplitCash] = useState('')

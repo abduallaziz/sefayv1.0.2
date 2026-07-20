@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Plus, Ticket, Edit, Trash2, ToggleLeft, ToggleRight } from 'lucide-react'
-import { useTenantStore } from '@/core/tenant/stores/tenant.store'
+import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { formatNumber } from '@/lib/format'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { useCoupons, useUpdateCoupon, useDeleteCoupon } from '../hooks/useCoupons'
@@ -18,7 +18,7 @@ function DiscountLabel({ coupon, currency }: { coupon: Coupon; currency: string 
 
 export function CouponsPage() {
   const t = useTranslations('coupons')
-  const currency = useTenantStore((s) => s.currency_symbol)
+  const currency = useCurrencyDisplay()
   const { data: coupons = [], isLoading } = useCoupons()
   const { mutate: updateCoupon } = useUpdateCoupon()
   const { mutate: deleteCoupon } = useDeleteCoupon()

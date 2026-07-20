@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Search, ImageOff } from 'lucide-react'
 import Image from 'next/image'
-import { useTenantStore } from '@/core/tenant/stores/tenant.store'
+import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { POSItem, POSVariant } from '../types/pos.types'
 import { useItems, useCategories, useItemVariants } from '@/features/items/hooks/useItems'
 
@@ -56,7 +56,7 @@ function VariantModal({ item, onAddItem, onClose, t }: {
   t: any
 }) {
   const { data: variants = [], isLoading } = useItemVariants(item.id)
-  const currency = useTenantStore((s) => s.currency_symbol)
+  const currency = useCurrencyDisplay()
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[400] flex items-center justify-center p-4">
@@ -109,7 +109,7 @@ function VariantModal({ item, onAddItem, onClose, t }: {
 
 export function ItemGrid({ onAddItem }: Props) {
   const t = useTranslations('pos')
-  const currency = useTenantStore((s) => s.currency_symbol)
+  const currency = useCurrencyDisplay()
   const [search, setSearch] = useState('')
   const [activeCategory, setActiveCategory] = useState('all')
   const [variantModal, setVariantModal] = useState<POSItem | null>(null)

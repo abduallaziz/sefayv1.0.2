@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { User, X, ChevronDown, ChevronLeft, ImageOff, Tag, Gift, Sparkles, List, PenLine } from 'lucide-react'
 import Image from 'next/image'
-import { useTenantStore } from '@/core/tenant/stores/tenant.store'
+import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { couponsApi } from '@/features/coupons/api/coupons.api'
 import { Cart, CartItem } from '../types/pos.types'
 import type { Customer } from '@/features/customers/types/customer.types'
@@ -117,7 +117,7 @@ export function CartPanel({
 }: Props) {
   const t = useTranslations('pos')
   const tNotes = useTranslations('notePresets')
-  const currency = useTenantStore((s) => s.currency_symbol)
+  const currency = useCurrencyDisplay()
   const [couponInput, setCouponInput] = useState('')
   const [couponError, setCouponError] = useState<string | null>(null)
   const [validatingCoupon, setValidatingCoupon] = useState(false)

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Plus, Gift, Trash2, ToggleLeft, ToggleRight } from 'lucide-react'
-import { useTenantStore } from '@/core/tenant/stores/tenant.store'
+import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { formatNumber } from '@/lib/format'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { useGiftCards, useUpdateGiftCard, useDeleteGiftCard } from '../hooks/useGiftCards'
@@ -12,7 +12,7 @@ import type { GiftCard } from '../api/gift-cards.api'
 
 export function GiftCardsPage() {
   const t = useTranslations('giftCards')
-  const currency = useTenantStore((s) => s.currency_symbol)
+  const currency = useCurrencyDisplay()
   const { data: cards = [], isLoading } = useGiftCards()
   const { mutate: updateCard } = useUpdateGiftCard()
   const { mutate: deleteCard } = useDeleteGiftCard()

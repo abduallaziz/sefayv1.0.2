@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl'
 import { X, Plus, Trash2 } from 'lucide-react'
 import { Item } from '../types/item.types'
 import { useItemVariants } from '../hooks/useItems'
-import { useTenantStore } from '@/core/tenant/stores/tenant.store'
+import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { Button } from '@/shared/ui/button'
 
 interface Props {
@@ -18,7 +18,7 @@ interface Props {
 
 export function VariantsModal({ open, onClose, item, onAddVariant, onDeleteVariant }: Props) {
   const t = useTranslations('items')
-  const currency = useTenantStore((s) => s.currency_symbol)
+  const currency = useCurrencyDisplay()
   const [form, setForm] = useState({ name: '', price_adjustment: '', sku: '', stock_quantity: '' })
 
   const { data: variants = [], isLoading } = useItemVariants(item?.id ?? null)

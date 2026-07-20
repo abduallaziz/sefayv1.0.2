@@ -2,7 +2,7 @@
 
 import { Order } from '../types/order.types';
 import { useTranslations } from 'next-intl';
-import { useTenantStore } from '@/core/tenant/stores/tenant.store';
+import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store';
 import { X, Receipt, User, UserCog, CreditCard, CircleCheck, ShoppingBasket, StickyNote, Calculator, FileText, Download, Send, Printer } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
 import { MethodMark } from '@/shared/ui/method-mark';
@@ -21,7 +21,7 @@ const statusColors: Record<string, string> = {
 
 export function OrderDetailsModal({ order, onClose }: Props) {
   const t = useTranslations('orders');
-  const currency = useTenantStore((s) => s.currency_symbol);
+  const currency = useCurrencyDisplay();
 
   if (!order) return null;
 

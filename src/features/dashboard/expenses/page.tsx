@@ -7,12 +7,12 @@ import { CategoriesList } from './components/CategoriesList';
 import { TemplatesList } from './components/TemplatesList';
 import { useExpenseStats } from './hooks/useExpenses';
 import { formatCurrency } from '@/lib/format';
-import { useTenantStore } from '@/core/tenant/stores/tenant.store';
+import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store';
 import { CheckCircle, Clock, DollarSign, XCircle } from 'lucide-react';
 
 export default function ExpensesPage() {
   const t = useTranslations('expenses');
-  const currency = useTenantStore((s) => s.currency_symbol);
+  const currency = useCurrencyDisplay();
   const [tab, setTab] = useState<'requests' | 'categories' | 'templates'>('requests');
   const { data: stats } = useExpenseStats();
 

@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Wallet, Calendar } from 'lucide-react'
 import { usePayrollReport } from '../hooks/useReports'
-import { useTenantStore } from '@/core/tenant/stores/tenant.store'
+import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { formatNumber } from '@/lib/format'
 import { useCreateException } from '@/features/hr/hooks/useHr'
 import { useUsers } from '@/features/users/hooks/useUsers'
@@ -16,7 +16,7 @@ function currentMonth() {
 
 export function PayrollReportPage() {
   const t = useTranslations('reports.payroll')
-  const currency = useTenantStore((s) => s.currency_symbol)
+  const currency = useCurrencyDisplay()
   const [month, setMonth] = useState(currentMonth())
   const { data, isLoading, refetch } = usePayrollReport(month)
   const { data: users = [] } = useUsers()

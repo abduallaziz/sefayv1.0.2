@@ -12,7 +12,7 @@ import {
 import { useUsers, useUpdateEmployee, useGenerateAttendanceLink, useUnbindAttendanceDevice, useEmployeeHistory } from '../hooks/useUsers'
 import { useLeaveRequests, useEmployeeGeofences, useCreateEmployeeGeofence, useDeleteEmployeeGeofence } from '@/features/hr/hooks/useHr'
 import { usePayrollReport } from '@/features/reports/hooks/useReports'
-import { useTenantStore } from '@/core/tenant/stores/tenant.store'
+import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { formatNumber } from '@/lib/format'
 import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
 import { DateRangePicker } from '@/shared/ui/date-range-picker'
@@ -37,7 +37,7 @@ function initials(name: string) {
 
 export function EmployeeDetailPage({ userId }: { userId: string }) {
   const t = useTranslations('employeeDetail')
-  const currency = useTenantStore((s) => s.currency_symbol)
+  const currency = useCurrencyDisplay()
   const month = currentMonth()
   const [tab, setTab] = useState<Tab>('overview')
 

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { X, Plus, ShoppingCart, Trash2 } from 'lucide-react'
-import { useTenantStore } from '@/core/tenant/stores/tenant.store'
+import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { ItemGrid } from '@/features/pos/components/ItemGrid'
 import type { POSItem, POSVariant } from '@/features/pos/types/pos.types'
 import type { RestaurantTable } from '../api/tables.api'
@@ -16,7 +16,7 @@ interface Props {
 
 export function DineInModal({ table, onClose }: Props) {
   const t = useTranslations('tables')
-  const currency = useTenantStore((s) => s.currency_symbol)
+  const currency = useCurrencyDisplay()
   const [view, setView] = useState<'order' | 'addItems' | 'checkout'>('order')
   const [pendingItems, setPendingItems] = useState<{ item: POSItem; variant?: POSVariant; quantity: number }[]>([])
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card'>('cash')

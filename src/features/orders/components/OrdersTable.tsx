@@ -3,7 +3,7 @@
 import { Order } from '../types/order.types';
 import { useTranslations } from 'next-intl';
 import { Eye, Pencil, Ban, MoreVertical, User, Printer, ChevronDown } from 'lucide-react';
-import { useTenantStore } from '@/core/tenant/stores/tenant.store';
+import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store';
 import { MethodMark } from '@/shared/ui/method-mark';
 import { useBranches } from '@/shared/hooks/useBranches';
 import {
@@ -28,7 +28,7 @@ const statusColors: Record<string, string> = {
 
 export function OrdersTable({ orders, onViewOrder, onPrintOrder, onCancelOrder }: Props) {
   const t = useTranslations('orders');
-  const currency = useTenantStore((s) => s.currency_symbol);
+  const currency = useCurrencyDisplay();
   const { data: branches = [] } = useBranches();
   const branchName = (id: string) => branches.find(b => b.id === id)?.name || '—';
 

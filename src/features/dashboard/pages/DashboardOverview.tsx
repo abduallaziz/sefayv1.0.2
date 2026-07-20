@@ -16,7 +16,7 @@ import {
   Boxes, PackageOpen, Layers3, Receipt,
 } from 'lucide-react'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
-import { useTenantStore } from '@/core/tenant/stores/tenant.store'
+import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { reportsApi } from '@/features/reports/api/reports.api'
 import { shiftsApi } from '@/features/shifts/api/shifts.api'
 import { customersApi } from '@/features/customers/api/customers.api'
@@ -141,7 +141,7 @@ const PAYMENT_METHOD_DEFS: { key: string; labelAr: string; labelEn: string; icon
 
 export function DashboardOverview() {
   const user = useAuthStore((s) => s.user)
-  const currency = useTenantStore((s) => s.currency_symbol)
+  const currency = useCurrencyDisplay()
   const router = useRouter()
   const locale = useLocale()
   const [range, setRange] = useState<DateRange>(defaultRange)

@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useTenantStore } from '@/core/tenant/stores/tenant.store';
+import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store';
 import { Edit, Trash2, Layers, ToggleLeft, ToggleRight } from 'lucide-react';
 import { Item } from '../types/item.types';
 
@@ -15,7 +15,7 @@ interface Props {
 
 export function ItemsTable({ items, onEdit, onDelete, onVariants, onToggleActive }: Props) {
   const t = useTranslations('items');
-  const currency = useTenantStore((s) => s.currency_symbol);
+  const currency = useCurrencyDisplay();
 
   const typeColors: Record<string, string> = {
     product: 'bg-posCloud-primary-light dark:bg-posCloud-primary/15 text-posCloud-primary',

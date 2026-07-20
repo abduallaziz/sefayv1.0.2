@@ -5,7 +5,7 @@ import { Plus, CheckCircle, XCircle, Clock, AlertCircle, Ban, RotateCcw } from '
 import { useExpenses, useApproveExpense, useRejectExpense, useCancelExpense } from '../hooks/useExpenses'
 import { AddExpenseModal } from './AddExpenseModal'
 import { formatCurrency } from '@/lib/format'
-import { useTenantStore } from '@/core/tenant/stores/tenant.store'
+import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { useTranslations } from 'next-intl'
 import type { Expense, ExpenseStatus } from '../api/expenses.api'
 
@@ -19,7 +19,7 @@ const statusConfig: Record<ExpenseStatus, { labelKey: string; color: string; ico
 
 export function ExpensesList() {
   const t = useTranslations('expenses')
-  const currency = useTenantStore((s) => s.currency_symbol)
+  const currency = useCurrencyDisplay()
   const { data: expenses = [], isLoading } = useExpenses()
   const approveMutation = useApproveExpense()
   const rejectMutation = useRejectExpense()

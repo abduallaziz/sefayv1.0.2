@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useShifts } from '../hooks/useShifts';
-import { useTenantStore } from '@/core/tenant/stores/tenant.store';
+import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store';
 import { formatCurrency, formatDateTime } from '@/lib/format';
 import type { Shift } from '../types';
 
@@ -57,7 +57,7 @@ export function ShiftsList({ onViewSummary }: Props) {
 
 function ShiftCard({ shift, onViewSummary }: { shift: Shift; onViewSummary: (id: string) => void }) {
   const t = useTranslations('shifts');
-  const currency = useTenantStore((s) => s.currency_symbol);
+  const currency = useCurrencyDisplay();
 
   return (
     <div className="py-3 px-1">
@@ -89,7 +89,7 @@ function ShiftCard({ shift, onViewSummary }: { shift: Shift; onViewSummary: (id:
 
 function ShiftRow({ shift, onViewSummary }: { shift: Shift; onViewSummary: (id: string) => void }) {
   const t = useTranslations('shifts');
-  const currency = useTenantStore((s) => s.currency_symbol);
+  const currency = useCurrencyDisplay();
 
   return (
     <tr className="hover:bg-slate-50 dark:hover:bg-gray-800/30 transition-colors">

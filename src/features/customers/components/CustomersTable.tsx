@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Eye, Edit2, Trash2, Phone, Mail, Gauge, Calendar, MoreVertical, CircleCheck, CircleOff, Clock, User } from 'lucide-react';
 import { Customer } from '../types/customer.types';
-import { useTenantStore } from '@/core/tenant/stores/tenant.store';
+import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store';
 import { useProfile } from '@/features/settings/hooks/useSettings';
 import {
   DropdownMenu,
@@ -33,7 +33,7 @@ interface Props {
 
 export function CustomersTable({ customers, onView, onEdit, onDelete }: Props) {
   const t = useTranslations('customers');
-  const currency = useTenantStore((s) => s.currency_symbol);
+  const currency = useCurrencyDisplay();
   const { data: profile } = useProfile();
   const showVehicleColumn = !!profile?.business_type && VEHICLE_BUSINESS_TYPES.includes(profile.business_type);
 

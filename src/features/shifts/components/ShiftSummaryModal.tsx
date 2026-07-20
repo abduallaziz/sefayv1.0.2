@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl'
 import { useShiftSummary } from '../hooks/useShifts'
-import { useTenantStore } from '@/core/tenant/stores/tenant.store'
+import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { TrendingUp, TrendingDown, DollarSign, FileText, X } from 'lucide-react'
 import { formatCurrency } from '@/lib/format'
 
@@ -13,7 +13,7 @@ interface Props {
 
 export function ShiftSummaryModal({ shiftId, onClose }: Props) {
   const t = useTranslations('shifts')
-  const currency = useTenantStore((s) => s.currency_symbol)
+  const currency = useCurrencyDisplay()
   const { data, isLoading } = useShiftSummary(shiftId)
   const summary = data?.summary
 

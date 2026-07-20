@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { useLocale } from 'next-intl';
 
 // Temporary fallback: the new Saudi Riyal Unicode sign (U+20C1, finalized
 // Sept 2025) is not reliably supported by mobile OS fonts yet, even with
@@ -36,3 +37,15 @@ export const useTenantStore = create<TenantState>()(
     }
   )
 );
+
+// English UI shows the ISO currency code (e.g. "SAR", "USD") instead of the
+// native symbol — native symbols like "ر.س" read oddly (and are unreadable
+// for non-Arabic-script currencies' native symbols) inside an English page.
+// Arabic keeps the native symbol as before. Applies to every currency, not
+// just SAR, since the ISO code is always a safe universal fallback.
+export function useCurrencyDisplay(): string {
+  const locale = useLocale();
+  const currencyCode = useTenantStore((s) => s.currency_code);
+  const currencySymbol = useTenantStore((s) => s.currency_symbol);
+  return locale === 'en' ? currencyCode : currencySymbol;
+}

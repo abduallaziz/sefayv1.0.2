@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useCloseShift } from '../hooks/useShifts';
 import { formatCurrency } from '@/lib/format';
-import { useTenantStore } from '@/core/tenant/stores/tenant.store';
+import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store';
 import type { Shift } from '../types';
 
 interface Props {
@@ -15,7 +15,7 @@ interface Props {
 
 export function CloseShiftModal({ shift, onClose }: Props) {
   const t = useTranslations('shifts');
-  const currency = useTenantStore((s) => s.currency_symbol);
+  const currency = useCurrencyDisplay();
   const mutation = useCloseShift();
   const router = useRouter();
 

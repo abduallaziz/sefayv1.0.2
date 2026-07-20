@@ -9,7 +9,7 @@ import { OrderDetailsModal } from '../components/OrderDetailsModal';
 import { CancelOrderModal } from '../components/CancelOrderModal';
 import { useTranslations, useLocale } from 'next-intl';
 import { FileText, ClipboardList, Clock, CheckCircle2, XCircle, Wallet, ChevronRight, ChevronLeft, Download, Settings2, ArrowUp, ArrowDown } from 'lucide-react';
-import { useTenantStore } from '@/core/tenant/stores/tenant.store';
+import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store';
 
 const PAGE_SIZES = [10, 25, 50];
 // Real percentage swings against a still-thin monthly data history can be
@@ -28,7 +28,7 @@ export function OrdersPage() {
   // hardcoding one icon pair made English pagination point the wrong way.
   const PrevIcon = isRtl ? ChevronRight : ChevronLeft;
   const NextIcon = isRtl ? ChevronLeft : ChevronRight;
-  const currency = useTenantStore((s) => s.currency_symbol);
+  const currency = useCurrencyDisplay();
   const [filters, setFilters] = useState<IOrderFilters>({});
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [cancelTarget, setCancelTarget] = useState<Order | null>(null);
