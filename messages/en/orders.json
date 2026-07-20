@@ -81,6 +81,7 @@
     "completed": "Completed",
     "pending": "Pending",
     "cancelled": "Cancelled",
-    "todayRevenue": "Today's Revenue"
+    "todayRevenue": "Today's Revenue",
+    "vsLastMonth": "vs last month"
   }
 }

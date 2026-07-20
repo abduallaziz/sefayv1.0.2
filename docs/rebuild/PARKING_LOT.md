@@ -326,16 +326,21 @@ Two categories:
   silently and fires print once loaded — same real data as the modal's own
   Print button, not a separate fake print). The view (eye) icon opens the
   real details modal directly, no longer buried in the kebab.
-- **What's still a gap, marked "Soon" — no fabricated numbers**: The
-  reference's per-stat-card "% change from previous period" deltas
-  (e.g. "+15% من الفترة السابقة") have no backing comparison data — no
-  previous-period query is made, so no delta is shown at all (omitted
-  rather than faked). The "تصدير" (export/CSV) and column-settings (gear)
-  buttons are disabled placeholders — no export or column-customization
-  feature exists. "مسودة" (draft) from the reference isn't offered as a
-  quick-filter pill since Sefay's `OrderStatus` has no "draft" state.
-- **Still open**: A real previous-period comparison aggregate (for stat
-  card deltas) and an export/CSV endpoint, before those can go live.
+- **Update 2026-07-20 (later same day)**: Stat-card deltas were upgraded
+  from "omitted" to real — computed client-side from the already-fetched
+  full `orders` array's actual `created_at` timestamps (this calendar
+  month's count/revenue per status vs last calendar month's), no backend
+  change needed. Shown as `+N%`/`-N%` with an up/down arrow; hidden
+  entirely (not shown as "+∞%" or "0%") when the previous month had zero
+  orders for that metric, since a percentage change from zero is
+  undefined, not fabricatable.
+- **What's still a gap, marked "Soon" — no fabricated data**: The
+  "تصدير" (export/CSV) and column-settings (gear) buttons are disabled
+  placeholders — no export or column-customization feature exists.
+  "مسودة" (draft) from the reference isn't offered as a quick-filter pill
+  since Sefay's `OrderStatus` has no "draft" state.
+- **Still open**: An export/CSV endpoint and a column-customization
+  feature, before those two buttons can go live.
 
 ### B12 — Customers table: full layout parity with reference (columns reordered, loyalty points parked) — ✅ DONE, with real gaps flagged (2026-07-20)
 - **What**: `CustomersTable` was rebuilt to match a reference table

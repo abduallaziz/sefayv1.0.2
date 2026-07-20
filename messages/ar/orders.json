@@ -87,6 +87,7 @@
     "completed": "مكتملة",
     "pending": "معلقة",
     "cancelled": "ملغاة",
-    "todayRevenue": "الإيراد اليوم"
+    "todayRevenue": "الإيراد اليوم",
+    "vsLastMonth": "عن الشهر الماضي"
   }
 }

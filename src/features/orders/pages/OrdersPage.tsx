@@ -8,7 +8,7 @@ import { OrderFilters } from '../components/OrderFilters';
 import { OrderDetailsModal } from '../components/OrderDetailsModal';
 import { CancelOrderModal } from '../components/CancelOrderModal';
 import { useTranslations } from 'next-intl';
-import { FileText, ClipboardList, Clock, CheckCircle2, XCircle, Wallet, ChevronRight, ChevronLeft, Download, Settings2 } from 'lucide-react';
+import { FileText, ClipboardList, Clock, CheckCircle2, XCircle, Wallet, ChevronRight, ChevronLeft, Download, Settings2, ArrowUp, ArrowDown } from 'lucide-react';
 import { useTenantStore } from '@/core/tenant/stores/tenant.store';
 
 const PAGE_SIZES = [10, 25, 50];
@@ -66,12 +66,44 @@ export function OrdersPage() {
     revenue: orders.filter(o => o.status === 'completed').reduce((s, o) => s + o.total, 0),
   }), [orders]);
 
+  // Real this-month-vs-last-month deltas, computed from the already-fetched
+  // order list's actual created_at timestamps — no fabricated percentages.
+  const deltas = useMemo(() => {
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const prevMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+    const thisMonth = orders.filter(o => new Date(o.created_at) >= monthStart);
+    const lastMonth = orders.filter(o => {
+      const d = new Date(o.created_at);
+      return d >= prevMonthStart && d < monthStart;
+    });
+
+    const pct = (current: number, previous: number): number | null => {
+      if (previous === 0) return current === 0 ? null : null;
+      return Math.round(((current - previous) / previous) * 100);
+    };
+
+    const count = (list: Order[], status?: Order['status']) =>
+      status ? list.filter(o => o.status === status).length : list.length;
+    const revenue = (list: Order[]) =>
+      list.filter(o => o.status === 'completed').reduce((s, o) => s + o.total, 0);
+
+    return {
+      total: pct(count(thisMonth), count(lastMonth)),
+      pending: pct(count(thisMonth, 'pending'), count(lastMonth, 'pending')),
+      completed: pct(count(thisMonth, 'completed'), count(lastMonth, 'completed')),
+      cancelled: pct(count(thisMonth, 'cancelled'), count(lastMonth, 'cancelled')),
+      revenue: pct(revenue(thisMonth), revenue(lastMonth)),
+    };
+  }, [orders]);
+
   const statsConfig = [
-    { labelKey: 'totalInvoices', value: stats.total, icon: ClipboardList, iconBg: 'bg-posCloud-primary-light dark:bg-posCloud-primary/15', iconColor: 'text-posCloud-primary' },
-    { labelKey: 'pendingCount', value: stats.pending, icon: Clock, iconBg: 'bg-posCloud-warning-light dark:bg-posCloud-warning/15', iconColor: 'text-posCloud-warning' },
-    { labelKey: 'completedCount', value: stats.completed, icon: CheckCircle2, iconBg: 'bg-posCloud-success-light dark:bg-posCloud-success/15', iconColor: 'text-posCloud-success' },
-    { labelKey: 'cancelledCount', value: stats.cancelled, icon: XCircle, iconBg: 'bg-posCloud-danger-light dark:bg-posCloud-danger/15', iconColor: 'text-posCloud-danger' },
-    { labelKey: 'todayRevenue', value: `${stats.revenue.toLocaleString('en-US')} ${currency}`, icon: Wallet, iconBg: 'bg-posCloud-primary-light dark:bg-posCloud-primary/15', iconColor: 'text-posCloud-primary' },
+    { labelKey: 'totalInvoices', value: stats.total, delta: deltas.total, icon: ClipboardList, iconBg: 'bg-posCloud-primary-light dark:bg-posCloud-primary/15', iconColor: 'text-posCloud-primary' },
+    { labelKey: 'pendingCount', value: stats.pending, delta: deltas.pending, icon: Clock, iconBg: 'bg-posCloud-warning-light dark:bg-posCloud-warning/15', iconColor: 'text-posCloud-warning' },
+    { labelKey: 'completedCount', value: stats.completed, delta: deltas.completed, icon: CheckCircle2, iconBg: 'bg-posCloud-success-light dark:bg-posCloud-success/15', iconColor: 'text-posCloud-success' },
+    { labelKey: 'cancelledCount', value: stats.cancelled, delta: deltas.cancelled, icon: XCircle, iconBg: 'bg-posCloud-danger-light dark:bg-posCloud-danger/15', iconColor: 'text-posCloud-danger' },
+    { labelKey: 'todayRevenue', value: `${stats.revenue.toLocaleString('en-US')} ${currency}`, delta: deltas.revenue, icon: Wallet, iconBg: 'bg-posCloud-primary-light dark:bg-posCloud-primary/15', iconColor: 'text-posCloud-primary' },
   ];
 
   function handlePrintOrder(order: Order) {
@@ -118,6 +150,13 @@ export function OrdersPage() {
             </div>
             <p className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary mt-2 mb-1">{t(stat.labelKey as Parameters<typeof t>[0])}</p>
             <p className="text-xl font-bold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{stat.value}</p>
+            {stat.delta !== null && (
+              <p className={`flex items-center gap-1 text-xs mt-1 ${stat.delta >= 0 ? 'text-posCloud-success' : 'text-posCloud-danger'}`}>
+                {stat.delta >= 0 ? <ArrowUp size={11} /> : <ArrowDown size={11} />}
+                {Math.abs(stat.delta)}%
+                <span className="text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('stats.vsLastMonth')}</span>
+              </p>
+            )}
           </div>
         ))}
       </div>
