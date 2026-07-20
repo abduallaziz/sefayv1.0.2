@@ -5,7 +5,9 @@
   "cashier": "الكاشير",
   "customer": "العميل",
   "total": "الإجمالي",
+  "amount": "المبلغ",
   "payment": "الدفع",
+  "paymentMethod": "طريقة الدفع",
   "date": "التاريخ",
   "notes": "ملاحظات",
   "searchPlaceholder": "بحث...",
@@ -24,7 +26,9 @@
     "all": "الكل",
     "completed": "مكتملة",
     "pending": "معلقة",
-    "cancelled": "ملغاة"
+    "cancelled": "ملغاة",
+    "draft": "مسودة",
+    "draftHint": "لا يوجد حالة مسودة بعد في نظام الفواتير"
   },
   "payment_method": {
     "cash": "نقد",
@@ -88,6 +92,6 @@
     "pending": "معلقة",
     "cancelled": "ملغاة",
     "todayRevenue": "الإيراد اليوم",
-    "vsLastMonth": "عن الشهر الماضي"
+    "vsLastMonth": "عن الفترة السابقة"
   }
 }

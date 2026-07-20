@@ -122,8 +122,8 @@ export function OrdersTable({ orders, onViewOrder, onPrintOrder, onCancelOrder }
               <th className="px-3 py-3 w-20" />
               <th className="text-start px-3 py-3 font-medium">{t('cashier')}</th>
               <th className="text-start px-3 py-3 font-medium">{t('filters.branch')}</th>
-              <th className="text-start px-3 py-3 font-medium">{t('payment')}</th>
-              <th className="text-start px-3 py-3 font-medium w-24">{t('total')}</th>
+              <th className="text-start px-3 py-3 font-medium">{t('paymentMethod')}</th>
+              <th className="text-start px-3 py-3 font-medium w-24">{t('amount')}</th>
               <th className="text-start px-3 py-3 font-medium">{t('customer')}</th>
               <th className="text-start px-3 py-3 font-medium w-20">{t('invoiceNumber')}</th>
               <th className="text-start px-3 py-3 font-medium">

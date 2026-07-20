@@ -124,11 +124,14 @@ export function OrdersPage() {
     setPrintRequestId(order.id);
   }
 
+  // Order: draft, cancelled, completed, all — matches the reference exactly.
+  // "Draft" always shows 0 (real, not fabricated) since Sefay's OrderStatus
+  // has no draft state — there can never be a draft order, so 0 is true by
+  // definition. Non-clickable since there's no real state to filter by.
   const statusPills: { value: OrderStatus | ''; labelKey: string; count: number; color: string }[] = [
-    { value: '', labelKey: 'status.all', count: stats.total, color: 'text-posCloud-primary bg-posCloud-primary-light dark:bg-posCloud-primary/15' },
-    { value: 'completed', labelKey: 'status.completed', count: stats.completed, color: 'text-posCloud-success bg-posCloud-success-light dark:bg-posCloud-success/15' },
-    { value: 'pending', labelKey: 'status.pending', count: stats.pending, color: 'text-posCloud-warning bg-posCloud-warning-light dark:bg-posCloud-warning/15' },
     { value: 'cancelled', labelKey: 'status.cancelled', count: stats.cancelled, color: 'text-posCloud-danger bg-posCloud-danger-light dark:bg-posCloud-danger/15' },
+    { value: 'completed', labelKey: 'status.completed', count: stats.completed, color: 'text-posCloud-success bg-posCloud-success-light dark:bg-posCloud-success/15' },
+    { value: '', labelKey: 'status.all', count: stats.total, color: 'text-posCloud-primary bg-posCloud-primary-light dark:bg-posCloud-primary/15' },
   ];
 
   function handleCancelConfirm(id: string, reason: string) {
@@ -196,6 +199,14 @@ export function OrdersPage() {
         </button>
 
         <span className="w-px h-5 bg-posCloud-border dark:bg-posCloudDark-border mx-1" />
+
+        <span
+          title={t('status.draftHint')}
+          className="flex items-center gap-1.5 h-8 rounded-full px-3 text-xs font-semibold text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary cursor-default"
+        >
+          {t('status.draft')}
+          <span className="tabular-nums">0</span>
+        </span>
 
         {statusPills.map(pill => (
           <button
