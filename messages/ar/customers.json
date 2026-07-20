@@ -3,6 +3,7 @@
   "subtitle": "إدارة عملاء البزنس وتاريخ طلباتهم",
   "add_customer": "إضافة عميل",
   "loading": "جاري التحميل...",
+  "comingSoon": "قريباً",
   "search_placeholder": "ابحث باسم أو رقم جوال أو إيميل...",
   "count": "{count} عميل",
   "stats": {
@@ -16,7 +17,15 @@
     "vehicle": "المركبة",
     "orders": "الطلبات",
     "spent": "المصروف",
-    "points": "النقاط"
+    "points": "النقاط",
+    "status": "الحالة",
+    "lastOperation": "آخر عملية",
+    "lastAmount": "قيمة آخر عملية",
+    "totalSpent": "إجمالي المشتريات",
+    "invoiceCount": "عدد الفواتير",
+    "classification": "تصنيف العميل",
+    "email": "البريد الإلكتروني",
+    "phone": "الجوال"
   },
   "sort": {
     "newest": "الأحدث",

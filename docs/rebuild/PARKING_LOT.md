@@ -301,6 +301,29 @@ Two categories:
   remain the actual blockers for the branch filter and journal-entry
   column respectively.
 
+### B12 — Customers table: full layout parity with reference (columns reordered, loyalty points parked) — ✅ DONE, with real gaps flagged (2026-07-20)
+- **What**: `CustomersTable` was rebuilt to match a reference table
+  screenshot the user shared: kebab actions column, status badge (نشط/
+  معطّل, real — reused the existing `Customer.is_active` field), last
+  operation date/amount, total purchases, invoice count, customer
+  classification, email, phone, and a customer identity cell (avatar +
+  name + `#CUST-XXXXXX` derived from the real id) — in that column order.
+- **Why "last operation" and "classification" are gaps**: `Customer` has
+  no last-order date/amount aggregate (would need a new backend
+  aggregate, same category of gap as B1) and no company/individual
+  classification field. Both are disabled dash placeholders with a
+  "قريباً" tooltip — no fabricated dates/amounts/labels.
+- **Real feature parked**: The previous desktop table showed a loyalty
+  points column (star icon + `Customer.loyalty_points`, real data) and
+  the mobile card showed it too. The reference layout has no room for it,
+  so it was dropped from `CustomersTable` per rule 4 (park, don't delete)
+  — `loyalty_points` is still fetched and available on `Customer`, just
+  not rendered in this table right now. Still visible elsewhere (customer
+  details modal). Needs a decision on where to reintroduce it (e.g. as a
+  detail-view metric only) in a later consolidation pass.
+- **Still open**: A last-order aggregate endpoint and a customer
+  classification field/UI, before those two columns can go live.
+
 ---
 
 ## Decisions Log — tried and explicitly rejected/reverted
