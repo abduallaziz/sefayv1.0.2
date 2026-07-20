@@ -2,12 +2,13 @@
 
 import { Order } from '../types/order.types';
 import { useTranslations } from 'next-intl';
-import { Eye } from 'lucide-react';
+import { Eye, Pencil, Ban } from 'lucide-react';
 import { useTenantStore } from '@/core/tenant/stores/tenant.store';
 
 interface Props {
   orders: Order[];
   onViewOrder: (order: Order) => void;
+  onCancelOrder: (order: Order) => void;
 }
 
 const statusColors: Record<string, string> = {
@@ -16,7 +17,7 @@ const statusColors: Record<string, string> = {
   cancelled: 'bg-posCloud-danger-light dark:bg-posCloud-danger/15 text-posCloud-danger',
 };
 
-export function OrdersTable({ orders, onViewOrder }: Props) {
+export function OrdersTable({ orders, onViewOrder, onCancelOrder }: Props) {
   const t = useTranslations('orders');
   const currency = useTenantStore((s) => s.currency_symbol);
 
@@ -58,6 +59,25 @@ export function OrdersTable({ orders, onViewOrder }: Props) {
               <span>{order.payment_method ? t(`payment_method.${order.payment_method}`) : t('payment_method.unknown')}</span>
               <span>{new Date(order.created_at).toLocaleString('en-US')}</span>
             </div>
+            {order.status !== 'cancelled' && (
+              <div className="flex items-center gap-1.5 mt-2 pt-2 border-t border-posCloud-border dark:border-posCloudDark-border">
+                <span
+                  onClick={(e) => e.stopPropagation()}
+                  title={t('edit.soon')}
+                  className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary opacity-50 cursor-not-allowed"
+                >
+                  <Pencil size={13} />
+                  {t('edit.action')}
+                </span>
+                <span
+                  onClick={(e) => { e.stopPropagation(); onCancelOrder(order); }}
+                  className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs text-posCloud-danger hover:bg-posCloud-danger-light dark:hover:bg-posCloud-danger/10 transition-colors"
+                >
+                  <Ban size={13} />
+                  {t('cancel.action')}
+                </span>
+              </div>
+            )}
           </button>
         ))}
       </div>
@@ -74,7 +94,7 @@ export function OrdersTable({ orders, onViewOrder }: Props) {
               <th className="text-start px-3 py-3 font-medium">{t('payment')}</th>
               <th className="text-start px-3 py-3 font-medium w-24">{t('status.all')}</th>
               <th className="text-start px-3 py-3 font-medium">{t('date')}</th>
-              <th className="px-3 py-3 w-10" />
+              <th className="px-3 py-3 w-28" />
             </tr>
           </thead>
           <tbody className="divide-y divide-posCloud-border dark:divide-posCloudDark-border">
@@ -103,13 +123,32 @@ export function OrdersTable({ orders, onViewOrder }: Props) {
                 <td className="px-3 py-3 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary text-xs">
                   {new Date(order.created_at).toLocaleString('en-US')}
                 </td>
-                <td className="px-3 py-3 w-10">
-                  <button
-                    onClick={() => onViewOrder(order)}
-                    className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary"
-                  >
-                    <Eye size={15} />
-                  </button>
+                <td className="px-3 py-3 w-28">
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => onViewOrder(order)}
+                      className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary"
+                    >
+                      <Eye size={15} />
+                    </button>
+                    {order.status !== 'cancelled' && (
+                      <>
+                        <button
+                          disabled
+                          title={t('edit.soon')}
+                          className="p-1.5 rounded-lg text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary opacity-40 cursor-not-allowed"
+                        >
+                          <Pencil size={15} />
+                        </button>
+                        <button
+                          onClick={() => onCancelOrder(order)}
+                          className="p-1.5 rounded-lg hover:bg-posCloud-danger-light dark:hover:bg-posCloud-danger/10 transition-colors text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-danger"
+                        >
+                          <Ban size={15} />
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}

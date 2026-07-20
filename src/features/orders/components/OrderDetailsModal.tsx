@@ -3,13 +3,12 @@
 import { Order } from '../types/order.types';
 import { useTranslations } from 'next-intl';
 import { useTenantStore } from '@/core/tenant/stores/tenant.store';
-import { X, Pencil } from 'lucide-react';
+import { X, Printer } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
 
 interface Props {
   order: Order | null;
   onClose: () => void;
-  onCancel: (order: Order) => void;
 }
 
 const statusColors: Record<string, string> = {
@@ -18,11 +17,13 @@ const statusColors: Record<string, string> = {
   cancelled: 'bg-posCloud-danger-light dark:bg-posCloud-danger/15 text-posCloud-danger',
 };
 
-export function OrderDetailsModal({ order, onClose, onCancel }: Props) {
+export function OrderDetailsModal({ order, onClose }: Props) {
   const t = useTranslations('orders');
   const currency = useTenantStore((s) => s.currency_symbol);
 
   if (!order) return null;
+
+  const handlePrint = () => window.print();
 
   return (
     <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/60 backdrop-blur-sm">
@@ -115,29 +116,12 @@ export function OrderDetailsModal({ order, onClose, onCancel }: Props) {
           )}
         </div>
 
-        {order.status !== 'cancelled' && (
-          <div className="p-5 border-t border-posCloud-border dark:border-posCloudDark-border flex gap-2">
-            <Button
-              variant="outline"
-              disabled
-              title={t('edit.soon')}
-              className="flex-1 relative"
-            >
-              <Pencil size={15} />
-              {t('edit.action')}
-              <span className="absolute -top-2 -end-2 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-posCloud-warning-light dark:bg-posCloud-warning/15 text-posCloud-warning">
-                {t('edit.soon')}
-              </span>
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={() => onCancel(order)}
-              className="flex-1"
-            >
-              {t('cancel.action')}
-            </Button>
-          </div>
-        )}
+        <div className="p-5 border-t border-posCloud-border dark:border-posCloudDark-border">
+          <Button variant="outline" onClick={handlePrint} className="w-full">
+            <Printer size={15} />
+            {t('details.print')}
+          </Button>
+        </div>
       </div>
     </div>
   );

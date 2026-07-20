@@ -95,16 +95,16 @@ export function OrdersPage() {
       {isLoading ? (
         <div className="text-center py-16 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('loading')}</div>
       ) : (
-        <OrdersTable orders={filteredOrders} onViewOrder={(order) => setSelectedOrderId(order.id)} />
+        <OrdersTable
+          orders={filteredOrders}
+          onViewOrder={(order) => setSelectedOrderId(order.id)}
+          onCancelOrder={(order) => setCancelTarget(order)}
+        />
       )}
 
       <OrderDetailsModal
         order={selectedOrder}
         onClose={() => setSelectedOrderId(null)}
-        onCancel={order => {
-          setSelectedOrderId(null);
-          setCancelTarget(order);
-        }}
       />
       <CancelOrderModal
         order={cancelTarget}

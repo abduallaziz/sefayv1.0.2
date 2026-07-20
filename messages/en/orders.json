@@ -36,7 +36,8 @@
     "items": "Items",
     "subtotal": "Subtotal",
     "discount": "Discount",
-    "tax": "Tax (15%)"
+    "tax": "Tax (15%)",
+    "print": "Print"
   },
   "edit": {
     "action": "Edit",

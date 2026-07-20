@@ -249,9 +249,12 @@ Two categories:
   `@Patch(':id/cancel')`. Editing a posted invoice also has real business
   implications (stock already deducted, shift totals already counted,
   reports already reflect it) that need actual design, not just a route.
-- **Done so far**: Added a disabled "تعديل" button next to "إلغاء الفاتورة"
-  in `OrderDetailsModal.tsx`, with a "قريباً" badge — per explicit user
-  instruction ("اضف الزر قريبا نسويه"): visible now, wired up later.
+- **Done so far**: Added a disabled "تعديل" action (with a "قريباً" tooltip)
+  and a "إلغاء" action as row-level icon buttons in `OrdersTable.tsx`
+  (desktop table's actions column + mobile card footer), moved out of
+  `OrderDetailsModal` per explicit user request ("الافضل أرى ان نخرج زر
+  الغاء وتعديل الى الرئيسيه ونضع مكانهم زر طباعه") — the details modal's
+  footer now shows a "طباعة" (Print, `window.print()`) button instead.
 - **Still open**: Full backend design (what's editable on a posted order,
   how it re-affects stock/shift/reports) + `PATCH /invoices/:id` endpoint +
   real edit form UI.
