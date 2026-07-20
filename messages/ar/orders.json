@@ -58,7 +58,8 @@
   "filters": {
     "reset": "إعادة ضبط",
     "more": "المزيد",
-    "branch": "كل الفروع",
+    "branch": "الفرع",
+    "allBranches": "كل الفروع",
     "export": "تصدير"
   },
   "pagination": {

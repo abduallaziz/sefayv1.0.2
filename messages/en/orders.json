@@ -56,7 +56,8 @@
   "filters": {
     "reset": "Reset",
     "more": "More",
-    "branch": "All Branches",
+    "branch": "Branch",
+    "allBranches": "All Branches",
     "export": "Export"
   },
   "pagination": {

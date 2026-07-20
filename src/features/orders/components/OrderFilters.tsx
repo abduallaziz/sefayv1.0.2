@@ -69,7 +69,7 @@ export function OrderFilters({ filters, onChange }: Props) {
           onChange={e => onChange({ ...filters, branch_id: e.target.value || undefined })}
           className={`${pillClass} ps-7`}
         >
-          <option value="">{t('filters.branch')}</option>
+          <option value="">{t('filters.allBranches')}</option>
           {branches.map(b => (
             <option key={b.id} value={b.id}>{b.name}</option>
           ))}
@@ -101,7 +101,7 @@ export function OrderFilters({ filters, onChange }: Props) {
         onChange={range => onChange({ ...filters, date_from: range.from, date_to: range.to })}
       />
 
-      <div className="relative flex-1 min-w-[200px]">
+      <div className="relative flex-1 min-w-[140px] max-w-[280px]">
         <Search size={14} className="absolute top-1/2 -translate-y-1/2 start-3 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary" />
         <input
           type="text"
