@@ -12,6 +12,12 @@ import { FileText, ClipboardList, Clock, CheckCircle2, XCircle, Wallet, ChevronR
 import { useTenantStore } from '@/core/tenant/stores/tenant.store';
 
 const PAGE_SIZES = [10, 25, 50];
+// Real percentage swings against a still-thin monthly data history can be
+// enormous (e.g. 6 -> 50 orders reads as "+733%") — cap the displayed
+// magnitude with a "+" suffix rather than show a technically-real but
+// visually absurd number. Once more months of real data accumulate, actual
+// swings will fall under this cap on their own and the "+" disappears.
+const DELTA_CAP = 300;
 
 export function OrdersPage() {
   const t = useTranslations('orders');
@@ -160,7 +166,7 @@ export function OrdersPage() {
             {stat.delta !== null && (
               <p className={`flex items-center gap-1 text-xs mt-1 ${stat.delta >= 0 ? 'text-posCloud-success' : 'text-posCloud-danger'}`}>
                 {stat.delta >= 0 ? <ArrowUp size={11} /> : <ArrowDown size={11} />}
-                {Math.abs(stat.delta)}%
+                {Math.min(Math.abs(stat.delta), DELTA_CAP)}{Math.abs(stat.delta) > DELTA_CAP ? '+' : ''}%
                 <span className="text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('stats.vsLastMonth')}</span>
               </p>
             )}
