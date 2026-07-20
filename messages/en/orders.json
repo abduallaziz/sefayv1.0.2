@@ -16,6 +16,12 @@
   "searchPlaceholder": "Search...",
   "noOrders": "No orders found",
   "tryFilters": "Try changing the filters",
+  "loading": "Loading...",
+  "totalInvoices": "Total Invoices",
+  "completedCount": "Completed",
+  "pendingCount": "Pending",
+  "cancelledCount": "Cancelled",
+  "todayRevenue": "Today's Revenue",
   "status": {
     "all": "All",
     "completed": "Completed",

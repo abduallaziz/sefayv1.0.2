@@ -7,7 +7,7 @@ import { OrdersTable } from '../components/OrdersTable';
 import { OrderFilters } from '../components/OrderFilters';
 import { OrderDetailsModal } from '../components/OrderDetailsModal';
 import { CancelOrderModal } from '../components/CancelOrderModal';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { FileText, ClipboardList, Clock, CheckCircle2, XCircle, Wallet, ChevronRight, ChevronLeft, Download, Settings2, ArrowUp, ArrowDown } from 'lucide-react';
 import { useTenantStore } from '@/core/tenant/stores/tenant.store';
 
@@ -21,6 +21,13 @@ const DELTA_CAP = 300;
 
 export function OrdersPage() {
   const t = useTranslations('orders');
+  const locale = useLocale();
+  const isRtl = locale !== 'en';
+  // "Previous"/"Next" arrows must point in the actual backward/forward
+  // reading direction, which flips between Arabic (RTL) and English (LTR) —
+  // hardcoding one icon pair made English pagination point the wrong way.
+  const PrevIcon = isRtl ? ChevronRight : ChevronLeft;
+  const NextIcon = isRtl ? ChevronLeft : ChevronRight;
   const currency = useTenantStore((s) => s.currency_symbol);
   const [filters, setFilters] = useState<IOrderFilters>({});
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
@@ -243,7 +250,7 @@ export function OrdersPage() {
                   disabled={currentPage <= 1}
                   className="flex items-center gap-1 px-2 py-1.5 rounded-lg border border-posCloud-border dark:border-posCloudDark-border hover:bg-slate-100 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
-                  <ChevronRight size={13} />
+                  <PrevIcon size={13} />
                   {t('pagination.prev')}
                 </button>
                 {Array.from({ length: totalPages }, (_, i) => i + 1)
@@ -265,7 +272,7 @@ export function OrdersPage() {
                   className="flex items-center gap-1 px-2 py-1.5 rounded-lg border border-posCloud-border dark:border-posCloudDark-border hover:bg-slate-100 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   {t('pagination.next')}
-                  <ChevronLeft size={13} />
+                  <NextIcon size={13} />
                 </button>
               </div>
 
