@@ -55,6 +55,17 @@
   "actions": {
     "view": "عرض"
   },
+  "filters": {
+    "reset": "إعادة ضبط",
+    "more": "المزيد",
+    "branch": "الفرع"
+  },
+  "pagination": {
+    "prev": "السابق",
+    "next": "التالي",
+    "show": "عرض",
+    "range": "من {from} إلى {to} من {total} نتيجة"
+  },
   "edit": {
     "action": "تعديل",
     "soon": "قريباً"

@@ -8,8 +8,10 @@ import { OrderFilters } from '../components/OrderFilters';
 import { OrderDetailsModal } from '../components/OrderDetailsModal';
 import { CancelOrderModal } from '../components/CancelOrderModal';
 import { useTranslations } from 'next-intl';
-import { FileText, ClipboardList, Clock, CheckCircle2, XCircle, Wallet } from 'lucide-react';
+import { FileText, ClipboardList, Clock, CheckCircle2, XCircle, Wallet, ChevronRight, ChevronLeft } from 'lucide-react';
 import { useTenantStore } from '@/core/tenant/stores/tenant.store';
+
+const PAGE_SIZES = [10, 25, 50];
 
 export function OrdersPage() {
   const t = useTranslations('orders');
@@ -17,6 +19,8 @@ export function OrdersPage() {
   const [filters, setFilters] = useState<IOrderFilters>({});
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [cancelTarget, setCancelTarget] = useState<Order | null>(null);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(PAGE_SIZES[0]);
 
   const { data: orders = [], isLoading } = useOrders(filters);
   const { data: selectedOrder = null } = useOrder(selectedOrderId ?? '');
@@ -37,6 +41,13 @@ export function OrdersPage() {
       return true;
     });
   }, [orders, filters]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredOrders.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const pagedOrders = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredOrders.slice(start, start + pageSize);
+  }, [filteredOrders, currentPage, pageSize]);
 
   const stats = useMemo(() => ({
     total: orders.length,
@@ -90,16 +101,75 @@ export function OrdersPage() {
         ))}
       </div>
 
-      <OrderFilters filters={filters} onChange={setFilters} />
+      <OrderFilters filters={filters} onChange={(next) => { setFilters(next); setPage(1); }} />
 
       {isLoading ? (
         <div className="text-center py-16 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('loading')}</div>
       ) : (
-        <OrdersTable
-          orders={filteredOrders}
-          onViewOrder={(order) => setSelectedOrderId(order.id)}
-          onCancelOrder={(order) => setCancelTarget(order)}
-        />
+        <>
+          <OrdersTable
+            orders={pagedOrders}
+            onViewOrder={(order) => setSelectedOrderId(order.id)}
+            onCancelOrder={(order) => setCancelTarget(order)}
+          />
+
+          {filteredOrders.length > 0 && (
+            <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage <= 1}
+                  className="flex items-center gap-1 px-2 py-1.5 rounded-lg border border-posCloud-border dark:border-posCloudDark-border hover:bg-slate-100 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  <ChevronRight size={13} />
+                  {t('pagination.prev')}
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+                  .map((p, i, arr) => (
+                    <span key={p} className="flex items-center gap-1">
+                      {i > 0 && arr[i - 1] !== p - 1 && <span className="px-1">…</span>}
+                      <button
+                        onClick={() => setPage(p)}
+                        className={`h-7 w-7 rounded-lg text-xs font-medium ${p === currentPage ? 'bg-posCloud-primary text-white' : 'hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-secondary dark:text-posCloudDark-text-primary'}`}
+                      >
+                        {p}
+                      </button>
+                    </span>
+                  ))}
+                <button
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage >= totalPages}
+                  className="flex items-center gap-1 px-2 py-1.5 rounded-lg border border-posCloud-border dark:border-posCloudDark-border hover:bg-slate-100 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {t('pagination.next')}
+                  <ChevronLeft size={13} />
+                </button>
+              </div>
+
+              <span>
+                {t('pagination.range', {
+                  from: (currentPage - 1) * pageSize + 1,
+                  to: Math.min(currentPage * pageSize, filteredOrders.length),
+                  total: filteredOrders.length,
+                })}
+              </span>
+
+              <div className="flex items-center gap-1.5">
+                <span>{t('pagination.show')}</span>
+                <select
+                  value={pageSize}
+                  onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }}
+                  className="h-7 rounded-lg border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-1.5 text-xs text-posCloud-text-primary dark:text-posCloudDark-text-primary focus:outline-none"
+                >
+                  {PAGE_SIZES.map(size => (
+                    <option key={size} value={size}>{size}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       <OrderDetailsModal

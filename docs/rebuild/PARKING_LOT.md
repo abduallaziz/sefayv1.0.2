@@ -280,6 +280,27 @@ Two categories:
   invoice) and PDF generation + email-sending backend, before these
   buttons can be wired up.
 
+### B11 — Orders table: full layout parity with reference (filters bar, journal-entry column, pagination) — ✅ DONE, with real gaps flagged (2026-07-20)
+- **What**: `OrdersTable`/`OrderFilters`/`OrdersPage` were rebuilt to match
+  a reference table screenshot the user shared: pill-style filters bar
+  (reset, more, branch, status, payment method, period, search), reordered
+  columns (kebab actions, date+cashier, journal entry, status dot, payment
+  method icon pill, amount, customer avatar, invoice # as a link), and a
+  full pagination footer (page-size select, "from–to of total", numbered
+  pager).
+- **What's real vs. placeholder**: Pagination is fully real — it paginates
+  client-side over the actual fetched/filtered `orders` array, so
+  "من X إلى Y من Z نتيجة" always reflects a true count, not a mock number
+  (per explicit user direction: "ابني نفسه الشكل اذا في باك اند نخليه
+  قريباً" — build the same shape, mark backend-less parts "Soon"). The
+  "المزيد" (more filters) and "الفرع" (branch) filter buttons are disabled
+  with a "قريباً" tooltip: no additional filter set is designed yet, and no
+  real multi-branch data model exists (same gap as B2). The journal-entry
+  column cell is a disabled dash placeholder for the same reason as B10.
+- **Still open**: B2 (real branch backend) and B10 (accounting ledger)
+  remain the actual blockers for the branch filter and journal-entry
+  column respectively.
+
 ---
 
 ## Decisions Log — tried and explicitly rejected/reverted

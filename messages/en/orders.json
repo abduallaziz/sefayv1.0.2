@@ -53,6 +53,17 @@
   "actions": {
     "view": "View"
   },
+  "filters": {
+    "reset": "Reset",
+    "more": "More",
+    "branch": "Branch"
+  },
+  "pagination": {
+    "prev": "Previous",
+    "next": "Next",
+    "show": "Show",
+    "range": "{from}-{to} of {total} results"
+  },
   "cancel": {
     "action": "Cancel Order",
     "title": "Cancel Order",
