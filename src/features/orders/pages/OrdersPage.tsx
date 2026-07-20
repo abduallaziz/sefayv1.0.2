@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { Order, OrderFilters as IOrderFilters } from '../types/order.types';
+import { useState, useMemo, useEffect } from 'react';
+import { Order, OrderFilters as IOrderFilters, OrderStatus } from '../types/order.types';
 import { useOrders, useOrder, useCancelOrder } from '../hooks/useOrders';
 import { OrdersTable } from '../components/OrdersTable';
 import { OrderFilters } from '../components/OrderFilters';
 import { OrderDetailsModal } from '../components/OrderDetailsModal';
 import { CancelOrderModal } from '../components/CancelOrderModal';
 import { useTranslations } from 'next-intl';
-import { FileText, ClipboardList, Clock, CheckCircle2, XCircle, Wallet, ChevronRight, ChevronLeft } from 'lucide-react';
+import { FileText, ClipboardList, Clock, CheckCircle2, XCircle, Wallet, ChevronRight, ChevronLeft, Download, Settings2 } from 'lucide-react';
 import { useTenantStore } from '@/core/tenant/stores/tenant.store';
 
 const PAGE_SIZES = [10, 25, 50];
@@ -21,10 +21,19 @@ export function OrdersPage() {
   const [cancelTarget, setCancelTarget] = useState<Order | null>(null);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(PAGE_SIZES[0]);
+  const [printRequestId, setPrintRequestId] = useState<string | null>(null);
 
   const { data: orders = [], isLoading } = useOrders(filters);
   const { data: selectedOrder = null } = useOrder(selectedOrderId ?? '');
   const { mutate: cancelOrder, isPending: isCancelling } = useCancelOrder();
+
+  useEffect(() => {
+    if (printRequestId && selectedOrder?.id === printRequestId) {
+      window.print();
+      const timer = setTimeout(() => setPrintRequestId(null), 0);
+      return () => clearTimeout(timer);
+    }
+  }, [printRequestId, selectedOrder]);
 
   const filteredOrders = useMemo(() => {
     return orders.filter(order => {
@@ -65,6 +74,18 @@ export function OrdersPage() {
     { labelKey: 'todayRevenue', value: `${stats.revenue.toLocaleString('en-US')} ${currency}`, icon: Wallet, iconBg: 'bg-posCloud-primary-light dark:bg-posCloud-primary/15', iconColor: 'text-posCloud-primary' },
   ];
 
+  function handlePrintOrder(order: Order) {
+    setSelectedOrderId(order.id);
+    setPrintRequestId(order.id);
+  }
+
+  const statusPills: { value: OrderStatus | ''; labelKey: string; count: number; color: string }[] = [
+    { value: '', labelKey: 'status.all', count: stats.total, color: 'text-posCloud-primary bg-posCloud-primary-light dark:bg-posCloud-primary/15' },
+    { value: 'completed', labelKey: 'status.completed', count: stats.completed, color: 'text-posCloud-success bg-posCloud-success-light dark:bg-posCloud-success/15' },
+    { value: 'pending', labelKey: 'status.pending', count: stats.pending, color: 'text-posCloud-warning bg-posCloud-warning-light dark:bg-posCloud-warning/15' },
+    { value: 'cancelled', labelKey: 'status.cancelled', count: stats.cancelled, color: 'text-posCloud-danger bg-posCloud-danger-light dark:bg-posCloud-danger/15' },
+  ];
+
   function handleCancelConfirm(id: string, reason: string) {
     cancelOrder(
       { id, payload: { reason } },
@@ -103,6 +124,43 @@ export function OrdersPage() {
 
       <OrderFilters filters={filters} onChange={(next) => { setFilters(next); setPage(1); }} />
 
+      <div className="flex flex-wrap items-center gap-2 -mt-2 mb-4">
+        <button
+          type="button"
+          disabled
+          title={t('edit.soon')}
+          className="flex items-center gap-1.5 h-8 rounded-lg border border-posCloud-border dark:border-posCloudDark-border px-2.5 text-xs font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary opacity-50 cursor-not-allowed"
+        >
+          <Download size={13} />
+          {t('filters.export')}
+        </button>
+        <button
+          type="button"
+          disabled
+          title={t('edit.soon')}
+          className="flex items-center justify-center h-8 w-8 rounded-lg border border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary opacity-50 cursor-not-allowed"
+        >
+          <Settings2 size={13} />
+        </button>
+
+        <span className="w-px h-5 bg-posCloud-border dark:bg-posCloudDark-border mx-1" />
+
+        {statusPills.map(pill => (
+          <button
+            key={pill.value || 'all'}
+            onClick={() => { setFilters({ ...filters, status: pill.value || undefined }); setPage(1); }}
+            className={`flex items-center gap-1.5 h-8 rounded-full px-3 text-xs font-semibold transition-colors ${
+              (filters.status || '') === pill.value
+                ? pill.color
+                : 'text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:bg-slate-100 dark:hover:bg-white/5'
+            }`}
+          >
+            {t(pill.labelKey as Parameters<typeof t>[0])}
+            <span className="tabular-nums">{pill.count}</span>
+          </button>
+        ))}
+      </div>
+
       {isLoading ? (
         <div className="text-center py-16 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('loading')}</div>
       ) : (
@@ -110,6 +168,7 @@ export function OrdersPage() {
           <OrdersTable
             orders={pagedOrders}
             onViewOrder={(order) => setSelectedOrderId(order.id)}
+            onPrintOrder={handlePrintOrder}
             onCancelOrder={(order) => setCancelTarget(order)}
           />
 

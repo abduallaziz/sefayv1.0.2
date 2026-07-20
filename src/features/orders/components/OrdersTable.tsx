@@ -2,9 +2,10 @@
 
 import { Order } from '../types/order.types';
 import { useTranslations } from 'next-intl';
-import { Eye, Pencil, Ban, MoreVertical, User, FileText } from 'lucide-react';
+import { Eye, Pencil, Ban, MoreVertical, User, Printer, ChevronDown } from 'lucide-react';
 import { useTenantStore } from '@/core/tenant/stores/tenant.store';
 import { MethodMark } from '@/shared/ui/method-mark';
+import { useBranches } from '@/shared/hooks/useBranches';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -15,6 +16,7 @@ import {
 interface Props {
   orders: Order[];
   onViewOrder: (order: Order) => void;
+  onPrintOrder: (order: Order) => void;
   onCancelOrder: (order: Order) => void;
 }
 
@@ -24,15 +26,11 @@ const statusColors: Record<string, string> = {
   cancelled: 'bg-posCloud-danger-light dark:bg-posCloud-danger/15 text-posCloud-danger',
 };
 
-const statusDotColors: Record<string, string> = {
-  completed: 'bg-posCloud-success',
-  pending: 'bg-posCloud-warning',
-  cancelled: 'bg-posCloud-danger',
-};
-
-export function OrdersTable({ orders, onViewOrder, onCancelOrder }: Props) {
+export function OrdersTable({ orders, onViewOrder, onPrintOrder, onCancelOrder }: Props) {
   const t = useTranslations('orders');
   const currency = useTenantStore((s) => s.currency_symbol);
+  const { data: branches = [] } = useBranches();
+  const branchName = (id: string) => branches.find(b => b.id === id)?.name || '—';
 
   if (orders.length === 0) {
     return (
@@ -59,6 +57,12 @@ export function OrdersTable({ orders, onViewOrder, onCancelOrder }: Props) {
                 <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[order.status]}`}>
                   {t(`status.${order.status}`)}
                 </span>
+                <button
+                  onClick={(e) => { e.stopPropagation(); onPrintOrder(order); }}
+                  className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary"
+                >
+                  <Printer size={15} />
+                </button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button
@@ -102,6 +106,7 @@ export function OrdersTable({ orders, onViewOrder, onCancelOrder }: Props) {
               </span>
             </div>
             <div className="flex items-center justify-between mt-2 pt-2 border-t border-posCloud-border dark:border-posCloudDark-border text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+              <span>{branchName(order.branch_id)}</span>
               <span>{order.payment_method ? t(`payment_method.${order.payment_method}`) : t('payment_method.unknown')}</span>
               <span>{new Date(order.created_at).toLocaleString('en-US')}</span>
             </div>
@@ -114,75 +119,71 @@ export function OrdersTable({ orders, onViewOrder, onCancelOrder }: Props) {
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-posCloud-background dark:bg-posCloudDark-background border-b border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-              <th className="px-3 py-3 w-10" />
-              <th className="text-start px-3 py-3 font-medium">{t('date')}</th>
-              <th className="text-start px-3 py-3 font-medium">{t('details.journalEntry')}</th>
-              <th className="text-start px-3 py-3 font-medium w-24">{t('status.all')}</th>
+              <th className="px-3 py-3 w-20" />
+              <th className="text-start px-3 py-3 font-medium">{t('cashier')}</th>
+              <th className="text-start px-3 py-3 font-medium">{t('filters.branch')}</th>
               <th className="text-start px-3 py-3 font-medium">{t('payment')}</th>
               <th className="text-start px-3 py-3 font-medium w-24">{t('total')}</th>
               <th className="text-start px-3 py-3 font-medium">{t('customer')}</th>
               <th className="text-start px-3 py-3 font-medium w-20">{t('invoiceNumber')}</th>
+              <th className="text-start px-3 py-3 font-medium">
+                <span className="flex items-center gap-1">{t('date')} <ChevronDown size={12} /></span>
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-posCloud-border dark:divide-posCloudDark-border">
             {orders.map((order) => (
               <tr key={order.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
-                <td className="px-3 py-3 w-10">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button
-                        onClick={(e) => e.stopPropagation()}
-                        className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary"
-                      >
-                        <MoreVertical size={15} />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => onViewOrder(order)}>
-                        <Eye size={14} />
-                        {t('actions.view')}
-                      </DropdownMenuItem>
-                      {order.status !== 'cancelled' && (
-                        <>
-                          <DropdownMenuItem disabled title={t('edit.soon')}>
-                            <Pencil size={14} />
-                            {t('edit.action')}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => onCancelOrder(order)}
-                            className="text-posCloud-danger hover:bg-posCloud-danger-light dark:hover:bg-posCloud-danger/10"
-                          >
-                            <Ban size={14} />
-                            {t('cancel.action')}
-                          </DropdownMenuItem>
-                        </>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                <td className="px-3 py-3 w-20">
+                  <div className="flex items-center gap-0.5">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          onClick={(e) => e.stopPropagation()}
+                          className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary"
+                        >
+                          <MoreVertical size={15} />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start">
+                        {order.status !== 'cancelled' && (
+                          <>
+                            <DropdownMenuItem disabled title={t('edit.soon')}>
+                              <Pencil size={14} />
+                              {t('edit.action')}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => onCancelOrder(order)}
+                              className="text-posCloud-danger hover:bg-posCloud-danger-light dark:hover:bg-posCloud-danger/10"
+                            >
+                              <Ban size={14} />
+                              {t('cancel.action')}
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <button
+                      onClick={() => onPrintOrder(order)}
+                      className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary"
+                      title={t('details.print')}
+                    >
+                      <Printer size={15} />
+                    </button>
+                    <button
+                      onClick={() => onViewOrder(order)}
+                      className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary"
+                      title={t('actions.view')}
+                    >
+                      <Eye size={15} />
+                    </button>
+                  </div>
                 </td>
-                <td className="px-3 py-3">
-                  <p className="text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary text-xs">
-                    {new Date(order.created_at).toLocaleString('en-US')}
-                  </p>
-                  {order.cashier_name && (
-                    <p className="text-[11px] text-posCloud-text-tertiary/70 dark:text-posCloudDark-text-tertiary/70">
-                      {order.cashier_name}
-                    </p>
-                  )}
+                <td className="px-3 py-3 text-posCloud-text-secondary dark:text-posCloudDark-text-primary max-w-[120px] truncate">
+                  {order.cashier_name || '—'}
                 </td>
-                <td className="px-3 py-3">
-                  <span
-                    title={t('edit.soon')}
-                    className="flex items-center gap-1 text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary opacity-50 cursor-not-allowed"
-                  >
-                    <FileText size={13} /> —
-                  </span>
-                </td>
-                <td className="px-3 py-3 w-24">
-                  <span className="flex items-center gap-1.5 text-xs font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary">
-                    <span className={`h-1.5 w-1.5 rounded-full ${statusDotColors[order.status]}`} />
-                    {t(`status.${order.status}`)}
-                  </span>
+                <td className="px-3 py-3 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary max-w-[120px] truncate">
+                  {branchName(order.branch_id)}
                 </td>
                 <td className="px-3 py-3">
                   <span className="inline-flex items-center gap-1.5 rounded-lg border border-posCloud-border dark:border-posCloudDark-border px-2 py-1 text-posCloud-text-primary dark:text-posCloudDark-text-primary">
@@ -207,6 +208,9 @@ export function OrdersTable({ orders, onViewOrder, onCancelOrder }: Props) {
                   >
                     #{order.id.slice(-6).toUpperCase()}
                   </button>
+                </td>
+                <td className="px-3 py-3 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary text-xs">
+                  {new Date(order.created_at).toLocaleString('en-US')}
                 </td>
               </tr>
             ))}

@@ -111,23 +111,30 @@ Two categories:
   mock numbers (1,245 / 23 / 8,752 / 5) — still blocked on the same real
   backend aggregate endpoint described above.
 
-### B2 — Real branch backend
+### B2 — Real branch backend — ⚠️ CORRECTED 2026-07-20: backend exists, only per-branch sales aggregates are the real gap
 - **What pos-cloud shows**: A working branch switcher (header dropdown) and
   a full Branches page with per-branch stats.
-- **Why it's a gap**: No branch data model, store, or API exists on the
-  frontend. Only `AuthUser.branchId?: string` (a single ID) and
-  `Warehouse.branch_id` (a foreign key reference) exist — no list of
-  branches, no per-branch sales breakdown, no branch CRUD.
-- **What's needed**: A real branch entity (backend model + API), a frontend
-  store, and a "switch active branch" flow. Significant scope — a full
-  feature, not a styling task.
-- **Status**: Standing decision (B6, prior migration phase): keep the header
-  element as a non-functional placeholder until this is built. Confirmed
-  2026-07-17 via direct search: no branches-list endpoint exists anywhere
-  in the codebase. Three dashboard slots are blocked on this and show a
-  "Soon" placeholder instead of fabricated data: the "Sales by Branch" bar
-  chart, the "Branches Overview" card (per-branch open/closed + monthly
-  sales), and a dedicated Branches page.
+- **Correction (2026-07-20)**: The earlier claim below ("no branches-list
+  endpoint exists anywhere in the codebase") was wrong/outdated — a full
+  `BranchesController`/`BranchesService`/`branches` table already exists
+  (`api/src/modules/branches/`, `GET /branches` returns real
+  `{id, name}` records, guarded by `branches.view` permission). Confirmed
+  by direct source read while building Orders table branch filter/column.
+  Added `src/shared/hooks/useBranches.ts` (`GET /branches` via
+  `apiClient`, same pattern already used ad-hoc in `ShiftsPage`/`POSPage`/
+  etc.) and wired it into `OrderFilters` (real branch select, replacing
+  the earlier "Soon" placeholder) and `OrdersTable` (real branch-name
+  column, mapped from `order.branch_id`).
+- **What's still actually missing**: A **per-branch sales aggregate**
+  endpoint (this month's revenue/orders broken down by branch) — that's
+  what the dashboard's "Sales by Branch" chart and "Branches Overview"
+  card actually need, not just a branch list. A "switch active branch"
+  UX flow (header dropdown to change the active branch context) is also
+  still unbuilt on the frontend.
+- **Status**: Branch list/filter/name-lookup is now real everywhere it's
+  used (Orders). The dashboard's per-branch aggregate chart/card and a
+  dedicated Branches page remain blocked on the aggregate endpoint above
+  and still show a "Soon" placeholder — that part of this entry stands.
 
 ### B3 — Product images
 - **What pos-cloud shows**: Real product photos on POS item cards and the
@@ -293,13 +300,42 @@ Two categories:
   "من X إلى Y من Z نتيجة" always reflects a true count, not a mock number
   (per explicit user direction: "ابني نفسه الشكل اذا في باك اند نخليه
   قريباً" — build the same shape, mark backend-less parts "Soon"). The
-  "المزيد" (more filters) and "الفرع" (branch) filter buttons are disabled
-  with a "قريباً" tooltip: no additional filter set is designed yet, and no
-  real multi-branch data model exists (same gap as B2). The journal-entry
-  column cell is a disabled dash placeholder for the same reason as B10.
-- **Still open**: B2 (real branch backend) and B10 (accounting ledger)
-  remain the actual blockers for the branch filter and journal-entry
-  column respectively.
+  "المزيد" (more filters) button is disabled with a "قريباً" tooltip (no
+  additional filter set designed yet). The journal-entry column cell is a
+  disabled dash placeholder for the same reason as B10. **Update
+  2026-07-20**: the branch filter was upgraded from "Soon" to fully real
+  — see the B2 correction above; it now uses the actual `GET /branches`
+  endpoint.
+- **Still open**: B10 (accounting ledger) remains the blocker for the
+  journal-entry column. See B13 below for the second Orders-page revision
+  (a different, richer reference layout replaced this one's per-row
+  status/journal-entry columns).
+
+### B13 — Orders table: second layout revision (stats deltas, quick status pills, real branch column, split print/view/kebab actions) — ✅ DONE, with real gaps flagged (2026-07-20)
+- **What**: The user shared a second, more detailed reference screenshot
+  of the Orders page (stat cards with % deltas, a filter bar row plus a
+  second row of quick status-count pills + export/columns icons, and a
+  table with three separate row actions — kebab, print, view — instead of
+  one consolidated dropdown, columns: cashier, branch, payment, amount,
+  customer, invoice #, date). Rebuilt `OrdersTable`/`OrdersPage` to match.
+- **Real, not fabricated**: The quick status pills (الكل/مكتملة/معلقة/
+  ملغاة) use real counts from the fetched `orders` array and toggle the
+  same real `filters.status`. The branch column now shows the real branch
+  name (via the `useBranches`/`GET /branches` fix from B2). The print icon
+  triggers a real `window.print()` of that order (opens `OrderDetailsModal`
+  silently and fires print once loaded — same real data as the modal's own
+  Print button, not a separate fake print). The view (eye) icon opens the
+  real details modal directly, no longer buried in the kebab.
+- **What's still a gap, marked "Soon" — no fabricated numbers**: The
+  reference's per-stat-card "% change from previous period" deltas
+  (e.g. "+15% من الفترة السابقة") have no backing comparison data — no
+  previous-period query is made, so no delta is shown at all (omitted
+  rather than faked). The "تصدير" (export/CSV) and column-settings (gear)
+  buttons are disabled placeholders — no export or column-customization
+  feature exists. "مسودة" (draft) from the reference isn't offered as a
+  quick-filter pill since Sefay's `OrderStatus` has no "draft" state.
+- **Still open**: A real previous-period comparison aggregate (for stat
+  card deltas) and an export/CSV endpoint, before those can go live.
 
 ### B12 — Customers table: full layout parity with reference (columns reordered, loyalty points parked) — ✅ DONE, with real gaps flagged (2026-07-20)
 - **What**: `CustomersTable` was rebuilt to match a reference table

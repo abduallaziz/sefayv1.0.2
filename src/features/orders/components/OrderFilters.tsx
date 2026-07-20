@@ -4,6 +4,7 @@ import { OrderFilters as IOrderFilters, OrderStatus, PaymentMethod } from '../ty
 import { useTranslations } from 'next-intl';
 import { DateRangePicker } from '@/shared/ui/date-range-picker';
 import { RotateCcw, SlidersHorizontal, Building2, Search } from 'lucide-react';
+import { useBranches } from '@/shared/hooks/useBranches';
 
 interface Props {
   filters: IOrderFilters;
@@ -12,6 +13,7 @@ interface Props {
 
 export function OrderFilters({ filters, onChange }: Props) {
   const t = useTranslations('orders');
+  const { data: branches = [] } = useBranches();
 
   const statuses: { value: OrderStatus | ''; labelKey: string }[] = [
     { value: '', labelKey: 'status.all' },
@@ -33,7 +35,7 @@ export function OrderFilters({ filters, onChange }: Props) {
     { value: 'gift_card', labelKey: 'payment_method.gift_card' },
   ];
 
-  const hasActiveFilters = !!(filters.status || filters.payment_method || filters.search || filters.date_from || filters.date_to);
+  const hasActiveFilters = !!(filters.status || filters.payment_method || filters.branch_id || filters.search || filters.date_from || filters.date_to);
 
   const pillClass =
     'h-9 rounded-full border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-3 text-xs font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-primary focus:outline-none focus:border-posCloud-primary';
@@ -60,15 +62,19 @@ export function OrderFilters({ filters, onChange }: Props) {
         {t('filters.more')}
       </button>
 
-      <button
-        type="button"
-        disabled
-        title={t('edit.soon')}
-        className="flex items-center gap-1.5 h-9 rounded-full border border-posCloud-border dark:border-posCloudDark-border px-3 text-xs font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary opacity-50 cursor-not-allowed"
-      >
-        <Building2 size={13} />
-        {t('filters.branch')}
-      </button>
+      <div className="relative">
+        <Building2 size={13} className="absolute top-1/2 -translate-y-1/2 start-3 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary pointer-events-none" />
+        <select
+          value={filters.branch_id || ''}
+          onChange={e => onChange({ ...filters, branch_id: e.target.value || undefined })}
+          className={`${pillClass} ps-7`}
+        >
+          <option value="">{t('filters.branch')}</option>
+          {branches.map(b => (
+            <option key={b.id} value={b.id}>{b.name}</option>
+          ))}
+        </select>
+      </div>
 
       <select
         value={filters.status || ''}
