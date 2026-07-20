@@ -8,6 +8,7 @@
   "payment": "Payment",
   "date": "Date",
   "notes": "Notes",
+  "back": "Back",
   "searchPlaceholder": "Search...",
   "noOrders": "No orders found",
   "tryFilters": "Try changing the filters",
