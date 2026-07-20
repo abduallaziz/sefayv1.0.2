@@ -3,7 +3,7 @@
 import { Order } from '../types/order.types';
 import { useTranslations } from 'next-intl';
 import { useTenantStore } from '@/core/tenant/stores/tenant.store';
-import { X } from 'lucide-react';
+import { X, Pencil } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
 
 interface Props {
@@ -40,10 +40,10 @@ export function OrderDetailsModal({ order, onClose, onCancel }: Props) {
         <div className="p-5 space-y-5">
           <div className="flex gap-3">
             <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[order.status]}`}>
-              {t(`status.${order.status}` as any)}
+              {t(`status.${order.status}` as Parameters<typeof t>[0])}
             </span>
             <span className="px-3 py-1 rounded-full text-xs font-medium bg-posCloud-background dark:bg-posCloudDark-background text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-              {t(`payment_method.${order.payment_method}` as any)}
+              {order.payment_method ? t(`payment_method.${order.payment_method}` as Parameters<typeof t>[0]) : t('payment_method.unknown')}
             </span>
           </div>
 
@@ -116,11 +116,23 @@ export function OrderDetailsModal({ order, onClose, onCancel }: Props) {
         </div>
 
         {order.status !== 'cancelled' && (
-          <div className="p-5 border-t border-posCloud-border dark:border-posCloudDark-border">
+          <div className="p-5 border-t border-posCloud-border dark:border-posCloudDark-border flex gap-2">
+            <Button
+              variant="outline"
+              disabled
+              title={t('edit.soon')}
+              className="flex-1 relative"
+            >
+              <Pencil size={15} />
+              {t('edit.action')}
+              <span className="absolute -top-2 -end-2 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-posCloud-warning-light dark:bg-posCloud-warning/15 text-posCloud-warning">
+                {t('edit.soon')}
+              </span>
+            </Button>
             <Button
               variant="destructive"
               onClick={() => onCancel(order)}
-              className="w-full"
+              className="flex-1"
             >
               {t('cancel.action')}
             </Button>

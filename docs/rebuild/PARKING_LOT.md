@@ -240,6 +240,22 @@ Two categories:
   "FUTURE: build full Activity Log page"). Not pos-cloud-driven — a
   pre-existing Sefay roadmap item, unrelated to this rebuild's scope.
 
+### B9 — Edit invoice/order — ⚠️ BUTTON ADDED, DISABLED (2026-07-20)
+- **What**: An "Edit" action on `OrderDetailsModal` to modify an existing
+  order (items/quantities/discount, per the user's own framing "تعديل
+  كامل" as the intended eventual scope).
+- **Why it's a gap**: No backend endpoint exists to update an existing
+  invoice — `InvoicesController` only has `create` and
+  `@Patch(':id/cancel')`. Editing a posted invoice also has real business
+  implications (stock already deducted, shift totals already counted,
+  reports already reflect it) that need actual design, not just a route.
+- **Done so far**: Added a disabled "تعديل" button next to "إلغاء الفاتورة"
+  in `OrderDetailsModal.tsx`, with a "قريباً" badge — per explicit user
+  instruction ("اضف الزر قريبا نسويه"): visible now, wired up later.
+- **Still open**: Full backend design (what's editable on a posted order,
+  how it re-affects stock/shift/reports) + `PATCH /invoices/:id` endpoint +
+  real edit form UI.
+
 ---
 
 ## Decisions Log — tried and explicitly rejected/reverted

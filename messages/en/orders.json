@@ -38,6 +38,10 @@
     "discount": "Discount",
     "tax": "Tax (15%)"
   },
+  "edit": {
+    "action": "Edit",
+    "soon": "Soon"
+  },
   "cancel": {
     "action": "Cancel Order",
     "title": "Cancel Order",
