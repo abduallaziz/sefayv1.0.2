@@ -2,8 +2,14 @@
 
 import { Order } from '../types/order.types';
 import { useTranslations } from 'next-intl';
-import { Eye, Pencil, Ban } from 'lucide-react';
+import { Eye, Pencil, Ban, MoreVertical } from 'lucide-react';
 import { useTenantStore } from '@/core/tenant/stores/tenant.store';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from '@/shared/ui/dropdown';
 
 interface Props {
   orders: Order[];
@@ -35,16 +41,49 @@ export function OrdersTable({ orders, onViewOrder, onCancelOrder }: Props) {
       {/* Mobile cards */}
       <div className="md:hidden space-y-2">
         {orders.map((order) => (
-          <button
+          <div
             key={order.id}
             onClick={() => onViewOrder(order)}
-            className="w-full text-start bg-posCloud-surface dark:bg-posCloudDark-surface border border-posCloud-border dark:border-posCloudDark-border rounded-xl p-3 hover:border-posCloud-primary/40 transition-colors"
+            className="w-full text-start bg-posCloud-surface dark:bg-posCloudDark-surface border border-posCloud-border dark:border-posCloudDark-border rounded-xl p-3 hover:border-posCloud-primary/40 transition-colors cursor-pointer"
           >
             <div className="flex items-center justify-between gap-2">
               <span className="font-mono text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">#{order.id.slice(-6).toUpperCase()}</span>
-              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[order.status]}`}>
-                {t(`status.${order.status}`)}
-              </span>
+              <div className="flex items-center gap-1.5">
+                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[order.status]}`}>
+                  {t(`status.${order.status}`)}
+                </span>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      onClick={(e) => e.stopPropagation()}
+                      className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary"
+                    >
+                      <MoreVertical size={15} />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => onViewOrder(order)}>
+                      <Eye size={14} />
+                      {t('actions.view')}
+                    </DropdownMenuItem>
+                    {order.status !== 'cancelled' && (
+                      <>
+                        <DropdownMenuItem disabled title={t('edit.soon')}>
+                          <Pencil size={14} />
+                          {t('edit.action')}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => onCancelOrder(order)}
+                          className="text-posCloud-danger hover:bg-posCloud-danger-light dark:hover:bg-posCloud-danger/10"
+                        >
+                          <Ban size={14} />
+                          {t('cancel.action')}
+                        </DropdownMenuItem>
+                      </>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
             <div className="flex items-center justify-between mt-2">
               <div className="min-w-0">
@@ -59,26 +98,7 @@ export function OrdersTable({ orders, onViewOrder, onCancelOrder }: Props) {
               <span>{order.payment_method ? t(`payment_method.${order.payment_method}`) : t('payment_method.unknown')}</span>
               <span>{new Date(order.created_at).toLocaleString('en-US')}</span>
             </div>
-            {order.status !== 'cancelled' && (
-              <div className="flex items-center gap-1.5 mt-2 pt-2 border-t border-posCloud-border dark:border-posCloudDark-border">
-                <span
-                  onClick={(e) => e.stopPropagation()}
-                  title={t('edit.soon')}
-                  className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary opacity-50 cursor-not-allowed"
-                >
-                  <Pencil size={13} />
-                  {t('edit.action')}
-                </span>
-                <span
-                  onClick={(e) => { e.stopPropagation(); onCancelOrder(order); }}
-                  className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs text-posCloud-danger hover:bg-posCloud-danger-light dark:hover:bg-posCloud-danger/10 transition-colors"
-                >
-                  <Ban size={13} />
-                  {t('cancel.action')}
-                </span>
-              </div>
-            )}
-          </button>
+          </div>
         ))}
       </div>
 
@@ -94,7 +114,7 @@ export function OrdersTable({ orders, onViewOrder, onCancelOrder }: Props) {
               <th className="text-start px-3 py-3 font-medium">{t('payment')}</th>
               <th className="text-start px-3 py-3 font-medium w-24">{t('status.all')}</th>
               <th className="text-start px-3 py-3 font-medium">{t('date')}</th>
-              <th className="px-3 py-3 w-28" />
+              <th className="px-3 py-3 w-10" />
             </tr>
           </thead>
           <tbody className="divide-y divide-posCloud-border dark:divide-posCloudDark-border">
@@ -123,32 +143,38 @@ export function OrdersTable({ orders, onViewOrder, onCancelOrder }: Props) {
                 <td className="px-3 py-3 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary text-xs">
                   {new Date(order.created_at).toLocaleString('en-US')}
                 </td>
-                <td className="px-3 py-3 w-28">
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => onViewOrder(order)}
-                      className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary"
-                    >
-                      <Eye size={15} />
-                    </button>
-                    {order.status !== 'cancelled' && (
-                      <>
-                        <button
-                          disabled
-                          title={t('edit.soon')}
-                          className="p-1.5 rounded-lg text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary opacity-40 cursor-not-allowed"
-                        >
-                          <Pencil size={15} />
-                        </button>
-                        <button
-                          onClick={() => onCancelOrder(order)}
-                          className="p-1.5 rounded-lg hover:bg-posCloud-danger-light dark:hover:bg-posCloud-danger/10 transition-colors text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-danger"
-                        >
-                          <Ban size={15} />
-                        </button>
-                      </>
-                    )}
-                  </div>
+                <td className="px-3 py-3 w-10">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        onClick={(e) => e.stopPropagation()}
+                        className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary"
+                      >
+                        <MoreVertical size={15} />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => onViewOrder(order)}>
+                        <Eye size={14} />
+                        {t('actions.view')}
+                      </DropdownMenuItem>
+                      {order.status !== 'cancelled' && (
+                        <>
+                          <DropdownMenuItem disabled title={t('edit.soon')}>
+                            <Pencil size={14} />
+                            {t('edit.action')}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => onCancelOrder(order)}
+                            className="text-posCloud-danger hover:bg-posCloud-danger-light dark:hover:bg-posCloud-danger/10"
+                          >
+                            <Ban size={14} />
+                            {t('cancel.action')}
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </td>
               </tr>
             ))}

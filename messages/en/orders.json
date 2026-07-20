@@ -44,6 +44,9 @@
     "action": "Edit",
     "soon": "Soon"
   },
+  "actions": {
+    "view": "View"
+  },
   "cancel": {
     "action": "Cancel Order",
     "title": "Cancel Order",
