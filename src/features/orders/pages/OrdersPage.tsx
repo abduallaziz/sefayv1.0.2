@@ -79,8 +79,15 @@ export function OrdersPage() {
       return d >= prevMonthStart && d < monthStart;
     });
 
+    // A percentage change against a near-zero prior sample is statistically
+    // meaningless (e.g. 1 -> 6 orders reads as "+500%") — hide it rather
+    // than show a technically-real but misleading number. Gated on the
+    // prior month's total order count (not the metric's own raw value),
+    // since a currency amount like "5 SAR" isn't a meaningful sample size.
+    const MIN_SAMPLE = 5;
+    const reliable = lastMonth.length >= MIN_SAMPLE;
     const pct = (current: number, previous: number): number | null => {
-      if (previous === 0) return current === 0 ? null : null;
+      if (!reliable || previous === 0) return null;
       return Math.round(((current - previous) / previous) * 100);
     };
 
