@@ -55,7 +55,7 @@ export function OrdersTable({ orders, onViewOrder }: Props) {
               </span>
             </div>
             <div className="flex items-center justify-between mt-2 pt-2 border-t border-posCloud-border dark:border-posCloudDark-border text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-              <span>{t(`payment_method.${order.payment_method}`)}</span>
+              <span>{order.payment_method ? t(`payment_method.${order.payment_method}`) : t('payment_method.unknown')}</span>
               <span>{new Date(order.created_at).toLocaleString('en-US')}</span>
             </div>
           </button>
@@ -93,7 +93,7 @@ export function OrdersTable({ orders, onViewOrder }: Props) {
                   {order.total.toLocaleString('en-US')} {currency}
                 </td>
                 <td className="px-3 py-3 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-                  {t(`payment_method.${order.payment_method}`)}
+                  {order.payment_method ? t(`payment_method.${order.payment_method}`) : t('payment_method.unknown')}
                 </td>
                 <td className="px-3 py-3 w-24">
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[order.status]}`}>

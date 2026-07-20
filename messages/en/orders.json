@@ -20,7 +20,16 @@
   "payment_method": {
     "cash": "Cash",
     "card": "Card",
-    "split": "Split"
+    "split": "Split",
+    "wallet": "Wallet",
+    "mada": "Mada",
+    "visa": "Visa",
+    "mastercard": "Mastercard",
+    "stc_pay": "STC Pay",
+    "apple_pay": "Apple Pay",
+    "tab": "Tab",
+    "gift_card": "Gift Card",
+    "unknown": "—"
   },
   "details": {
     "title": "Order Details",

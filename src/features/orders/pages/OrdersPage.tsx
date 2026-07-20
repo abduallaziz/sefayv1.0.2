@@ -8,7 +8,7 @@ import { OrderFilters } from '../components/OrderFilters';
 import { OrderDetailsModal } from '../components/OrderDetailsModal';
 import { CancelOrderModal } from '../components/CancelOrderModal';
 import { useTranslations } from 'next-intl';
-import { FileText } from 'lucide-react';
+import { FileText, ClipboardList, Clock, CheckCircle2, XCircle, Wallet } from 'lucide-react';
 import { useTenantStore } from '@/core/tenant/stores/tenant.store';
 
 export function OrdersPage() {
@@ -47,11 +47,11 @@ export function OrdersPage() {
   }), [orders]);
 
   const statsConfig = [
-    { labelKey: 'totalInvoices', value: stats.total, color: 'text-posCloud-text-primary dark:text-posCloudDark-text-primary' },
-    { labelKey: 'completedCount', value: stats.completed, color: 'text-posCloud-success' },
-    { labelKey: 'pendingCount', value: stats.pending, color: 'text-posCloud-warning' },
-    { labelKey: 'cancelledCount', value: stats.cancelled, color: 'text-posCloud-danger' },
-    { labelKey: 'todayRevenue', value: `${stats.revenue.toLocaleString('en-US')} ${currency}`, color: 'text-posCloud-primary' },
+    { labelKey: 'totalInvoices', value: stats.total, icon: ClipboardList, iconBg: 'bg-posCloud-primary-light dark:bg-posCloud-primary/15', iconColor: 'text-posCloud-primary' },
+    { labelKey: 'pendingCount', value: stats.pending, icon: Clock, iconBg: 'bg-posCloud-warning-light dark:bg-posCloud-warning/15', iconColor: 'text-posCloud-warning' },
+    { labelKey: 'completedCount', value: stats.completed, icon: CheckCircle2, iconBg: 'bg-posCloud-success-light dark:bg-posCloud-success/15', iconColor: 'text-posCloud-success' },
+    { labelKey: 'cancelledCount', value: stats.cancelled, icon: XCircle, iconBg: 'bg-posCloud-danger-light dark:bg-posCloud-danger/15', iconColor: 'text-posCloud-danger' },
+    { labelKey: 'todayRevenue', value: `${stats.revenue.toLocaleString('en-US')} ${currency}`, icon: Wallet, iconBg: 'bg-posCloud-primary-light dark:bg-posCloud-primary/15', iconColor: 'text-posCloud-primary' },
   ];
 
   function handleCancelConfirm(id: string, reason: string) {
@@ -81,8 +81,11 @@ export function OrdersPage() {
       <div className="grid grid-cols-2 items-stretch gap-4 sm:grid-cols-3 lg:grid-cols-5">
         {statsConfig.map(stat => (
           <div key={stat.labelKey} className="bg-posCloud-surface dark:bg-posCloudDark-surface border border-posCloud-border dark:border-posCloudDark-border rounded-xl p-4">
-            <p className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary mb-1">{t(stat.labelKey as any)}</p>
-            <p className={`text-xl font-bold ${stat.color}`}>{stat.value}</p>
+            <div className={`inline-flex p-2 rounded-lg ${stat.iconBg}`}>
+              <stat.icon size={18} className={stat.iconColor} />
+            </div>
+            <p className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary mt-2 mb-1">{t(stat.labelKey as Parameters<typeof t>[0])}</p>
+            <p className="text-xl font-bold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{stat.value}</p>
           </div>
         ))}
       </div>

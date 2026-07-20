@@ -26,7 +26,16 @@
   "payment_method": {
     "cash": "نقد",
     "card": "بطاقة",
-    "split": "مقسم"
+    "split": "مقسم",
+    "wallet": "محفظة",
+    "mada": "مدى",
+    "visa": "فيزا",
+    "mastercard": "ماستركارد",
+    "stc_pay": "STC Pay",
+    "apple_pay": "Apple Pay",
+    "tab": "حساب آجل",
+    "gift_card": "بطاقة هدية",
+    "unknown": "—"
   },
   "details": {
     "title": "تفاصيل الفاتورة",
