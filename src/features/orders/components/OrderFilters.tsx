@@ -41,7 +41,7 @@ export function OrderFilters({ filters, onChange }: Props) {
     'h-9 rounded-lg border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-3 text-xs font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-primary focus:outline-none focus:border-posCloud-primary';
 
   return (
-    <div className="flex flex-wrap items-center gap-2 mb-4">
+    <div className="flex w-full flex-wrap items-center gap-2 mb-4">
       <button
         type="button"
         onClick={() => onChange({})}
@@ -54,9 +54,8 @@ export function OrderFilters({ filters, onChange }: Props) {
 
       <button
         type="button"
-        disabled
         title={t('edit.soon')}
-        className="flex items-center gap-1.5 h-9 rounded-lg border border-posCloud-border dark:border-posCloudDark-border px-3 text-xs font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary opacity-50 cursor-not-allowed"
+        className="flex items-center gap-1.5 h-9 rounded-lg border border-posCloud-border dark:border-posCloudDark-border px-3 text-xs font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-primary hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
       >
         <SlidersHorizontal size={13} />
         {t('filters.more')}
@@ -101,7 +100,7 @@ export function OrderFilters({ filters, onChange }: Props) {
         onChange={range => onChange({ ...filters, date_from: range.from, date_to: range.to })}
       />
 
-      <div className="relative flex-1 min-w-[140px] max-w-[280px]">
+      <div className="relative flex-1 min-w-[140px]">
         <Search size={14} className="absolute top-1/2 -translate-y-1/2 start-3 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary" />
         <input
           type="text"
