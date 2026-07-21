@@ -169,11 +169,13 @@ export function OrdersPage() {
       <div className="grid grid-cols-2 items-stretch gap-4 sm:grid-cols-3 lg:grid-cols-5">
         {statsConfig.map(stat => (
           <div key={stat.labelKey} className="bg-posCloud-surface dark:bg-posCloudDark-surface border border-posCloud-border dark:border-posCloudDark-border rounded-xl p-4">
-            <div className={`inline-flex p-2 rounded-lg ${stat.iconBg}`}>
-              <stat.icon size={18} className={stat.iconColor} />
+            <div className="flex items-center justify-between">
+              <div className={`inline-flex p-2 rounded-lg ${stat.iconBg}`}>
+                <stat.icon size={18} className={stat.iconColor} />
+              </div>
+              <p className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t(stat.labelKey as Parameters<typeof t>[0])}</p>
             </div>
-            <p className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary mt-2 mb-1">{t(stat.labelKey as Parameters<typeof t>[0])}</p>
-            <p className="text-xl font-bold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{stat.value}</p>
+            <p className="text-xl font-bold text-posCloud-text-primary dark:text-posCloudDark-text-primary mt-2">{stat.value}</p>
             {stat.delta !== null && (
               <p className={`flex items-center gap-1 text-xs mt-1 ${stat.delta >= 0 ? 'text-posCloud-success' : 'text-posCloud-danger'}`}>
                 {stat.delta >= 0 ? <ArrowUp size={11} /> : <ArrowDown size={11} />}

@@ -6,7 +6,7 @@ import { OrdersPage } from '@/features/orders/pages/OrdersPage'
 // editing the shared layout) avoids removing navigation chrome site-wide.
 export default function OrdersPreviewPage() {
   return (
-    <div className="min-h-screen bg-posCloud-background p-4 lg:p-6 dark:bg-posCloudDark-background">
+    <div className="min-h-screen bg-white p-4 lg:p-6">
       <OrdersPage />
     </div>
   )
