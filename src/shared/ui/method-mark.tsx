@@ -17,13 +17,15 @@ const LOGO_SRC: Partial<Record<MethodMarkId, string>> = {
   stc_pay: '/payment-methods/stc-pay.svg',
 }
 
-// Shared between PaymentModal (POS) and OrderDetailsModal (Orders) so both
-// surfaces render payment methods identically.
-export function MethodMark({ id }: { id: MethodMarkId }) {
+// Shared between PaymentModal (POS), OrderDetailsModal/OrdersTable (Orders),
+// and DashboardOverview's payment-method breakdown so all surfaces render
+// payment methods identically. `className` overrides the logo's default
+// size (h-5 w-12) for tighter contexts like the dashboard's icon chips.
+export function MethodMark({ id, className }: { id: MethodMarkId; className?: string }) {
   const logoSrc = LOGO_SRC[id]
   if (logoSrc) {
     return (
-      <span dir="ltr" className="relative inline-block h-5 w-12">
+      <span dir="ltr" className={`relative inline-block ${className ?? 'h-5 w-12'}`}>
         <Image src={logoSrc} alt={id} fill className="object-contain" unoptimized />
       </span>
     )

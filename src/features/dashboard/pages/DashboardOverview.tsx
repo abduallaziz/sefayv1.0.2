@@ -26,6 +26,7 @@ import { fetchOrders } from '@/features/orders/api/orders.api'
 import { useBusinessType } from '@/shared/hooks/useBusinessType'
 import { DateRangePicker, type DateRange } from '@/shared/ui/date-range-picker'
 import { cn } from '@/lib/utils'
+import { MethodMark, type MethodMarkId } from '@/shared/ui/method-mark'
 import Link from 'next/link'
 import { useState } from 'react'
 
@@ -128,6 +129,8 @@ const PAYMENT_COLORS: Record<string, string> = {
    percentage. Keys with no matching real data show a muted "soon" badge
    instead of a fabricated number — visual-only for now, tracked in
    docs/rebuild/PARKING_LOT.md for full backend wiring later. */
+const BRANDED_LOGO_KEYS = new Set(['mada', 'visa', 'mastercard', 'apple_pay', 'stc_pay'])
+
 const PAYMENT_METHOD_DEFS: { key: string; labelAr: string; labelEn: string; icon: React.ElementType }[] = [
   { key: 'cash', labelAr: 'نقدي', labelEn: 'Cash', icon: Banknote },
   { key: 'mada', labelAr: 'مدى', labelEn: 'mada', icon: CreditCard },
@@ -446,7 +449,11 @@ export function DashboardOverview() {
             {paymentRows.map((row) => (
               <div key={row.key} className="flex items-center gap-2 rounded-lg border border-posCloud-border dark:border-posCloudDark-border p-2">
                 <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md" style={{ background: `${row.color}1a` }}>
-                  <row.icon className="h-3.5 w-3.5" style={{ color: row.color }} />
+                  {BRANDED_LOGO_KEYS.has(row.key) ? (
+                    <MethodMark id={row.key as MethodMarkId} className="h-4 w-6" />
+                  ) : (
+                    <row.icon className="h-3.5 w-3.5" style={{ color: row.color }} />
+                  )}
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-[11px] font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{row.label}</p>
