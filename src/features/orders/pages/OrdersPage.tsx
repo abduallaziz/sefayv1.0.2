@@ -8,7 +8,7 @@ import { OrderFilters } from '../components/OrderFilters';
 import { OrderDetailsModal } from '../components/OrderDetailsModal';
 import { CancelOrderModal } from '../components/CancelOrderModal';
 import { useTranslations, useLocale } from 'next-intl';
-import { FileText, ClipboardList, Clock, CheckCircle2, XCircle, Wallet, ChevronRight, ChevronLeft, ChevronDown, Download, Settings2, ArrowUp, ArrowDown } from 'lucide-react';
+import { FileText, ClipboardList, Clock, CheckCircle2, XCircle, Wallet, ChevronRight, ChevronLeft, ChevronDown, Download, Settings2, ArrowUp, ArrowDown, Circle } from 'lucide-react';
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store';
 
 const PAGE_SIZES = [10, 25, 50];
@@ -136,10 +136,10 @@ export function OrdersPage() {
   // OrderStatus has no draft state — there can never be a draft order, so 0
   // is true by definition. Non-clickable since there's no real state to
   // filter by. "All" is rendered separately as a bordered dropdown-style box.
-  const statusPills: { value: OrderStatus; labelKey: string; count: number; color: string }[] = [
-    { value: 'cancelled', labelKey: 'status.cancelled', count: stats.cancelled, color: 'text-posCloud-danger bg-posCloud-danger-light dark:bg-posCloud-danger/15' },
-    { value: 'pending', labelKey: 'status.pending', count: stats.pending, color: 'text-posCloud-warning bg-posCloud-warning-light dark:bg-posCloud-warning/15' },
-    { value: 'completed', labelKey: 'status.completed', count: stats.completed, color: 'text-posCloud-success bg-posCloud-success-light dark:bg-posCloud-success/15' },
+  const statusPills: { value: OrderStatus; labelKey: string; count: number; iconColor: string; icon: typeof XCircle }[] = [
+    { value: 'cancelled', labelKey: 'status.cancelled', count: stats.cancelled, iconColor: 'text-posCloud-danger bg-posCloud-danger-light dark:bg-posCloud-danger/15', icon: XCircle },
+    { value: 'pending', labelKey: 'status.pending', count: stats.pending, iconColor: 'text-posCloud-warning bg-posCloud-warning-light dark:bg-posCloud-warning/15', icon: Clock },
+    { value: 'completed', labelKey: 'status.completed', count: stats.completed, iconColor: 'text-posCloud-success bg-posCloud-success-light dark:bg-posCloud-success/15', icon: CheckCircle2 },
   ];
 
   function handleCancelConfirm(id: string, reason: string) {
@@ -207,23 +207,29 @@ export function OrdersPage() {
           <button
             key={pill.value}
             onClick={() => { setFilters({ ...filters, status: pill.value }); setPage(1); }}
-            className={`flex items-center gap-1.5 h-8 rounded-full px-3 text-xs font-semibold transition-colors ${
+            className={`flex items-center gap-1.5 h-8 rounded-full border px-2.5 text-xs font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary transition-colors ${
               filters.status === pill.value
-                ? pill.color
-                : 'text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:bg-slate-100 dark:hover:bg-white/5'
+                ? 'border-posCloud-primary/40'
+                : 'border-posCloud-border dark:border-posCloudDark-border hover:bg-slate-100 dark:hover:bg-white/5'
             }`}
           >
-            {t(pill.labelKey as Parameters<typeof t>[0])}
             <span className="tabular-nums">{pill.count}</span>
+            {t(pill.labelKey as Parameters<typeof t>[0])}
+            <span className={`flex h-4 w-4 items-center justify-center rounded-full ${pill.iconColor}`}>
+              <pill.icon size={11} />
+            </span>
           </button>
         ))}
 
         <span
           title={t('status.draftHint')}
-          className="flex items-center gap-1.5 h-8 rounded-full px-3 text-xs font-semibold text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary cursor-default"
+          className="flex items-center gap-1.5 h-8 rounded-full border border-posCloud-border dark:border-posCloudDark-border px-2.5 text-xs font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary cursor-default"
         >
-          {t('status.draft')}
           <span className="tabular-nums">0</span>
+          {t('status.draft')}
+          <span className="flex h-4 w-4 items-center justify-center rounded-full text-posCloud-text-tertiary bg-posCloud-background dark:bg-posCloudDark-background">
+            <Circle size={11} />
+          </span>
         </span>
 
         <span className="w-px h-5 bg-posCloud-border dark:bg-posCloudDark-border mx-1" />
