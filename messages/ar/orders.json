@@ -57,7 +57,8 @@
     "print": "طباعة"
   },
   "actions": {
-    "view": "عرض"
+    "view": "عرض",
+    "header": "الإجراءات"
   },
   "filters": {
     "reset": "إعادة ضبط",

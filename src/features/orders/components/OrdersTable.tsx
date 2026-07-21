@@ -2,7 +2,7 @@
 
 import { Order } from '../types/order.types';
 import { useTranslations } from 'next-intl';
-import { Eye, Pencil, Ban, MoreVertical, User, Printer, ChevronDown } from 'lucide-react';
+import { Eye, Pencil, Ban, MoreVertical, Printer, Store } from 'lucide-react';
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store';
 import { MethodMark } from '@/shared/ui/method-mark';
 import { useBranches } from '@/shared/hooks/useBranches';
@@ -25,6 +25,33 @@ const statusColors: Record<string, string> = {
   pending: 'bg-posCloud-warning-light dark:bg-posCloud-warning/15 text-posCloud-warning',
   cancelled: 'bg-posCloud-danger-light dark:bg-posCloud-danger/15 text-posCloud-danger',
 };
+
+// Colored pill background per payment network, matching the reference
+// screenshot's per-brand chip styling instead of a single neutral border.
+const PAYMENT_PILL_BG: Record<string, string> = {
+  visa: 'bg-blue-50 dark:bg-blue-500/10',
+  mada: 'bg-green-50 dark:bg-green-500/10',
+  mastercard: 'bg-red-50 dark:bg-red-500/10',
+  apple_pay: 'bg-slate-100 dark:bg-white/10',
+  stc_pay: 'bg-purple-50 dark:bg-purple-500/10',
+  gift_card: 'bg-amber-50 dark:bg-amber-500/10',
+  cash: 'bg-slate-100 dark:bg-white/5',
+  wallet: 'bg-slate-100 dark:bg-white/5',
+  split: 'bg-slate-100 dark:bg-white/5',
+};
+
+// Two-line date/time matching the reference exactly: Arabic month name with
+// Western numerals (house rule), then "AM/PM h:mm:ss" with the period first.
+function formatOrderDateTime(iso: string) {
+  const d = new Date(iso);
+  const dateStr = d.toLocaleDateString('ar-SA-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' });
+  const hours24 = d.getHours();
+  const period = hours24 >= 12 ? 'PM' : 'AM';
+  const hours12 = hours24 % 12 || 12;
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  const ss = String(d.getSeconds()).padStart(2, '0');
+  return { dateStr, timeStr: `${period} ${hours12}:${mm}:${ss}` };
+}
 
 export function OrdersTable({ orders, onViewOrder, onPrintOrder, onCancelOrder }: Props) {
   const t = useTranslations('orders');
@@ -119,101 +146,94 @@ export function OrdersTable({ orders, onViewOrder, onPrintOrder, onCancelOrder }
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-posCloud-background dark:bg-posCloudDark-background border-b border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-              <th className="px-3 py-3 w-20" />
-              <th className="text-start px-3 py-3 font-medium">{t('cashier')}</th>
-              <th className="text-start px-3 py-3 font-medium">{t('filters.branch')}</th>
-              <th className="text-start px-3 py-3 font-medium">{t('paymentMethod')}</th>
-              <th className="text-start px-3 py-3 font-medium w-24">{t('amount')}</th>
-              <th className="text-start px-3 py-3 font-medium">{t('customer')}</th>
               <th className="text-start px-3 py-3 font-medium w-20">{t('invoiceNumber')}</th>
-              <th className="text-start px-3 py-3 font-medium">
-                <span className="flex items-center gap-1">{t('date')} <ChevronDown size={12} /></span>
-              </th>
+              <th className="text-start px-3 py-3 font-medium">{t('date')}</th>
+              <th className="text-start px-3 py-3 font-medium">{t('cashier')}</th>
+              <th className="text-start px-3 py-3 font-medium w-24">{t('amount')}</th>
+              <th className="text-start px-3 py-3 font-medium">{t('paymentMethod')}</th>
+              <th className="text-start px-3 py-3 font-medium">{t('filters.branch')}</th>
+              <th className="text-start px-3 py-3 font-medium w-20">{t('actions.header')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-posCloud-border dark:divide-posCloudDark-border">
-            {orders.map((order) => (
-              <tr key={order.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
-                <td className="px-3 py-3 w-20">
-                  <div className="flex items-center gap-0.5">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button
-                          onClick={(e) => e.stopPropagation()}
-                          className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary"
-                        >
-                          <MoreVertical size={15} />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="start">
-                        {order.status !== 'cancelled' && (
-                          <>
-                            <DropdownMenuItem disabled title={t('edit.soon')}>
-                              <Pencil size={14} />
-                              {t('edit.action')}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => onCancelOrder(order)}
-                              className="text-posCloud-danger hover:bg-posCloud-danger-light dark:hover:bg-posCloud-danger/10"
-                            >
-                              <Ban size={14} />
-                              {t('cancel.action')}
-                            </DropdownMenuItem>
-                          </>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                    <button
-                      onClick={() => onPrintOrder(order)}
-                      className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary"
-                      title={t('details.print')}
-                    >
-                      <Printer size={15} />
-                    </button>
+            {orders.map((order) => {
+              const { dateStr, timeStr } = formatOrderDateTime(order.created_at);
+              return (
+                <tr key={order.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                  <td className="px-3 py-3 w-20">
                     <button
                       onClick={() => onViewOrder(order)}
-                      className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary"
-                      title={t('actions.view')}
+                      className="font-mono text-xs font-semibold text-posCloud-primary hover:underline"
                     >
-                      <Eye size={15} />
+                      #{order.id.slice(-6).toUpperCase()}
                     </button>
-                  </div>
-                </td>
-                <td className="px-3 py-3 text-posCloud-text-secondary dark:text-posCloudDark-text-primary max-w-[120px] truncate">
-                  {order.cashier_name || '—'}
-                </td>
-                <td className="px-3 py-3 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary max-w-[120px] truncate">
-                  {branchName(order.branch_id)}
-                </td>
-                <td className="px-3 py-3">
-                  <span className="inline-flex items-center gap-1.5 rounded-lg border border-posCloud-border dark:border-posCloudDark-border px-2 py-1 text-posCloud-text-primary dark:text-posCloudDark-text-primary">
-                    {order.payment_method ? <MethodMark id={order.payment_method} /> : <span className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('payment_method.unknown')}</span>}
-                  </span>
-                </td>
-                <td className="px-3 py-3 font-bold text-posCloud-text-primary dark:text-posCloudDark-text-primary w-24 tabular-nums">
-                  {order.total.toLocaleString('en-US')} {currency}
-                </td>
-                <td className="px-3 py-3 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary max-w-[140px]">
-                  <span className="flex items-center gap-2">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-posCloud-background dark:bg-posCloudDark-background text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-                      <User size={13} />
+                  </td>
+                  <td className="px-3 py-3 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary text-xs">
+                    <p>{dateStr}</p>
+                    <p dir="ltr" className="text-start">{timeStr}</p>
+                  </td>
+                  <td className="px-3 py-3 text-posCloud-text-secondary dark:text-posCloudDark-text-primary max-w-[120px] truncate">
+                    {order.cashier_name || '—'}
+                  </td>
+                  <td className="px-3 py-3 font-bold text-posCloud-text-primary dark:text-posCloudDark-text-primary w-24 tabular-nums">
+                    {order.total.toLocaleString('en-US')} {currency}
+                  </td>
+                  <td className="px-3 py-3">
+                    <span className={`inline-flex items-center justify-center gap-1.5 rounded-lg px-2 py-1 text-posCloud-text-primary dark:text-posCloudDark-text-primary ${order.payment_method ? PAYMENT_PILL_BG[order.payment_method] ?? PAYMENT_PILL_BG.cash : PAYMENT_PILL_BG.cash}`}>
+                      {order.payment_method ? <MethodMark id={order.payment_method} /> : <span className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('payment_method.unknown')}</span>}
                     </span>
-                    <span className="truncate">{order.customer_name || t('generalCustomer')}</span>
-                  </span>
-                </td>
-                <td className="px-3 py-3 w-20">
-                  <button
-                    onClick={() => onViewOrder(order)}
-                    className="font-mono text-xs font-semibold text-posCloud-primary hover:underline"
-                  >
-                    #{order.id.slice(-6).toUpperCase()}
-                  </button>
-                </td>
-                <td className="px-3 py-3 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary text-xs">
-                  {new Date(order.created_at).toLocaleString('en-US')}
-                </td>
-              </tr>
-            ))}
+                  </td>
+                  <td className="px-3 py-3 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary max-w-[120px]">
+                    <span className="flex items-center gap-1.5">
+                      <Store size={13} className="shrink-0" />
+                      <span className="truncate">{branchName(order.branch_id)}</span>
+                    </span>
+                  </td>
+                  <td className="px-3 py-3 w-20">
+                    <div className="flex items-center gap-0.5">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button
+                            onClick={(e) => e.stopPropagation()}
+                            className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary"
+                          >
+                            <MoreVertical size={15} />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start">
+                          <DropdownMenuItem onClick={() => onPrintOrder(order)}>
+                            <Printer size={14} />
+                            {t('details.print')}
+                          </DropdownMenuItem>
+                          {order.status !== 'cancelled' && (
+                            <>
+                              <DropdownMenuItem disabled title={t('edit.soon')}>
+                                <Pencil size={14} />
+                                {t('edit.action')}
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => onCancelOrder(order)}
+                                className="text-posCloud-danger hover:bg-posCloud-danger-light dark:hover:bg-posCloud-danger/10"
+                              >
+                                <Ban size={14} />
+                                {t('cancel.action')}
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                      <button
+                        onClick={() => onViewOrder(order)}
+                        className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary"
+                        title={t('actions.view')}
+                      >
+                        <Eye size={15} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

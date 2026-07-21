@@ -61,7 +61,8 @@
     "soon": "Soon"
   },
   "actions": {
-    "view": "View"
+    "view": "View",
+    "header": "Actions"
   },
   "filters": {
     "reset": "Reset",

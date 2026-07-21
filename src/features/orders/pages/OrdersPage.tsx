@@ -8,7 +8,7 @@ import { OrderFilters } from '../components/OrderFilters';
 import { OrderDetailsModal } from '../components/OrderDetailsModal';
 import { CancelOrderModal } from '../components/CancelOrderModal';
 import { useTranslations, useLocale } from 'next-intl';
-import { FileText, ClipboardList, Clock, CheckCircle2, XCircle, Wallet, ChevronRight, ChevronLeft, Download, Settings2, ArrowUp, ArrowDown } from 'lucide-react';
+import { FileText, ClipboardList, Clock, CheckCircle2, XCircle, Wallet, ChevronRight, ChevronLeft, ChevronDown, Download, Settings2, ArrowUp, ArrowDown } from 'lucide-react';
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store';
 
 const PAGE_SIZES = [10, 25, 50];
@@ -131,14 +131,15 @@ export function OrdersPage() {
     setPrintRequestId(order.id);
   }
 
-  // Order: draft, cancelled, completed, all — matches the reference exactly.
-  // "Draft" always shows 0 (real, not fabricated) since Sefay's OrderStatus
-  // has no draft state — there can never be a draft order, so 0 is true by
-  // definition. Non-clickable since there's no real state to filter by.
-  const statusPills: { value: OrderStatus | ''; labelKey: string; count: number; color: string }[] = [
+  // Order: draft, cancelled, pending, completed — matches the reference
+  // exactly. "Draft" always shows 0 (real, not fabricated) since Sefay's
+  // OrderStatus has no draft state — there can never be a draft order, so 0
+  // is true by definition. Non-clickable since there's no real state to
+  // filter by. "All" is rendered separately as a bordered dropdown-style box.
+  const statusPills: { value: OrderStatus; labelKey: string; count: number; color: string }[] = [
     { value: 'cancelled', labelKey: 'status.cancelled', count: stats.cancelled, color: 'text-posCloud-danger bg-posCloud-danger-light dark:bg-posCloud-danger/15' },
+    { value: 'pending', labelKey: 'status.pending', count: stats.pending, color: 'text-posCloud-warning bg-posCloud-warning-light dark:bg-posCloud-warning/15' },
     { value: 'completed', labelKey: 'status.completed', count: stats.completed, color: 'text-posCloud-success bg-posCloud-success-light dark:bg-posCloud-success/15' },
-    { value: '', labelKey: 'status.all', count: stats.total, color: 'text-posCloud-primary bg-posCloud-primary-light dark:bg-posCloud-primary/15' },
   ];
 
   function handleCancelConfirm(id: string, reason: string) {
@@ -217,10 +218,10 @@ export function OrdersPage() {
 
         {statusPills.map(pill => (
           <button
-            key={pill.value || 'all'}
-            onClick={() => { setFilters({ ...filters, status: pill.value || undefined }); setPage(1); }}
+            key={pill.value}
+            onClick={() => { setFilters({ ...filters, status: pill.value }); setPage(1); }}
             className={`flex items-center gap-1.5 h-8 rounded-full px-3 text-xs font-semibold transition-colors ${
-              (filters.status || '') === pill.value
+              filters.status === pill.value
                 ? pill.color
                 : 'text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:bg-slate-100 dark:hover:bg-white/5'
             }`}
@@ -229,6 +230,19 @@ export function OrdersPage() {
             <span className="tabular-nums">{pill.count}</span>
           </button>
         ))}
+
+        <button
+          onClick={() => { setFilters({ ...filters, status: undefined }); setPage(1); }}
+          className={`flex items-center gap-1.5 h-8 rounded-lg border px-3 text-xs font-semibold transition-colors ${
+            !filters.status
+              ? 'border-posCloud-primary text-posCloud-primary bg-posCloud-primary-light dark:bg-posCloud-primary/15'
+              : 'border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:bg-slate-100 dark:hover:bg-white/5'
+          }`}
+        >
+          {t('status.all')}
+          <span className="tabular-nums">{stats.total}</span>
+          <ChevronDown size={13} />
+        </button>
       </div>
 
       {isLoading ? (
