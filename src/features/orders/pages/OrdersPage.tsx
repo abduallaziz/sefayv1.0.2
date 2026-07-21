@@ -191,34 +191,19 @@ export function OrdersPage() {
 
       <div className="flex flex-wrap items-center gap-2 -mt-2 mb-4">
         <button
-          type="button"
-          disabled
-          title={t('edit.soon')}
-          className="flex items-center gap-1.5 h-8 rounded-lg border border-posCloud-border dark:border-posCloudDark-border px-2.5 text-xs font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary opacity-50 cursor-not-allowed"
+          onClick={() => { setFilters({ ...filters, status: undefined }); setPage(1); }}
+          className={`flex items-center gap-1.5 h-8 rounded-lg border px-3 text-xs font-semibold transition-colors ${
+            !filters.status
+              ? 'border-posCloud-primary text-posCloud-primary bg-posCloud-primary-light dark:bg-posCloud-primary/15'
+              : 'border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:bg-slate-100 dark:hover:bg-white/5'
+          }`}
         >
-          <Download size={13} />
-          {t('filters.export')}
-        </button>
-        <button
-          type="button"
-          disabled
-          title={t('edit.soon')}
-          className="flex items-center justify-center h-8 w-8 rounded-lg border border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary opacity-50 cursor-not-allowed"
-        >
-          <Settings2 size={13} />
+          {t('status.all')}
+          <span className="tabular-nums">{stats.total}</span>
+          <ChevronDown size={13} />
         </button>
 
-        <span className="w-px h-5 bg-posCloud-border dark:bg-posCloudDark-border mx-1" />
-
-        <span
-          title={t('status.draftHint')}
-          className="flex items-center gap-1.5 h-8 rounded-full px-3 text-xs font-semibold text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary cursor-default"
-        >
-          {t('status.draft')}
-          <span className="tabular-nums">0</span>
-        </span>
-
-        {statusPills.map(pill => (
+        {[...statusPills].reverse().map(pill => (
           <button
             key={pill.value}
             onClick={() => { setFilters({ ...filters, status: pill.value }); setPage(1); }}
@@ -233,17 +218,30 @@ export function OrdersPage() {
           </button>
         ))}
 
-        <button
-          onClick={() => { setFilters({ ...filters, status: undefined }); setPage(1); }}
-          className={`flex items-center gap-1.5 h-8 rounded-lg border px-3 text-xs font-semibold transition-colors ${
-            !filters.status
-              ? 'border-posCloud-primary text-posCloud-primary bg-posCloud-primary-light dark:bg-posCloud-primary/15'
-              : 'border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:bg-slate-100 dark:hover:bg-white/5'
-          }`}
+        <span
+          title={t('status.draftHint')}
+          className="flex items-center gap-1.5 h-8 rounded-full px-3 text-xs font-semibold text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary cursor-default"
         >
-          {t('status.all')}
-          <span className="tabular-nums">{stats.total}</span>
-          <ChevronDown size={13} />
+          {t('status.draft')}
+          <span className="tabular-nums">0</span>
+        </span>
+
+        <span className="w-px h-5 bg-posCloud-border dark:bg-posCloudDark-border mx-1" />
+
+        <button
+          type="button"
+          title={t('edit.soon')}
+          className="flex items-center justify-center h-8 w-8 rounded-lg border border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-secondary dark:text-posCloudDark-text-primary hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+        >
+          <Settings2 size={13} />
+        </button>
+        <button
+          type="button"
+          title={t('edit.soon')}
+          className="flex items-center gap-1.5 h-8 rounded-lg border border-posCloud-border dark:border-posCloudDark-border px-2.5 text-xs font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-primary hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+        >
+          <Download size={13} />
+          {t('filters.export')}
         </button>
       </div>
 
