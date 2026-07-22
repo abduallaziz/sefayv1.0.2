@@ -191,66 +191,68 @@ export function OrdersPage() {
 
       <OrderFilters filters={filters} onChange={(next) => { setFilters(next); setPage(1); }} />
 
-      <div className="flex flex-wrap items-center justify-center gap-2 -mt-2 mb-4">
-        <button
-          type="button"
-          title={t('edit.soon')}
-          className="flex items-center gap-1.5 h-8 rounded-lg border border-posCloud-border dark:border-posCloudDark-border px-2.5 text-xs font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-primary hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
-        >
-          <Download size={13} />
-          {t('filters.export')}
-        </button>
-        <button
-          type="button"
-          title={t('edit.soon')}
-          className="flex items-center justify-center h-8 w-8 rounded-lg border border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-secondary dark:text-posCloudDark-text-primary hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
-        >
-          <Settings2 size={13} />
-        </button>
-
-        <span className="w-px h-5 bg-posCloud-border dark:bg-posCloudDark-border mx-1" />
-
-        <span
-          title={t('status.draftHint')}
-          className="flex items-center gap-1.5 h-8 rounded-full border border-posCloud-border dark:border-posCloudDark-border px-2.5 text-xs font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary cursor-default"
-        >
-          <span className="tabular-nums">0</span>
-          {t('status.draft')}
-          <span className="flex h-4 w-4 items-center justify-center rounded-full text-posCloud-text-tertiary bg-posCloud-background dark:bg-posCloudDark-background">
-            <Circle size={11} />
+      <div className="flex flex-wrap items-center justify-between gap-2 -mt-2 mb-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <span
+            title={t('status.draftHint')}
+            className="flex items-center gap-1.5 h-8 rounded-full border border-posCloud-border dark:border-posCloudDark-border px-2.5 text-xs font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary cursor-default"
+          >
+            <span className="tabular-nums">0</span>
+            {t('status.draft')}
+            <span className="flex h-4 w-4 items-center justify-center rounded-full text-posCloud-text-tertiary bg-posCloud-background dark:bg-posCloudDark-background">
+              <Circle size={11} />
+            </span>
           </span>
-        </span>
 
-        {statusPills.map(pill => (
+          {statusPills.map(pill => (
+            <button
+              key={pill.value}
+              onClick={() => { setFilters({ ...filters, status: pill.value }); setPage(1); }}
+              className={`flex items-center gap-1.5 h-8 rounded-full border px-2.5 text-xs font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary transition-colors ${
+                filters.status === pill.value
+                  ? 'border-posCloud-primary/40'
+                  : 'border-posCloud-border dark:border-posCloudDark-border hover:bg-slate-100 dark:hover:bg-white/5'
+              }`}
+            >
+              <span className="tabular-nums">{pill.count}</span>
+              {t(pill.labelKey as Parameters<typeof t>[0])}
+              <span className={`flex h-4 w-4 items-center justify-center rounded-full ${pill.iconColor}`}>
+                <pill.icon size={11} />
+              </span>
+            </button>
+          ))}
+
           <button
-            key={pill.value}
-            onClick={() => { setFilters({ ...filters, status: pill.value }); setPage(1); }}
-            className={`flex items-center gap-1.5 h-8 rounded-full border px-2.5 text-xs font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary transition-colors ${
-              filters.status === pill.value
-                ? 'border-posCloud-primary/40'
-                : 'border-posCloud-border dark:border-posCloudDark-border hover:bg-slate-100 dark:hover:bg-white/5'
+            onClick={() => { setFilters({ ...filters, status: undefined }); setPage(1); }}
+            className={`flex items-center gap-1.5 h-8 rounded-lg border px-3 text-xs font-semibold transition-colors ${
+              !filters.status
+                ? 'border-posCloud-primary text-posCloud-primary bg-posCloud-primary-light dark:bg-posCloud-primary/15'
+                : 'border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:bg-slate-100 dark:hover:bg-white/5'
             }`}
           >
-            <span className="tabular-nums">{pill.count}</span>
-            {t(pill.labelKey as Parameters<typeof t>[0])}
-            <span className={`flex h-4 w-4 items-center justify-center rounded-full ${pill.iconColor}`}>
-              <pill.icon size={11} />
-            </span>
+            {t('status.all')}
+            <span className="tabular-nums">{stats.total}</span>
+            <ChevronDown size={13} />
           </button>
-        ))}
+        </div>
 
-        <button
-          onClick={() => { setFilters({ ...filters, status: undefined }); setPage(1); }}
-          className={`flex items-center gap-1.5 h-8 rounded-lg border px-3 text-xs font-semibold transition-colors ${
-            !filters.status
-              ? 'border-posCloud-primary text-posCloud-primary bg-posCloud-primary-light dark:bg-posCloud-primary/15'
-              : 'border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:bg-slate-100 dark:hover:bg-white/5'
-          }`}
-        >
-          {t('status.all')}
-          <span className="tabular-nums">{stats.total}</span>
-          <ChevronDown size={13} />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            title={t('edit.soon')}
+            className="flex items-center gap-1.5 h-8 rounded-lg border border-posCloud-border dark:border-posCloudDark-border px-2.5 text-xs font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-primary hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+          >
+            <Download size={13} />
+            {t('filters.export')}
+          </button>
+          <button
+            type="button"
+            title={t('edit.soon')}
+            className="flex items-center justify-center h-8 w-8 rounded-lg border border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-secondary dark:text-posCloudDark-text-primary hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+          >
+            <Settings2 size={13} />
+          </button>
+        </div>
       </div>
 
       {isLoading ? (
