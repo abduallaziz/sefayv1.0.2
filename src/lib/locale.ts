@@ -16,8 +16,11 @@ interface FormatNumberOptions {
   decimals?: number
 }
 
+// `-u-nu-latn` forces Western (0-9) numerals while keeping Arabic month/day
+// names and RTL date conventions — plain 'ar-SA' renders Arabic-Indic digits
+// (٠١٢٣...), which violates the project's standing English-numerals rule.
 const LOCALE_MAP: Record<Locale, string> = {
-  ar: 'ar-SA',
+  ar: 'ar-SA-u-nu-latn',
   en: 'en-US',
 }
 

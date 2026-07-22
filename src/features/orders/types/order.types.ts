@@ -1,5 +1,7 @@
 export type OrderStatus = 'pending' | 'completed' | 'cancelled' | 'refunded';
-export type PaymentMethod = 'cash' | 'card' | 'split' | 'wallet';
+export type PaymentMethod =
+  | 'cash' | 'card' | 'split' | 'wallet' | 'mada' | 'visa'
+  | 'mastercard' | 'stc_pay' | 'apple_pay' | 'tab' | 'gift_card';
 
 export interface OrderItem {
   id: string;

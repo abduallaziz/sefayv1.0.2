@@ -18,9 +18,12 @@ export function PageHeader({
   theme = 'dashboard',
   className,
 }: PageHeaderProps) {
-  const textColor   = theme === 'superadmin' ? 'text-[#e2e8f0]' : 'text-[#0f172a]';
-  const mutedColor  = theme === 'superadmin' ? 'text-[#64748b]' : 'text-[#64748b]';
-  const borderColor = theme === 'superadmin' ? 'border-[#1e2130]' : 'border-[#e2e8f0]';
+  // Matrix D6: `theme` prop is a per-section variant (superadmin vs.
+  // dashboard section styling), unrelated to the global light/dark
+  // toggle — preserved as-is, hex values tokenized only.
+  const textColor   = theme === 'superadmin' ? 'text-posCloudDark-text-secondary' : 'text-posCloud-text-primary';
+  const mutedColor  = theme === 'superadmin' ? 'text-posCloudDark-text-tertiary' : 'text-posCloud-text-tertiary';
+  const borderColor = theme === 'superadmin' ? 'border-posCloudDark-border' : 'border-posCloud-border';
 
   return (
     <div className={cn('pb-5 mb-6 border-b', borderColor, className)}>
@@ -29,7 +32,7 @@ export function PageHeader({
           {breadcrumb.map((item, i) => (
             <span key={i} className="flex items-center gap-1.5">
               {i > 0 && <span className={cn('text-xs', mutedColor)}>/</span>}
-              <span className={cn('text-xs font-medium', i === breadcrumb.length - 1 ? mutedColor : 'text-[#6366f1] cursor-pointer hover:underline')}>
+              <span className={cn('text-xs font-medium', i === breadcrumb.length - 1 ? mutedColor : 'text-posCloud-primary cursor-pointer hover:underline')}>
                 {item.label}
               </span>
             </span>

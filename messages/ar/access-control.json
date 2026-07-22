@@ -1,0 +1,180 @@
+{
+  "title": "التحكم بالصلاحيات",
+  "subtitle": "حدد وش يقدر يسوي كل دور ووش يوصل له",
+  "userCount": "المستخدمين",
+  "customized": "مخصص",
+  "resetToDefault": "رجّعها للوضع الافتراضي",
+  "cancel": "إلغاء",
+  "saving": "جارٍ الحفظ...",
+  "createRoleCta": "إنشاء دور مخصص",
+  "loadRolesError": "ما قدرنا نجيب الأدوار، حاول مرة ثانية",
+  "noPermissionsInDomain": "ما فيه صلاحيات بهذا القسم",
+  "roleScope": {
+    "system": "نظامي",
+    "custom": "مخصص"
+  },
+  "actionsMenu": {
+    "viewOnly": "عرض فقط",
+    "edit": "تعديل الدور",
+    "delete": "حذف الدور"
+  },
+  "emptyRoles": {
+    "title": "ما فيه أدوار مخصصة لين الحين",
+    "description": "الأدوار النظامية (المالك، المدير، الكاشير) موجودة دايم. سوّي دور مخصص إذا تبي تضبط الصلاحيات لوظيفة معينة."
+  },
+  "sheet": {
+    "createTitle": "إنشاء دور مخصص",
+    "createDescription": "عطه اسم، وبعدها تقدر تضبط صلاحياته على طول.",
+    "roleNameLabel": "اسم الدور",
+    "roleNamePlaceholder": "مثال: مشرف وردية",
+    "descriptionLabel": "الوصف (اختياري)",
+    "descriptionPlaceholder": "هذا الدور مسؤول عن وش؟",
+    "roleNameMinLength": "اسم الدور لازم حرفين على الأقل",
+    "createSubmit": "إنشاء الدور",
+    "configureDescriptionEdit": "بدّل مفتاح القسم عشان تمنح أو تسحب كل صلاحياته دفعة وحدة، أو خصص كل صلاحية لحالها تحت.",
+    "configureDescriptionView": "دور نظامي — الصلاحيات معروضة للاطلاع فقط ولا تقدر تعدلها.",
+    "close": "إغلاق",
+    "done": "تم"
+  },
+  "toast": {
+    "roleCreated": "تم إنشاء دور \"{name}\"",
+    "roleCreateError": "ما قدرنا ننشئ الدور",
+    "roleDeleted": "تم حذف دور \"{name}\"",
+    "roleDeleteError": "ما قدرنا نحذف الدور",
+    "permissionSaveError": "ما قدرنا نحفظ هالتغيير",
+    "permissionResetError": "ما قدرنا نرجّع هالصلاحية لوضعها الافتراضي"
+  },
+  "domains": {
+    "sales": "المبيعات",
+    "inventory": "المخزون",
+    "hr": "الموارد البشرية"
+  },
+  "deleteConfirm": {
+    "title": "تحذف هذا الدور؟",
+    "message": "بيتحذف \"{name}\" نهائيًا، وما تقدر تتراجع عن هالخطوة.",
+    "loadingLabel": "جارٍ الحذف..."
+  },
+  "card": {
+    "noDescription": "ما فيه وصف مكتوب لين الحين.",
+    "manageUsers": "إدارة المستخدمين"
+  },
+  "roleUsersSheet": {
+    "title": "المستخدمين اللي عندهم دور \"{role}\"",
+    "description": "شوف، ضيف، أو احذف مستخدمين من هذا الدور.",
+    "searchPlaceholder": "ابحث بالاسم أو الإيميل...",
+    "addUser": "إضافة مستخدم",
+    "addUserSearchPlaceholder": "ابحث عن مستخدم تضيفه...",
+    "loadingUsers": "جارٍ تحميل المستخدمين...",
+    "noCandidates": "ما فيه مستخدمين مطابقين",
+    "add": "إضافة",
+    "primaryBadge": "أساسي",
+    "removeRole": "حذف الدور",
+    "cannotRemovePrimary": "هذا الدور الأساسي للمستخدم — غيّره من صفحة تغيير الدور بدل ما تحذفه من هنا",
+    "emptyTitle": "ما فيه مستخدمين على هذا الدور لين الحين",
+    "emptyDescription": "ضيف مستخدم من فوق عشان تسند له هذا الدور.",
+    "noSearchResults": "ما فيه مستخدمين مطابقين لبحثك",
+    "removeError": "ما قدرنا نحذف هذا الدور",
+    "addError": "ما قدرنا نضيف هذا الدور",
+    "changePrimaryError": "ما قدرنا نغيّر الدور الأساسي"
+  },
+  "userPermissionChecklist": {
+    "searchPlaceholder": "ابحث بالصلاحيات...",
+    "resetToDefaults": "رجّع للوضع الافتراضي",
+    "ownerLocked": "المالك دايمًا عنده كل الصلاحيات — أي تخصيص فردي ما له أثر، ولذا معطّل هنا.",
+    "ownerBadge": "مالك",
+    "togglePermissions": "الصلاحيات",
+    "resetOne": "رجّعها للموروثة",
+    "setError": "ما قدرنا نحفظ هذا التخصيص",
+    "resetOneError": "ما قدرنا نرجّع هذي الصلاحية",
+    "resetAllError": "ما قدرنا نرجّع التخصيصات"
+  },
+  "roles": {
+    "superadmin": {
+      "name": "مسؤول المنصة",
+      "description": "مسؤول على مستوى المنصة لجميع الحسابات"
+    },
+    "owner": {
+      "name": "المالك",
+      "description": "صاحب المنشأة — صلاحية كاملة داخل حسابه"
+    },
+    "manager": {
+      "name": "مدير",
+      "description": "مدير فرع أو عمليات"
+    },
+    "cashier": {
+      "name": "كاشير",
+      "description": "مشغّل نقطة البيع"
+    },
+    "worker": {
+      "name": "موظف",
+      "description": "موظف عام"
+    },
+    "inventory_clerk": {
+      "name": "أمين مخزون",
+      "description": "موظف عمليات المخزون والمستودع"
+    },
+    "none": {
+      "name": "بدون دخول",
+      "description": "ملف موظف بدون صلاحية دخول للنظام أو لوحة التحكم"
+    }
+  },
+  "permissions": {
+    "invoice__create__own": "إنشاء فواتيره الخاصة",
+    "invoice__view__own": "عرض فواتيره الخاصة",
+    "invoice__view__branch": "عرض فواتير الفرع",
+    "invoice__view__all": "عرض جميع الفواتير",
+    "invoice__cancel__own": "إلغاء فواتيره الخاصة",
+    "invoice__cancel__branch": "إلغاء فواتير الفرع",
+    "invoice__view": "عرض الفواتير",
+    "invoice__create": "إنشاء فواتير",
+    "invoice__cancel": "إلغاء الفواتير",
+    "expense__request": "تقديم طلبات مصروفات",
+    "expense__view__branch": "عرض مصروفات الفرع",
+    "expense__view__all": "عرض جميع المصروفات",
+    "expense__approve": "الموافقة على المصروفات",
+    "expense__reject": "رفض المصروفات",
+    "shift__open": "فتح وردية",
+    "shift__close": "إغلاق وردية نفسه",
+    "shift__view__own": "عرض ورديته",
+    "shift__view__branch": "عرض ورديات الفرع",
+    "shift__view__all": "عرض جميع الورديات",
+    "users__view": "عرض المستخدمين",
+    "users__manage": "إدارة المستخدمين",
+    "items__view": "عرض الأصناف",
+    "items__manage": "إدارة الأصناف",
+    "branches__view": "عرض الفروع",
+    "branches__manage": "إدارة الفروع",
+    "customers__view": "عرض العملاء",
+    "customers__manage": "إدارة العملاء",
+    "expenses__view": "عرض المصروفات",
+    "expenses__manage": "إدارة المصروفات",
+    "reports__view__branch": "عرض تقارير الفرع",
+    "reports__view__all": "عرض جميع التقارير",
+    "settings__view": "عرض الإعدادات",
+    "settings__manage": "إدارة الإعدادات",
+    "analytics__view__all": "عرض تحليلات المنصة",
+    "audit__view__all": "عرض سجلات التدقيق",
+    "superadmin__queue__view": "عرض قوائم الانتظار",
+    "superadmin__queue__manage": "إدارة قوائم الانتظار",
+    "superadmin__health__view": "عرض حالة النظام",
+    "superadmin__backup__view": "عرض النسخ الاحتياطية",
+    "inventory__view": "عرض المستودعات ومستويات المخزون والحركات",
+    "inventory__manage": "إدارة المستودعات والمواقع ونقاط إعادة الطلب",
+    "inventory__adjust": "إنشاء تسويات مخزون",
+    "inventory__adjust__approve": "الموافقة على تسويات المخزون اللي تتجاوز الحد المسموح",
+    "inventory__transfer": "إنشاء تحويلات بين المستودعات ومعالجتها",
+    "inventory__count": "تنفيذ جرد المخزون واعتماده",
+    "inventory__reserve": "حجز المخزون وإلغاء الحجز",
+    "purchasing__view": "عرض الموردين وأوامر الشراء وسندات الاستلام",
+    "purchasing__manage": "إنشاء وتعديل الموردين وأوامر الشراء",
+    "purchasing__approve": "الموافقة على أوامر الشراء",
+    "purchasing__receive": "تسجيل سندات استلام البضاعة",
+    "attendance__checkin": "تسجيل الحضور والانصراف وعرض سجله الشخصي",
+    "attendance__view__all": "عرض حضور جميع الموظفين",
+    "hr__manage": "إدارة جداول العمل ونسب العمولات",
+    "tables__manage": "إدارة الطاولات وطلبات الصالة والحجوزات وقائمة الانتظار",
+    "kitchen__manage": "عرض وتحديث حالة طلبات المطبخ",
+    "coupons__manage": "إنشاء وإدارة كوبونات الخصم",
+    "gift_cards__manage": "إصدار وإدارة بطاقات الهدايا"
+  }
+}

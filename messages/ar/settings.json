@@ -2,10 +2,13 @@
   "title": "الإعدادات",
   "subtitle": "إدارة معلومات المتجر والاشتراك",
   "profile": "معلومات المتجر",
+  "accessControl": "إدارة الصلاحيات",
+  "accessControlHint": "تحكم فيما يمكن لكل دور الوصول إليه",
   "businessName": "اسم المتجر",
   "businessType": "نوع النشاط",
   "save": "حفظ",
   "saving": "جاري الحفظ...",
+  "saveError": "تعذر الحفظ، حاول مرة أخرى",
   "subscription": "الاشتراك",
   "plan": "الخطة",
   "status": "الحالة",
@@ -20,5 +23,33 @@
   "currency": "العملة",
   "invoicesThisMonth": "الفواتير هذا الشهر",
   "customFields": "حقول العميل المخصصة",
-  "customFieldsHint": "عند التفعيل، يظهر للكاشير خيار البحث عن عميل أو تسجيل عميل جديد عند البيع (POS)."
+  "customFieldsHint": "عند التفعيل، يظهر للكاشير خيار البحث عن عميل أو تسجيل عميل جديد عند البيع (POS).",
+  "invoiceCustomization": "تخصيص الفاتورة",
+  "logoUrl": "رابط الشعار",
+  "taxNumber": "الرقم الضريبي",
+  "invoiceFooter": "تذييل الفاتورة",
+  "printerSettings": "إعدادات الطابعة",
+  "paperWidth": "عرض الورق",
+  "autoPrint": "طباعة تلقائية بعد كل فاتورة",
+  "notificationPreferences": "إعدادات التنبيهات",
+  "notificationPreferencesHint": "اختر أي التنبيهات تريد استلامها عبر البريد الإلكتروني. تبقى تنبيهات الأمان (تسجيل الدخول والجلسات) مفعّلة دائمًا.",
+  "notifications": {
+    "subscription_expired": "انتهاء الاشتراك",
+    "payment_failed": "فشل عملية دفع",
+    "payment_success": "نجاح عملية دفع"
+  },
+  "loyalty": {
+    "title": "برنامج الولاء",
+    "disabledHint": "برنامج الولاء معطَّل حاليًا — لا يُكتسب أو يُسترَد أي نقاط بالفواتير. فعّله لإظهار الإعدادات.",
+    "pointsPerCurrency": "نقاط لكل وحدة عملة",
+    "redemptionValue": "قيمة استرداد النقطة الواحدة",
+    "tiersHint": "فئات الولاء تمنح مضاعِف نقاط إضافي حسب إجمالي ما اكتسبه العميل تاريخيًا (لا يتأثر بالاسترداد)",
+    "noTiers": "لا توجد فئات ولاء بعد",
+    "addTier": "إضافة فئة",
+    "tierName": "اسم الفئة",
+    "tierMinPoints": "الحد الأدنى من النقاط",
+    "tierMultiplier": "مضاعِف النقاط",
+    "tierThreshold": "من {points} نقطة",
+    "cancel": "إلغاء"
+  }
 }

@@ -1,17 +1,22 @@
 {
-  "title": "الفواتير",
-  "subtitle": "إدارة وتتبع جميع الفواتير",
+  "title": "الطلبات",
+  "subtitle": "إدارة ومتابعة جميع الطلبات والفواتير",
   "invoiceNumber": "رقم الفاتورة",
   "cashier": "الكاشير",
   "customer": "العميل",
   "total": "الإجمالي",
+  "amount": "المبلغ",
   "payment": "الدفع",
+  "paymentMethod": "طريقة الدفع",
   "date": "التاريخ",
   "notes": "ملاحظات",
   "searchPlaceholder": "بحث...",
   "noOrders": "لا توجد فواتير",
   "tryFilters": "جرّب تغيير الفلاتر",
   "loading": "جاري التحميل...",
+  "back": "رجوع",
+  "generalCustomer": "عميل عام",
+  "noNotes": "لا توجد ملاحظات",
   "totalInvoices": "إجمالي الفواتير",
   "completedCount": "مكتملة",
   "pendingCount": "معلقة",
@@ -21,19 +26,56 @@
     "all": "الكل",
     "completed": "مكتملة",
     "pending": "معلقة",
-    "cancelled": "ملغاة"
+    "cancelled": "ملغاة",
+    "draft": "مسودة",
+    "draftHint": "لا يوجد حالة مسودة بعد في نظام الفواتير"
   },
   "payment_method": {
     "cash": "نقد",
     "card": "بطاقة",
-    "split": "مقسم"
+    "split": "مقسم",
+    "wallet": "محفظة",
+    "mada": "مدى",
+    "visa": "فيزا",
+    "mastercard": "ماستركارد",
+    "stc_pay": "STC Pay",
+    "apple_pay": "Apple Pay",
+    "tab": "حساب آجل",
+    "gift_card": "بطاقة هدية",
+    "unknown": "—"
   },
   "details": {
     "title": "تفاصيل الفاتورة",
     "items": "الأصناف",
     "subtotal": "المجموع الفرعي",
     "discount": "الخصم",
-    "tax": "الضريبة (15%)"
+    "tax": "الضريبة (15%)",
+    "summary": "الملخص المالي",
+    "journalEntry": "القيد المحاسبي",
+    "downloadPdf": "تنزيل PDF",
+    "sendPdf": "إرسال PDF",
+    "print": "طباعة"
+  },
+  "actions": {
+    "view": "عرض",
+    "header": "الإجراءات"
+  },
+  "filters": {
+    "reset": "إعادة ضبط",
+    "more": "المزيد",
+    "branch": "الفرع",
+    "allBranches": "كل الفروع",
+    "export": "تصدير"
+  },
+  "pagination": {
+    "prev": "السابق",
+    "next": "التالي",
+    "show": "عرض",
+    "range": "من {from} إلى {to} من {total} نتيجة"
+  },
+  "edit": {
+    "action": "تعديل",
+    "soon": "قريباً"
   },
   "cancel": {
     "action": "إلغاء الفاتورة",
@@ -50,6 +92,7 @@
     "completed": "مكتملة",
     "pending": "معلقة",
     "cancelled": "ملغاة",
-    "todayRevenue": "الإيراد اليوم"
+    "todayRevenue": "الإيراد اليوم",
+    "vsLastMonth": "عن الفترة السابقة"
   }
 }

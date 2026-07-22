@@ -48,6 +48,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
               activity: user.activity ?? null,
             },
             data.access_token,
+            data.realtime_token,
           );
         } else {
           clearAuth();

@@ -45,7 +45,7 @@ export function AddExpenseModal({ onClose }: Props) {
   const labelClass = "text-xs text-slate-500 mb-1 block"
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+    <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/60 p-4">
       <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl w-full max-w-md p-6 space-y-4">
         <h2 className="text-base font-semibold text-slate-800 dark:text-white">{t('addExpense.title')}</h2>
 

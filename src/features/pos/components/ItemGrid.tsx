@@ -2,9 +2,48 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { useTenantStore } from '@/core/tenant/stores/tenant.store'
+import { Search, ImageOff } from 'lucide-react'
+import Image from 'next/image'
+import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { POSItem, POSVariant } from '../types/pos.types'
 import { useItems, useCategories, useItemVariants } from '@/features/items/hooks/useItems'
+
+// Sefay's real Item model has no image_url field anywhere (confirmed — no
+// backend upload feature exists yet, see docs/rebuild/PARKING_LOT.md B3).
+// Per explicit user decision, a temporary stand-in photo is pulled from a
+// public stock-photo service keyed by the item's own name (real, tenant-
+// specific text — not a fabricated value) and locked to the item's id so
+// the same item always gets the same photo across renders, exactly the
+// technique pos-cloud's own mock data uses (loremflickr, ?lock=id).
+function itemImageUrl(item: POSItem) {
+  return `https://loremflickr.com/300/300/${encodeURIComponent(item.name_ar || item.name)}?lock=${item.id}`
+}
+
+// Premium product-card image: fills its slot edge-to-edge (object-cover,
+// no letterboxing), and on load failure swaps to a placeholder that
+// occupies exactly the same space — the card layout never collapses or
+// reflows either way.
+function ProductImage({ item }: { item: POSItem }) {
+  const [failed, setFailed] = useState(false)
+  if (failed) {
+    return (
+      <div className="flex h-full w-full items-center justify-center bg-posCloud-background dark:bg-posCloudDark-background">
+        <ImageOff className="h-7 w-7 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary" strokeWidth={1.5} />
+      </div>
+    )
+  }
+  return (
+    <Image
+      src={itemImageUrl(item)}
+      alt={item.name_ar}
+      fill
+      sizes="180px"
+      className="object-cover"
+      unoptimized
+      onError={() => setFailed(true)}
+    />
+  )
+}
 
 interface Props {
   onAddItem: (item: POSItem, variant?: POSVariant) => void
@@ -17,23 +56,23 @@ function VariantModal({ item, onAddItem, onClose, t }: {
   t: any
 }) {
   const { data: variants = [], isLoading } = useItemVariants(item.id)
-  const currency = useTenantStore((s) => s.currency_symbol)
+  const currency = useCurrencyDisplay()
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl p-5 w-full max-w-sm">
-        <h3 className="font-semibold text-lg text-gray-900 dark:text-white mb-1">{item.name_ar}</h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{t('variant.title')}</p>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[400] flex items-center justify-center p-4">
+      <div className="bg-posCloud-surface dark:bg-posCloudDark-surface border border-posCloud-border dark:border-posCloudDark-border rounded-2xl p-5 w-full max-w-sm">
+        <h3 className="font-semibold text-lg text-posCloud-text-primary dark:text-posCloudDark-text-primary mb-1">{item.name_ar}</h3>
+        <p className="text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary mb-4">{t('variant.title')}</p>
         <div className="grid grid-cols-1 gap-2 max-h-64 overflow-y-auto">
           {isLoading ? (
-            <div className="h-10 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />
+            <div className="h-10 bg-posCloud-background dark:bg-posCloudDark-background rounded animate-pulse" />
           ) : variants.length === 0 ? (
             <button
               onClick={() => { onAddItem(item); onClose(); }}
-              className="flex justify-between items-center p-3 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-[#0C447C] hover:bg-[#E8F0FB]0/5 transition-all"
+              className="flex justify-between items-center p-3 rounded-xl border border-posCloud-border dark:border-posCloudDark-border hover:border-posCloud-primary/40 hover:bg-posCloud-primary-light/50 dark:hover:bg-white/5 transition-all"
             >
-              <span className="font-medium text-gray-900 dark:text-white">{item.name_ar}</span>
-              <span className="text-[#0C447C] dark:text-[#5B9BD5] font-bold">{item.price.toLocaleString('en-US')} {currency}</span>
+              <span className="font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary">{item.name_ar}</span>
+              <span className="text-posCloud-primary font-bold">{item.price.toLocaleString('en-US')} {currency}</span>
             </button>
           ) : (
             variants.map((v: any) => (
@@ -47,10 +86,10 @@ function VariantModal({ item, onAddItem, onClose, t }: {
                   });
                   onClose();
                 }}
-                className="flex justify-between items-center p-3 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-[#0C447C] hover:bg-[#E8F0FB]0/5 transition-all"
+                className="flex justify-between items-center p-3 rounded-xl border border-posCloud-border dark:border-posCloudDark-border hover:border-posCloud-primary/40 hover:bg-posCloud-primary-light/50 dark:hover:bg-white/5 transition-all"
               >
-                <span className="font-medium text-gray-900 dark:text-white">{v.name}</span>
-                <span className="text-[#0C447C] dark:text-[#5B9BD5] font-bold">
+                <span className="font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary">{v.name}</span>
+                <span className="text-posCloud-primary font-bold">
                   {(item.price + (v.price_adjustment ?? 0)).toLocaleString('en-US')} {currency}
                 </span>
               </button>
@@ -58,7 +97,7 @@ function VariantModal({ item, onAddItem, onClose, t }: {
           )}
         </div>
         <button
-          className="w-full mt-3 py-2 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-lg text-sm transition-colors"
+          className="w-full mt-3 py-2 border border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary rounded-lg text-sm transition-colors"
           onClick={onClose}
         >
           {t('variant.cancel')}
@@ -70,7 +109,7 @@ function VariantModal({ item, onAddItem, onClose, t }: {
 
 export function ItemGrid({ onAddItem }: Props) {
   const t = useTranslations('pos')
-  const currency = useTenantStore((s) => s.currency_symbol)
+  const currency = useCurrencyDisplay()
   const [search, setSearch] = useState('')
   const [activeCategory, setActiveCategory] = useState('all')
   const [variantModal, setVariantModal] = useState<POSItem | null>(null)
@@ -106,21 +145,27 @@ export function ItemGrid({ onAddItem }: Props) {
   }
 
   return (
-    <div className="flex flex-col h-full min-h-0 gap-3">
-      <input
-        placeholder={t('search')}
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C] placeholder-gray-400 dark:placeholder-gray-600"
-      />
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-xl font-extrabold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{t('title')}</h1>
+        <div className="flex items-center gap-2 rounded-lg border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-3 py-2 text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+          <Search className="h-4 w-4 shrink-0" />
+          <input
+            placeholder={t('search')}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full bg-transparent outline-none placeholder:text-posCloud-text-tertiary dark:placeholder:text-posCloudDark-text-tertiary text-posCloud-text-primary dark:text-posCloudDark-text-primary sm:w-56"
+          />
+        </div>
+      </div>
 
       <div className="flex gap-2 flex-wrap">
         <button
           onClick={() => setActiveCategory('all')}
-          className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+          className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
             activeCategory === 'all'
-              ? 'bg-[#0C447C] text-white'
-              : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              ? 'bg-posCloud-primary text-white'
+              : 'bg-posCloud-surface dark:bg-posCloudDark-surface text-posCloud-text-secondary dark:text-posCloudDark-text-secondary border border-posCloud-border dark:border-posCloudDark-border hover:bg-slate-50 dark:hover:bg-white/5'
           }`}
         >
           {t('categories.all')}
@@ -129,10 +174,10 @@ export function ItemGrid({ onAddItem }: Props) {
           <button
             key={cat.id}
             onClick={() => setActiveCategory(cat.id)}
-            className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+            className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
               activeCategory === cat.id
-                ? 'bg-[#0C447C] text-white'
-                : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                ? 'bg-posCloud-primary text-white'
+                : 'bg-posCloud-surface dark:bg-posCloudDark-surface text-posCloud-text-secondary dark:text-posCloudDark-text-secondary border border-posCloud-border dark:border-posCloudDark-border hover:bg-slate-50 dark:hover:bg-white/5'
             }`}
           >
             {cat.name}
@@ -141,27 +186,33 @@ export function ItemGrid({ onAddItem }: Props) {
       </div>
 
       {isLoading ? (
-        <div className="flex-1 flex items-center justify-center text-gray-500 dark:text-gray-400 text-sm">{t('loading')}</div>
+        <div className="flex items-center justify-center py-10 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary text-sm">{t('loading')}</div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto flex-1 min-h-0 pb-2">
+        <div className="grid grid-cols-2 gap-3 pb-2 xs:gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {filtered.length === 0 && (
-            <p className="col-span-3 text-center text-gray-500 dark:text-gray-400 text-sm py-8">{t('noItems')}</p>
+            <p className="col-span-full text-center text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary text-sm py-10">{t('noItems')}</p>
           )}
           {filtered.map((item) => (
             <button
               key={item.id}
               onClick={() => handleItemClick(item)}
-              className="relative bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-3 text-right hover:border-[#0C447C] hover:shadow-sm transition-all active:scale-95"
+              className="group relative flex flex-col overflow-hidden rounded-[18px] bg-posCloud-surface dark:bg-posCloudDark-surface text-start shadow-[0_1px_3px_rgba(15,23,42,0.06)] transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(15,23,42,0.12)]"
+              style={{ height: '240px' }}
             >
               {item.type === 'service' && (
-                <span className="absolute top-2 left-2 text-xs bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 px-1.5 py-0.5 rounded">{t('service')}</span>
+                <span className="absolute top-2 left-2 z-10 text-[10px] font-medium bg-black/55 text-white px-1.5 py-0.5 rounded backdrop-blur-sm">{t('service')}</span>
               )}
               {item.has_variants && (
-                <span className="absolute top-2 right-2 text-xs bg-[#0C447C]/10 text-[#0C447C] dark:text-[#5B9BD5] px-1.5 py-0.5 rounded">{t('multiple')}</span>
+                <span className="absolute top-2 right-2 z-10 text-[10px] font-medium bg-posCloud-primary text-white px-1.5 py-0.5 rounded">{t('multiple')}</span>
               )}
-              <div className="mt-4">
-                <p className="font-medium text-sm text-gray-900 dark:text-white truncate">{item.name_ar}</p>
-                <p className="text-[#0C447C] dark:text-[#5B9BD5] font-bold text-base mt-2">{item.price.toLocaleString('en-US')} {currency}</p>
+              {/* Image dominates ~77% of card height, edge-to-edge, no margins */}
+              <div className="relative w-full shrink-0" style={{ height: '185px' }}>
+                <ProductImage item={item} />
+              </div>
+              {/* Compact info area — name (1 line, ellipsis) then price directly below */}
+              <div className="flex min-h-0 flex-1 flex-col justify-center px-2.5 py-1.5">
+                <p className="truncate text-[13px] font-bold leading-tight text-posCloud-text-primary dark:text-posCloudDark-text-primary">{item.name_ar}</p>
+                <p className="mt-0.5 text-[13px] font-medium text-posCloud-primary">{item.price.toLocaleString('en-US')} {currency}</p>
               </div>
             </button>
           ))}

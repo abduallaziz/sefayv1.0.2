@@ -90,6 +90,12 @@ const config: Config = {
       fontFamily: {
         sans: ['Inter', 'IBM Plex Sans Arabic', 'system-ui', 'sans-serif'],
         arabic: ['IBM Plex Sans Arabic', 'Inter', 'system-ui', 'sans-serif'],
+        // `--font-inter`/`--font-cairo` are loaded via next/font in app/layout.tsx
+        // (variable set on <body>) but were never mapped to a Tailwind utility —
+        // `font-cairo`/`font-inter` did not actually resolve to those fonts
+        // before this. Wired here so the two classes are real, not coincidental.
+        cairo: ['var(--font-cairo)', 'IBM Plex Sans Arabic', 'system-ui', 'sans-serif'],
+        inter: ['var(--font-inter)', 'system-ui', 'sans-serif'],
       },
 
       /* ── Font Size ── */

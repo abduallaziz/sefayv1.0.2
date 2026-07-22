@@ -28,3 +28,81 @@ export function usePaymentsReport(query?: ReportQuery) {
     queryFn: () => reportsApi.getPayments(query),
   })
 }
+
+export function useEmployeesReport(query?: ReportQuery) {
+  return useQuery({
+    queryKey: ['reports', 'employees', query],
+    queryFn: () => reportsApi.getEmployees(query),
+  })
+}
+
+export function useCustomersReport(query?: ReportQuery) {
+  return useQuery({
+    queryKey: ['reports', 'customers', query],
+    queryFn: () => reportsApi.getCustomersReport(query),
+  })
+}
+
+export function useTaxReport(query?: ReportQuery) {
+  return useQuery({
+    queryKey: ['reports', 'tax', query],
+    queryFn: () => reportsApi.getTax(query),
+  })
+}
+
+export function useInventoryReport(warehouseId?: string) {
+  return useQuery({
+    queryKey: ['reports', 'inventory', warehouseId],
+    queryFn: () => reportsApi.getInventory(warehouseId),
+  })
+}
+
+export function useComparisonReport(query?: ReportQuery) {
+  return useQuery({
+    queryKey: ['reports', 'comparison', query],
+    queryFn: () => reportsApi.getComparison(query),
+  })
+}
+
+export function useBranchComparisonReport(query?: ReportQuery) {
+  return useQuery({
+    queryKey: ['reports', 'by-branch', query],
+    queryFn: () => reportsApi.getByBranch(query),
+  })
+}
+
+export function useCustomerChurnReport(query?: ReportQuery) {
+  return useQuery({
+    queryKey: ['reports', 'customer-churn', query],
+    queryFn: () => reportsApi.getCustomerChurn(query),
+  })
+}
+
+export function usePayrollReport(month: string) {
+  return useQuery({
+    queryKey: ['reports', 'payroll', month],
+    queryFn: () => reportsApi.getPayroll(month),
+  })
+}
+
+export function useHrSummary() {
+  return useQuery({
+    queryKey: ['reports', 'hr-summary'],
+    queryFn: () => reportsApi.getHrSummary(),
+  })
+}
+
+export function useAuditSummary() {
+  return useQuery({
+    queryKey: ['reports', 'audit-summary'],
+    queryFn: () => reportsApi.getAuditSummary(),
+  })
+}
+
+export function useDailyReconciliation(date: string, branchId?: string) {
+  return useQuery({
+    queryKey: ['reports', 'daily-reconciliation', date, branchId],
+    queryFn: () => reportsApi.getDailyReconciliation(date, branchId),
+    enabled: !!date,
+  })
+}

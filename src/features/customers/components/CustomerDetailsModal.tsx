@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { X, Phone, Mail, Star, ShoppingBag, TrendingUp } from 'lucide-react';
 import { Customer } from '../types/customer.types';
 import { useCustomerHistory } from '../hooks/useCustomers';
-import { useTenantStore } from '@/core/tenant/stores/tenant.store';
+import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store';
 
 interface Props {
   customer: Customer;
@@ -14,7 +14,7 @@ interface Props {
 
 export function CustomerDetailsModal({ customer, onClose, onEdit }: Props) {
   const t = useTranslations('customers');
-  const currency = useTenantStore((s) => s.currency_symbol);
+  const currency = useCurrencyDisplay();
   const { data: orders, isLoading } = useCustomerHistory(customer.id);
 
   const statusColors: Record<string, string> = {
@@ -24,7 +24,7 @@ export function CustomerDetailsModal({ customer, onClose, onEdit }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[400] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col">
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
@@ -37,7 +37,7 @@ export function CustomerDetailsModal({ customer, onClose, onEdit }: Props) {
                 {customer.full_name || '—'}
               </h2>
               <p className="text-sm text-gray-400">
-                {t('details.since')} {new Date(customer.created_at).toLocaleDateString('ar-SA')}
+                {t('details.since')} {new Date(customer.created_at).toLocaleDateString('en-US')}
               </p>
             </div>
           </div>
@@ -71,14 +71,14 @@ export function CustomerDetailsModal({ customer, onClose, onEdit }: Props) {
             <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3 text-center">
               <TrendingUp className="w-5 h-5 text-green-500 mx-auto mb-1" />
               <p className="text-lg font-bold text-gray-900 dark:text-white">
-                {(customer.total_spent ?? 0).toLocaleString()}
+                {(customer.total_spent ?? 0).toLocaleString('en-US')}
               </p>
               <p className="text-xs text-gray-400">{currency}</p>
             </div>
             <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3 text-center">
               <Star className="w-5 h-5 text-yellow-500 mx-auto mb-1 fill-yellow-500" />
               <p className="text-lg font-bold text-gray-900 dark:text-white">
-                {customer.loyalty_points.toLocaleString()}
+                {customer.loyalty_points.toLocaleString('en-US')}
               </p>
               <p className="text-xs text-gray-400">{t('details.points')}</p>
             </div>
@@ -98,10 +98,10 @@ export function CustomerDetailsModal({ customer, onClose, onEdit }: Props) {
                   <div key={order.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <div>
                       <p className="text-sm font-medium text-gray-900 dark:text-white">
-                        {order.total.toLocaleString()} {currency}
+                        {order.total.toLocaleString('en-US')} {currency}
                       </p>
                       <p className="text-xs text-gray-400">
-                        {new Date(order.created_at).toLocaleDateString('ar-SA')} · {order.items_count} {t('details.items')}
+                        {new Date(order.created_at).toLocaleDateString('en-US')} · {order.items_count} {t('details.items')}
                       </p>
                     </div>
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusColors[order.status]}`}>

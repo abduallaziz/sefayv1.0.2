@@ -1,0 +1,180 @@
+{
+  "title": "Access Control",
+  "subtitle": "Control what each role can do and access",
+  "userCount": "Users",
+  "customized": "Customized",
+  "resetToDefault": "Reset to default",
+  "cancel": "Cancel",
+  "saving": "Saving...",
+  "createRoleCta": "Create Custom Role",
+  "loadRolesError": "Could not load roles. Please try again.",
+  "noPermissionsInDomain": "No permissions in this domain.",
+  "roleScope": {
+    "system": "System",
+    "custom": "Custom"
+  },
+  "actionsMenu": {
+    "viewOnly": "View-Only Permissions",
+    "edit": "Edit Role",
+    "delete": "Delete Role"
+  },
+  "emptyRoles": {
+    "title": "No custom roles yet",
+    "description": "System roles (Owner, Manager, Cashier) are always available. Create a custom role to fine-tune access for a specific job."
+  },
+  "sheet": {
+    "createTitle": "Create Custom Role",
+    "createDescription": "Give it a name — you can configure its permissions right after.",
+    "roleNameLabel": "Role name",
+    "roleNamePlaceholder": "e.g. Shift Supervisor",
+    "descriptionLabel": "Description (optional)",
+    "descriptionPlaceholder": "What this role is for",
+    "roleNameMinLength": "Role name must be at least 2 characters",
+    "createSubmit": "Create Role",
+    "configureDescriptionEdit": "Toggle a domain switch to grant or revoke its whole permission set, or fine-tune individual permissions below.",
+    "configureDescriptionView": "System role — permissions are shown for reference and cannot be changed.",
+    "close": "Close",
+    "done": "Done"
+  },
+  "toast": {
+    "roleCreated": "Role \"{name}\" created",
+    "roleCreateError": "Could not create role",
+    "roleDeleted": "Role \"{name}\" deleted",
+    "roleDeleteError": "Could not delete role",
+    "permissionSaveError": "Could not save that change",
+    "permissionResetError": "Could not reset that permission"
+  },
+  "domains": {
+    "sales": "Sales",
+    "inventory": "Inventory",
+    "hr": "HR"
+  },
+  "deleteConfirm": {
+    "title": "Delete this role?",
+    "message": "\"{name}\" will be permanently deleted. This cannot be undone.",
+    "loadingLabel": "Deleting..."
+  },
+  "card": {
+    "noDescription": "No description added yet.",
+    "manageUsers": "Manage Users"
+  },
+  "roleUsersSheet": {
+    "title": "Users with the \"{role}\" role",
+    "description": "View, add, or remove users holding this role.",
+    "searchPlaceholder": "Search by name or email...",
+    "addUser": "Add User",
+    "addUserSearchPlaceholder": "Search users to add...",
+    "loadingUsers": "Loading users...",
+    "noCandidates": "No matching users found",
+    "add": "Add",
+    "primaryBadge": "Primary",
+    "removeRole": "Remove role",
+    "cannotRemovePrimary": "This is the user's primary role — change it via their role instead",
+    "emptyTitle": "No users hold this role yet",
+    "emptyDescription": "Add a user above to assign this role to them.",
+    "noSearchResults": "No users match your search",
+    "removeError": "Could not remove this role",
+    "addError": "Could not add this role",
+    "changePrimaryError": "Could not change the primary role"
+  },
+  "userPermissionChecklist": {
+    "searchPlaceholder": "Search permissions...",
+    "resetToDefaults": "Reset to Defaults",
+    "ownerLocked": "Owner always has every permission — individual overrides have no effect and are disabled here.",
+    "ownerBadge": "Owner",
+    "togglePermissions": "Permissions",
+    "resetOne": "Reset to inherited",
+    "setError": "Could not save that override",
+    "resetOneError": "Could not reset that permission",
+    "resetAllError": "Could not reset overrides"
+  },
+  "roles": {
+    "superadmin": {
+      "name": "Platform Administrator",
+      "description": "Platform-level administrator across all tenants"
+    },
+    "owner": {
+      "name": "Owner",
+      "description": "Business owner — full access within their tenant"
+    },
+    "manager": {
+      "name": "Manager",
+      "description": "Branch/operations manager"
+    },
+    "cashier": {
+      "name": "Cashier",
+      "description": "Point-of-sale operator"
+    },
+    "worker": {
+      "name": "Worker",
+      "description": "General staff member"
+    },
+    "inventory_clerk": {
+      "name": "Inventory Clerk",
+      "description": "Warehouse/inventory operations staff"
+    },
+    "none": {
+      "name": "No Access",
+      "description": "Employee profile with no system login/dashboard access"
+    }
+  },
+  "permissions": {
+    "invoice__create__own": "Create own invoices",
+    "invoice__view__own": "View own invoices",
+    "invoice__view__branch": "View branch invoices",
+    "invoice__view__all": "View all invoices",
+    "invoice__cancel__own": "Cancel own invoices",
+    "invoice__cancel__branch": "Cancel branch invoices",
+    "invoice__view": "View invoices",
+    "invoice__create": "Create invoices",
+    "invoice__cancel": "Cancel invoices",
+    "expense__request": "Submit expense requests",
+    "expense__view__branch": "View branch expenses",
+    "expense__view__all": "View all expenses",
+    "expense__approve": "Approve expenses",
+    "expense__reject": "Reject expenses",
+    "shift__open": "Open a shift",
+    "shift__close": "Close own shift",
+    "shift__view__own": "View own shift",
+    "shift__view__branch": "View branch shifts",
+    "shift__view__all": "View all shifts",
+    "users__view": "View users",
+    "users__manage": "Manage users",
+    "items__view": "View items",
+    "items__manage": "Manage items",
+    "branches__view": "View branches",
+    "branches__manage": "Manage branches",
+    "customers__view": "View customers",
+    "customers__manage": "Manage customers",
+    "expenses__view": "View expenses",
+    "expenses__manage": "Manage expenses",
+    "reports__view__branch": "View branch reports",
+    "reports__view__all": "View all reports",
+    "settings__view": "View settings",
+    "settings__manage": "Manage settings",
+    "analytics__view__all": "View platform analytics",
+    "audit__view__all": "View audit logs",
+    "superadmin__queue__view": "View queues",
+    "superadmin__queue__manage": "Manage queues",
+    "superadmin__health__view": "View system health",
+    "superadmin__backup__view": "View backups",
+    "inventory__view": "View warehouses, stock levels and movements",
+    "inventory__manage": "Manage warehouses, locations and reorder points",
+    "inventory__adjust": "Create stock adjustments",
+    "inventory__adjust__approve": "Approve stock adjustments above threshold",
+    "inventory__transfer": "Create and process warehouse transfers",
+    "inventory__count": "Perform and finalize stock counts",
+    "inventory__reserve": "Create and release stock reservations",
+    "purchasing__view": "View suppliers, purchase orders and goods receipts",
+    "purchasing__manage": "Create and edit suppliers and purchase orders",
+    "purchasing__approve": "Approve purchase orders",
+    "purchasing__receive": "Post goods receipts",
+    "attendance__checkin": "Check in/out and view own attendance history",
+    "attendance__view__all": "View all employees' attendance",
+    "hr__manage": "Manage work schedules and commission rates",
+    "tables__manage": "Manage tables, dine-in orders, reservations and waitlist",
+    "kitchen__manage": "View and update kitchen order status (KDS)",
+    "coupons__manage": "Create and manage discount coupons",
+    "gift_cards__manage": "Issue and manage gift cards"
+  }
+}

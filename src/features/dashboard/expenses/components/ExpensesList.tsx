@@ -5,7 +5,7 @@ import { Plus, CheckCircle, XCircle, Clock, AlertCircle, Ban, RotateCcw } from '
 import { useExpenses, useApproveExpense, useRejectExpense, useCancelExpense } from '../hooks/useExpenses'
 import { AddExpenseModal } from './AddExpenseModal'
 import { formatCurrency } from '@/lib/format'
-import { useTenantStore } from '@/core/tenant/stores/tenant.store'
+import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { useTranslations } from 'next-intl'
 import type { Expense, ExpenseStatus } from '../api/expenses.api'
 
@@ -19,7 +19,7 @@ const statusConfig: Record<ExpenseStatus, { labelKey: string; color: string; ico
 
 export function ExpensesList() {
   const t = useTranslations('expenses')
-  const currency = useTenantStore((s) => s.currency_symbol)
+  const currency = useCurrencyDisplay()
   const { data: expenses = [], isLoading } = useExpenses()
   const approveMutation = useApproveExpense()
   const rejectMutation = useRejectExpense()
@@ -202,7 +202,7 @@ export function ExpensesList() {
 
       {/* Reject / Reverse Modal */}
       {rejectTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+        <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/60 p-4">
           <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl w-full max-w-md p-6 space-y-4">
             <h2 className="text-base font-semibold text-slate-800 dark:text-white">
               {isReversal ? t('actions.reverse') : t('reject.title')}
@@ -239,7 +239,7 @@ export function ExpensesList() {
 
       {/* Cancel Modal */}
       {cancelTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+        <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/60 p-4">
           <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl w-full max-w-md p-6 space-y-4">
             <h2 className="text-base font-semibold text-slate-800 dark:text-white">{t('cancel.title')}</h2>
             <p className="text-sm text-slate-500">{cancelTarget.category?.name ?? '—'} — {formatCurrency(cancelTarget.amount, currency)}</p>

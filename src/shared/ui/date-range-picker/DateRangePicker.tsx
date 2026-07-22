@@ -16,6 +16,7 @@ interface Props {
   onChange: (range: DateRange) => void;
   placeholder?: string;
   align?: 'left' | 'right';
+  className?: string;
 }
 
 function toYMD(d: Date) {
@@ -46,7 +47,7 @@ function formatLabel(s: string, locale: string) {
 type ActiveField = 'from' | 'to' | null;
 type CalView = 'days' | 'months' | 'years';
 
-export function DateRangePicker({ value, onChange, placeholder, align = 'right' }: Props) {
+export function DateRangePicker({ value, onChange, placeholder, align = 'right', className }: Props) {
   const t = useTranslations('datePicker');
   const locale = useLocale();
 
@@ -176,7 +177,7 @@ export function DateRangePicker({ value, onChange, placeholder, align = 'right' 
   };
 
   return (
-    <div ref={triggerRef} className="relative inline-block" dir="rtl">
+    <div ref={triggerRef} className={`relative inline-block ${className ?? ''}`} dir="rtl">
       <button
         onClick={() => { setOpen(o => !o); if (!open) setActiveField('from'); }}
         className="flex items-center gap-2 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-slate-50 dark:bg-gray-950 text-slate-800 dark:text-white hover:border-[#0C447C] dark:hover:border-blue-500 transition-colors min-w-[240px]"

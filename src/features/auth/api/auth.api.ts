@@ -23,6 +23,7 @@ export interface RegisterDto {
 
 export interface LoginResponse {
   access_token: string;
+  realtime_token?: string | null;
   user: {
     id: string;
     email: string;

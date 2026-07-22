@@ -52,7 +52,7 @@ function AddTemplateModal({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+    <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/60 p-4">
       <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl w-full max-w-md p-6 space-y-4">
         <h2 className="text-base font-semibold text-slate-800 dark:text-white">{t('template.addTitle')}</h2>
 
@@ -258,7 +258,7 @@ function TemplateCard({ template }: { template: ExpenseTemplate }) {
 
         {template.recurrence_type !== 'none' && (
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
-            {t('template.nextRunPrefix')}{template.next_run_at ? new Date(template.next_run_at).toLocaleDateString('ar-SA') : '—'}
+            {t('template.nextRunPrefix')}{template.next_run_at ? new Date(template.next_run_at).toLocaleDateString('en-US') : '—'}
           </p>
         )}
 
@@ -328,7 +328,7 @@ function TemplateRow({ template }: { template: ExpenseTemplate }) {
           {(template.recurrence_type === 'daily' || template.recurrence_type === 'none') && <span className="text-sm text-slate-400">—</span>}
         </td>
         <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">
-          {template.recurrence_type !== 'none' ? (template.next_run_at ? new Date(template.next_run_at).toLocaleDateString('ar-SA') : '—') : '—'}
+          {template.recurrence_type !== 'none' ? (template.next_run_at ? new Date(template.next_run_at).toLocaleDateString('en-US') : '—') : '—'}
         </td>
         <td className="px-4 py-3 text-center">
           {isPending

@@ -1,0 +1,16 @@
+{
+  "title": "Kitchen Display",
+  "subtitle": "Track live order preparation",
+  "status": {
+    "pending": "Awaiting Prep",
+    "preparing": "Preparing",
+    "ready": "Ready to Serve"
+  },
+  "empty": "Nothing here",
+  "noTable": "No table",
+  "advanceTo": {
+    "preparing": "Start Preparing",
+    "ready": "Mark Ready",
+    "served": "Mark Served"
+  }
+}

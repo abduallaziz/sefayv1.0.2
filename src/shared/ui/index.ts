@@ -32,3 +32,13 @@ export * from './data-table';
 export * from './empty-state';
 export * from './skeleton';
 export * from './modal';
+export {
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetBody,
+  SheetFooter,
+} from './sheet';

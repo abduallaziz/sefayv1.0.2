@@ -66,7 +66,7 @@ export function AdjustmentFormModal({ open, onClose, onSubmit, isLoading }: Prop
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+    <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/60 p-4">
       <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-gray-800 sticky top-0 bg-white dark:bg-gray-900 z-10">
           <h2 className="text-base font-semibold text-slate-800 dark:text-white">{t('createAdjustment')}</h2>

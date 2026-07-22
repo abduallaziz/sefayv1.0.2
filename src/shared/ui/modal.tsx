@@ -60,7 +60,7 @@ export function Modal({
     : 'text-[#94a3b8] hover:text-[#0f172a] hover:bg-[#f1f5f9]';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[400] flex items-center justify-center p-4">
       {/* Overlay */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"

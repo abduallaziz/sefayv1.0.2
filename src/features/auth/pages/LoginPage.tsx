@@ -48,6 +48,7 @@ export function LoginPage() {
           activity: res.user.activity ?? null,
         },
         res.access_token,
+        res.realtime_token,
       );
       router.replace(res.user.role === 'superadmin' ? `/${locale}/superadmin` : `/${locale}/dashboard`);
     } catch {

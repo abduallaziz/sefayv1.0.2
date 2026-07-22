@@ -65,7 +65,7 @@ async function tryRefresh(): Promise<boolean> {
     if (!res.ok) return false;
 
     const data = await res.json();
-    setAccessToken(data.access_token);
+    setAccessToken(data.access_token, data.realtime_token);
     return true;
   } catch {
     return false;
@@ -86,5 +86,6 @@ export const apiClient = {
   get: <T>(path: string) => request<T>(path),
   post: <T>(path: string, body: unknown) => request<T>(path, { method: 'POST', body }),
   patch: <T>(path: string, body: unknown) => request<T>(path, { method: 'PATCH', body }),
-  delete: <T>(path: string) => request<T>(path, { method: 'DELETE' }),
+  delete: <T>(path: string, options?: { data?: unknown }) =>
+    request<T>(path, { method: 'DELETE', body: options?.data }),
 };

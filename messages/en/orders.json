@@ -5,29 +5,77 @@
   "cashier": "Cashier",
   "customer": "Customer",
   "total": "Total",
+  "amount": "Amount",
   "payment": "Payment",
+  "paymentMethod": "Payment Method",
   "date": "Date",
   "notes": "Notes",
+  "back": "Back",
+  "generalCustomer": "General Customer",
+  "noNotes": "No notes",
   "searchPlaceholder": "Search...",
   "noOrders": "No orders found",
   "tryFilters": "Try changing the filters",
+  "loading": "Loading...",
+  "totalInvoices": "Total Invoices",
+  "completedCount": "Completed",
+  "pendingCount": "Pending",
+  "cancelledCount": "Cancelled",
+  "todayRevenue": "Today's Revenue",
   "status": {
     "all": "All",
     "completed": "Completed",
     "pending": "Pending",
-    "cancelled": "Cancelled"
+    "cancelled": "Cancelled",
+    "draft": "Draft",
+    "draftHint": "No draft status exists yet in the invoicing system"
   },
   "payment_method": {
     "cash": "Cash",
     "card": "Card",
-    "split": "Split"
+    "split": "Split",
+    "wallet": "Wallet",
+    "mada": "Mada",
+    "visa": "Visa",
+    "mastercard": "Mastercard",
+    "stc_pay": "STC Pay",
+    "apple_pay": "Apple Pay",
+    "tab": "Tab",
+    "gift_card": "Gift Card",
+    "unknown": "—"
   },
   "details": {
     "title": "Order Details",
     "items": "Items",
     "subtotal": "Subtotal",
     "discount": "Discount",
-    "tax": "Tax (15%)"
+    "tax": "Tax (15%)",
+    "summary": "Financial Summary",
+    "journalEntry": "Journal Entry",
+    "downloadPdf": "Download PDF",
+    "sendPdf": "Send PDF",
+    "print": "Print"
+  },
+  "edit": {
+    "action": "Edit",
+    "soon": "Soon"
+  },
+  "actions": {
+    "view": "View",
+    "header": "Actions"
+  },
+  "filters": {
+    "reset": "Reset",
+    "more": "More",
+    "branch": "Branch",
+    "allBranches": "All Branches",
+    "export": "Export"
+  },
+  "pagination": {
+    "prev": "Previous",
+    "next": "Next",
+    "show": "Show",
+    "range": "{from}-{to} of {total} results"
   },
   "cancel": {
     "action": "Cancel Order",
@@ -44,6 +92,7 @@
     "completed": "Completed",
     "pending": "Pending",
     "cancelled": "Cancelled",
-    "todayRevenue": "Today's Revenue"
+    "todayRevenue": "Today's Revenue",
+    "vsLastMonth": "vs previous period"
   }
 }

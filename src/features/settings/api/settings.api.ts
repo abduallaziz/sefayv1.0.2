@@ -1,5 +1,17 @@
 import { apiClient } from '@/lib/api'
 
+export interface PrinterSettings {
+  paper_width?: '58mm' | '80mm'
+  auto_print?: boolean
+  printer_name?: string
+}
+
+export interface NotificationPreferences {
+  subscription_expired?: boolean
+  payment_failed?: boolean
+  payment_success?: boolean
+}
+
 export interface TenantProfile {
   id: string
   name: string
@@ -11,6 +23,14 @@ export interface TenantProfile {
   tax_rate: number
   customer_capture_enabled: boolean
   name_field_enabled: boolean
+  logo_url: string | null
+  tax_number: string | null
+  invoice_footer: string | null
+  printer_settings: PrinterSettings
+  notification_preferences: NotificationPreferences
+  loyalty_points_per_currency: number
+  loyalty_redemption_value: number
+  loyalty_enabled: boolean
 }
 
 export interface TenantSubscription {
@@ -36,6 +56,14 @@ export interface UpdateProfileDto {
   tax_rate?: number
   customer_capture_enabled?: boolean
   name_field_enabled?: boolean
+  logo_url?: string
+  tax_number?: string
+  invoice_footer?: string
+  printer_settings?: PrinterSettings
+  notification_preferences?: NotificationPreferences
+  loyalty_points_per_currency?: number
+  loyalty_redemption_value?: number
+  loyalty_enabled?: boolean
 }
 
 export const settingsApi = {

@@ -3,6 +3,7 @@
   "subtitle": "Manage your customers and their order history",
   "add_customer": "Add Customer",
   "loading": "Loading...",
+  "comingSoon": "Soon",
   "search_placeholder": "Search by name, phone, or email...",
   "count": "{count} customers",
   "stats": {
@@ -16,7 +17,15 @@
     "vehicle": "Vehicle",
     "orders": "Orders",
     "spent": "Spent",
-    "points": "Points"
+    "points": "Points",
+    "status": "Status",
+    "lastOperation": "Last Operation",
+    "lastAmount": "Last Amount",
+    "totalSpent": "Total Purchases",
+    "invoiceCount": "Invoice Count",
+    "classification": "Classification",
+    "email": "Email",
+    "phone": "Phone"
   },
   "sort": {
     "newest": "Newest",
@@ -99,6 +108,7 @@
       "required": "Required",
       "optional": "Optional"
     },
+    "toggle_error": "Couldn't save, please try again",
     "empty": "No custom fields yet",
     "add_field": "Add custom field",
     "key_label": "Key (English, no spaces) *",

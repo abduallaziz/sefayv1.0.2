@@ -2,10 +2,13 @@
   "title": "Settings",
   "subtitle": "Manage your store information and subscription",
   "profile": "Store Profile",
+  "accessControl": "Access Control",
+  "accessControlHint": "Control what each role can access",
   "businessName": "Business Name",
   "businessType": "Business Type",
   "save": "Save",
   "saving": "Saving...",
+  "saveError": "Couldn't save, please try again",
   "subscription": "Subscription",
   "plan": "Plan",
   "status": "Status",
@@ -20,5 +23,33 @@
   "currency": "Currency",
   "invoicesThisMonth": "Invoices This Month",
   "customFields": "Custom Customer Fields",
-  "customFieldsHint": "When enabled, the cashier can search for a customer or register a new one during a sale (POS)."
+  "customFieldsHint": "When enabled, the cashier can search for a customer or register a new one during a sale (POS).",
+  "invoiceCustomization": "Invoice Customization",
+  "logoUrl": "Logo URL",
+  "taxNumber": "Tax Registration Number",
+  "invoiceFooter": "Invoice Footer",
+  "printerSettings": "Printer Settings",
+  "paperWidth": "Paper Width",
+  "autoPrint": "Auto-print after every invoice",
+  "notificationPreferences": "Notification Preferences",
+  "notificationPreferencesHint": "Choose which notifications you want to receive by email. Security notifications (login and sessions) always stay on.",
+  "notifications": {
+    "subscription_expired": "Subscription expired",
+    "payment_failed": "Payment failed",
+    "payment_success": "Payment succeeded"
+  },
+  "loyalty": {
+    "title": "Loyalty Program",
+    "disabledHint": "The loyalty program is currently disabled — no points are earned or redeemed on invoices. Enable it to show settings.",
+    "pointsPerCurrency": "Points per currency unit",
+    "redemptionValue": "Redemption value per point",
+    "tiersHint": "Loyalty tiers grant a bonus points multiplier based on a customer's total lifetime points earned (not affected by redemption)",
+    "noTiers": "No loyalty tiers yet",
+    "addTier": "Add tier",
+    "tierName": "Tier name",
+    "tierMinPoints": "Minimum points",
+    "tierMultiplier": "Points multiplier",
+    "tierThreshold": "From {points} points",
+    "cancel": "Cancel"
+  }
 }

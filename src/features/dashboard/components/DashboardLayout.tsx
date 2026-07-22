@@ -8,14 +8,13 @@ import { useTenantAuth } from '@/core/auth/hooks/useTenantAuth'
 import { useTranslations } from 'next-intl'
 import { settingsApi } from '@/features/settings/api/settings.api'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
-import { useThemeStore } from '@/core/theme/stores/theme.store'
+import { RealtimeProvider } from '@/core/realtime/RealtimeProvider'
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { isLoading, isAuthenticated } = useTenantAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const t = useTranslations('common')
   const setCurrency = useTenantStore((s) => s.setCurrency)
-  const isDark = useThemeStore((s) => s.theme === 'dark')
   const [profileLoaded, setProfileLoaded] = useState(false)
 
   useEffect(() => {
@@ -30,17 +29,12 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   if (isLoading) {
     return (
-      <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: isDark ? '#0D1117' : '#E9EEF5' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-          <div style={{
-            width: '40px', height: '40px', borderRadius: '12px',
-            background: 'linear-gradient(135deg, #0C447C, #1761B8)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            animation: 'pulse 2s infinite',
-          }}>
-            <span style={{ color: '#fff', fontWeight: 700, fontSize: '16px' }}>S</span>
+      <div className="flex h-screen items-center justify-center bg-posCloud-background dark:bg-posCloudDark-background">
+        <div className="flex flex-col items-center gap-3">
+          <div className="flex h-10 w-10 animate-pulse items-center justify-center rounded-xl bg-posCloud-primary">
+            <span className="text-base font-bold text-white">S</span>
           </div>
-          <p style={{ color: '#8C9CB2', fontSize: '13px' }}>{t('loading')}</p>
+          <p className="text-[13px] text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('loading')}</p>
         </div>
       </div>
     )
@@ -50,29 +44,18 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <ThemeProvider>
-      <div
-        style={{
-          minHeight: '100vh',
-          backgroundImage: isDark
-            ? 'radial-gradient(1400px 700px at 88% -8%, rgba(37,99,235,0.10), transparent 52%), radial-gradient(1000px 600px at 6% 12%, rgba(12,68,124,0.10), transparent 48%)'
-            : 'radial-gradient(1400px 700px at 88% -8%, rgba(37,99,235,0.07), transparent 52%), radial-gradient(1000px 600px at 6% 12%, rgba(12,68,124,0.055), transparent 48%)',
-          backgroundColor: isDark ? '#0D1117' : '#E9EEF5',
-          backgroundAttachment: 'fixed',
-        }}
-      >
+      <RealtimeProvider />
+      <div className="min-h-screen bg-posCloud-background dark:bg-posCloudDark-background">
         <DashboardHeader onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
 
-        <div style={{ display: 'flex', height: 'calc(100vh - 66px)', position: 'relative' }}>
+        <div className="relative flex h-[calc(100vh-66px)]">
 
           <DashboardSidebar
             open={sidebarOpen}
             onClose={() => setSidebarOpen(false)}
           />
 
-          <main
-            className="p-4 lg:p-6 lg:ms-[264px]"
-            style={{ flex: 1, minWidth: 0, overflowX: 'hidden', overflowY: 'auto' }}
-          >
+          <main className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden p-4 lg:p-6">
             {children}
           </main>
         </div>

@@ -1,0 +1,59 @@
+{
+  "title": "الطاولات",
+  "subtitle": "إدارة الطاولات والطلبات والحجوزات",
+  "newTable": "طاولة جديدة",
+  "newReservation": "حجز جديد",
+  "tabs": {
+    "tables": "الطاولات",
+    "reservations": "الحجوزات",
+    "waitlist": "قائمة الانتظار"
+  },
+  "status": {
+    "available": "متاحة",
+    "occupied": "مشغولة",
+    "reserved": "محجوزة",
+    "cleaning": "قيد التنظيف"
+  },
+  "tableName": "اسم الطاولة",
+  "tableNamePlaceholder": "مثال: طاولة 1",
+  "capacity": "السعة",
+  "cancel": "إلغاء",
+  "save": "حفظ",
+  "saving": "جاري الحفظ...",
+  "error": "حدث خطأ، حاول مجددًا",
+  "table": "طاولة",
+  "tableAvailable": "الطاولة متاحة الآن",
+  "opening": "جاري الفتح...",
+  "openTable": "فتح الطاولة",
+  "addItems": "إضافة أصناف",
+  "addItemsCount": "إضافة ({count})",
+  "checkout": "تحصيل الفاتورة",
+  "confirmCheckout": "تأكيد الدفع",
+  "processing": "جاري المعالجة...",
+  "noItemsYet": "لا توجد أصناف مضافة بعد",
+  "total": "الإجمالي",
+  "payment": {
+    "cash": "نقداً",
+    "card": "بطاقة"
+  },
+  "kitchenStatus": {
+    "pending": "بانتظار التحضير",
+    "preparing": "قيد التحضير",
+    "ready": "جاهز",
+    "served": "تم التقديم"
+  },
+  "noTables": "لا توجد طاولات بعد",
+  "noReservations": "لا توجد حجوزات",
+  "guests": "ضيف",
+  "selectTable": "اختر طاولة",
+  "reservationStatus": {
+    "confirmed": "مؤكّد",
+    "seated": "تم الجلوس",
+    "cancelled": "ملغى",
+    "no_show": "لم يحضر"
+  },
+  "addToWaitlist": "إضافة لقائمة الانتظار",
+  "customerName": "اسم العميل",
+  "waitlistEmpty": "قائمة الانتظار فارغة",
+  "seatAt": "إجلاس على طاولة"
+}
