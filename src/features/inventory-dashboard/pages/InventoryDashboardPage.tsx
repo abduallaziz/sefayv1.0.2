@@ -83,6 +83,12 @@ function SectionCard({ title, children }: { title: string; children: React.React
 
 export function InventoryDashboardPage() {
   const t = useTranslations('inventoryDashboard');
+  // Reused from the existing translation catalogs already used elsewhere
+  // (movements ledger table, purchasing status badges) — recentMovements and
+  // purchaseOrdersWaitingReceipt were rendering the raw English enum values
+  // (movement_type, status) with no translation at all.
+  const tMovements = useTranslations('movements');
+  const tPurchasing = useTranslations('purchasing');
   const { data, isLoading } = useInventoryDashboard();
 
   if (isLoading || !data) {
@@ -154,7 +160,7 @@ export function InventoryDashboardPage() {
                     <span className="font-semibold text-slate-700 dark:text-gray-200">{m.quantity}</span>
                   </div>
                   <p className="text-xs text-slate-500">
-                    {m.warehouses?.name ?? '-'} · {m.movement_type} · {formatDate(m.occurred_at)}
+                    {m.warehouses?.name ?? '-'} · {tMovements(`type.${m.movement_type}` as Parameters<typeof tMovements>[0])} · {formatDate(m.occurred_at)}
                   </p>
                 </div>
               ))}
@@ -204,7 +210,7 @@ export function InventoryDashboardPage() {
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs font-semibold text-slate-700 dark:text-gray-200">{po.status}</p>
+                    <p className="text-xs font-semibold text-slate-700 dark:text-gray-200">{tPurchasing(`status.${po.status}` as Parameters<typeof tPurchasing>[0])}</p>
                     <p className="text-xs text-slate-500">{formatDate(po.expected_date)}</p>
                   </div>
                 </div>

@@ -23,7 +23,30 @@
     "planDaysLeft": "{days} days left",
     "upgrade": "Upgrade Plan",
     "planLabel": "Current Plan",
-    "trial": "Trial"
+    "trial": "Trial",
+    "tables": "Tables",
+    "kitchen": "Kitchen",
+    "coupons": "Coupons",
+    "giftCards": "Gift Cards",
+    "notePresets": "Note Presets",
+    "employees": "Employees",
+    "attendance": "Attendance",
+    "schedules": "Schedules",
+    "payroll": "Payroll",
+    "leaves": "Leaves",
+    "inventory": "Inventory",
+    "inventoryDashboard": "Inventory Dashboard",
+    "warehouses": "Warehouses",
+    "locations": "Locations",
+    "stock": "Stock",
+    "movements": "Movements",
+    "transfers": "Transfers",
+    "adjustments": "Adjustments",
+    "stockCounts": "Stock Counts",
+    "suppliers": "Suppliers",
+    "purchaseOrders": "Purchase Orders",
+    "goodsReceipts": "Goods Receipts",
+    "inventoryReports": "Inventory Reports"
   },
   "common": {
     "save": "Save",
@@ -700,7 +723,10 @@
     "newExpense": "New Expense",
     "recordExpenseLabel": "Record an expense",
     "todayReport": "Today's Report",
-    "viewReportsLabel": "View reports"
+    "viewReportsLabel": "View reports",
+    "netProfit": "Net Profit",
+    "occupiedTables": "Occupied Tables",
+    "salesOver7Days": "Sales over 7 Days"
   },
   "comingSoon": {
     "title": "Coming Soon",

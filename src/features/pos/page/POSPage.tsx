@@ -15,6 +15,7 @@ import { useActiveNotePresets } from '@/features/note-presets/hooks/useNotePrese
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { apiClient } from '@/lib/api'
 import { useTranslations } from 'next-intl'
+import { toast } from 'sonner'
 import type { Customer } from '@/features/customers/types/customer.types'
 
 export function POSPage() {
@@ -154,6 +155,12 @@ export function POSPage() {
         // الدفع الفعلي (مثلًا كوبون استُنفد بواسطة كاشير آخر بين المعاينة والتأكيد).
         total: order.total,
       })
+      // البيع نجح دائمًا حتى لو فشل خصم المخزون (best-effort عمدًا — راجع
+      // invoices.service.ts create()) — كان الفشل ده يتسجل في سجلات السيرفر
+      // بس ومحدش يشوفه. لازم يظهر للكاشير بدل ما يفضل مدفون.
+      if (order.stock_warning) {
+        toast.warning(t('payment.stockWarning'))
+      }
     } catch (error: any) {
       // كان يُسجَّل بـconsole فقط بلا أي إشعار للكاشير — يظهر كأن الزر "لا يعمل" بصمت
       // عند فشل حقيقي (كوبون غير صالح لحظة التأكيد، رصيد بطاقة هدايا غير كافٍ، إلخ).

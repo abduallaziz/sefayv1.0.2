@@ -23,7 +23,30 @@
     "planDaysLeft": "{days} يوم متبقي",
     "upgrade": "ترقية الخطة",
     "planLabel": "خطتك الحالية",
-    "trial": "تجريبي"
+    "trial": "تجريبي",
+    "tables": "الطاولات",
+    "kitchen": "المطبخ",
+    "coupons": "الكوبونات",
+    "giftCards": "بطاقات الهدايا",
+    "notePresets": "قوالب الملاحظات",
+    "employees": "الموظفون",
+    "attendance": "الحضور والانصراف",
+    "schedules": "الجداول",
+    "payroll": "الرواتب",
+    "leaves": "الإجازات",
+    "inventory": "المخزون",
+    "inventoryDashboard": "لوحة المخزون",
+    "warehouses": "المستودعات",
+    "locations": "المواقع",
+    "stock": "الأرصدة",
+    "movements": "الحركات",
+    "transfers": "التحويلات",
+    "adjustments": "التسويات",
+    "stockCounts": "الجرد",
+    "suppliers": "الموردون",
+    "purchaseOrders": "أوامر الشراء",
+    "goodsReceipts": "إيصالات الاستلام",
+    "inventoryReports": "تقارير المخزون"
   },
   "common": {
     "save": "حفظ",
@@ -700,7 +723,10 @@
     "newExpense": "مصروف جديد",
     "recordExpenseLabel": "تسجيل مصروف",
     "todayReport": "تقرير اليوم",
-    "viewReportsLabel": "عرض التقارير"
+    "viewReportsLabel": "عرض التقارير",
+    "netProfit": "صافي الربح",
+    "occupiedTables": "الطاولات المشغولة",
+    "salesOver7Days": "المبيعات خلال 7 أيام"
   },
   "comingSoon": {
     "title": "قيد التطوير",

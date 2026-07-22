@@ -10,8 +10,13 @@ function formatCurrency(value: number) {
   return new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(value ?? 0);
 }
 
-function ReportStatusBadge({ status }: { status: string }) {
-  return <StatusBadge tone="brand" label={status.replace(/_/g, ' ')} className="capitalize" />;
+// Was rendering the raw English enum value (status.replace('_', ' ')) with
+// no translation at all — takes an already-translated label now, resolved
+// per call site against the correct status vocabulary (purchasing/
+// adjustments/transfers each have their own, and already exist in the
+// translation catalogs used elsewhere for these exact same statuses).
+function ReportStatusBadge({ label }: { label: string }) {
+  return <StatusBadge tone="brand" label={label} />;
 }
 
 function ReportCard({ title, children }: { title: string; children: React.ReactNode }) {
@@ -29,6 +34,9 @@ function EmptyRow({ label }: { label: string }) {
 
 export function InventoryReportsPage() {
   const t = useTranslations('inventoryReports');
+  const tPurchasing = useTranslations('purchasing');
+  const tAdjustments = useTranslations('adjustments');
+  const tTransfers = useTranslations('transfers');
   const { data, isLoading } = useInventoryReports();
 
   if (isLoading || !data) {
@@ -121,7 +129,7 @@ export function InventoryReportsPage() {
             <div className="space-y-2">
               {purchaseOrders.map((row) => (
                 <div key={row.status} className="flex items-center justify-between text-sm border-b border-slate-100 dark:border-gray-800 pb-2 last:border-0 last:pb-0">
-                  <ReportStatusBadge status={row.status} />
+                  <ReportStatusBadge label={tPurchasing(`status.${row.status}` as Parameters<typeof tPurchasing>[0])} />
                   <div className="text-right">
                     <p className="font-semibold text-slate-700 dark:text-gray-200">{formatCurrency(row.total_value)}</p>
                     <p className="text-xs text-slate-500">{row.order_count} {t('orders')}</p>
@@ -139,7 +147,7 @@ export function InventoryReportsPage() {
             <div className="space-y-2">
               {goodsReceipts.map((row) => (
                 <div key={row.status} className="flex items-center justify-between text-sm border-b border-slate-100 dark:border-gray-800 pb-2 last:border-0 last:pb-0">
-                  <ReportStatusBadge status={row.status} />
+                  <ReportStatusBadge label={tPurchasing(`status.${row.status}` as Parameters<typeof tPurchasing>[0])} />
                   <div className="text-right">
                     <p className="font-semibold text-slate-700 dark:text-gray-200">{formatCurrency(row.total_value)}</p>
                     <p className="text-xs text-slate-500">{row.receipt_count} {t('receipts')}</p>
@@ -157,7 +165,7 @@ export function InventoryReportsPage() {
             <div className="space-y-2">
               {adjustments.map((row) => (
                 <div key={row.status} className="flex items-center justify-between text-sm border-b border-slate-100 dark:border-gray-800 pb-2 last:border-0 last:pb-0">
-                  <ReportStatusBadge status={row.status} />
+                  <ReportStatusBadge label={tAdjustments(`status.${row.status}` as Parameters<typeof tAdjustments>[0])} />
                   <div className="text-right">
                     <p className={`font-semibold ${row.net_value < 0 ? 'text-red-600' : 'text-emerald-600'}`}>
                       {formatCurrency(row.net_value)}
@@ -177,7 +185,7 @@ export function InventoryReportsPage() {
             <div className="space-y-2">
               {transfers.map((row) => (
                 <div key={row.status} className="flex items-center justify-between text-sm border-b border-slate-100 dark:border-gray-800 pb-2 last:border-0 last:pb-0">
-                  <ReportStatusBadge status={row.status} />
+                  <ReportStatusBadge label={tTransfers(`status.${row.status}` as Parameters<typeof tTransfers>[0])} />
                   <span className="font-semibold text-slate-700 dark:text-gray-200">{row.transfer_count}</span>
                 </div>
               ))}

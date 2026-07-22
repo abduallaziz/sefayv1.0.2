@@ -71,7 +71,8 @@
     "giftCardApplied": "Gift card applied",
     "giftCardRemove": "Remove",
     "giftCardInvalid": "Invalid gift card code",
-    "failed": "Payment failed, please try again"
+    "failed": "Payment failed, please try again",
+    "stockWarning": "Sale completed, but automatic stock deduction failed — please review inventory manually"
   },
   "receipt": {
     "success": "Payment Successful",

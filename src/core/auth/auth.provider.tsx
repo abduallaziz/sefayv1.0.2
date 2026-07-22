@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useAuthStore, type UserRole, type BusinessType } from './stores/auth.store';
+import { refreshSession } from '@/lib/api';
 
 interface AuthProviderProps {
   children: React.ReactNode;
@@ -11,24 +12,36 @@ const API_BASE = '/api/v1';
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const { setAuth, clearAuth, setLoading } = useAuthStore();
+  // React StrictMode (dev only) double-invokes this effect on mount. That
+  // alone isn't the real hazard — the actual bug was two INDEPENDENT refresh
+  // callers (this effect, and apiClient's own 401-triggered refresh in
+  // lib/api.ts) racing on the same refresh-token cookie. The backend enforces
+  // single-use rotation (auth.service.ts refresh()): the first caller to land
+  // rotates the token and succeeds, the second sees it already used and
+  // treats it as reuse — actively revoking the session. Net effect: every
+  // page load logged the user straight back out. Fixed by (1) guarding this
+  // effect against StrictMode's double-invoke, AND (2) routing through the
+  // same deduped `refreshSession()` singleton that apiClient uses, so no
+  // matter which caller fires first, there is only ever one /auth/refresh
+  // request in flight at a time — not two separate ones that happen to both
+  // be deduped internally.
+  const hasAttemptedRefresh = useRef(false);
 
   useEffect(() => {
+    if (hasAttemptedRefresh.current) return;
+    hasAttemptedRefresh.current = true;
+
     const tryAutoRefresh = async () => {
       try {
-        const res = await fetch(`${API_BASE}/auth/refresh`, {
-          method: 'POST',
-          credentials: 'include',
-        });
+        const refreshed = await refreshSession();
 
-        if (!res.ok) {
+        if (!refreshed) {
           clearAuth();
           return;
         }
 
-        const data = await res.json();
-
         const meRes = await fetch(`${API_BASE}/auth/me`, {
-          headers: { Authorization: `Bearer ${data.access_token}` },
+          headers: { Authorization: `Bearer ${refreshed.access_token}` },
           credentials: 'include',
         });
 
@@ -47,8 +60,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
               business_type: (user.business_type as BusinessType) ?? null,
               activity: user.activity ?? null,
             },
-            data.access_token,
-            data.realtime_token,
+            refreshed.access_token,
+            refreshed.realtime_token,
           );
         } else {
           clearAuth();

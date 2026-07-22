@@ -32,6 +32,10 @@ export interface Order {
   notes?: string | null;
   items?: OrderItem[];
   created_at: string;
+  // Only present on the create-order response (invoices.service.ts create()),
+  // not on the full Order shape returned by GET — non-blocking stock-deduction
+  // failure surfaced to the cashier instead of being silent.
+  stock_warning?: string | null;
 }
 
 export interface OrderFilters {
