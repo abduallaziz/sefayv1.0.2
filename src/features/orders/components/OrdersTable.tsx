@@ -147,7 +147,7 @@ export function OrdersTable({ orders, onViewOrder, onPrintOrder, onCancelOrder }
           <thead>
             <tr className="bg-posCloud-background dark:bg-posCloudDark-background border-b border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
               <th className="text-start px-3 py-3 font-medium w-28 whitespace-nowrap">{t('invoiceNumber')}</th>
-              <th className="text-start px-3 py-3 font-medium w-32 whitespace-nowrap">{t('date')}</th>
+              <th className="text-start px-3 py-3 font-medium w-36 whitespace-nowrap">{t('date')}</th>
               <th className="text-start px-3 py-3 font-medium w-28 whitespace-nowrap">{t('cashier')}</th>
               <th className="text-start px-3 py-3 font-medium w-24 whitespace-nowrap">{t('amount')}</th>
               <th className="text-start px-3 py-3 font-medium w-24 whitespace-nowrap">{t('status.header')}</th>
@@ -169,8 +169,8 @@ export function OrdersTable({ orders, onViewOrder, onPrintOrder, onCancelOrder }
                       #{order.id.slice(-6).toUpperCase()}
                     </button>
                   </td>
-                  <td className="px-3 py-3 w-32 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary text-xs">
-                    <p className="truncate">{dateStr}</p>
+                  <td className="px-3 py-3 w-36 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary text-xs whitespace-nowrap">
+                    <p>{dateStr}</p>
                     <p dir="ltr" className="text-start">{timeStr}</p>
                   </td>
                   <td className="px-3 py-3 w-28 text-posCloud-text-secondary dark:text-posCloudDark-text-primary truncate">
@@ -207,6 +207,10 @@ export function OrdersTable({ orders, onViewOrder, onPrintOrder, onCancelOrder }
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="start">
+                          <DropdownMenuItem onClick={() => onViewOrder(order)}>
+                            <Eye size={14} />
+                            {t('actions.view')}
+                          </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => onPrintOrder(order)}>
                             <Printer size={14} />
                             {t('details.print')}
@@ -228,13 +232,6 @@ export function OrdersTable({ orders, onViewOrder, onPrintOrder, onCancelOrder }
                           )}
                         </DropdownMenuContent>
                       </DropdownMenu>
-                      <button
-                        onClick={() => onViewOrder(order)}
-                        className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary"
-                        title={t('actions.view')}
-                      >
-                        <Eye size={15} />
-                      </button>
                     </div>
                   </td>
                 </tr>
