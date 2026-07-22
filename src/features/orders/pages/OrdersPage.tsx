@@ -131,17 +131,16 @@ export function OrdersPage() {
     setPrintRequestId(order.id);
   }
 
-  // Order: draft, cancelled, pending, completed — matches the reference
-  // exactly. "Draft" always shows 0 (real, not fabricated) since Sefay's
-  // OrderStatus has no draft state — there can never be a draft order, so 0
-  // is true by definition. Non-clickable since there's no real state to
-  // filter by. "All" is rendered separately as a bordered dropdown-style box.
-  // DOM order (right-to-left reading order in RTL): draft, cancelled,
-  // completed, pending — "مسودة ملغاة مكتملة معلقة" per explicit correction.
+  // "Draft" always shows 0 (real, not fabricated) since Sefay's OrderStatus
+  // has no draft state — there can never be a draft order, so 0 is true by
+  // definition. Non-clickable since there's no real state to filter by.
+  // "All" is rendered separately as a bordered dropdown-style box.
+  // DOM order (right-to-left reading order in RTL): completed, pending,
+  // cancelled, draft — "مكتملة معلقة ملغاة مسودة" per explicit correction.
   const statusPills: { value: OrderStatus; labelKey: string; count: number; iconColor: string; icon: typeof XCircle }[] = [
-    { value: 'cancelled', labelKey: 'status.cancelled', count: stats.cancelled, iconColor: 'text-posCloud-danger bg-posCloud-danger-light dark:bg-posCloud-danger/15', icon: XCircle },
     { value: 'completed', labelKey: 'status.completed', count: stats.completed, iconColor: 'text-posCloud-success bg-posCloud-success-light dark:bg-posCloud-success/15', icon: CheckCircle2 },
     { value: 'pending', labelKey: 'status.pending', count: stats.pending, iconColor: 'text-posCloud-warning bg-posCloud-warning-light dark:bg-posCloud-warning/15', icon: Clock },
+    { value: 'cancelled', labelKey: 'status.cancelled', count: stats.cancelled, iconColor: 'text-posCloud-danger bg-posCloud-danger-light dark:bg-posCloud-danger/15', icon: XCircle },
   ];
 
   function handleCancelConfirm(id: string, reason: string) {
@@ -192,18 +191,20 @@ export function OrdersPage() {
       <OrderFilters filters={filters} onChange={(next) => { setFilters(next); setPage(1); }} />
 
       <div className="flex flex-wrap items-center justify-between gap-2 -mt-2 mb-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <span
-            title={t('status.draftHint')}
-            className="flex items-center gap-1.5 h-8 rounded-full border border-posCloud-border dark:border-posCloudDark-border px-2.5 text-xs font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary cursor-default"
-          >
-            <span className="tabular-nums">0</span>
-            {t('status.draft')}
-            <span className="flex h-4 w-4 items-center justify-center rounded-full text-posCloud-text-tertiary bg-posCloud-background dark:bg-posCloudDark-background">
-              <Circle size={11} />
-            </span>
-          </span>
+        <button
+          onClick={() => { setFilters({ ...filters, status: undefined }); setPage(1); }}
+          className={`flex items-center gap-1.5 h-8 rounded-lg border px-3 text-xs font-semibold transition-colors ${
+            !filters.status
+              ? 'border-posCloud-primary text-posCloud-primary bg-posCloud-primary-light dark:bg-posCloud-primary/15'
+              : 'border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:bg-slate-100 dark:hover:bg-white/5'
+          }`}
+        >
+          {t('status.all')}
+          <span className="tabular-nums">{stats.total}</span>
+          <ChevronDown size={13} />
+        </button>
 
+        <div className="flex flex-1 flex-wrap items-center justify-center gap-2">
           {statusPills.map(pill => (
             <button
               key={pill.value}
@@ -222,18 +223,16 @@ export function OrdersPage() {
             </button>
           ))}
 
-          <button
-            onClick={() => { setFilters({ ...filters, status: undefined }); setPage(1); }}
-            className={`flex items-center gap-1.5 h-8 rounded-lg border px-3 text-xs font-semibold transition-colors ${
-              !filters.status
-                ? 'border-posCloud-primary text-posCloud-primary bg-posCloud-primary-light dark:bg-posCloud-primary/15'
-                : 'border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:bg-slate-100 dark:hover:bg-white/5'
-            }`}
+          <span
+            title={t('status.draftHint')}
+            className="flex items-center gap-1.5 h-8 rounded-full border border-posCloud-border dark:border-posCloudDark-border px-2.5 text-xs font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary cursor-default"
           >
-            {t('status.all')}
-            <span className="tabular-nums">{stats.total}</span>
-            <ChevronDown size={13} />
-          </button>
+            <span className="tabular-nums">0</span>
+            {t('status.draft')}
+            <span className="flex h-4 w-4 items-center justify-center rounded-full text-posCloud-text-tertiary bg-posCloud-background dark:bg-posCloudDark-background">
+              <Circle size={11} />
+            </span>
+          </span>
         </div>
 
         <div className="flex items-center gap-2">
