@@ -145,7 +145,7 @@ export function OrdersTable({ orders, onViewOrder, onPrintOrder, onCancelOrder }
       <div className="hidden md:block overflow-x-auto rounded-xl border border-posCloud-border dark:border-posCloudDark-border">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-posCloud-background dark:bg-posCloudDark-background border-b border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+            <tr className="bg-white dark:bg-posCloudDark-background border-b border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
               <th className="text-start px-3 py-3 font-medium w-20">{t('invoiceNumber')}</th>
               <th className="text-start px-3 py-3 font-medium">{t('date')}</th>
               <th className="text-start px-3 py-3 font-medium">{t('cashier')}</th>
