@@ -169,9 +169,9 @@ export function OrdersTable({ orders, onViewOrder, onPrintOrder, onCancelOrder }
                       #{order.id.slice(-6).toUpperCase()}
                     </button>
                   </td>
-                  <td dir="ltr" className="px-3 py-3 w-36 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary text-xs whitespace-nowrap text-left">
-                    <p>{dateStr}</p>
-                    <p>{timeStr}</p>
+                  <td className="px-3 py-3 w-36 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary text-xs whitespace-nowrap text-start">
+                    <p dir="ltr" className="text-right">{dateStr}</p>
+                    <p dir="ltr" className="text-right">{timeStr}</p>
                   </td>
                   <td className="px-3 py-3 w-28 text-posCloud-text-secondary dark:text-posCloudDark-text-primary truncate">
                     {order.cashier_name || '—'}
