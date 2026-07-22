@@ -41,7 +41,7 @@ export function OrderFilters({ filters, onChange }: Props) {
     'h-9 rounded-lg border border-posCloud-border dark:border-posCloudDark-border bg-white dark:bg-posCloudDark-surface px-3 text-xs font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-primary focus:outline-none focus:border-posCloud-primary';
 
   return (
-    <div className="flex w-full flex-wrap items-center gap-2 mb-4">
+    <div className="flex w-full flex-wrap items-center gap-2">
       <button
         type="button"
         onClick={() => onChange({})}

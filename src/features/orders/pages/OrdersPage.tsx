@@ -188,9 +188,10 @@ export function OrdersPage() {
         ))}
       </div>
 
+      <div className="rounded-xl border border-posCloud-border dark:border-posCloudDark-border bg-white dark:bg-posCloudDark-surface p-3 mb-4 space-y-3">
       <OrderFilters filters={filters} onChange={(next) => { setFilters(next); setPage(1); }} />
 
-      <div className="flex flex-wrap items-center justify-between gap-2 -mt-2 mb-4">
+      <div className="flex flex-nowrap items-center justify-between gap-2 overflow-x-auto">
         <button
           onClick={() => { setFilters({ ...filters, status: undefined }); setPage(1); }}
           className={`flex items-center gap-1.5 h-8 rounded-lg border px-3 text-xs font-semibold transition-colors ${
@@ -204,7 +205,7 @@ export function OrdersPage() {
           <ChevronDown size={13} />
         </button>
 
-        <div className="flex flex-1 flex-wrap items-center justify-center gap-2">
+        <div className="flex flex-1 flex-nowrap items-center justify-center gap-2">
           {statusPills.map(pill => (
             <button
               key={pill.value}
@@ -252,6 +253,7 @@ export function OrdersPage() {
             <Settings2 size={13} />
           </button>
         </div>
+      </div>
       </div>
 
       {isLoading ? (

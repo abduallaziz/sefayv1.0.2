@@ -23,6 +23,7 @@
   "cancelledCount": "ملغاة",
   "todayRevenue": "الإيراد اليوم",
   "status": {
+    "header": "الحالة",
     "all": "الكل",
     "completed": "مكتملة",
     "pending": "معلقة",
@@ -47,6 +48,10 @@
   "details": {
     "title": "تفاصيل الفاتورة",
     "items": "الأصناف",
+    "itemName": "اسم المنتج",
+    "quantity": "الكمية",
+    "unitPrice": "السعر",
+    "lineTotal": "الإجمالي",
     "subtotal": "المجموع الفرعي",
     "discount": "الخصم",
     "tax": "الضريبة (15%)",

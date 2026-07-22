@@ -3,7 +3,7 @@
 import { Order } from '../types/order.types';
 import { useTranslations } from 'next-intl';
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store';
-import { X, Receipt, User, UserCog, CreditCard, CircleCheck, ShoppingBasket, StickyNote, Calculator, FileText, Download, Send, Printer } from 'lucide-react';
+import { X, Receipt, User, UserCog, CreditCard, CircleCheck, ShoppingBasket, StickyNote, Calculator, FileText, Download, Send, Printer, Package } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
 import { MethodMark } from '@/shared/ui/method-mark';
 
@@ -90,23 +90,51 @@ export function OrderDetailsModal({ order, onClose }: Props) {
           {/* Items */}
           <div>
             <h3 className="flex items-center gap-1.5 text-sm font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary mb-2">
-              <ShoppingBasket size={15} /> {t('details.items')}
+              <ShoppingBasket size={15} /> {t('details.items')} ({(order.items ?? []).length})
             </h3>
-            <div className="space-y-2">
-              {(order.items ?? []).map(item => (
-                <div key={item.id} className="flex justify-between items-center text-sm bg-posCloud-background dark:bg-posCloudDark-background rounded-lg px-3 py-2">
-                  <div>
-                    <p className="font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary">{item.item_name}</p>
-                    {item.variant_name && (
-                      <p className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{item.variant_name}</p>
-                    )}
-                  </div>
-                  <div className="text-end">
-                    <p className="font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary">{item.total_price} {currency}</p>
-                    <p className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{item.quantity} × {item.unit_price}</p>
-                  </div>
-                </div>
-              ))}
+            <div className="overflow-x-auto rounded-lg border border-posCloud-border dark:border-posCloudDark-border">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-posCloud-background dark:bg-posCloudDark-background border-b border-posCloud-border dark:border-posCloudDark-border text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+                    <th className="text-start px-3 py-2 font-medium w-8">#</th>
+                    <th className="text-start px-3 py-2 font-medium">{t('details.itemName')}</th>
+                    <th className="text-start px-3 py-2 font-medium">{t('details.quantity')}</th>
+                    <th className="text-start px-3 py-2 font-medium">{t('details.unitPrice')}</th>
+                    <th className="text-start px-3 py-2 font-medium">{t('details.discount')}</th>
+                    <th className="text-start px-3 py-2 font-medium">{t('details.lineTotal')}</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-posCloud-border dark:divide-posCloudDark-border">
+                  {(order.items ?? []).map((item, i) => {
+                    // Per-item discount doesn't exist in the data model (only
+                    // order-level discount_amount does) — real zero by
+                    // definition, not fabricated, same as the "draft" pill.
+                    const lineDiscount = (item.quantity * item.unit_price) - item.total_price;
+                    return (
+                      <tr key={item.id}>
+                        <td className="px-3 py-2 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary tabular-nums">{i + 1}</td>
+                        <td className="px-3 py-2">
+                          <div className="flex items-center gap-2">
+                            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-posCloud-primary-light dark:bg-posCloud-primary/15 text-posCloud-primary">
+                              <Package size={14} />
+                            </span>
+                            <div className="min-w-0">
+                              <p className="font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary truncate">{item.item_name}</p>
+                              {item.variant_name && (
+                                <p className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary truncate">{item.variant_name}</p>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-3 py-2 tabular-nums text-posCloud-text-secondary dark:text-posCloudDark-text-primary">{item.quantity}</td>
+                        <td className="px-3 py-2 tabular-nums text-posCloud-text-secondary dark:text-posCloudDark-text-primary">{item.unit_price.toLocaleString('en-US')} {currency}</td>
+                        <td className="px-3 py-2 tabular-nums text-posCloud-text-secondary dark:text-posCloudDark-text-primary">{lineDiscount.toLocaleString('en-US')} {currency}</td>
+                        <td className="px-3 py-2 font-semibold tabular-nums text-posCloud-text-primary dark:text-posCloudDark-text-primary">{item.total_price.toLocaleString('en-US')} {currency}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           </div>
 

@@ -23,6 +23,7 @@
   "cancelledCount": "Cancelled",
   "todayRevenue": "Today's Revenue",
   "status": {
+    "header": "Status",
     "all": "All",
     "completed": "Completed",
     "pending": "Pending",
@@ -47,6 +48,10 @@
   "details": {
     "title": "Order Details",
     "items": "Items",
+    "itemName": "Product Name",
+    "quantity": "Quantity",
+    "unitPrice": "Price",
+    "lineTotal": "Total",
     "subtotal": "Subtotal",
     "discount": "Discount",
     "tax": "Tax (15%)",

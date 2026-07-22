@@ -150,6 +150,7 @@ export function OrdersTable({ orders, onViewOrder, onPrintOrder, onCancelOrder }
               <th className="text-start px-3 py-3 font-medium">{t('date')}</th>
               <th className="text-start px-3 py-3 font-medium">{t('cashier')}</th>
               <th className="text-start px-3 py-3 font-medium w-24">{t('amount')}</th>
+              <th className="text-start px-3 py-3 font-medium">{t('status.header')}</th>
               <th className="text-start px-3 py-3 font-medium">{t('paymentMethod')}</th>
               <th className="text-start px-3 py-3 font-medium">{t('filters.branch')}</th>
               <th className="text-start px-3 py-3 font-medium w-20">{t('actions.header')}</th>
@@ -177,6 +178,11 @@ export function OrdersTable({ orders, onViewOrder, onPrintOrder, onCancelOrder }
                   </td>
                   <td className="px-3 py-3 font-bold text-posCloud-text-primary dark:text-posCloudDark-text-primary w-24 tabular-nums">
                     {order.total.toLocaleString('en-US')} {currency}
+                  </td>
+                  <td className="px-3 py-3">
+                    <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[order.status]}`}>
+                      {t(`status.${order.status}`)}
+                    </span>
                   </td>
                   <td className="px-3 py-3">
                     <span className={`inline-flex items-center justify-center gap-1.5 rounded-lg px-2 py-1 text-posCloud-text-primary dark:text-posCloudDark-text-primary ${order.payment_method ? PAYMENT_PILL_BG[order.payment_method] ?? PAYMENT_PILL_BG.cash : PAYMENT_PILL_BG.cash}`}>
