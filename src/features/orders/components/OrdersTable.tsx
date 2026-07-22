@@ -146,14 +146,14 @@ export function OrdersTable({ orders, onViewOrder, onPrintOrder, onCancelOrder }
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-posCloud-background dark:bg-posCloudDark-background border-b border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-              <th className="text-start px-3 py-3 font-medium w-20">{t('invoiceNumber')}</th>
-              <th className="text-start px-3 py-3 font-medium">{t('date')}</th>
-              <th className="text-start px-3 py-3 font-medium">{t('cashier')}</th>
-              <th className="text-start px-3 py-3 font-medium w-24">{t('amount')}</th>
-              <th className="text-start px-3 py-3 font-medium">{t('status.header')}</th>
-              <th className="text-start px-3 py-3 font-medium">{t('paymentMethod')}</th>
-              <th className="text-start px-3 py-3 font-medium">{t('filters.branch')}</th>
-              <th className="text-start px-3 py-3 font-medium w-20">{t('actions.header')}</th>
+              <th className="text-start px-3 py-3 font-medium w-28 whitespace-nowrap">{t('invoiceNumber')}</th>
+              <th className="text-start px-3 py-3 font-medium w-32 whitespace-nowrap">{t('date')}</th>
+              <th className="text-start px-3 py-3 font-medium w-28 whitespace-nowrap">{t('cashier')}</th>
+              <th className="text-start px-3 py-3 font-medium w-24 whitespace-nowrap">{t('amount')}</th>
+              <th className="text-start px-3 py-3 font-medium w-24 whitespace-nowrap">{t('status.header')}</th>
+              <th className="text-start px-3 py-3 font-medium w-28 whitespace-nowrap">{t('paymentMethod')}</th>
+              <th className="text-start px-3 py-3 font-medium w-28 whitespace-nowrap">{t('filters.branch')}</th>
+              <th className="text-start px-3 py-3 font-medium w-20 whitespace-nowrap">{t('actions.header')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-posCloud-border dark:divide-posCloudDark-border">
@@ -161,7 +161,7 @@ export function OrdersTable({ orders, onViewOrder, onPrintOrder, onCancelOrder }
               const { dateStr, timeStr } = formatOrderDateTime(order.created_at);
               return (
                 <tr key={order.id} className="bg-white dark:bg-posCloudDark-surface hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
-                  <td className="px-3 py-3 w-20">
+                  <td className="px-3 py-3 w-28">
                     <button
                       onClick={() => onViewOrder(order)}
                       className="font-mono text-xs font-semibold text-posCloud-primary hover:underline"
@@ -169,27 +169,27 @@ export function OrdersTable({ orders, onViewOrder, onPrintOrder, onCancelOrder }
                       #{order.id.slice(-6).toUpperCase()}
                     </button>
                   </td>
-                  <td className="px-3 py-3 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary text-xs">
-                    <p>{dateStr}</p>
+                  <td className="px-3 py-3 w-32 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary text-xs">
+                    <p className="truncate">{dateStr}</p>
                     <p dir="ltr" className="text-start">{timeStr}</p>
                   </td>
-                  <td className="px-3 py-3 text-posCloud-text-secondary dark:text-posCloudDark-text-primary max-w-[120px] truncate">
+                  <td className="px-3 py-3 w-28 text-posCloud-text-secondary dark:text-posCloudDark-text-primary truncate">
                     {order.cashier_name || '—'}
                   </td>
-                  <td className="px-3 py-3 font-bold text-posCloud-text-primary dark:text-posCloudDark-text-primary w-24 tabular-nums">
+                  <td className="px-3 py-3 w-24 font-bold text-posCloud-text-primary dark:text-posCloudDark-text-primary tabular-nums whitespace-nowrap">
                     {order.total.toLocaleString('en-US')} {currency}
                   </td>
-                  <td className="px-3 py-3">
-                    <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[order.status]}`}>
+                  <td className="px-3 py-3 w-24">
+                    <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${statusColors[order.status]}`}>
                       {t(`status.${order.status}`)}
                     </span>
                   </td>
-                  <td className="px-3 py-3">
+                  <td className="px-3 py-3 w-28">
                     <span className={`inline-flex items-center justify-center gap-1.5 rounded-lg px-2 py-1 text-posCloud-text-primary dark:text-posCloudDark-text-primary ${order.payment_method ? PAYMENT_PILL_BG[order.payment_method] ?? PAYMENT_PILL_BG.cash : PAYMENT_PILL_BG.cash}`}>
                       {order.payment_method ? <MethodMark id={order.payment_method} /> : <span className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('payment_method.unknown')}</span>}
                     </span>
                   </td>
-                  <td className="px-3 py-3 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary max-w-[120px]">
+                  <td className="px-3 py-3 w-28 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
                     <span className="flex items-center gap-1.5">
                       <Store size={13} className="shrink-0" />
                       <span className="truncate">{branchName(order.branch_id)}</span>
