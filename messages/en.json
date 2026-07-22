@@ -19,24 +19,11 @@
     "reports": "Reports",
     "users": "Users",
     "settings": "Settings",
-    "suppliers": "Suppliers",
-    "warehouses": "Warehouses",
-    "locations": "Locations",
-    "purchaseOrders": "Purchase Orders",
-    "goodsReceipts": "Goods Receipts",
-    "stock": "Stock",
-    "adjustments": "Adjustments",
     "plan": "Current Plan",
     "planDaysLeft": "{days} days left",
     "upgrade": "Upgrade Plan",
     "planLabel": "Current Plan",
-    "trial": "Trial",
-    "inventory": "Inventory",
-    "inventoryDashboard": "Dashboard",
-    "movements": "Movements",
-    "inventoryReports": "Reports",
-    "transfers": "Transfers",
-    "stockCounts": "Stock Counts"
+    "trial": "Trial"
   },
   "common": {
     "save": "Save",
@@ -792,8 +779,7 @@
       "lastMonth": "Last Month",
       "last3months": "Last 3 Months",
       "thisYear": "This Year"
-    },
-    "apply": "Apply"
+    }
   },
   "landing": {
     "nav": {

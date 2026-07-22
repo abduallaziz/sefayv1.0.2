@@ -19,24 +19,11 @@
     "reports": "التقارير",
     "users": "المستخدمون",
     "settings": "الإعدادات",
-    "suppliers": "الموردون",
-    "warehouses": "المستودعات",
-    "locations": "المواقع",
-    "purchaseOrders": "أوامر الشراء",
-    "goodsReceipts": "إيصالات الاستلام",
-    "stock": "المخزون",
-    "adjustments": "تسويات المخزون",
     "plan": "الخطة الحالية",
     "planDaysLeft": "{days} يوم متبقي",
     "upgrade": "ترقية الخطة",
     "planLabel": "خطتك الحالية",
-    "trial": "تجريبي",
-    "inventory": "المخزون",
-    "inventoryDashboard": "لوحة المخزون",
-    "movements": "حركات المخزون",
-    "inventoryReports": "تقارير المخزون",
-    "transfers": "التحويلات",
-    "stockCounts": "جرد المخزون"
+    "trial": "تجريبي"
   },
   "common": {
     "save": "حفظ",
@@ -792,8 +779,7 @@
       "lastMonth": "الشهر الماضي",
       "last3months": "آخر 3 أشهر",
       "thisYear": "هذه السنة"
-    },
-    "apply": "تطبيق"
+    }
   },
   "landing": {
     "nav": {
