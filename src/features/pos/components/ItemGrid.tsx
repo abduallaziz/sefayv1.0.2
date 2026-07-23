@@ -116,9 +116,15 @@ export function ItemGrid({ onAddItem }: Props) {
   const t = useTranslations('pos')
   const currency = useCurrencyDisplay()
   const [search, setSearch] = useState('')
+  // Separate from `search` on purpose: the top scan bar is barcode-only
+  // (scanner input or manual barcode entry), not a live product-name
+  // filter — it must not share state with the "بحث عن المنتجات" field,
+  // which does live-filter the grid as you type a name.
+  const [barcodeCode, setBarcodeCode] = useState('')
   const [activeCategory, setActiveCategory] = useState('all')
   const [variantModal, setVariantModal] = useState<POSItem | null>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
+  const barcodeInputRef = useRef<HTMLInputElement>(null)
 
   const { data: rawItems = [], isLoading } = useItems()
   const { data: categories = [] } = useCategories()
@@ -160,14 +166,19 @@ export function ItemGrid({ onAddItem }: Props) {
   }
 
   // Barcode scanners behave like a keyboard that types the code then presses
-  // Enter — a real person typing an item name into this same search box
+  // Enter — a real person typing an item name into a name-search field
   // essentially never does that. Real product barcode → real item/variant
   // lookup via the actual item-barcodes API (Migration 098 + Step 2 backend),
   // not a client-side guess against the already-loaded item list (which
   // wouldn't know about secondary/variant-specific barcodes at all).
-  const runBarcodeLookup = async () => {
-    if (!search.trim()) return
-    const query = search.trim()
+  //
+  // Parametrized so the dedicated barcode-scan bar and the "search by name
+  // or code" field can each supply their own value + own clear-on-success
+  // behavior, without sharing state — the scan bar is barcode-only, not a
+  // live name filter, per explicit design intent.
+  const runBarcodeLookup = async (rawValue: string, onSuccess: () => void) => {
+    const query = rawValue.trim()
+    if (!query) return
     try {
       const result = await itemsApi.lookupBarcode(query)
       if (!result.items || !result.items.is_active) {
@@ -196,7 +207,7 @@ export function ItemGrid({ onAddItem }: Props) {
         onAddItem(posItem)
         toast.success(t('barcodeAdded', { name: posItem.name_ar }))
       }
-      setSearch('')
+      onSuccess()
     } catch (err) {
       // A 404 means the lookup ran and genuinely found no matching barcode
       // — surface that explicitly (per spec). Any other failure (network,
@@ -210,17 +221,20 @@ export function ItemGrid({ onAddItem }: Props) {
   }
 
   const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') runBarcodeLookup()
+    if (e.key === 'Enter') runBarcodeLookup(search, () => setSearch(''))
+  }
+
+  const handleBarcodeKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') runBarcodeLookup(barcodeCode, () => setBarcodeCode(''))
   }
 
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-xl font-extrabold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{t('title')}</h1>
 
-      {/* Prominent scan bar — same search/scan logic as the small toolbar
-          field below (shared `search` state and handlers), just a bigger,
-          more discoverable entry point at the top of the page for a
-          cashier reaching for a physical barcode scanner. */}
+      {/* Dedicated barcode-scan bar — its own state (barcodeCode), NOT the
+          live product-name search below. Purely for a physical scanner or
+          manually-typed barcode value; never filters the grid by name. */}
       <div className="relative flex items-center gap-3 rounded-2xl border-2 border-posCloud-primary/30 bg-posCloud-primary-light/40 dark:bg-posCloud-primary/10 px-4 py-3">
         {/* DOM order is deliberately scan-button-first so it renders on the
             visual RIGHT under the page's RTL context, matching the
@@ -228,20 +242,22 @@ export function ItemGrid({ onAddItem }: Props) {
             at the right edge in RTL flex flow. */}
         <button
           type="button"
-          onClick={() => runBarcodeLookup()}
-          aria-label={t('searchProducts')}
+          onClick={() => runBarcodeLookup(barcodeCode, () => setBarcodeCode(''))}
+          aria-label={t('scanBarcodeHere')}
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-posCloud-primary text-white hover:bg-posCloud-primary-dark transition-colors"
         >
           <ScanLine className="h-5 w-5" />
         </button>
         <div className="relative flex-1">
           <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={handleSearchKeyDown}
+            ref={barcodeInputRef}
+            value={barcodeCode}
+            onChange={(e) => setBarcodeCode(e.target.value)}
+            onKeyDown={handleBarcodeKeyDown}
+            autoFocus
             className="w-full bg-transparent text-center outline-none text-posCloud-text-primary dark:text-posCloudDark-text-primary"
           />
-          {!search && (
+          {!barcodeCode && (
             <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-0.5">
               <span className="text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{t('scanBarcodeHere')}</span>
               <span className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('orTypeAndEnter')}</span>
@@ -250,7 +266,7 @@ export function ItemGrid({ onAddItem }: Props) {
         </div>
         <button
           type="button"
-          onClick={() => searchInputRef.current?.focus()}
+          onClick={() => barcodeInputRef.current?.focus()}
           aria-label={t('manualEntry')}
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-posCloud-primary-light text-posCloud-primary hover:bg-posCloud-primary/20 transition-colors"
         >
@@ -268,7 +284,7 @@ export function ItemGrid({ onAddItem }: Props) {
           <div className="flex shrink-0 items-center gap-1.5 rounded-full border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-4 py-2 text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
             <button
               type="button"
-              onClick={() => runBarcodeLookup()}
+              onClick={() => runBarcodeLookup(search, () => setSearch(''))}
               aria-label={t('searchProducts')}
               className="shrink-0 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-primary transition-colors"
             >
@@ -280,7 +296,6 @@ export function ItemGrid({ onAddItem }: Props) {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={handleSearchKeyDown}
-              autoFocus
               className="w-20 min-w-0 bg-transparent outline-none placeholder:text-posCloud-text-tertiary dark:placeholder:text-posCloudDark-text-tertiary text-posCloud-text-primary dark:text-posCloudDark-text-primary sm:w-28"
             />
           </div>
