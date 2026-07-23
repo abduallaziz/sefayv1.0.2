@@ -249,7 +249,7 @@ export function ItemGrid({ onAddItem }: Props) {
             {t('openDrawer')}
           </button>
         </div>
-        <div className="flex items-center gap-2 rounded-lg border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-3 py-2 text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+        <div className="flex items-center gap-2 rounded-full border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-4 py-2 text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
           <button
             type="button"
             onClick={() => runBarcodeLookup()}
