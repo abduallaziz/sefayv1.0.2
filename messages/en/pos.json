@@ -2,6 +2,7 @@
   "title": "Point of Sale",
   "search": "Search items...",
   "scanOrSearch": "Scan barcode or type here",
+  "searchProducts": "Search Products",
   "barcodeNotFound": "Barcode not recognized",
   "barcodeAdded": "Added: {name}",
   "newProduct": "New Product",

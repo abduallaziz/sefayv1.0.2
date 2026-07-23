@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { Search, ImageOff, Plus, Archive } from 'lucide-react'
@@ -118,6 +118,7 @@ export function ItemGrid({ onAddItem }: Props) {
   const [search, setSearch] = useState('')
   const [activeCategory, setActiveCategory] = useState('all')
   const [variantModal, setVariantModal] = useState<POSItem | null>(null)
+  const searchInputRef = useRef<HTMLInputElement>(null)
 
   const { data: rawItems = [], isLoading } = useItems()
   const { data: categories = [] } = useCategories()
@@ -232,6 +233,14 @@ export function ItemGrid({ onAddItem }: Props) {
             <Archive className="h-4 w-4" />
             {t('openDrawer')}
           </button>
+          <button
+            type="button"
+            onClick={() => searchInputRef.current?.focus()}
+            className="flex items-center gap-1.5 whitespace-nowrap rounded-full border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-4 py-2 text-sm font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary transition-colors hover:bg-slate-50 dark:hover:bg-white/5"
+          >
+            <Search className="h-4 w-4" />
+            {t('searchProducts')}
+          </button>
         </div>
         <div className="flex items-center gap-2 rounded-full border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-4 py-2 text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
           <button
@@ -243,6 +252,7 @@ export function ItemGrid({ onAddItem }: Props) {
             <Search className="h-4 w-4" />
           </button>
           <input
+            ref={searchInputRef}
             placeholder={t('scanOrSearch')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
