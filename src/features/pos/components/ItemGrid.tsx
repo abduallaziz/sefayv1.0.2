@@ -269,13 +269,13 @@ export function ItemGrid({ onAddItem }: Props) {
         </div>
       </div>
 
-      <div className="flex gap-2 flex-wrap">
+      <div className="flex items-center gap-1 rounded-full border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface p-1 w-fit flex-wrap">
         <button
           onClick={() => setActiveCategory('all')}
-          className={`rounded-full px-4 py-2 text-sm font-bold transition-colors ${
+          className={`rounded-full px-4 py-2 text-sm transition-colors ${
             activeCategory === 'all'
-              ? 'bg-teal-700 text-white'
-              : 'bg-posCloud-surface dark:bg-posCloudDark-surface text-posCloud-text-secondary dark:text-posCloudDark-text-secondary border border-posCloud-border dark:border-posCloudDark-border font-medium hover:bg-slate-50 dark:hover:bg-white/5'
+              ? 'bg-teal-700 text-white font-bold'
+              : 'text-posCloud-text-secondary dark:text-posCloudDark-text-secondary font-medium hover:bg-slate-50 dark:hover:bg-white/5'
           }`}
         >
           {t('categories.all')}
@@ -289,7 +289,7 @@ export function ItemGrid({ onAddItem }: Props) {
               className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm transition-colors ${
                 activeCategory === cat.id
                   ? 'bg-teal-700 text-white font-bold'
-                  : 'bg-posCloud-surface dark:bg-posCloudDark-surface text-posCloud-text-secondary dark:text-posCloudDark-text-secondary border border-posCloud-border dark:border-posCloudDark-border font-medium hover:bg-slate-50 dark:hover:bg-white/5'
+                  : 'text-posCloud-text-secondary dark:text-posCloudDark-text-secondary font-medium hover:bg-slate-50 dark:hover:bg-white/5'
               }`}
             >
               <Icon className="h-4 w-4" />
