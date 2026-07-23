@@ -274,7 +274,7 @@ export function ItemGrid({ onAddItem }: Props) {
           as the dark #0D4F50 pill when it's the active filter — swapped
           onto whichever pill is actually selected, since the toolbar needs
           to indicate the current filter, not just always highlight "All". */}
-      <div className="flex items-center flex-wrap gap-y-1 gap-x-0.5 rounded-lg border border-[#E5E7EB] bg-white px-2 py-1">
+      <div className="flex items-center flex-wrap gap-y-1 gap-x-1.5 rounded-lg border border-[#E5E7EB] bg-white px-2 py-1">
         {(() => {
           const pills = [
             { key: 'all', isActive: activeCategory === 'all', icon: null, label: t('categories.all'), onClick: () => setActiveCategory('all') },
