@@ -232,7 +232,7 @@ export function ItemGrid({ onAddItem }: Props) {
     <div className="flex flex-col gap-4">
       <h1 className="text-xl font-extrabold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{t('title')}</h1>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <Link
             href="/dashboard/items?create=1"
             className="flex items-center gap-1.5 rounded-full bg-[#0D4F50] px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-[#0a3f40]"
