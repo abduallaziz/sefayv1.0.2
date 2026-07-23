@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { Search, ImageOff, Plus, Archive } from 'lucide-react'
+import { Search, ImageOff, Plus, Archive, Coffee, UtensilsCrossed, Cake, MoreHorizontal, LayoutGrid, type LucideIcon } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
@@ -52,6 +52,22 @@ function ProductImage({ item }: { item: POSItem }) {
 
 interface Props {
   onAddItem: (item: POSItem, variant?: POSVariant) => void
+}
+
+// Categories are real tenant data with free-text names, not a fixed enum —
+// no icon field exists on the category record itself. Picks the closest
+// icon by keyword match (covers common Arabic/English category names);
+// anything unmatched falls back to a generic "more/other" icon rather than
+// showing no icon at all.
+const CATEGORY_ICON_RULES: [RegExp, LucideIcon][] = [
+  [/مشروب|قهوة|شاي|عصير|drink|coffee|juice|bever/i, Coffee],
+  [/وجبات|طعام|أكل|meal|food/i, UtensilsCrossed],
+  [/حلوي|حلويات|dessert|sweet|cake/i, Cake],
+]
+
+function categoryIcon(name: string): LucideIcon {
+  const match = CATEGORY_ICON_RULES.find(([pattern]) => pattern.test(name))
+  return match ? match[1] : MoreHorizontal
 }
 
 function VariantModal({ item, onAddItem, onClose, t }: {
@@ -256,27 +272,32 @@ export function ItemGrid({ onAddItem }: Props) {
       <div className="flex gap-2 flex-wrap">
         <button
           onClick={() => setActiveCategory('all')}
-          className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+          className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
             activeCategory === 'all'
               ? 'bg-posCloud-primary text-white'
               : 'bg-posCloud-surface dark:bg-posCloudDark-surface text-posCloud-text-secondary dark:text-posCloudDark-text-secondary border border-posCloud-border dark:border-posCloudDark-border hover:bg-slate-50 dark:hover:bg-white/5'
           }`}
         >
+          <LayoutGrid className="h-4 w-4" />
           {t('categories.all')}
         </button>
-        {categories.map((cat) => (
-          <button
-            key={cat.id}
-            onClick={() => setActiveCategory(cat.id)}
-            className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-              activeCategory === cat.id
-                ? 'bg-posCloud-primary text-white'
-                : 'bg-posCloud-surface dark:bg-posCloudDark-surface text-posCloud-text-secondary dark:text-posCloudDark-text-secondary border border-posCloud-border dark:border-posCloudDark-border hover:bg-slate-50 dark:hover:bg-white/5'
-            }`}
-          >
-            {cat.name}
-          </button>
-        ))}
+        {categories.map((cat) => {
+          const Icon = categoryIcon(cat.name)
+          return (
+            <button
+              key={cat.id}
+              onClick={() => setActiveCategory(cat.id)}
+              className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                activeCategory === cat.id
+                  ? 'bg-posCloud-primary text-white'
+                  : 'bg-posCloud-surface dark:bg-posCloudDark-surface text-posCloud-text-secondary dark:text-posCloudDark-text-secondary border border-posCloud-border dark:border-posCloudDark-border hover:bg-slate-50 dark:hover:bg-white/5'
+              }`}
+            >
+              <Icon className="h-4 w-4" />
+              {cat.name}
+            </button>
+          )
+        })}
       </div>
 
       {isLoading ? (
