@@ -239,7 +239,7 @@ export function ItemGrid({ onAddItem }: Props) {
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={handleSearchKeyDown}
               autoFocus
-              className="w-28 min-w-0 bg-transparent outline-none placeholder:text-posCloud-text-tertiary dark:placeholder:text-posCloudDark-text-tertiary text-posCloud-text-primary dark:text-posCloudDark-text-primary sm:w-36"
+              className="w-20 min-w-0 bg-transparent outline-none placeholder:text-posCloud-text-tertiary dark:placeholder:text-posCloudDark-text-tertiary text-posCloud-text-primary dark:text-posCloudDark-text-primary sm:w-28"
             />
           </div>
           <button
