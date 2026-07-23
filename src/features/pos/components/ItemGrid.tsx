@@ -235,7 +235,7 @@ export function ItemGrid({ onAddItem }: Props) {
         <div className="flex items-center gap-2">
           <Link
             href="/dashboard/items?create=1"
-            className="flex items-center gap-1.5 rounded-lg bg-posCloud-primary px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-posCloud-primary/90"
+            className="flex items-center gap-1.5 rounded-full bg-teal-700 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-teal-800"
           >
             <Plus className="h-4 w-4" />
             {t('newProduct')}
@@ -243,7 +243,7 @@ export function ItemGrid({ onAddItem }: Props) {
           <button
             onClick={handleOpenDrawer}
             disabled={openDrawer.isPending}
-            className="flex items-center gap-1.5 rounded-lg border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-3 py-2 text-sm font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary transition-colors hover:bg-slate-50 dark:hover:bg-white/5 disabled:opacity-60"
+            className="flex items-center gap-1.5 rounded-full border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-4 py-2 text-sm font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary transition-colors hover:bg-slate-50 dark:hover:bg-white/5 disabled:opacity-60"
           >
             <Archive className="h-4 w-4" />
             {t('openDrawer')}
