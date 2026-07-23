@@ -164,8 +164,8 @@ export function ItemGrid({ onAddItem }: Props) {
   // lookup via the actual item-barcodes API (Migration 098 + Step 2 backend),
   // not a client-side guess against the already-loaded item list (which
   // wouldn't know about secondary/variant-specific barcodes at all).
-  const handleSearchKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key !== 'Enter' || !search.trim()) return
+  const runBarcodeLookup = async () => {
+    if (!search.trim()) return
     const query = search.trim()
     try {
       const result = await itemsApi.lookupBarcode(query)
@@ -208,6 +208,10 @@ export function ItemGrid({ onAddItem }: Props) {
     }
   }
 
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') runBarcodeLookup()
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-xl font-extrabold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{t('title')}</h1>
@@ -230,7 +234,14 @@ export function ItemGrid({ onAddItem }: Props) {
           </button>
         </div>
         <div className="flex items-center gap-2 rounded-lg border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-3 py-2 text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-          <Search className="h-4 w-4 shrink-0" />
+          <button
+            type="button"
+            onClick={() => runBarcodeLookup()}
+            aria-label={t('scanOrSearch')}
+            className="shrink-0 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-primary transition-colors"
+          >
+            <Search className="h-4 w-4" />
+          </button>
           <input
             placeholder={t('scanOrSearch')}
             value={search}
