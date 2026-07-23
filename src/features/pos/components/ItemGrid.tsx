@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { Search, ImageOff, Plus, Archive, Coffee, UtensilsCrossed, Cake, MoreHorizontal, type LucideIcon } from 'lucide-react'
+import { Search, ImageOff, Plus, Archive } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
@@ -54,21 +54,6 @@ interface Props {
   onAddItem: (item: POSItem, variant?: POSVariant) => void
 }
 
-// Categories are real tenant data with free-text names, not a fixed enum —
-// no icon field exists on the category record itself. Picks the closest
-// icon by keyword match (covers common Arabic/English category names);
-// anything unmatched falls back to a generic "more/other" icon rather than
-// showing no icon at all.
-const CATEGORY_ICON_RULES: [RegExp, LucideIcon][] = [
-  [/مشروب|قهوة|شاي|عصير|عصائر|drink|coffee|juice|bever/i, Coffee],
-  [/وجبات|طعام|أكل|meal|food/i, UtensilsCrossed],
-  [/حلوي|حلويات|dessert|sweet|cake/i, Cake],
-]
-
-function categoryIcon(name: string): LucideIcon {
-  const match = CATEGORY_ICON_RULES.find(([pattern]) => pattern.test(name))
-  return match ? match[1] : MoreHorizontal
-}
 
 function VariantModal({ item, onAddItem, onClose, t }: {
   item: POSItem
@@ -272,11 +257,10 @@ export function ItemGrid({ onAddItem }: Props) {
       <div className="flex items-center rounded-full border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface p-1 w-fit flex-wrap">
         {(() => {
           const pills = [
-            { key: 'all', isActive: activeCategory === 'all', icon: null, label: t('categories.all'), onClick: () => setActiveCategory('all') },
+            { key: 'all', isActive: activeCategory === 'all', label: t('categories.all'), onClick: () => setActiveCategory('all') },
             ...categories.map((cat) => ({
               key: cat.id,
               isActive: activeCategory === cat.id,
-              icon: categoryIcon(cat.name),
               label: cat.name,
               onClick: () => setActiveCategory(cat.id),
             })),
@@ -287,19 +271,17 @@ export function ItemGrid({ onAddItem }: Props) {
             // active segment's solid teal fill already reads as a boundary
             // on its own, a divider line touching it would look redundant.
             const showDivider = i > 0 && !pill.isActive && !prev.isActive
-            const Icon = pill.icon
             return (
               <div key={pill.key} className="flex items-center">
                 {showDivider && <span className="h-4 w-px bg-posCloud-border dark:bg-posCloudDark-border mx-0.5" />}
                 <button
                   onClick={pill.onClick}
-                  className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm transition-colors ${
+                  className={`rounded-full px-4 py-2 text-sm transition-colors ${
                     pill.isActive
                       ? 'bg-teal-700 text-white font-bold'
                       : 'text-posCloud-text-secondary dark:text-posCloudDark-text-secondary font-medium hover:bg-slate-50 dark:hover:bg-white/5'
                   }`}
                 >
-                  {Icon && <Icon className="h-4 w-4" />}
                   {pill.label}
                 </button>
               </div>
