@@ -269,7 +269,7 @@ export function ItemGrid({ onAddItem }: Props) {
         </div>
       </div>
 
-      <div className="flex items-center rounded-full border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface p-1 w-fit flex-wrap">
+      <div className="flex items-center flex-wrap">
         {(() => {
           const pills = [
             { key: 'all', isActive: activeCategory === 'all', icon: null, label: t('categories.all'), onClick: () => setActiveCategory('all') },
