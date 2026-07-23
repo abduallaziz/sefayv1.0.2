@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { Search, ImageOff } from 'lucide-react'
+import Link from 'next/link'
+import { Search, ImageOff, Plus, Archive } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
@@ -10,6 +11,7 @@ import { POSItem, POSVariant } from '../types/pos.types'
 import { useItems, useCategories, useItemVariants } from '@/features/items/hooks/useItems'
 import { itemsApi } from '@/features/items/api/items.api'
 import { ApiError } from '@/lib/api'
+import { useOpenDrawer } from '@/features/shifts/hooks/useShifts'
 
 // Sefay's real Item model has no image_url field anywhere (confirmed — no
 // backend upload feature exists yet, see docs/rebuild/PARKING_LOT.md B3).
@@ -119,6 +121,15 @@ export function ItemGrid({ onAddItem }: Props) {
 
   const { data: rawItems = [], isLoading } = useItems()
   const { data: categories = [] } = useCategories()
+  const openDrawer = useOpenDrawer()
+
+  const handleOpenDrawer = () => {
+    openDrawer.mutate(undefined, {
+      onSuccess: () => toast.success(t('drawerOpened')),
+      onError: (err: unknown) =>
+        toast.error(err instanceof Error ? err.message : t('drawerOpenFailed')),
+    })
+  }
 
   const items: POSItem[] = rawItems
     .filter(i => i.is_active)
@@ -199,8 +210,25 @@ export function ItemGrid({ onAddItem }: Props) {
 
   return (
     <div className="flex flex-col gap-4">
+      <h1 className="text-xl font-extrabold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{t('title')}</h1>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-xl font-extrabold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{t('title')}</h1>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/dashboard/items?create=1"
+            className="flex items-center gap-1.5 rounded-lg bg-posCloud-primary px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-posCloud-primary/90"
+          >
+            <Plus className="h-4 w-4" />
+            {t('newProduct')}
+          </Link>
+          <button
+            onClick={handleOpenDrawer}
+            disabled={openDrawer.isPending}
+            className="flex items-center gap-1.5 rounded-lg border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-3 py-2 text-sm font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary transition-colors hover:bg-slate-50 dark:hover:bg-white/5 disabled:opacity-60"
+          >
+            <Archive className="h-4 w-4" />
+            {t('openDrawer')}
+          </button>
+        </div>
         <div className="flex items-center gap-2 rounded-lg border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-3 py-2 text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
           <Search className="h-4 w-4 shrink-0" />
           <input

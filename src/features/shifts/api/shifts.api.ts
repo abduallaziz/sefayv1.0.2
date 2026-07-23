@@ -25,4 +25,7 @@ export const shiftsApi = {
 
   close: (id: string, dto: CloseShiftDto): Promise<Shift> =>
     apiClient.post<Shift>(`/shifts/${id}/close`, dto),
+
+  openDrawer: (): Promise<{ logged: boolean; shift_id: string }> =>
+    apiClient.post<{ logged: boolean; shift_id: string }>('/shifts/drawer-open', {}),
 };

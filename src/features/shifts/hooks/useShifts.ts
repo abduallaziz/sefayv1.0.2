@@ -46,6 +46,11 @@ export const useOpenShift = () => {
   });
 };
 
+export const useOpenDrawer = () =>
+  useMutation({
+    mutationFn: () => shiftsApi.openDrawer(),
+  });
+
 export const useCloseShift = () => {
   const qc = useQueryClient();
   return useMutation({

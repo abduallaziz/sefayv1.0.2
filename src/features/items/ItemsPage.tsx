@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Plus, Package } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
@@ -36,6 +37,14 @@ export function ItemsPage() {
   const [barcodesOpen, setBarcodesOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+
+  // Lets other pages (e.g. the POS "New Product" toolbar button) jump
+  // straight into item creation via /items?create=1, without needing any
+  // shared modal-open state across routes.
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    if (searchParams.get('create') === '1') setFormOpen(true);
+  }, [searchParams]);
 
   const filtered = useMemo(() => {
     return items.filter((item) => {
