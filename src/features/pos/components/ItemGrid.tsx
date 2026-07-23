@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { POSItem, POSVariant } from '../types/pos.types'
 import { useItems, useCategories, useItemVariants } from '@/features/items/hooks/useItems'
+import { itemsApi } from '@/features/items/api/items.api'
 
 // Sefay's real Item model has no image_url field anywhere (confirmed — no
 // backend upload feature exists yet, see docs/rebuild/PARKING_LOT.md B3).
@@ -144,6 +145,44 @@ export function ItemGrid({ onAddItem }: Props) {
     }
   }
 
+  // Barcode scanners behave like a keyboard that types the code then presses
+  // Enter — a real person typing an item name into this same search box
+  // essentially never does that. Real product barcode → real item/variant
+  // lookup via the actual item-barcodes API (Migration 098 + Step 2 backend),
+  // not a client-side guess against the already-loaded item list (which
+  // wouldn't know about secondary/variant-specific barcodes at all).
+  const handleSearchKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== 'Enter' || !search.trim()) return
+    try {
+      const result = await itemsApi.lookupBarcode(search.trim())
+      if (!result.items || !result.items.is_active) return
+      const posItem: POSItem = {
+        id: result.items.id,
+        name: result.items.name,
+        name_ar: result.items.name,
+        price: result.items.price,
+        category: 'other',
+        type: result.items.type,
+        has_variants: result.items.has_variants,
+      }
+      if (result.item_variants) {
+        onAddItem(posItem, {
+          id: result.item_variants.id,
+          name: result.item_variants.name,
+          price_adjustment: result.item_variants.price_adjustment ?? 0,
+        })
+      } else if (posItem.has_variants) {
+        setVariantModal(posItem)
+      } else {
+        onAddItem(posItem)
+      }
+      setSearch('')
+    } catch {
+      // Not a recognized barcode — leave it as a normal text search, no error
+      // noise for a cashier who's just typing a product name.
+    }
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -154,6 +193,7 @@ export function ItemGrid({ onAddItem }: Props) {
             placeholder={t('search')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
             className="w-full bg-transparent outline-none placeholder:text-posCloud-text-tertiary dark:placeholder:text-posCloudDark-text-tertiary text-posCloud-text-primary dark:text-posCloudDark-text-primary sm:w-56"
           />
         </div>

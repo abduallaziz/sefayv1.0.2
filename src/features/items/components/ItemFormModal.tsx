@@ -11,7 +11,7 @@ import { Button } from '@/shared/ui/button';
 
 const schema = z.object({
   name: z.string().min(1),
-  type: z.enum(['product', 'service', 'custom']),
+  type: z.enum(['product', 'service', 'custom', 'raw_material', 'semi_finished', 'finished_goods', 'asset', 'consumable']),
   operation_type: z.enum(['sell', 'book', 'repair', 'rent']),
   price: z.string().transform(val => parseFloat(val) || 0),
   category_id: z.string().optional(),
@@ -110,6 +110,11 @@ export function ItemFormModal({ open, onClose, onSubmit, item, categories, isLoa
                 <option value="product">{t('product')}</option>
                 <option value="service">{t('service')}</option>
                 <option value="custom">{t('custom')}</option>
+                <option value="raw_material">{t('raw_material')}</option>
+                <option value="semi_finished">{t('semi_finished')}</option>
+                <option value="finished_goods">{t('finished_goods')}</option>
+                <option value="asset">{t('asset')}</option>
+                <option value="consumable">{t('consumable')}</option>
               </select>
             </div>
             <div>

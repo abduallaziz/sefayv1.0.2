@@ -1,17 +1,40 @@
 'use client';
 
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Search } from 'lucide-react';
-import type { ItemFilters, ItemType, Category } from '../types/item.types';
+import { toast } from 'sonner';
+import { Search, Barcode } from 'lucide-react';
+import type { ItemFilters, ItemType, Category, Item } from '../types/item.types';
+import { itemsApi } from '../api/items.api';
 
 interface Props {
   filters: ItemFilters;
   onChange: (filters: ItemFilters) => void;
   categories: Category[];
+  onBarcodeFound?: (item: Item) => void;
 }
 
-export function ItemFiltersBar({ filters, onChange, categories }: Props) {
+export function ItemFiltersBar({ filters, onChange, categories, onBarcodeFound }: Props) {
   const t = useTranslations('items');
+  const [barcodeQuery, setBarcodeQuery] = useState('');
+  const [isScanning, setIsScanning] = useState(false);
+
+  const handleBarcodeSearch = async () => {
+    const code = barcodeQuery.trim();
+    if (!code) return;
+    setIsScanning(true);
+    try {
+      const result = await itemsApi.lookupBarcode(code);
+      if (result.items) {
+        onBarcodeFound?.(result.items as unknown as Item);
+        setBarcodeQuery('');
+      }
+    } catch {
+      toast.error(t('barcodeNotFound'));
+    } finally {
+      setIsScanning(false);
+    }
+  };
 
   return (
     <div className="flex flex-wrap gap-3">
@@ -26,6 +49,19 @@ export function ItemFiltersBar({ filters, onChange, categories }: Props) {
         />
       </div>
 
+      <div className="flex items-center gap-2 rounded-lg border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-3 py-2 min-w-[180px]">
+        <Barcode className="w-4 h-4 shrink-0 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary" />
+        <input
+          type="text"
+          placeholder={t('scanBarcodePlaceholder')}
+          value={barcodeQuery}
+          onChange={(e) => setBarcodeQuery(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleBarcodeSearch(); } }}
+          disabled={isScanning}
+          className="w-full bg-transparent text-sm font-mono text-posCloud-text-primary dark:text-posCloudDark-text-primary outline-none placeholder:text-posCloud-text-tertiary dark:placeholder:text-posCloudDark-text-tertiary"
+        />
+      </div>
+
       <select
         value={filters.type}
         onChange={(e) => onChange({ ...filters, type: e.target.value as ItemType | 'all' })}
@@ -35,6 +71,11 @@ export function ItemFiltersBar({ filters, onChange, categories }: Props) {
         <option value="product">{t('product')}</option>
         <option value="service">{t('service')}</option>
         <option value="custom">{t('custom')}</option>
+        <option value="raw_material">{t('raw_material')}</option>
+        <option value="semi_finished">{t('semi_finished')}</option>
+        <option value="finished_goods">{t('finished_goods')}</option>
+        <option value="asset">{t('asset')}</option>
+        <option value="consumable">{t('consumable')}</option>
       </select>
 
       <select

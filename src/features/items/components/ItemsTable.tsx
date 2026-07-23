@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store';
-import { Edit, Trash2, Layers, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Edit, Trash2, Layers, ToggleLeft, ToggleRight, Barcode } from 'lucide-react';
 import { Item } from '../types/item.types';
 
 interface Props {
@@ -10,10 +10,11 @@ interface Props {
   onEdit: (item: Item) => void;
   onDelete: (item: Item) => void;
   onVariants: (item: Item) => void;
+  onBarcodes: (item: Item) => void;
   onToggleActive: (item: Item) => void;
 }
 
-export function ItemsTable({ items, onEdit, onDelete, onVariants, onToggleActive }: Props) {
+export function ItemsTable({ items, onEdit, onDelete, onVariants, onBarcodes, onToggleActive }: Props) {
   const t = useTranslations('items');
   const currency = useCurrencyDisplay();
 
@@ -21,6 +22,11 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onToggleActive
     product: 'bg-posCloud-primary-light dark:bg-posCloud-primary/15 text-posCloud-primary',
     service: 'bg-posCloud-info-light dark:bg-posCloud-info/15 text-posCloud-info',
     custom: 'bg-posCloud-warning-light dark:bg-posCloud-warning/15 text-posCloud-warning',
+    raw_material: 'bg-posCloud-warning-light dark:bg-posCloud-warning/15 text-posCloud-warning',
+    semi_finished: 'bg-posCloud-info-light dark:bg-posCloud-info/15 text-posCloud-info',
+    finished_goods: 'bg-posCloud-success-light dark:bg-posCloud-success/15 text-posCloud-success',
+    asset: 'bg-posCloud-danger-light dark:bg-posCloud-danger/15 text-posCloud-danger',
+    consumable: 'bg-posCloud-primary-light dark:bg-posCloud-primary/15 text-posCloud-primary',
   };
 
   if (items.length === 0) {
@@ -50,6 +56,9 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onToggleActive
                 </div>
               </div>
               <div className="flex items-center gap-1 shrink-0">
+                <button onClick={() => onBarcodes(item)} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary transition-colors">
+                  <Barcode className="w-3.5 h-3.5" />
+                </button>
                 <button onClick={() => onEdit(item)} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary transition-colors">
                   <Edit className="w-3.5 h-3.5" />
                 </button>
@@ -97,7 +106,7 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onToggleActive
               <th className="text-start px-3 py-3 font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary w-24">{t('price')}</th>
               <th className="text-start px-3 py-3 font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('variants')}</th>
               <th className="text-start px-3 py-3 font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary w-20">{t('status')}</th>
-              <th className="px-3 py-3 w-16" />
+              <th className="px-3 py-3 w-24" />
             </tr>
           </thead>
           <tbody className="divide-y divide-posCloud-border dark:divide-posCloudDark-border">
@@ -143,8 +152,15 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onToggleActive
                     }
                   </button>
                 </td>
-                <td className="px-3 py-3 w-16">
+                <td className="px-3 py-3 w-24">
                   <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => onBarcodes(item)}
+                      className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary transition-colors"
+                      title={t('barcodes')}
+                    >
+                      <Barcode className="w-3.5 h-3.5" />
+                    </button>
                     <button
                       onClick={() => onEdit(item)}
                       className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary transition-colors"

@@ -1,5 +1,60 @@
-export type ItemType = 'product' | 'service' | 'custom';
+export type ItemType =
+  | 'product' | 'service' | 'custom'
+  | 'raw_material' | 'semi_finished' | 'finished_goods' | 'asset' | 'consumable';
 export type OperationType = 'sell' | 'book' | 'repair' | 'rent';
+
+export type BarcodeType = 'UPC' | 'EAN' | 'GS1' | 'QR';
+
+export interface ItemBarcode {
+  id: string;
+  item_id: string;
+  variant_id: string | null;
+  barcode: string;
+  barcode_type: BarcodeType;
+  is_primary: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateBarcodeDTO {
+  item_id: string;
+  variant_id?: string;
+  barcode: string;
+  barcode_type?: BarcodeType;
+  is_primary?: boolean;
+}
+
+export interface UpdateBarcodeDTO {
+  variant_id?: string | null;
+  barcode?: string;
+  barcode_type?: BarcodeType;
+  is_primary?: boolean;
+}
+
+export interface BarcodeLookupResult {
+  id: string;
+  barcode: string;
+  barcode_type: BarcodeType;
+  is_primary: boolean;
+  item_id: string;
+  variant_id: string | null;
+  items: {
+    id: string;
+    name: string;
+    type: ItemType;
+    price: number;
+    has_inventory: boolean;
+    has_variants: boolean;
+    is_active: boolean;
+  } | null;
+  item_variants: {
+    id: string;
+    name: string;
+    price_adjustment: number;
+    sku: string | null;
+    is_active: boolean;
+  } | null;
+}
 
 export interface ItemVariant {
   id: string;

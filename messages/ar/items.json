@@ -14,6 +14,11 @@
   "product": "منتج",
   "service": "خدمة",
   "custom": "مخصص",
+  "raw_material": "مادة خام",
+  "semi_finished": "نصف مصنّع",
+  "finished_goods": "منتج تام",
+  "asset": "أصل",
+  "consumable": "مستهلَك",
   "allTypes": "كل الأنواع",
   "allCategories": "كل الفئات",
   "allStatus": "كل الحالات",
@@ -42,5 +47,14 @@
   "variantName": "اسم المتغير",
   "sku": "SKU",
   "priceAdjustment": "تعديل السعر",
-  "stock": "المخزون"
+  "stock": "المخزون",
+  "barcodes": "الباركود",
+  "noBarcodes": "لا توجد باركودات",
+  "addBarcode": "إضافة باركود",
+  "barcodeValue": "قيمة الباركود",
+  "setPrimary": "تعيين كأساسي",
+  "variant": "متغيّر",
+  "barcodeError": "تعذّرت إضافة الباركود",
+  "barcodeNotFound": "لا يوجد منتج مرتبط بهذا الباركود",
+  "scanBarcodePlaceholder": "امسح أو اكتب باركود..."
 }

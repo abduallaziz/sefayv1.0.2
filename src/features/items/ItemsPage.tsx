@@ -10,6 +10,7 @@ import { ItemFiltersBar } from './components/ItemFilters';
 import { ItemsTable } from './components/ItemsTable';
 import { ItemFormModal } from './components/ItemFormModal';
 import { VariantsModal } from './components/VariantsModal';
+import { BarcodesModal } from './components/BarcodesModal';
 import { DeleteItemModal } from './components/DeleteItemModal';
 import { Item, ItemFilters, CreateItemDTO } from './types/item.types';
 
@@ -32,6 +33,7 @@ export function ItemsPage() {
 
   const [formOpen, setFormOpen] = useState(false);
   const [variantsOpen, setVariantsOpen] = useState(false);
+  const [barcodesOpen, setBarcodesOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
 
@@ -109,7 +111,12 @@ export function ItemsPage() {
         </div>
       </div>
 
-      <ItemFiltersBar filters={filters} onChange={setFilters} categories={categories} />
+      <ItemFiltersBar
+        filters={filters}
+        onChange={setFilters}
+        categories={categories}
+        onBarcodeFound={(item) => { setSelectedItem(item); setFormOpen(true); }}
+      />
 
       {isLoading ? (
         <div className="text-center py-16 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('loading')}</div>
@@ -119,6 +126,7 @@ export function ItemsPage() {
           onEdit={(item) => { setSelectedItem(item); setFormOpen(true); }}
           onDelete={(item) => { setSelectedItem(item); setDeleteOpen(true); }}
           onVariants={(item) => { setSelectedItem(item); setVariantsOpen(true); }}
+          onBarcodes={(item) => { setSelectedItem(item); setBarcodesOpen(true); }}
           onToggleActive={handleToggleActive}
         />
       )}
@@ -137,6 +145,11 @@ export function ItemsPage() {
         item={selectedItem}
         onAddVariant={(itemId, data) => itemsApi.createVariant(itemId, data)}
         onDeleteVariant={(itemId, variantId) => deleteVariant.mutate({ itemId, variantId })}
+      />
+      <BarcodesModal
+        open={barcodesOpen}
+        onClose={() => { setBarcodesOpen(false); setSelectedItem(null); }}
+        item={selectedItem}
       />
       <DeleteItemModal
         open={deleteOpen}

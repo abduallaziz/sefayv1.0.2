@@ -3,6 +3,7 @@ import {
   itemsApi,
   CreateItemDto,
   CreateVariantDto,
+  CreateBarcodeDto,
 } from '../api/items.api';
 
 export function useItems() {
@@ -79,6 +80,34 @@ export function useDeleteVariant() {
     onSuccess: (_res, { itemId }) => {
       qc.invalidateQueries({ queryKey: ['items', itemId, 'variants'] });
       qc.invalidateQueries({ queryKey: ['items'] });
+    },
+  });
+}
+
+export function useItemBarcodes(itemId: string | null) {
+  return useQuery({
+    queryKey: ['items', itemId, 'barcodes'],
+    queryFn: () => itemsApi.getBarcodes(itemId!),
+    enabled: !!itemId,
+  });
+}
+
+export function useCreateBarcode() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: CreateBarcodeDto) => itemsApi.createBarcode(data),
+    onSuccess: (_res, { item_id }) => {
+      qc.invalidateQueries({ queryKey: ['items', item_id, 'barcodes'] });
+    },
+  });
+}
+
+export function useDeleteBarcode() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id }: { id: string; itemId: string }) => itemsApi.deleteBarcode(id),
+    onSuccess: (_res, { itemId }) => {
+      qc.invalidateQueries({ queryKey: ['items', itemId, 'barcodes'] });
     },
   });
 }

@@ -14,6 +14,11 @@
   "product": "Product",
   "service": "Service",
   "custom": "Custom",
+  "raw_material": "Raw Material",
+  "semi_finished": "Semi-Finished",
+  "finished_goods": "Finished Goods",
+  "asset": "Asset",
+  "consumable": "Consumable",
   "allTypes": "All Types",
   "allCategories": "All Categories",
   "allStatus": "All Status",
@@ -42,5 +47,14 @@
   "variantName": "Variant Name",
   "sku": "SKU",
   "priceAdjustment": "Price Adjustment",
-  "stock": "Stock"
+  "stock": "Stock",
+  "barcodes": "Barcodes",
+  "noBarcodes": "No barcodes yet",
+  "addBarcode": "Add Barcode",
+  "barcodeValue": "Barcode value",
+  "setPrimary": "Set as primary",
+  "variant": "variant",
+  "barcodeError": "Failed to add barcode",
+  "barcodeNotFound": "No item is linked to this barcode",
+  "scanBarcodePlaceholder": "Scan or type a barcode..."
 }

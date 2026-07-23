@@ -4,7 +4,7 @@ export interface POSItem {
   name_ar: string
   price: number
   category: string
-  type: 'product' | 'service' | 'custom'
+  type: 'product' | 'service' | 'custom' | 'raw_material' | 'semi_finished' | 'finished_goods' | 'asset' | 'consumable'
   has_variants: boolean
   variants?: POSVariant[]
   image_url?: string
