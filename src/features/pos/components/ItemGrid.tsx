@@ -269,34 +269,43 @@ export function ItemGrid({ onAddItem }: Props) {
         </div>
       </div>
 
-      <div className="flex items-center gap-1 rounded-full border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface p-1 w-fit flex-wrap">
-        <button
-          onClick={() => setActiveCategory('all')}
-          className={`rounded-full px-4 py-2 text-sm transition-colors ${
-            activeCategory === 'all'
-              ? 'bg-teal-700 text-white font-bold'
-              : 'text-posCloud-text-secondary dark:text-posCloudDark-text-secondary font-medium hover:bg-slate-50 dark:hover:bg-white/5'
-          }`}
-        >
-          {t('categories.all')}
-        </button>
-        {categories.map((cat) => {
-          const Icon = categoryIcon(cat.name)
-          return (
-            <button
-              key={cat.id}
-              onClick={() => setActiveCategory(cat.id)}
-              className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm transition-colors ${
-                activeCategory === cat.id
-                  ? 'bg-teal-700 text-white font-bold'
-                  : 'text-posCloud-text-secondary dark:text-posCloudDark-text-secondary font-medium hover:bg-slate-50 dark:hover:bg-white/5'
-              }`}
-            >
-              <Icon className="h-4 w-4" />
-              {cat.name}
-            </button>
-          )
-        })}
+      <div className="flex items-center rounded-full border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface p-1 w-fit flex-wrap">
+        {(() => {
+          const pills = [
+            { key: 'all', isActive: activeCategory === 'all', icon: null, label: t('categories.all'), onClick: () => setActiveCategory('all') },
+            ...categories.map((cat) => ({
+              key: cat.id,
+              isActive: activeCategory === cat.id,
+              icon: categoryIcon(cat.name),
+              label: cat.name,
+              onClick: () => setActiveCategory(cat.id),
+            })),
+          ]
+          return pills.map((pill, i) => {
+            const prev = pills[i - 1]
+            // A divider only makes sense between two inactive segments — the
+            // active segment's solid teal fill already reads as a boundary
+            // on its own, a divider line touching it would look redundant.
+            const showDivider = i > 0 && !pill.isActive && !prev.isActive
+            const Icon = pill.icon
+            return (
+              <div key={pill.key} className="flex items-center">
+                {showDivider && <span className="h-4 w-px bg-posCloud-border dark:bg-posCloudDark-border mx-0.5" />}
+                <button
+                  onClick={pill.onClick}
+                  className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm transition-colors ${
+                    pill.isActive
+                      ? 'bg-teal-700 text-white font-bold'
+                      : 'text-posCloud-text-secondary dark:text-posCloudDark-text-secondary font-medium hover:bg-slate-50 dark:hover:bg-white/5'
+                  }`}
+                >
+                  {Icon && <Icon className="h-4 w-4" />}
+                  {pill.label}
+                </button>
+              </div>
+            )
+          })
+        })()}
       </div>
 
       {isLoading ? (
