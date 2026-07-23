@@ -217,23 +217,13 @@ export function ItemGrid({ onAddItem }: Props) {
     <div className="flex flex-col gap-4">
       <h1 className="text-xl font-extrabold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{t('title')}</h1>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-1 flex-wrap">
-          <Link
-            href="/dashboard/items?create=1"
-            className="flex items-center gap-1.5 whitespace-nowrap rounded-full bg-[#0D4F50] px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-[#0a3f40]"
-          >
-            <Plus className="h-4 w-4" />
-            {t('newProduct')}
-          </Link>
-          <button
-            onClick={handleOpenDrawer}
-            disabled={openDrawer.isPending}
-            className="flex items-center gap-1.5 whitespace-nowrap rounded-full border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-4 py-2 text-sm font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary transition-colors hover:bg-slate-50 dark:hover:bg-white/5 disabled:opacity-60"
-          >
-            <Archive className="h-4 w-4" />
-            {t('openDrawer')}
-          </button>
-          <div className="flex items-center gap-1.5 rounded-full border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-4 py-2 text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+        {/* Kept on one line even on mobile per explicit request — three full
+            pill buttons genuinely don't fit a 320px screen, so instead of
+            wrapping (which broke the row height) this scrolls horizontally.
+            -mx-4 px-4 lets the scroll area bleed to the page edge without
+            clipping the pill borders/shadows at the edges. */}
+        <div className="flex items-center gap-1 flex-nowrap overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="flex shrink-0 items-center gap-1.5 rounded-full border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-4 py-2 text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
             <button
               type="button"
               onClick={() => runBarcodeLookup()}
@@ -249,9 +239,24 @@ export function ItemGrid({ onAddItem }: Props) {
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={handleSearchKeyDown}
               autoFocus
-              className="w-full min-w-0 bg-transparent outline-none placeholder:text-posCloud-text-tertiary dark:placeholder:text-posCloudDark-text-tertiary text-posCloud-text-primary dark:text-posCloudDark-text-primary sm:w-48"
+              className="w-28 min-w-0 bg-transparent outline-none placeholder:text-posCloud-text-tertiary dark:placeholder:text-posCloudDark-text-tertiary text-posCloud-text-primary dark:text-posCloudDark-text-primary sm:w-36"
             />
           </div>
+          <button
+            onClick={handleOpenDrawer}
+            disabled={openDrawer.isPending}
+            className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-4 py-2 text-sm font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary transition-colors hover:bg-slate-50 dark:hover:bg-white/5 disabled:opacity-60"
+          >
+            <Archive className="h-4 w-4" />
+            {t('openDrawer')}
+          </button>
+          <Link
+            href="/dashboard/items?create=1"
+            className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-posCloud-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-posCloud-primary-dark"
+          >
+            <Plus className="h-4 w-4" />
+            {t('newProduct')}
+          </Link>
         </div>
       </div>
 
