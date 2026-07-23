@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { Search, ImageOff, Plus, Archive, Coffee, UtensilsCrossed, Cake, MoreHorizontal, type LucideIcon } from 'lucide-react'
+import { Search, ImageOff, Plus, Archive } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
@@ -52,22 +52,6 @@ function ProductImage({ item }: { item: POSItem }) {
 
 interface Props {
   onAddItem: (item: POSItem, variant?: POSVariant) => void
-}
-
-// Categories are real tenant data with free-text names, not a fixed enum —
-// no icon field exists on the category record itself. Picks the closest
-// icon by keyword match (covers common Arabic/English category names);
-// anything unmatched falls back to a generic "more/other" icon rather than
-// showing no icon at all.
-const CATEGORY_ICON_RULES: [RegExp, LucideIcon][] = [
-  [/مشروب|قهوة|شاي|عصير|عصائر|drink|coffee|juice|bever/i, Coffee],
-  [/وجبات|طعام|أكل|meal|food/i, UtensilsCrossed],
-  [/حلوي|حلويات|dessert|sweet|cake/i, Cake],
-]
-
-function categoryIcon(name: string): LucideIcon {
-  const match = CATEGORY_ICON_RULES.find(([pattern]) => pattern.test(name))
-  return match ? match[1] : MoreHorizontal
 }
 
 function VariantModal({ item, onAddItem, onClose, t }: {
@@ -269,49 +253,30 @@ export function ItemGrid({ onAddItem }: Props) {
         </div>
       </div>
 
-      {/* Exact spec: h-[36px] toolbar, 1px #E5E7EB border, 8px radius, 2px
-          gap, 8px horizontal padding. "All" is the last flex child, styled
-          as the dark #0D4F50 pill when it's the active filter — swapped
-          onto whichever pill is actually selected, since the toolbar needs
-          to indicate the current filter, not just always highlight "All". */}
-      <div className="flex items-center flex-wrap gap-y-1 gap-x-0.5 rounded-lg border border-[#E5E7EB] bg-white px-2 py-1">
-        {(() => {
-          const pills = [
-            { key: 'all', isActive: activeCategory === 'all', icon: null, label: t('categories.all'), onClick: () => setActiveCategory('all') },
-            ...categories.map((cat) => ({
-              key: cat.id,
-              isActive: activeCategory === cat.id,
-              icon: categoryIcon(cat.name),
-              label: cat.name,
-              onClick: () => setActiveCategory(cat.id),
-            })),
-          ]
-          return pills.map((pill, i) => {
-            const isLast = i === pills.length - 1
-            const prev = pills[i - 1]
-            // A divider only makes sense between two inactive segments — the
-            // active segment's solid fill already reads as a boundary on
-            // its own, a divider line touching it would look redundant.
-            const showDivider = i > 0 && !pill.isActive && !(prev && prev.isActive)
-            const Icon = pill.icon
-            return (
-              <div key={pill.key} className="flex items-center h-9">
-                {showDivider && <span className="h-4 w-px bg-[#E5E7EB] mx-0.5" />}
-                <button
-                  onClick={pill.onClick}
-                  className={`flex items-center justify-center gap-1.5 h-9 min-w-[68px] rounded-lg px-3 text-sm font-medium transition-colors ${
-                    pill.isActive
-                      ? 'bg-[#0D4F50] text-white px-5'
-                      : 'text-[#1F2937] hover:bg-[#F3F4F6]'
-                  } ${!pill.isActive && !isLast ? 'min-w-[96px]' : ''}`}
-                >
-                  {Icon && <Icon className="h-4 w-4 text-[#374151]" />}
-                  {pill.label}
-                </button>
-              </div>
-            )
-          })
-        })()}
+      <div className="flex gap-2 flex-wrap">
+        <button
+          onClick={() => setActiveCategory('all')}
+          className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+            activeCategory === 'all'
+              ? 'bg-posCloud-primary text-white'
+              : 'bg-posCloud-surface dark:bg-posCloudDark-surface text-posCloud-text-secondary dark:text-posCloudDark-text-secondary border border-posCloud-border dark:border-posCloudDark-border hover:bg-slate-50 dark:hover:bg-white/5'
+          }`}
+        >
+          {t('categories.all')}
+        </button>
+        {categories.map((cat) => (
+          <button
+            key={cat.id}
+            onClick={() => setActiveCategory(cat.id)}
+            className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+              activeCategory === cat.id
+                ? 'bg-posCloud-primary text-white'
+                : 'bg-posCloud-surface dark:bg-posCloudDark-surface text-posCloud-text-secondary dark:text-posCloudDark-text-secondary border border-posCloud-border dark:border-posCloudDark-border hover:bg-slate-50 dark:hover:bg-white/5'
+            }`}
+          >
+            {cat.name}
+          </button>
+        ))}
       </div>
 
       {isLoading ? (
