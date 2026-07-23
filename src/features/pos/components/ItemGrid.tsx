@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { Search, ImageOff, Plus, Archive } from 'lucide-react'
+import { Search, ImageOff, Plus, Archive, ScanLine, Keyboard } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
@@ -216,6 +216,48 @@ export function ItemGrid({ onAddItem }: Props) {
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-xl font-extrabold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{t('title')}</h1>
+
+      {/* Prominent scan bar — same search/scan logic as the small toolbar
+          field below (shared `search` state and handlers), just a bigger,
+          more discoverable entry point at the top of the page for a
+          cashier reaching for a physical barcode scanner. */}
+      <div className="relative flex items-center gap-3 rounded-2xl border-2 border-posCloud-primary/30 bg-posCloud-primary-light/40 dark:bg-posCloud-primary/10 px-4 py-3">
+        {/* DOM order is deliberately scan-button-first so it renders on the
+            visual RIGHT under the page's RTL context, matching the
+            reference (keyboard=left, scan=right) — first DOM child sits
+            at the right edge in RTL flex flow. */}
+        <button
+          type="button"
+          onClick={() => runBarcodeLookup()}
+          aria-label={t('searchProducts')}
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-posCloud-primary text-white hover:bg-posCloud-primary-dark transition-colors"
+        >
+          <ScanLine className="h-5 w-5" />
+        </button>
+        <div className="relative flex-1">
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
+            className="w-full bg-transparent text-center outline-none text-posCloud-text-primary dark:text-posCloudDark-text-primary"
+          />
+          {!search && (
+            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-0.5">
+              <span className="text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{t('scanBarcodeHere')}</span>
+              <span className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('orTypeAndEnter')}</span>
+            </div>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={() => searchInputRef.current?.focus()}
+          aria-label={t('manualEntry')}
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-posCloud-primary-light text-posCloud-primary hover:bg-posCloud-primary/20 transition-colors"
+        >
+          <Keyboard className="h-5 w-5" />
+        </button>
+      </div>
+
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         {/* Kept on one line even on mobile per explicit request — three full
             pill buttons genuinely don't fit a 320px screen, so instead of
