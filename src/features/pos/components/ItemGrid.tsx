@@ -60,7 +60,7 @@ interface Props {
 // anything unmatched falls back to a generic "more/other" icon rather than
 // showing no icon at all.
 const CATEGORY_ICON_RULES: [RegExp, LucideIcon][] = [
-  [/مشروب|قهوة|شاي|عصير|drink|coffee|juice|bever/i, Coffee],
+  [/مشروب|قهوة|شاي|عصير|عصائر|drink|coffee|juice|bever/i, Coffee],
   [/وجبات|طعام|أكل|meal|food/i, UtensilsCrossed],
   [/حلوي|حلويات|dessert|sweet|cake/i, Cake],
 ]
