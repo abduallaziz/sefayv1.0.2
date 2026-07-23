@@ -4,10 +4,12 @@ import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Search, ImageOff } from 'lucide-react'
 import Image from 'next/image'
+import { toast } from 'sonner'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { POSItem, POSVariant } from '../types/pos.types'
 import { useItems, useCategories, useItemVariants } from '@/features/items/hooks/useItems'
 import { itemsApi } from '@/features/items/api/items.api'
+import { ApiError } from '@/lib/api'
 
 // Sefay's real Item model has no image_url field anywhere (confirmed — no
 // backend upload feature exists yet, see docs/rebuild/PARKING_LOT.md B3).
@@ -153,9 +155,13 @@ export function ItemGrid({ onAddItem }: Props) {
   // wouldn't know about secondary/variant-specific barcodes at all).
   const handleSearchKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key !== 'Enter' || !search.trim()) return
+    const query = search.trim()
     try {
-      const result = await itemsApi.lookupBarcode(search.trim())
-      if (!result.items || !result.items.is_active) return
+      const result = await itemsApi.lookupBarcode(query)
+      if (!result.items || !result.items.is_active) {
+        toast.error(t('barcodeNotFound'))
+        return
+      }
       const posItem: POSItem = {
         id: result.items.id,
         name: result.items.name,
@@ -171,15 +177,23 @@ export function ItemGrid({ onAddItem }: Props) {
           name: result.item_variants.name,
           price_adjustment: result.item_variants.price_adjustment ?? 0,
         })
+        toast.success(t('barcodeAdded', { name: result.item_variants.name }))
       } else if (posItem.has_variants) {
         setVariantModal(posItem)
       } else {
         onAddItem(posItem)
+        toast.success(t('barcodeAdded', { name: posItem.name_ar }))
       }
       setSearch('')
-    } catch {
-      // Not a recognized barcode — leave it as a normal text search, no error
-      // noise for a cashier who's just typing a product name.
+    } catch (err) {
+      // A 404 means the lookup ran and genuinely found no matching barcode
+      // — surface that explicitly (per spec). Any other failure (network,
+      // 5xx, etc.) falls back silently to the text-search filter below, so
+      // a cashier who's just typing a product name and hits Enter by habit
+      // never sees error noise for the common case.
+      if (err instanceof ApiError && err.status === 404) {
+        toast.error(t('barcodeNotFound'))
+      }
     }
   }
 
@@ -190,10 +204,11 @@ export function ItemGrid({ onAddItem }: Props) {
         <div className="flex items-center gap-2 rounded-lg border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-3 py-2 text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
           <Search className="h-4 w-4 shrink-0" />
           <input
-            placeholder={t('search')}
+            placeholder={t('scanOrSearch')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={handleSearchKeyDown}
+            autoFocus
             className="w-full bg-transparent outline-none placeholder:text-posCloud-text-tertiary dark:placeholder:text-posCloudDark-text-tertiary text-posCloud-text-primary dark:text-posCloudDark-text-primary sm:w-56"
           />
         </div>

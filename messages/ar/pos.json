@@ -1,6 +1,9 @@
 {
   "title": "نقطة البيع",
   "search": "بحث عن منتج...",
+  "scanOrSearch": "امسح الباركود أو اكتب هنا",
+  "barcodeNotFound": "الباركود غير معروف",
+  "barcodeAdded": "تمت الإضافة: {name}",
   "allCategories": "الكل",
   "currentOrder": "الطلب الحالي",
   "clearAll": "مسح الكل",
