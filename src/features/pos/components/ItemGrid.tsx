@@ -233,33 +233,25 @@ export function ItemGrid({ onAddItem }: Props) {
             <Archive className="h-4 w-4" />
             {t('openDrawer')}
           </button>
-          <button
-            type="button"
-            onClick={() => searchInputRef.current?.focus()}
-            className="flex items-center gap-1.5 whitespace-nowrap rounded-full border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-4 py-2 text-sm font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary transition-colors hover:bg-slate-50 dark:hover:bg-white/5"
-          >
-            <Search className="h-4 w-4" />
-            {t('searchProducts')}
-          </button>
-        </div>
-        <div className="flex items-center gap-2 rounded-full border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-4 py-2 text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-          <button
-            type="button"
-            onClick={() => runBarcodeLookup()}
-            aria-label={t('scanOrSearch')}
-            className="shrink-0 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-primary transition-colors"
-          >
-            <Search className="h-4 w-4" />
-          </button>
-          <input
-            ref={searchInputRef}
-            placeholder={t('scanOrSearch')}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={handleSearchKeyDown}
-            autoFocus
-            className="w-full min-w-0 bg-transparent outline-none placeholder:text-posCloud-text-tertiary dark:placeholder:text-posCloudDark-text-tertiary text-posCloud-text-primary dark:text-posCloudDark-text-primary sm:w-56"
-          />
+          <div className="flex items-center gap-1.5 rounded-full border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-4 py-2 text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+            <button
+              type="button"
+              onClick={() => runBarcodeLookup()}
+              aria-label={t('searchProducts')}
+              className="shrink-0 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-primary transition-colors"
+            >
+              <Search className="h-4 w-4" />
+            </button>
+            <input
+              ref={searchInputRef}
+              placeholder={t('searchProducts')}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={handleSearchKeyDown}
+              autoFocus
+              className="w-full min-w-0 bg-transparent outline-none placeholder:text-posCloud-text-tertiary dark:placeholder:text-posCloudDark-text-tertiary text-posCloud-text-primary dark:text-posCloudDark-text-primary sm:w-48"
+            />
+          </div>
         </div>
       </div>
 
