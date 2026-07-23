@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { User, X, ChevronDown, ChevronLeft, ImageOff, Tag, Gift, Sparkles, List, PenLine } from 'lucide-react'
 import Image from 'next/image'
@@ -68,6 +68,45 @@ function CartLineImage({ cartItem }: { cartItem: CartItem }) {
         onError={() => setFailed(true)}
       />
     </div>
+  )
+}
+
+// Manual typing needs its own local buffer so the field can hold a
+// transient/invalid state while the cashier is mid-edit (e.g. cleared to
+// type a new number) without fighting the controlled `item.quantity` prop
+// on every keystroke. Commits (calls onChange) on blur or Enter; reverts
+// to the last real quantity if left empty or non-numeric.
+function QtyInput({ value, onChange }: { value: number; onChange: (n: number) => void }) {
+  const [local, setLocal] = useState(String(value))
+
+  useEffect(() => {
+    setLocal(String(value))
+  }, [value])
+
+  const commit = () => {
+    const n = parseInt(local, 10)
+    if (Number.isFinite(n) && n > 0) {
+      onChange(n)
+    } else {
+      setLocal(String(value))
+    }
+  }
+
+  return (
+    <input
+      type="text"
+      inputMode="numeric"
+      value={local}
+      onChange={(e) => setLocal(e.target.value.replace(/[^0-9]/g, ''))}
+      onBlur={commit}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          commit()
+          e.currentTarget.blur()
+        }
+      }}
+      className="w-7 shrink-0 bg-transparent text-center text-sm font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary outline-none"
+    />
   )
 }
 
@@ -181,7 +220,7 @@ export function CartPanel({
                   >
                     +
                   </button>
-                  <span className="w-4 text-center text-sm font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{item.quantity}</span>
+                  <QtyInput value={item.quantity} onChange={(n) => onUpdateQty(item.id, n)} />
                   <button
                     onClick={() => onUpdateQty(item.id, item.quantity - 1)}
                     className="w-6 h-6 rounded-md border border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-secondary dark:text-posCloudDark-text-secondary text-sm flex items-center justify-center hover:bg-slate-100 dark:hover:bg-posCloudDark-border/40"
