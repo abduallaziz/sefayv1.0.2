@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { Search, ImageOff, Plus, Archive, Coffee, UtensilsCrossed, Cake, MoreHorizontal, LayoutGrid, type LucideIcon } from 'lucide-react'
+import { Search, ImageOff, Plus, Archive, Coffee, UtensilsCrossed, Cake, MoreHorizontal, type LucideIcon } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
@@ -272,13 +272,12 @@ export function ItemGrid({ onAddItem }: Props) {
       <div className="flex gap-2 flex-wrap">
         <button
           onClick={() => setActiveCategory('all')}
-          className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+          className={`rounded-full px-4 py-2 text-sm font-bold transition-colors ${
             activeCategory === 'all'
-              ? 'bg-posCloud-primary text-white'
-              : 'bg-posCloud-surface dark:bg-posCloudDark-surface text-posCloud-text-secondary dark:text-posCloudDark-text-secondary border border-posCloud-border dark:border-posCloudDark-border hover:bg-slate-50 dark:hover:bg-white/5'
+              ? 'bg-teal-700 text-white'
+              : 'bg-posCloud-surface dark:bg-posCloudDark-surface text-posCloud-text-secondary dark:text-posCloudDark-text-secondary border border-posCloud-border dark:border-posCloudDark-border font-medium hover:bg-slate-50 dark:hover:bg-white/5'
           }`}
         >
-          <LayoutGrid className="h-4 w-4" />
           {t('categories.all')}
         </button>
         {categories.map((cat) => {
@@ -287,10 +286,10 @@ export function ItemGrid({ onAddItem }: Props) {
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
-              className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+              className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm transition-colors ${
                 activeCategory === cat.id
-                  ? 'bg-posCloud-primary text-white'
-                  : 'bg-posCloud-surface dark:bg-posCloudDark-surface text-posCloud-text-secondary dark:text-posCloudDark-text-secondary border border-posCloud-border dark:border-posCloudDark-border hover:bg-slate-50 dark:hover:bg-white/5'
+                  ? 'bg-teal-700 text-white font-bold'
+                  : 'bg-posCloud-surface dark:bg-posCloudDark-surface text-posCloud-text-secondary dark:text-posCloudDark-text-secondary border border-posCloud-border dark:border-posCloudDark-border font-medium hover:bg-slate-50 dark:hover:bg-white/5'
               }`}
             >
               <Icon className="h-4 w-4" />
