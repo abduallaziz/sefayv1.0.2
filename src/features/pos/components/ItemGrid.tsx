@@ -121,10 +121,25 @@ export function ItemGrid({ onAddItem }: Props) {
   // filter — it must not share state with the "بحث عن المنتجات" field,
   // which does live-filter the grid as you type a name.
   const [barcodeCode, setBarcodeCode] = useState('')
+  // Tracks a genuine user click/touch specifically — NOT plain focus,
+  // since the field also carries autoFocus (so a physical scanner can
+  // type into it immediately with zero clicks). onFocus fires for both
+  // autoFocus-on-mount and a real click, so it can't tell them apart;
+  // onMouseDown/onTouchStart only ever fire from an actual pointer
+  // interaction, which is what should hide the instructional hint text.
+  const [barcodeTouched, setBarcodeTouched] = useState(false)
   const [activeCategory, setActiveCategory] = useState('all')
   const [variantModal, setVariantModal] = useState<POSItem | null>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
   const barcodeInputRef = useRef<HTMLInputElement>(null)
+  // Scan-speed auto-submit: a physical scanner blasts every character in
+  // well under ~30ms each (it's not a human typing, it's a device replaying
+  // a stored code) — recording inter-keystroke gaps lets us tell "this is a
+  // scanner" apart from manual typing without depending on the scanner
+  // being configured to send a trailing Enter, which not all of them are.
+  const lastKeyTimeRef = useRef<number>(0)
+  const keyGapsRef = useRef<number[]>([])
+  const barcodeDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const { data: rawItems = [], isLoading } = useItems()
   const { data: categories = [] } = useCategories()
@@ -225,7 +240,47 @@ export function ItemGrid({ onAddItem }: Props) {
   }
 
   const handleBarcodeKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') runBarcodeLookup(barcodeCode, () => setBarcodeCode(''))
+    if (e.key !== 'Enter') return
+    // Cancel any pending scan-speed auto-submit so a fast scanner that
+    // *does* also send Enter (most do) doesn't trigger the lookup twice.
+    if (barcodeDebounceRef.current) clearTimeout(barcodeDebounceRef.current)
+    runBarcodeLookup(barcodeCode, () => setBarcodeCode(''))
+  }
+
+  const MIN_BARCODE_LENGTH = 6
+  const SCANNER_MAX_AVG_GAP_MS = 40
+  const AUTO_SUBMIT_DEBOUNCE_MS = 120
+
+  // Fires on every keystroke in the scan bar. Tracks how fast characters
+  // are arriving; if the whole code was typed at scanner speed (every
+  // real device fires each character a few ms apart — nothing a human
+  // types that fast), auto-submits as soon as input pauses, no Enter
+  // needed. A human manually typing a barcode has gaps an order of
+  // magnitude slower, so this doesn't fire prematurely on genuine manual
+  // entry — that path still waits for Enter (handleBarcodeKeyDown).
+  const handleBarcodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setBarcodeCode(value)
+
+    const now = performance.now()
+    if (value.length === 0) {
+      keyGapsRef.current = []
+    } else if (lastKeyTimeRef.current) {
+      keyGapsRef.current.push(now - lastKeyTimeRef.current)
+    }
+    lastKeyTimeRef.current = now
+
+    if (barcodeDebounceRef.current) clearTimeout(barcodeDebounceRef.current)
+    if (value.trim().length < MIN_BARCODE_LENGTH) return
+
+    barcodeDebounceRef.current = setTimeout(() => {
+      const gaps = keyGapsRef.current
+      const avgGap = gaps.length ? gaps.reduce((a, b) => a + b, 0) / gaps.length : Infinity
+      if (avgGap <= SCANNER_MAX_AVG_GAP_MS) {
+        runBarcodeLookup(value, () => setBarcodeCode(''))
+        keyGapsRef.current = []
+      }
+    }, AUTO_SUBMIT_DEBOUNCE_MS)
   }
 
   return (
@@ -235,7 +290,7 @@ export function ItemGrid({ onAddItem }: Props) {
       {/* Dedicated barcode-scan bar — its own state (barcodeCode), NOT the
           live product-name search below. Purely for a physical scanner or
           manually-typed barcode value; never filters the grid by name. */}
-      <div className="relative flex items-center gap-3 rounded-2xl border-2 border-posCloud-primary/30 bg-posCloud-primary-light/40 dark:bg-posCloud-primary/10 px-4 py-3">
+      <div className="relative flex items-center gap-3 rounded-2xl border-2 border-posCloud-primary/30 bg-posCloud-primary-light/40 dark:bg-posCloud-primary/10 px-4 py-3 max-w-md">
         {/* DOM order is deliberately scan-button-first so it renders on the
             visual RIGHT under the page's RTL context, matching the
             reference (keyboard=left, scan=right) — first DOM child sits
@@ -252,12 +307,14 @@ export function ItemGrid({ onAddItem }: Props) {
           <input
             ref={barcodeInputRef}
             value={barcodeCode}
-            onChange={(e) => setBarcodeCode(e.target.value)}
+            onChange={handleBarcodeChange}
             onKeyDown={handleBarcodeKeyDown}
+            onMouseDown={() => setBarcodeTouched(true)}
+            onTouchStart={() => setBarcodeTouched(true)}
             autoFocus
             className="w-full bg-transparent text-center outline-none text-posCloud-text-primary dark:text-posCloudDark-text-primary"
           />
-          {!barcodeCode && (
+          {!barcodeCode && !barcodeTouched && (
             <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-0.5">
               <span className="text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{t('scanBarcodeHere')}</span>
               <span className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('orTypeAndEnter')}</span>
@@ -266,7 +323,7 @@ export function ItemGrid({ onAddItem }: Props) {
         </div>
         <button
           type="button"
-          onClick={() => barcodeInputRef.current?.focus()}
+          onClick={() => { setBarcodeTouched(true); barcodeInputRef.current?.focus() }}
           aria-label={t('manualEntry')}
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-posCloud-primary-light text-posCloud-primary hover:bg-posCloud-primary/20 transition-colors"
         >
