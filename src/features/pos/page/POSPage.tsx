@@ -7,9 +7,11 @@ import { CartPanel } from '../components/CartPanel'
 import { PaymentModal } from '../components/PaymentModal'
 import { ReceiptModal } from '../components/ReceiptModal'
 import { CustomerPickerModal } from '../components/CustomerPickerModal'
+import { HeldOrdersModal } from '../components/HeldOrdersModal'
 import { useCart } from '../hooks/useCart'
+import { useHeldOrders, useHoldOrder, useCancelHeldOrder } from '../hooks/useHeldOrders'
 import { PaymentData } from '../types/pos.types'
-import { createOrder } from '@/features/orders/api/orders.api'
+import { createOrder, fetchHeldOrder, type HeldOrder } from '@/features/orders/api/orders.api'
 import { giftCardsApi } from '@/features/gift-cards/api/gift-cards.api'
 import { useActiveNotePresets } from '@/features/note-presets/hooks/useNotePresets'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
@@ -27,6 +29,7 @@ export function POSPage() {
   const [paymentError, setPaymentError] = useState<string | null>(null)
   const [showCustomerPicker, setShowCustomerPicker] = useState(false)
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
+  const [showHeldOrders, setShowHeldOrders] = useState(false)
 
   // Gift-card and loyalty-points state lives here (not in CartPanel or PaymentModal)
   // so the same real, server-validated selection is shared by both the cart panel's
@@ -67,9 +70,13 @@ export function POSPage() {
   const customerCaptureEnabled = posConfig?.customer_capture_enabled ?? false
   const loyaltyEnabled = posConfig?.loyalty_enabled ?? true
 
-  const { cart, addItem, removeItem, updateQty, applyCoupon, clearCoupon, clearCart } = useCart(taxRate)
+  const { cart, addItem, removeItem, updateQty, applyCoupon, clearCoupon, clearCart, loadItems } = useCart(taxRate)
 
   const branchId = user?.branchId ?? (branches as any)?.[0]?.id ?? ''
+
+  const { data: heldOrders = [] } = useHeldOrders(branchId)
+  const holdOrderMutation = useHoldOrder(branchId)
+  const cancelHeldOrderMutation = useCancelHeldOrder(branchId)
 
   const availablePoints = loyaltyEnabled ? (selectedCustomer?.loyalty_points ?? 0) : 0
 
@@ -191,6 +198,85 @@ export function POSPage() {
     resetNotes()
   }
 
+  // Holding never touches payment/stock/coupon/loyalty — it's a plain
+  // items+customer+notes snapshot on the backend (see invoices.service.ts
+  // holdOrder()). Clearing the active cart afterward is what lets the
+  // cashier immediately start a new sale for the next customer.
+  const handleHold = () => {
+    if (cart.items.length === 0) return
+    holdOrderMutation.mutate(
+      {
+        branch_id: branchId,
+        shift_id: currentShift?.id,
+        customer_id: selectedCustomer?.id,
+        notes: finalNotes || undefined,
+        items: cart.items.map((item) => ({
+          item_id: item.item_id,
+          item_name: item.name,
+          variant_id: item.variant_id,
+          variant_name: item.variant_name,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+        })),
+      },
+      {
+        onSuccess: () => {
+          toast.success(t('heldOrders.held'))
+          clearCart()
+          setSelectedCustomer(null)
+          resetGiftCardAndLoyalty()
+          resetNotes()
+        },
+        onError: (error: any) => {
+          toast.error(error?.message ?? t('heldOrders.holdFailed'))
+        },
+      },
+    )
+  }
+
+  // Loads the held ticket's exact items back into the active cart, then
+  // removes the hold — checkout from here on is the completely normal,
+  // unmodified flow (handleConfirmPayment / createOrder below).
+  //
+  // The list row (GET /invoices/held) never carries `items` — only the
+  // detail endpoint (GET /invoices/held/:id) does — so this re-fetches
+  // the full order before loading it into the cart.
+  const handleResumeHeldOrder = async (order: HeldOrder) => {
+    if (cart.items.length > 0) {
+      const confirmed = window.confirm(t('heldOrders.confirmReplaceCart'))
+      if (!confirmed) return
+    }
+    let full: HeldOrder
+    try {
+      full = await fetchHeldOrder(order.id)
+    } catch (error: any) {
+      toast.error(error?.message ?? t('heldOrders.resumeFailed'))
+      return
+    }
+    loadItems(
+      (full.items ?? []).map((item) => ({
+        id: item.variant_id ? `${item.item_id}_${item.variant_id}` : item.item_id,
+        item_id: item.item_id,
+        name: item.item_name,
+        variant_id: item.variant_id,
+        variant_name: item.variant_name,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+        total_price: item.quantity * item.unit_price,
+      })),
+    )
+    if (full.customer_id && full.customer_name) {
+      setSelectedCustomer({ id: full.customer_id, full_name: full.customer_name } as Customer)
+    }
+    if (full.notes) {
+      setNoteTab('custom')
+      setCustomNote(full.notes)
+    }
+    setShowHeldOrders(false)
+    cancelHeldOrderMutation.mutate(full.id)
+    toast.success(t('heldOrders.resumed'))
+  }
+
   return (
     <div className="flex flex-col">
 
@@ -204,9 +290,13 @@ export function POSPage() {
 
         {/* Items Grid */}
         <div className="flex min-w-0 flex-1 flex-col">
-          <ItemGrid onAddItem={(item, variant) => {
-            addItem(item, variant)
-          }} />
+          <ItemGrid
+            onAddItem={(item, variant) => {
+              addItem(item, variant)
+            }}
+            onOpenHeldOrders={() => setShowHeldOrders(true)}
+            heldOrdersCount={heldOrders.length}
+          />
         </div>
 
         {/* Cart Panel */}
@@ -219,6 +309,8 @@ export function POSPage() {
             onClearCoupon={clearCoupon}
             onCheckout={handleCheckoutClick}
             onClear={() => { clearCart(); resetGiftCardAndLoyalty(); resetNotes() }}
+            onHold={handleHold}
+            isHolding={holdOrderMutation.isPending}
             customerCaptureEnabled={customerCaptureEnabled}
             selectedCustomer={selectedCustomer}
             onClearCustomer={() => setSelectedCustomer(null)}
@@ -288,6 +380,14 @@ export function POSPage() {
           total={receipt.total}
           onClose={() => setReceipt(null)}
           onNewOrder={handleNewOrder}
+        />
+      )}
+
+      {showHeldOrders && (
+        <HeldOrdersModal
+          branchId={branchId}
+          onClose={() => setShowHeldOrders(false)}
+          onResume={handleResumeHeldOrder}
         />
       )}
     </div>

@@ -60,3 +60,59 @@ export interface CreateOrderPayload {
 export async function createOrder(payload: CreateOrderPayload): Promise<Order> {
   return apiClient.post<Order>('/invoices', payload);
 }
+
+// Held orders — a held order is inert data on the backend (no payment, no
+// stock deduction) until resumed and pushed through the normal
+// createOrder() above, which is completely unmodified for this feature.
+export type HeldOrderVisibility = 'self' | 'all_cashiers';
+
+export interface HoldOrderPayload {
+  branch_id: string;
+  shift_id?: string;
+  customer_id?: string;
+  items: CreateOrderItem[];
+  notes?: string;
+  held_visibility?: HeldOrderVisibility;
+}
+
+export interface HeldOrder {
+  id: string;
+  status: string;
+  subtotal: number;
+  total: number;
+  notes: string | null;
+  created_at: string;
+  cashier_id: string;
+  customer_id: string | null;
+  branch_id: string;
+  held: boolean;
+  held_visibility: HeldOrderVisibility;
+  held_by: string;
+  held_at: string;
+  cashier_name: string | null;
+  customer_name: string | null;
+  items?: CreateOrderItem[];
+}
+
+export async function holdOrder(payload: HoldOrderPayload): Promise<HeldOrder> {
+  return apiClient.post<HeldOrder>('/invoices/held', payload);
+}
+
+export async function fetchHeldOrders(branchId: string): Promise<HeldOrder[]> {
+  return apiClient.get<HeldOrder[]>(`/invoices/held?branch_id=${encodeURIComponent(branchId)}`);
+}
+
+export async function fetchHeldOrder(id: string): Promise<HeldOrder> {
+  return apiClient.get<HeldOrder>(`/invoices/held/${id}`);
+}
+
+export async function updateHeldOrderVisibility(
+  id: string,
+  visibility: HeldOrderVisibility,
+): Promise<{ id: string; held_visibility: HeldOrderVisibility }> {
+  return apiClient.patch(`/invoices/held/${id}/visibility`, { held_visibility: visibility });
+}
+
+export async function cancelHeldOrder(id: string): Promise<{ id: string; held: boolean }> {
+  return apiClient.delete(`/invoices/held/${id}`);
+}

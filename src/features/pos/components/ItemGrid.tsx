@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { Search, ImageOff, Plus, Archive, ScanLine, Keyboard } from 'lucide-react'
+import { Search, ImageOff, Plus, Archive, ScanLine, Keyboard, PauseCircle } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
@@ -52,6 +52,8 @@ function ProductImage({ item }: { item: POSItem }) {
 
 interface Props {
   onAddItem: (item: POSItem, variant?: POSVariant) => void
+  onOpenHeldOrders?: () => void
+  heldOrdersCount?: number
 }
 
 function VariantModal({ item, onAddItem, onClose, t }: {
@@ -112,7 +114,7 @@ function VariantModal({ item, onAddItem, onClose, t }: {
   )
 }
 
-export function ItemGrid({ onAddItem }: Props) {
+export function ItemGrid({ onAddItem, onOpenHeldOrders, heldOrdersCount = 0 }: Props) {
   const t = useTranslations('pos')
   const currency = useCurrencyDisplay()
   const [search, setSearch] = useState('')
@@ -364,6 +366,20 @@ export function ItemGrid({ onAddItem }: Props) {
             <Archive className="h-4 w-4" />
             {t('openDrawer')}
           </button>
+          {onOpenHeldOrders && (
+            <button
+              onClick={onOpenHeldOrders}
+              className="relative flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-4 py-2 text-sm font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary transition-colors hover:bg-slate-50 dark:hover:bg-white/5"
+            >
+              <PauseCircle className="h-4 w-4" />
+              {t('heldOrders.title')}
+              {heldOrdersCount > 0 && (
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-posCloud-danger px-1 text-xs font-bold text-white">
+                  {heldOrdersCount}
+                </span>
+              )}
+            </button>
+          )}
           <Link
             href="/dashboard/items?create=1"
             className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-posCloud-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-posCloud-primary-dark"

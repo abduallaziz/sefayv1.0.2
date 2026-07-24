@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
-import { User, X, ChevronDown, ChevronLeft, ImageOff, Tag, Gift, Sparkles, List, PenLine } from 'lucide-react'
+import { User, X, ChevronDown, ChevronLeft, ImageOff, Tag, Gift, Sparkles, List, PenLine, PauseCircle } from 'lucide-react'
 import Image from 'next/image'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { couponsApi } from '@/features/coupons/api/coupons.api'
@@ -121,6 +121,8 @@ interface Props {
   onClearCoupon: () => void
   onCheckout: () => void
   onClear: () => void
+  onHold?: () => void
+  isHolding?: boolean
   customerCaptureEnabled?: boolean
   selectedCustomer?: Customer | null
   onClearCustomer?: () => void
@@ -148,6 +150,7 @@ const fmt = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2,
 
 export function CartPanel({
   cart, onUpdateQty, onRemoveItem, onApplyCoupon, onClearCoupon, onCheckout, onClear,
+  onHold, isHolding,
   customerCaptureEnabled, selectedCustomer, onClearCustomer,
   loyaltyEnabled, availablePoints, redeemPoints, onRedeemPointsChange,
   giftCardCode, giftCardApplied, giftCardError, validatingGiftCard,
@@ -442,6 +445,17 @@ export function CartPanel({
           <span>{fmt(cart.total)} {currency}</span>
         </div>
       </div>
+
+      {onHold && (
+        <button
+          onClick={onHold}
+          disabled={cart.items.length === 0 || isHolding}
+          className="w-full mb-2 flex items-center justify-center gap-1.5 rounded-lg border border-posCloud-border dark:border-posCloudDark-border py-2.5 text-sm font-semibold text-posCloud-text-secondary dark:text-posCloudDark-text-secondary hover:bg-slate-50 dark:hover:bg-white/5 transition-colors disabled:opacity-50"
+        >
+          <PauseCircle className="w-4 h-4" />
+          {t('heldOrders.holdButton')}
+        </button>
+      )}
 
       <Button
         size="lg"

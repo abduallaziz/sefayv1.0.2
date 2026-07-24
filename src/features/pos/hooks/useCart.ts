@@ -103,6 +103,15 @@ export function useCart(taxRate: number = 0) {
     setCouponDiscountAmount(0)
   }, [])
 
+  // Bulk-replaces the cart with exact items/quantities — used when resuming
+  // a held order, where the real quantities are already known server-side
+  // and looping addItem() (which only ever increments by 1) would be both
+  // slower and semantically wrong for a direct restore.
+  const loadItems = useCallback((items: CartItem[]) => {
+    setCartItems(items)
+    clearCouponIfAny()
+  }, [clearCouponIfAny])
+
   return {
     cart: { ...cart, coupon_code: couponCode },
     addItem,
@@ -111,5 +120,6 @@ export function useCart(taxRate: number = 0) {
     applyCoupon,
     clearCoupon,
     clearCart,
+    loadItems,
   }
 }
