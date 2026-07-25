@@ -7,8 +7,10 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import {
   useTransfer,
+  useApproveTransfer,
   useDispatchTransfer,
   useReceiveTransfer,
+  useCompleteTransfer,
   useCancelTransfer,
 } from '../hooks/useTransfers';
 import { CancelTransferModal } from '../components/CancelTransferModal';
@@ -20,14 +22,18 @@ interface Props {
 
 const statusColors: Record<string, string> = {
   draft: 'bg-slate-100 dark:bg-gray-800 text-slate-500 dark:text-slate-400',
+  approved: 'bg-sky-500/10 text-sky-600 dark:text-sky-400',
   in_transit: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
+  received: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
   completed: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
   cancelled: 'bg-red-500/10 text-red-600 dark:text-red-400',
 };
 
 const statusLabelKeys = {
   draft: 'status.draft',
+  approved: 'status.approved',
   in_transit: 'status.in_transit',
+  received: 'status.received',
   completed: 'status.completed',
   cancelled: 'status.cancelled',
 } as const;
@@ -38,8 +44,10 @@ export function TransferDetailPage({ id }: Props) {
   const router = useRouter();
 
   const { data: transfer, isLoading } = useTransfer(id);
+  const approveTransfer = useApproveTransfer();
   const dispatchTransfer = useDispatchTransfer();
   const receiveTransfer = useReceiveTransfer();
+  const completeTransfer = useCompleteTransfer();
   const cancelTransfer = useCancelTransfer();
 
   const [cancelOpen, setCancelOpen] = useState(false);
@@ -120,6 +128,15 @@ export function TransferDetailPage({ id }: Props) {
       <div className="flex gap-3">
         {transfer.status === 'draft' && (
           <button
+            onClick={() => approveTransfer.mutate(transfer.id)}
+            disabled={approveTransfer.isPending}
+            className="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-sm font-medium disabled:opacity-50"
+          >
+            {approveTransfer.isPending ? t('approving') : t('approve')}
+          </button>
+        )}
+        {transfer.status === 'approved' && (
+          <button
             onClick={() => dispatchTransfer.mutate(transfer.id)}
             disabled={dispatchTransfer.isPending}
             className="px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] text-white rounded-lg text-sm font-medium disabled:opacity-50"
@@ -136,7 +153,16 @@ export function TransferDetailPage({ id }: Props) {
             {receiveTransfer.isPending ? t('receiving') : t('receive')}
           </button>
         )}
-        {transfer.status === 'draft' && (
+        {transfer.status === 'received' && (
+          <button
+            onClick={() => completeTransfer.mutate(transfer.id)}
+            disabled={completeTransfer.isPending}
+            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-medium disabled:opacity-50"
+          >
+            {completeTransfer.isPending ? t('completing') : t('complete')}
+          </button>
+        )}
+        {(transfer.status === 'draft' || transfer.status === 'approved') && (
           <button
             onClick={() => setCancelOpen(true)}
             className="px-4 py-2 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 rounded-lg text-sm font-medium border border-red-200 dark:border-red-500/20 hover:bg-red-100 dark:hover:bg-red-500/20"

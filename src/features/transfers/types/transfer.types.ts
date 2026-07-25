@@ -1,4 +1,4 @@
-export type TransferStatus = 'draft' | 'in_transit' | 'completed' | 'cancelled';
+export type TransferStatus = 'draft' | 'approved' | 'in_transit' | 'received' | 'completed' | 'cancelled';
 
 export interface TransferItem {
   id: string;
@@ -22,8 +22,10 @@ export interface Transfer {
   status: TransferStatus;
   items?: TransferItem[];
   items_count?: number;
+  approved_at?: string | null;
   dispatched_at?: string | null;
   received_at?: string | null;
+  completed_at?: string | null;
   created_at: string;
 }
 

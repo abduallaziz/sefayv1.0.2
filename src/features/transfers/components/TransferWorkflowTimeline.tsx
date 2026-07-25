@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { FileEdit, Truck, PackageCheck, X } from 'lucide-react';
+import { FileEdit, CheckCircle2, Truck, PackageCheck, ClipboardCheck, X } from 'lucide-react';
 import { TransferStatus } from '../types/transfer.types';
 
 interface Step {
@@ -20,12 +20,14 @@ export function TransferWorkflowTimeline({ status }: Props) {
   const t = useTranslations('transfers');
 
   const isCancelled = status === 'cancelled';
-  const order: TransferStatus[] = ['draft', 'in_transit', 'completed'];
+  const order: TransferStatus[] = ['draft', 'approved', 'in_transit', 'received', 'completed'];
   const currentIdx = order.indexOf(status);
 
   const steps: Step[] = [
     { key: 'draft', labelKey: 'status.draft', icon: FileEdit, done: currentIdx > 0, active: status === 'draft' },
-    { key: 'in_transit', labelKey: 'status.in_transit', icon: Truck, done: currentIdx > 1, active: status === 'in_transit' },
+    { key: 'approved', labelKey: 'status.approved', icon: CheckCircle2, done: currentIdx > 1, active: status === 'approved' },
+    { key: 'in_transit', labelKey: 'status.in_transit', icon: Truck, done: currentIdx > 2, active: status === 'in_transit' },
+    { key: 'received', labelKey: 'status.received', icon: ClipboardCheck, done: currentIdx > 3, active: status === 'received' },
     { key: 'completed', labelKey: 'status.completed', icon: PackageCheck, done: status === 'completed', active: status === 'completed' },
   ];
 

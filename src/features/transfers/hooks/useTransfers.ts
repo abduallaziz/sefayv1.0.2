@@ -26,6 +26,28 @@ export function useCreateTransfer() {
   });
 }
 
+export function useApproveTransfer() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => transfersApi.approve(id),
+    onSuccess: (_res, id) => {
+      qc.invalidateQueries({ queryKey: ['transfers'] });
+      qc.invalidateQueries({ queryKey: ['transfers', id] });
+    },
+  });
+}
+
+export function useCompleteTransfer() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => transfersApi.complete(id),
+    onSuccess: (_res, id) => {
+      qc.invalidateQueries({ queryKey: ['transfers'] });
+      qc.invalidateQueries({ queryKey: ['transfers', id] });
+    },
+  });
+}
+
 export function useDispatchTransfer() {
   const qc = useQueryClient();
   return useMutation({

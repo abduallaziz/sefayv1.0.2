@@ -14,7 +14,9 @@ export function TransferFiltersBar({ filters, onChange }: Props) {
   const statuses: { value: TransferStatus | ''; labelKey: string }[] = [
     { value: '', labelKey: 'status.all' },
     { value: 'draft', labelKey: 'status.draft' },
+    { value: 'approved', labelKey: 'status.approved' },
     { value: 'in_transit', labelKey: 'status.in_transit' },
+    { value: 'received', labelKey: 'status.received' },
     { value: 'completed', labelKey: 'status.completed' },
     { value: 'cancelled', labelKey: 'status.cancelled' },
   ];

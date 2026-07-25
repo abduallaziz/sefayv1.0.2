@@ -10,7 +10,9 @@ export const transfersApi = {
   },
   getById: (id: string) => apiClient.get<Transfer>(`/inventory/transfers/${id}`),
   create: (dto: CreateTransferDTO) => apiClient.post<Transfer>('/inventory/transfers', dto),
+  approve: (id: string) => apiClient.post<Transfer>(`/inventory/transfers/${id}/approve`, undefined),
   dispatch: (id: string) => apiClient.post<Transfer>(`/inventory/transfers/${id}/dispatch`, undefined),
   receive: (id: string) => apiClient.post<Transfer>(`/inventory/transfers/${id}/receive`, undefined),
+  complete: (id: string) => apiClient.post<Transfer>(`/inventory/transfers/${id}/complete`, undefined),
   cancel: (id: string) => apiClient.post<Transfer>(`/inventory/transfers/${id}/cancel`, undefined),
 };

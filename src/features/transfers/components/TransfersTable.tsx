@@ -13,14 +13,18 @@ interface Props {
 
 const statusTones: Record<string, StatusTone> = {
   draft: 'neutral',
+  approved: 'info',
   in_transit: 'warning',
+  received: 'warning',
   completed: 'success',
   cancelled: 'danger',
 };
 
 const statusLabelKeys = {
   draft: 'status.draft',
+  approved: 'status.approved',
   in_transit: 'status.in_transit',
+  received: 'status.received',
   completed: 'status.completed',
   cancelled: 'status.cancelled',
 } as const;
