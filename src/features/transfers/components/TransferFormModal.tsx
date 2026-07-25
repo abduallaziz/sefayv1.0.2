@@ -46,14 +46,22 @@ export function TransferFormModal({ open, onClose, onSubmit, isLoading }: Props)
       setError(t('requiredFields'));
       return;
     }
-    if (fromWarehouseId === toWarehouseId) {
-      setError(t('sameWarehouseError'));
-      return;
-    }
     const validRows = rows.filter((r) => r.item_id && r.quantity > 0);
     if (validRows.length === 0) {
       setError(t('requireAtLeastOneLine'));
       return;
+    }
+    // Same warehouse is only valid as an intra-warehouse move (e.g.
+    // shelf-to-shelf put-away) — every line must then specify two
+    // different real locations, mirroring the DB-level trigger guard.
+    if (fromWarehouseId === toWarehouseId) {
+      const invalidRow = validRows.find(
+        (r) => !r.from_location_id || !r.to_location_id || r.from_location_id === r.to_location_id,
+      );
+      if (invalidRow) {
+        setError(t('sameWarehouseRequiresLocations'));
+        return;
+      }
     }
 
     const dto: CreateTransferDTO = {

@@ -208,7 +208,7 @@
     "addLine": "Add Line",
     "requiredFields": "Please fill in all required fields",
     "requireAtLeastOneLine": "Add at least one line item",
-    "sameWarehouseError": "Source and destination warehouses must be different",
+    "sameWarehouseRequiresLocations": "When source and destination are the same warehouse, each line needs a different source and destination location (or shelf)",
     "save": "Save",
     "saving": "Saving...",
     "cancel": "Cancel",
