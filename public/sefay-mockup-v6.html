@@ -1,0 +1,506 @@
+<title>SEFAY — ختم واحد لكل حساباتك</title>
+<style>
+  :root{
+    --paper:#F2EEE3;
+    --paper-2:#FBF9F3;
+    --ink:#141414;
+    --ink-soft:#4B4A42;
+    --line:#141414;
+    --stamp:#B23A1E;
+    --stamp-soft:#F3DED5;
+    --live:#2F6B4E;
+    --live-soft:#DCE9E0;
+    --r-pill:100px;
+    --shadow:6px 6px 0 var(--ink);
+    --shadow-sm:4px 4px 0 var(--ink);
+    --f-display:'Lalezar','Segoe UI',Tahoma,sans-serif;
+    --f-body:'El Messiri','Segoe UI',Tahoma,sans-serif;
+    --f-num:'JetBrains Mono','IBM Plex Mono',ui-monospace,Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --paper:#141412; --paper-2:#1C1B17; --ink:#F2EEE3; --ink-soft:#B8B4A6; --line:#F2EEE3;
+      --stamp:#E2603F; --stamp-soft:rgba(226,96,63,.14); --live:#6FBF95; --live-soft:rgba(111,191,149,.12);
+      --shadow:6px 6px 0 var(--ink); --shadow-sm:4px 4px 0 var(--ink);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#141412; --paper-2:#1C1B17; --ink:#F2EEE3; --ink-soft:#B8B4A6; --line:#F2EEE3;
+    --stamp:#E2603F; --stamp-soft:rgba(226,96,63,.14); --live:#6FBF95; --live-soft:rgba(111,191,149,.12);
+    --shadow:6px 6px 0 var(--ink); --shadow-sm:4px 4px 0 var(--ink);
+  }
+  :root[data-theme="light"]{
+    --paper:#F2EEE3; --paper-2:#FBF9F3; --ink:#141414; --ink-soft:#4B4A42; --line:#141414;
+    --stamp:#B23A1E; --stamp-soft:#F3DED5; --live:#2F6B4E; --live-soft:#DCE9E0;
+    --shadow:6px 6px 0 var(--ink); --shadow-sm:4px 4px 0 var(--ink);
+  }
+
+  @media (prefers-reduced-motion: reduce){ *{animation:none !important; transition:none !important;} }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.8;}
+  h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;text-wrap:balance;color:var(--ink);}
+  p{margin:0;color:var(--ink-soft);}
+  a{color:inherit;text-decoration:none;}
+  button{font-family:inherit;cursor:pointer;}
+  .num{font-family:var(--f-num);font-variant-numeric:tabular-nums;unicode-bidi:plaintext;font-weight:700;}
+  :focus-visible{outline:3px solid var(--stamp);outline-offset:2px;}
+  ul{margin:0;padding:0;list-style:none;}
+  ::selection{background:var(--stamp);color:var(--paper-2);}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:0 20px;}
+  @media(min-width:768px){.wrap{padding:0 44px;}}
+
+  .eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:var(--f-num);font-size:12.5px;font-weight:700;color:var(--stamp);margin-bottom:18px;padding:5px 14px;border:2px solid var(--ink);border-radius:var(--r-pill);text-transform:uppercase;}
+  .badge{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;padding:4px 12px;border-radius:var(--r-pill);border:2px solid var(--ink);}
+  .badge.live{background:var(--live-soft);color:var(--live);}
+  .badge .dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+  .icon{width:22px;height:22px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;flex:none;}
+
+  @keyframes rise{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+  .reveal{opacity:0;transform:translateY(20px);transition:opacity .55s ease,transform .55s ease;}
+  .reveal.in{opacity:1;transform:translateY(0);}
+
+  /* NAVBAR */
+  header.nav{position:sticky;top:0;z-index:40;background:var(--paper);border-bottom:3px solid var(--ink);}
+  .nav-row{display:flex;align-items:center;justify-content:space-between;height:72px;gap:16px;}
+  .brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-size:26px;color:var(--ink);}
+  .stamp-mark{width:38px;height:38px;border-radius:50%;border:3px solid var(--stamp);display:flex;align-items:center;justify-content:center;flex:none;transform:rotate(-8deg);position:relative;}
+  .stamp-mark::before{content:"";position:absolute;inset:4px;border:1px solid var(--stamp);border-radius:50%;}
+  .stamp-mark span{font-family:var(--f-num);font-size:13px;font-weight:700;color:var(--stamp);}
+  .nav-links{display:none;gap:30px;font-size:15px;font-weight:700;color:var(--ink);}
+  @media(min-width:1024px){.nav-links{display:flex;}}
+  .nav-links a{border-bottom:2px solid transparent;padding-bottom:4px;}
+  .nav-links a:hover{border-color:var(--stamp);}
+  .nav-actions{display:flex;align-items:center;gap:12px;}
+  .lang-switch{display:flex;border:2px solid var(--ink);border-radius:6px;overflow:hidden;font-family:var(--f-num);font-size:12px;font-weight:700;}
+  .lang-switch button{background:none;border:none;padding:7px 12px;color:var(--ink);}
+  .lang-switch button.active{background:var(--ink);color:var(--paper);}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 22px;border-radius:6px;font-size:15px;font-weight:700;border:2px solid var(--ink);white-space:nowrap;transition:transform .12s;}
+  .btn-primary{background:var(--stamp);color:#fff;border-color:var(--ink);box-shadow:var(--shadow-sm);}
+  .btn-primary:hover{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink);}
+  .btn-line{border-color:var(--ink);color:var(--ink);background:var(--paper-2);}
+  .btn-line:hover{background:var(--ink);color:var(--paper);}
+  .btn-ghost{color:var(--ink-soft);display:none;border:none;padding-inline:12px;}
+  @media(min-width:640px){.btn-ghost{display:inline-flex;}}
+
+  /* HERO */
+  .hero{padding:56px 0 0;border-bottom:3px solid var(--ink);position:relative;overflow:hidden;}
+  @media(min-width:768px){.hero{padding:88px 0 0;}}
+  .hero-grid{display:grid;gap:40px;}
+  @media(min-width:1024px){.hero-grid{grid-template-columns:1.1fr .9fr;align-items:end;gap:0;}}
+  .hero h1{font-size:40px;margin:14px 0 22px;line-height:1.3;}
+  @media(min-width:768px){.hero h1{font-size:64px;}}
+  .hero h1 .hl{color:var(--stamp);}
+  .hero p.lead{font-size:18px;max-width:44ch;margin-bottom:30px;}
+  .hero-ctas{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:40px;}
+  .stamp-seal{position:absolute;top:40px;inset-inline-end:6%;width:150px;height:150px;border:3px solid var(--stamp);border-radius:50%;display:flex;align-items:center;justify-content:center;transform:rotate(10deg);opacity:.85;z-index:2;}
+  @media(max-width:1023px){.stamp-seal{display:none;}}
+  .stamp-seal::before{content:"";position:absolute;inset:8px;border:1px solid var(--stamp);border-radius:50%;}
+  .stamp-seal-text{font-family:var(--f-num);font-size:11px;font-weight:700;color:var(--stamp);text-align:center;line-height:1.5;}
+
+  .hero-visual{border:3px solid var(--ink);border-radius:0;background:var(--paper-2);box-shadow:var(--shadow);position:relative;z-index:1;}
+  .hv-head{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:3px solid var(--ink);}
+  .hv-head .name{font-size:14.5px;font-weight:700;}
+  .hv-body{padding:20px;display:flex;flex-direction:column;gap:16px;}
+  .kpi-hero{display:flex;justify-content:space-between;align-items:flex-end;padding-bottom:16px;border-bottom:2px dashed var(--ink);}
+  .kpi-hero .label{font-size:12.5px;color:var(--ink-soft);display:block;margin-bottom:4px;}
+  .kpi-hero .val{font-family:var(--f-num);font-weight:700;font-size:30px;color:var(--ink);}
+  .kpi-hero .delta{font-family:var(--f-num);font-size:13px;font-weight:700;color:var(--live);background:var(--live-soft);padding:3px 10px;border-radius:var(--r-pill);border:2px solid var(--ink);}
+  .kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  .kpi{border:2px solid var(--ink);border-radius:0;padding:12px;}
+  .kpi span{font-size:11px;color:var(--ink-soft);display:block;margin-bottom:4px;}
+  .kpi b{font-family:var(--f-num);font-weight:700;font-size:18px;color:var(--ink);}
+  .chart svg{width:100%;height:56px;display:block;}
+  .hero-strip{display:flex;border-top:3px solid var(--ink);margin-top:44px;}
+  .hero-strip .cell{flex:1;padding:18px 20px;border-inline-end:3px solid var(--ink);}
+  .hero-strip .cell:last-child{border-inline-end:none;}
+  .hero-strip b{display:block;font-family:var(--f-num);font-weight:700;font-size:20px;}
+  .hero-strip span{font-size:12.5px;color:var(--ink-soft);}
+
+  /* SECTIONS */
+  section{padding:60px 0;}
+  @media(min-width:768px){section{padding:96px 0;}}
+  section + section{border-top:3px solid var(--ink);}
+  .shead{max-width:620px;margin-bottom:48px;}
+  .shead h2{font-size:30px;margin-bottom:14px;}
+  @media(min-width:768px){.shead h2{font-size:40px;}}
+  .shead p{font-size:16.5px;}
+
+  /* BENEFITS */
+  .benefits{display:grid;gap:0;border:3px solid var(--ink);}
+  @media(min-width:640px){.benefits{grid-template-columns:repeat(3,1fr);}}
+  .benefit{padding:28px 24px;border-inline-end:3px solid var(--ink);}
+  .benefit:last-child{border-inline-end:none;}
+  @media(max-width:639px){.benefit{border-inline-end:none;border-bottom:3px solid var(--ink);}.benefit:last-child{border-bottom:none;}}
+  .benefit .icon{color:var(--stamp);width:28px;height:28px;margin-bottom:16px;}
+  .benefit h3{font-size:19px;margin-bottom:10px;font-family:var(--f-display);font-weight:400;}
+  .benefit p{font-size:14.5px;}
+
+  /* FEATURES */
+  .feat-grid{display:grid;gap:18px;}
+  @media(min-width:640px){.feat-grid{grid-template-columns:repeat(2,1fr);}}
+  .feat{background:var(--paper-2);border:3px solid var(--ink);padding:26px 22px;display:flex;gap:16px;align-items:flex-start;}
+  .feat .icon{color:var(--ink);width:24px;height:24px;margin-top:4px;}
+  .feat h3{font-size:18px;margin-bottom:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-family:var(--f-display);font-weight:400;}
+  .feat p{font-size:14.5px;}
+
+  /* PRODUCT PREVIEW */
+  .pp-shell{border:3px solid var(--ink);background:var(--paper-2);box-shadow:var(--shadow);}
+  .pp-top{display:flex;align-items:center;gap:22px;padding:0 20px;border-bottom:3px solid var(--ink);overflow-x:auto;}
+  .pp-tab{font-size:14.5px;font-weight:700;color:var(--ink-soft);white-space:nowrap;padding:16px 2px;border-bottom:3px solid transparent;margin-bottom:-3px;}
+  .pp-tab.on{color:var(--ink);border-bottom-color:var(--stamp);}
+  .pp-body{padding:26px 20px;display:flex;flex-direction:column;gap:22px;}
+  .pp-kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:0;border:2px solid var(--ink);}
+  @media(min-width:640px){.pp-kpis{grid-template-columns:repeat(4,1fr);}}
+  .pp-kpis .kpi{border:none;border-inline-end:2px solid var(--ink);}
+  .pp-kpis .kpi:last-child{border-inline-end:none;}
+  @media(max-width:639px){.pp-kpis .kpi:nth-child(2){border-inline-end:none;}.pp-kpis .kpi:nth-child(odd){border-bottom:2px solid var(--ink);}}
+  .pp-branch{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:2px dashed var(--ink);font-size:14px;font-weight:700;}
+  .pp-branch:last-child{border-bottom:none;}
+  .pp-branch .name{display:flex;align-items:center;gap:10px;}
+  .pp-dot{width:8px;height:8px;background:var(--stamp);}
+  .pp-branch .num{color:var(--ink);}
+
+  /* INDUSTRIES */
+  .ind-grid{display:grid;gap:0;border:3px solid var(--ink);grid-template-columns:repeat(2,1fr);}
+  @media(min-width:768px){.ind-grid{grid-template-columns:repeat(5,1fr);}}
+  .ind-card{padding:24px 18px;border-inline-end:3px solid var(--ink);border-bottom:3px solid var(--ink);}
+  @media(min-width:768px){.ind-card{border-bottom:none;}}
+  .ind-card:nth-child(2n){border-inline-end:none;}
+  @media(min-width:768px){.ind-card:nth-child(2n){border-inline-end:3px solid var(--ink);}.ind-card:last-child{border-inline-end:none;}}
+  .ind-card .icon{color:var(--stamp);margin-bottom:14px;}
+  .ind-card h3{font-size:16px;margin-bottom:6px;font-family:var(--f-display);font-weight:400;}
+  .ind-card p{font-size:13px;}
+
+  /* HOW IT WORKS */
+  .steps{display:grid;gap:0;border:3px solid var(--ink);}
+  @media(min-width:768px){.steps{grid-template-columns:repeat(4,1fr);}}
+  .step{padding:26px 22px;border-inline-end:3px solid var(--ink);border-bottom:3px solid var(--ink);}
+  @media(min-width:768px){.step{border-bottom:none;}}
+  .step:last-child{border-inline-end:none;border-bottom:none;}
+  .step .n{font-family:var(--f-num);font-weight:700;font-size:26px;color:var(--stamp);margin-bottom:12px;}
+  .step h3{font-size:17px;margin-bottom:8px;font-family:var(--f-display);font-weight:400;}
+  .step p{font-size:14px;}
+
+  /* TESTIMONIALS */
+  .test-grid{display:grid;gap:0;border:3px solid var(--ink);}
+  @media(min-width:768px){.test-grid{grid-template-columns:repeat(3,1fr);}}
+  .test-card{padding:26px;border-inline-end:3px solid var(--ink);border-bottom:3px solid var(--ink);display:flex;flex-direction:column;gap:16px;}
+  @media(min-width:768px){.test-card{border-bottom:none;}}
+  .test-card:last-child{border-inline-end:none;border-bottom:none;}
+  .test-card .mark{font-family:var(--f-display);font-size:44px;line-height:1;color:var(--stamp);}
+  .test-card p.quote{font-size:15.5px;font-weight:400;line-height:1.85;color:var(--ink);flex:1;}
+  .who{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--ink-soft);font-weight:700;}
+  .avatar{width:34px;height:34px;border-radius:50%;border:2px solid var(--ink);background:var(--stamp-soft);color:var(--stamp);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex:none;font-family:var(--f-num);}
+
+  /* PRICING */
+  .price-grid{display:grid;gap:18px;}
+  @media(min-width:768px){.price-grid{grid-template-columns:repeat(3,1fr);}}
+  .price-card{border:3px solid var(--ink);padding:30px 24px;background:var(--paper-2);display:flex;flex-direction:column;gap:18px;position:relative;}
+  .price-card.on{background:var(--ink);color:var(--paper);box-shadow:var(--shadow);}
+  .price-card.on .price-name,.price-card.on .price-amt .v,.price-card.on .price-list li{color:var(--paper);}
+  .price-card.on .price-list li::before{color:var(--stamp);}
+  .price-card .tag{position:absolute;top:-14px;inset-inline-start:22px;background:var(--stamp);color:#fff;font-size:11.5px;font-weight:700;padding:4px 12px;border:2px solid var(--ink);border-radius:var(--r-pill);}
+  .price-name{font-size:14px;font-weight:700;color:var(--ink);}
+  .price-amt{display:flex;align-items:baseline;gap:8px;}
+  .price-amt .v{font-family:var(--f-num);font-weight:700;font-size:44px;color:var(--ink);}
+  .price-amt span{font-size:13px;color:var(--ink-soft);}
+  .price-card.on .price-amt span{color:#B8B4A6;}
+  .price-list{flex:1;}
+  .price-list li{font-size:13.5px;color:var(--ink-soft);display:flex;gap:10px;margin-bottom:10px;}
+  .price-list li::before{content:"✓";color:var(--stamp);font-weight:700;flex:none;}
+  .price-card.on .price-list li{color:#D8D4C6;}
+  .price-card.on .btn-primary{background:var(--stamp);border-color:var(--paper);}
+  .price-card.on .btn-line{border-color:var(--paper);color:var(--paper);background:transparent;}
+
+  /* FAQ */
+  .faq-item{border-bottom:3px solid var(--ink);padding:22px 0;}
+  .faq-item:first-child{border-top:3px solid var(--ink);}
+  .faq-q{display:flex;justify-content:space-between;gap:14px;font-size:18px;font-weight:400;cursor:pointer;color:var(--ink);font-family:var(--f-display);}
+  .faq-q .plus{font-family:var(--f-num);color:var(--stamp);flex:none;font-weight:700;font-size:22px;transition:transform .2s;}
+  .faq-item.open .faq-q .plus{transform:rotate(45deg);}
+  .faq-a{font-size:14.5px;max-width:66ch;margin-top:12px;display:none;}
+  .faq-item.open .faq-a{display:block;}
+
+  /* FINAL CTA */
+  .cta-band{background:var(--ink);color:var(--paper);border:3px solid var(--ink);padding:44px 26px;display:flex;flex-direction:column;gap:22px;}
+  @media(min-width:768px){.cta-band{padding:60px 56px;flex-direction:row;justify-content:space-between;align-items:center;}}
+  .cta-band h2{color:var(--paper);font-size:28px;}
+  @media(min-width:768px){.cta-band h2{font-size:36px;}}
+  .cta-band p{color:#B8B4A6;margin-top:10px;font-size:15px;}
+  .cta-band .btn-primary{background:var(--stamp);border-color:var(--paper);}
+
+  /* FOOTER */
+  footer{padding:52px 0 32px;}
+  .foot-grid{display:grid;gap:32px;margin-bottom:40px;grid-template-columns:1fr 1fr;}
+  @media(min-width:768px){.foot-grid{grid-template-columns:1.5fr repeat(4,1fr);}}
+  .foot-col h4{font-size:13px;font-weight:700;color:var(--ink);margin:0 0 14px;}
+  .foot-col a{display:block;font-size:13.5px;color:var(--ink-soft);margin-bottom:10px;font-weight:700;}
+  .foot-col a:hover{color:var(--stamp);}
+  .foot-bottom{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;padding-top:26px;border-top:3px solid var(--ink);font-size:12.5px;color:var(--ink-soft);}
+</style>
+
+<script>document.documentElement.setAttribute('dir','rtl');document.documentElement.setAttribute('lang','ar');</script>
+<div dir="rtl" lang="ar" style="direction:rtl;">
+
+<header class="nav">
+  <div class="wrap nav-row">
+    <div class="brand"><span class="stamp-mark"><span>%</span></span><span>سفاي</span></div>
+    <nav class="nav-links">
+      <a href="#">المنتج</a><a href="#">القطاعات</a><a href="#">الأسعار</a><a href="#">تواصل</a>
+    </nav>
+    <div class="nav-actions">
+      <div class="lang-switch"><button class="active">AR</button><button>EN</button></div>
+      <a href="#" class="btn btn-ghost">تسجيل الدخول</a>
+      <a href="#" class="btn btn-primary">اطلب عرضًا</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <div class="stamp-seal">
+        <div class="stamp-seal-text">معتمد<br>للسوق<br>الخليجي</div>
+      </div>
+      <div class="hero-grid">
+        <div>
+          <div class="eyebrow">نقاط بيع · مخزون · فروع متعددة</div>
+          <h1>كل فرع، كل فاتورة<br><span class="hl">رقم واحد موثّق</span></h1>
+          <p class="lead">توقف عن تجميع التقارير من خمس شاشات متفرقة. سفاي يختم كل عملية بيع ونقل بضاعة بنفس الدقة، لحظة بلحظة، لكل فروعك.</p>
+          <div class="hero-ctas">
+            <a href="#" class="btn btn-primary">اطلب عرضًا مباشرًا</a>
+            <a href="#" class="btn btn-line">استعرض المنتج</a>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="hv-head"><span class="name">فرع الرياض — اليوم</span><span class="badge live"><span class="dot"></span>مباشر</span></div>
+          <div class="hv-body">
+            <div class="kpi-hero">
+              <div><span class="label">صافي المبيعات اليوم</span><span class="val num">12,480 ر.س</span></div>
+              <span class="delta num">+8.2%</span>
+            </div>
+            <div class="kpi-row">
+              <div class="kpi"><span>الفواتير</span><b class="num">346</b></div>
+              <div class="kpi"><span>هامش الربح</span><b class="num">31.2%</b></div>
+              <div class="kpi"><span>طلبات مفتوحة</span><b class="num">12</b></div>
+            </div>
+            <div class="chart">
+              <svg viewBox="0 0 320 56" preserveAspectRatio="none">
+                <polyline points="0,44 45,36 90,40 135,22 180,26 225,10 270,16 320,4" stroke="#B23A1E" stroke-width="2.5" fill="none"/>
+                <circle cx="320" cy="4" r="4" fill="#B23A1E"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-strip">
+        <div class="cell"><b class="num">+٤٠</b><span>فرعًا على حساب واحد</span></div>
+        <div class="cell"><b class="num">لحظي</b><span>تحديث المبيعات والمخزون</span></div>
+        <div class="cell"><b class="num">دقيق</b><span>صلاحيات لكل مستخدم وفرع</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="shead reveal">
+        <div class="eyebrow">ليش سفاي</div>
+        <h2>ثلاث مشاكل يعرفها كل صاحب فروع</h2>
+      </div>
+      <div class="benefits reveal">
+        <div class="benefit">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg>
+          <h3>رقم واحد تثق فيه</h3>
+          <p>بدل تجميع تقارير كل فرع يدويًا آخر الشهر، تشوف الصورة الكاملة محدثة لحظيًا من مكان واحد.</p>
+        </div>
+        <div class="benefit">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/></svg>
+          <h3>لا مفاجآت في المخزون</h3>
+          <p>كل عملية بيع أو تحويل بضاعة بين الفروع ينعكس فورًا على الكميات، بلا فجوة زمنية.</p>
+        </div>
+        <div class="benefit">
+          <svg class="icon" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+          <h3>فريقك يعمل بأمان</h3>
+          <p>حدد بدقة من يرى ومن يعدل كل شاشة، فرعًا بفرع، بدون صلاحيات زائدة عن الحاجة.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="shead reveal">
+        <div class="eyebrow">المنتج</div>
+        <h2>أدوات مبنية للعمل اليومي</h2>
+        <p>من موظف الكاشير إلى صاحب المنشأة — كل شاشة صممت لتُستخدم فعليًا كل يوم.</p>
+      </div>
+      <div class="feat-grid reveal">
+        <div class="feat">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M4 4h16v5H4z"/><path d="M4 13h16v7H4z"/></svg>
+          <div><h3>نقطة بيع سريعة <span class="badge live"><span class="dot"></span>متاح الآن</span></h3><p>شاشة كاشير مبنية للسرعة، مع كوبونات وبطاقات هدايا ونظام نقاط ولاء.</p></div>
+        </div>
+        <div class="feat">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg>
+          <div><h3>مخزون متعدد الفروع <span class="badge live"><span class="dot"></span>متاح الآن</span></h3><p>تتبع الكميات والتحويلات بين الفروع والمستودعات لحظيًا، مع جرد وتسويات دقيقة.</p></div>
+        </div>
+        <div class="feat">
+          <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="7" r="3.5"/><path d="M2.5 21c0-3.8 3-6 6.5-6s6.5 2.2 6.5 6"/><path d="M16 4a3.5 3.5 0 010 6.5"/><path d="M21.5 21c0-3-1.8-5-4.5-5.7"/></svg>
+          <div><h3>حضور وموارد بشرية <span class="badge live"><span class="dot"></span>متاح الآن</span></h3><p>تسجيل حضور من الجوال بتحديد الموقع، جداول ورديات، إجازات ورواتب.</p></div>
+        </div>
+        <div class="feat">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg>
+          <div><h3>مركز صلاحيات كامل <span class="badge live"><span class="dot"></span>متاح الآن</span></h3><p>أدوار وصلاحيات على مستوى الشاشة والفرع والمستخدم.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="shead reveal">
+        <div class="eyebrow">نظرة على المنتج</div>
+        <h2>شاشة واحدة تلخص وضع كل فروعك</h2>
+      </div>
+      <div class="pp-shell reveal">
+        <div class="pp-top">
+          <span class="pp-tab on">نظرة عامة</span><span class="pp-tab">نقطة البيع</span><span class="pp-tab">المخزون</span><span class="pp-tab">الفروع</span>
+        </div>
+        <div class="pp-body">
+          <div class="pp-kpis">
+            <div class="kpi"><span>إجمالي المبيعات</span><b class="num">482,000 ر.س</b></div>
+            <div class="kpi"><span>عدد الفواتير</span><b class="num">9,420</b></div>
+            <div class="kpi"><span>قيمة المخزون</span><b class="num">1,200,000 ر.س</b></div>
+            <div class="kpi"><span>نمو شهري</span><b class="num">+14.3%</b></div>
+          </div>
+          <div>
+            <div class="pp-branch"><span class="name"><span class="pp-dot"></span>فرع الرياض — العليا</span><span class="num">148,000 ر.س</span></div>
+            <div class="pp-branch"><span class="name"><span class="pp-dot"></span>فرع جدة — التحلية</span><span class="num">102,500 ر.س</span></div>
+            <div class="pp-branch"><span class="name"><span class="pp-dot"></span>فرع الدمام — الشاطئ</span><span class="num">89,200 ر.س</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="shead reveal">
+        <div class="eyebrow">القطاعات</div>
+        <h2>مبني حسب طبيعة كل نشاط</h2>
+      </div>
+      <div class="ind-grid reveal">
+        <div class="ind-card"><svg class="icon" viewBox="0 0 24 24"><path d="M3 9l1-5h16l1 5"/><path d="M4 9v11h16V9"/><path d="M9 20v-6h6v6"/></svg><h3>متاجر التجزئة</h3><p>باركود وخصومات وعروض</p></div>
+        <div class="ind-card"><svg class="icon" viewBox="0 0 24 24"><path d="M6 2v7M10 2v7M8 9v13"/><path d="M17 2c-1.5 2-2 4-2 6 0 2 1 3 2 3s2-1 2-3c0-2-.5-4-2-6z"/><path d="M17 11v11"/></svg><h3>المطاعم والمقاهي</h3><p>طاولات وطلبات ومطبخ</p></div>
+        <div class="ind-card"><svg class="icon" viewBox="0 0 24 24"><path d="M9 3h6v4H9z"/><path d="M7 7h10l1 14H6z"/><path d="M12 11v6M9 14h6"/></svg><h3>الصيدليات</h3><p>دفعات وتواريخ صلاحية</p></div>
+        <div class="ind-card"><svg class="icon" viewBox="0 0 24 24"><path d="M3 8l9-5 9 5v13H3z"/><path d="M9 21v-7h6v7"/></svg><h3>المستودعات</h3><p>نقل وجرد بين الفروع</p></div>
+        <div class="ind-card"><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1.5"/><path d="M4 10h16M10 10v10"/></svg><h3>المنشآت الصغيرة</h3><p>بداية بسيطة تكبر معك</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="shead reveal">
+        <div class="eyebrow">كيف تبدأ</div>
+        <h2>أربع خطوات، لا أكثر</h2>
+      </div>
+      <div class="steps reveal">
+        <div class="step"><div class="n num">01</div><h3>أنشئ الحساب</h3><p>سجل منشأتك وأضف فرعك الأول خلال دقائق.</p></div>
+        <div class="step"><div class="n num">02</div><h3>أضف فروعك</h3><p>وسع لأي عدد من الفروع على نفس الحساب.</p></div>
+        <div class="step"><div class="n num">03</div><h3>ادعُ فريقك</h3><p>حدد صلاحيات كل موظف حسب فرعه ودوره.</p></div>
+        <div class="step"><div class="n num">04</div><h3>راقب لحظيًا</h3><p>تابع المبيعات والمخزون من شاشة واحدة.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="shead reveal">
+        <div class="eyebrow">قالوا عنا</div>
+        <h2>موثوق من فرق العمليات والمالية</h2>
+      </div>
+      <div class="test-grid reveal">
+        <div class="test-card"><span class="mark">"</span><p class="quote">صرنا نعرف وضع كل فرع بدون ما ننتظر نهاية الشهر لنجمع التقارير يدويًا.</p><div class="who"><span class="avatar">ن.س</span><span>مديرة مالية — سلسلة متاجر</span></div></div>
+        <div class="test-card"><span class="mark">"</span><p class="quote">نقطة البيع أسرع من نظامنا السابق، وربطها بالمخزون وفر علينا ساعات جرد كل أسبوع.</p><div class="who"><span class="avatar">م.ع</span><span>صاحب سلسلة مطاعم</span></div></div>
+        <div class="test-card"><span class="mark">"</span><p class="quote">الصلاحيات الدقيقة خلتنا نوسع الفريق من غير قلق على البيانات المالية.</p><div class="who"><span class="avatar">ل.ح</span><span>مجموعة صيدليات</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="shead reveal">
+        <div class="eyebrow">الأسعار</div>
+        <h2>خطط تنمو مع فروعك</h2>
+      </div>
+      <div class="price-grid reveal">
+        <div class="price-card">
+          <div class="price-name">أساسي</div>
+          <div class="price-amt"><span class="v num">149</span><span>ر.س / شهريًا</span></div>
+          <ul class="price-list"><li>فرع واحد ومستخدمان</li><li>نقطة بيع وتقارير أساسية</li></ul>
+          <a href="#" class="btn btn-line">اختر الخطة</a>
+        </div>
+        <div class="price-card on">
+          <span class="tag">الأكثر اختيارًا</span>
+          <div class="price-name">النمو</div>
+          <div class="price-amt"><span class="v num">349</span><span>ر.س / شهريًا</span></div>
+          <ul class="price-list"><li>حتى 5 فروع ومستخدمون غير محدودين</li><li>مخزون متعدد الفروع</li><li>صلاحيات مخصصة</li></ul>
+          <a href="#" class="btn btn-primary">اختر الخطة</a>
+        </div>
+        <div class="price-card">
+          <div class="price-name">مؤسسي</div>
+          <div class="price-amt"><span class="v">مخصص</span></div>
+          <ul class="price-list"><li>فروع غير محدودة</li><li>مدير حساب مخصص</li></ul>
+          <a href="#" class="btn btn-line">تواصل مع المبيعات</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap" style="max-width:800px;">
+      <div class="shead reveal"><div class="eyebrow">الأسئلة الشائعة</div><h2>قبل أن تبدأ</h2></div>
+      <div class="faq-list reveal">
+        <div class="faq-item open"><div class="faq-q"><span>كم فرعًا أقدر أدير بحساب واحد؟</span><span class="plus">+</span></div><div class="faq-a">حتى 5 فروع في خطة النمو، وبلا حد أقصى في الخطة المؤسسية.</div></div>
+        <div class="faq-item"><div class="faq-q"><span>هل أقدر أصدر بياناتي وقت ما أحتاج؟</span><span class="plus">+</span></div><div class="faq-a">نعم، تصدير كامل بصيغ Excel وPDF متاح من كل الخطط بدون قيود.</div></div>
+        <div class="faq-item"><div class="faq-q"><span>هل نقطة البيع تحتاج إنترنت دائم؟</span><span class="plus">+</span></div><div class="faq-a">تحفظ العمليات محليًا وتتزامن تلقائيًا فور عودة الاتصال.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="cta-band reveal">
+        <div><h2>جاهز تدير كل فروعك من مكان واحد؟</h2><p>اطلب عرضًا مباشرًا مع فريقنا — أو ابدأ تجربتك بنفسك.</p></div>
+        <a href="#" class="btn btn-primary">اطلب عرضًا</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-col"><div class="brand" style="margin-bottom:14px;"><span class="stamp-mark"><span>%</span></span><span>سفاي</span></div><p style="font-size:13.5px;max-width:28ch;">نظام سحابي لإدارة المبيعات والمخزون والفروع لمنشآت الخليج.</p></div>
+      <div class="foot-col"><h4>المنتج</h4><a href="#">نقطة البيع</a><a href="#">المخزون</a><a href="#">التقارير</a></div>
+      <div class="foot-col"><h4>القطاعات</h4><a href="#">التجزئة</a><a href="#">المطاعم</a><a href="#">الصيدليات</a></div>
+      <div class="foot-col"><h4>الشركة</h4><a href="#">من نحن</a><a href="#">تواصل معنا</a></div>
+      <div class="foot-col"><h4>قانوني</h4><a href="#">الخصوصية</a><a href="#">الشروط</a></div>
+    </div>
+    <div class="foot-bottom"><span>© <span class="num">2026</span> سفاي. جميع الحقوق محفوظة.</span><span>صنع لمنشآت الخليج</span></div>
+  </div>
+</footer>
+</div>
+
+<script>
+document.querySelectorAll('.faq-item .faq-q').forEach(function(q){
+  q.addEventListener('click', function(){ q.parentElement.classList.toggle('open'); });
+});
+var io=new IntersectionObserver(function(entries){
+  entries.forEach(function(entry){
+    if(entry.isIntersecting){ entry.target.classList.add('in'); io.unobserve(entry.target); }
+  });
+},{threshold:.15});
+document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+</script>
