@@ -12,6 +12,13 @@
   "openDrawer": "Open Cash Drawer",
   "drawerOpened": "Drawer open logged",
   "drawerOpenFailed": "Failed to log drawer open",
+  "cashRegister": {
+    "closedTitle": "Cash register closed",
+    "closedSubtitle": "Open the register to start selling",
+    "openButton": "Open Register",
+    "openStatus": "Register Open",
+    "closeButton": "Close Register"
+  },
   "heldOrders": {
     "title": "Held Orders",
     "holdButton": "Hold Order",
@@ -100,6 +107,7 @@
     "giftCardRemove": "Remove",
     "giftCardInvalid": "Invalid gift card code",
     "failed": "Payment failed, please try again",
+    "noActiveSession": "Cannot complete sale. Open the cash register first.",
     "stockWarning": "Sale completed, but automatic stock deduction failed — please review inventory manually"
   },
   "receipt": {

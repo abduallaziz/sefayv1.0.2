@@ -19,6 +19,9 @@ import { apiClient } from '@/lib/api'
 import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
 import type { Customer } from '@/features/customers/types/customer.types'
+import { OpenShiftModal } from '@/features/shifts/components/OpenShiftModal'
+import { CloseShiftModal } from '@/features/shifts/components/CloseShiftModal'
+import { Lock, LockOpen } from 'lucide-react'
 
 export function POSPage() {
   const { user } = useAuthStore()
@@ -30,6 +33,8 @@ export function POSPage() {
   const [showCustomerPicker, setShowCustomerPicker] = useState(false)
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
   const [showHeldOrders, setShowHeldOrders] = useState(false)
+  const [showOpenRegister, setShowOpenRegister] = useState(false)
+  const [showCloseRegister, setShowCloseRegister] = useState(false)
 
   // Gift-card and loyalty-points state lives here (not in CartPanel or PaymentModal)
   // so the same real, server-validated selection is shared by both the cart panel's
@@ -54,7 +59,7 @@ export function POSPage() {
     enabled: !!user,
   })
 
-  const { data: currentShift } = useQuery({
+  const { data: currentShift, isLoading: shiftLoading } = useQuery({
     queryKey: ['shifts', 'current'],
     queryFn: () => apiClient.get('/shifts/current') as any,
     enabled: !!user,
@@ -171,7 +176,14 @@ export function POSPage() {
     } catch (error: any) {
       // كان يُسجَّل بـconsole فقط بلا أي إشعار للكاشير — يظهر كأن الزر "لا يعمل" بصمت
       // عند فشل حقيقي (كوبون غير صالح لحظة التأكيد، رصيد بطاقة هدايا غير كافٍ، إلخ).
-      setPaymentError(error?.message ?? t('payment.failed'))
+      // رسالة "لا توجد جلسة صندوق نشطة" من الباك-إند نص تقني (بادئة NO_ACTIVE_CASH_SESSION)
+      // لا يجب أن يظهر للكاشير كما هو — تُصنَّف هنا وتُستبدَل برسالة عمل واضحة.
+      const rawMessage: string = error?.message ?? ''
+      setPaymentError(
+        rawMessage.includes('NO_ACTIVE_CASH_SESSION')
+          ? t('payment.noActiveSession')
+          : rawMessage || t('payment.failed'),
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -277,8 +289,59 @@ export function POSPage() {
     toast.success(t('heldOrders.resumed'))
   }
 
+  // البيع ممنوع كليًا بلا جلسة صندوق مفتوحة (نفس القاعدة المفروضة في الباك-إند
+  // عبر ShiftsService.assertOpenSession) — الواجهة تعكسها بإخفاء شاشة البيع
+  // بالكامل بدل الاعتماد فقط على رفض السيرفر لطلب الدفع. لا نعرض شيئًا أثناء
+  // التحميل الأول لتفادي "ومضة" شاشة الإغلاق قبل وصول حالة الجلسة الحقيقية.
+  if (!shiftLoading && !currentShift) {
+    return (
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 p-6 text-center">
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-gray-800">
+          <Lock className="h-8 w-8 text-slate-400 dark:text-slate-500" />
+        </div>
+        <div>
+          <h2 className="text-lg font-bold text-slate-800 dark:text-white">
+            {t('cashRegister.closedTitle')}
+          </h2>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            {t('cashRegister.closedSubtitle')}
+          </p>
+        </div>
+        <button
+          onClick={() => setShowOpenRegister(true)}
+          className="mt-2 rounded-lg bg-[#0C447C] px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#0a3a6b]"
+        >
+          {t('cashRegister.openButton')}
+        </button>
+
+        {showOpenRegister && (
+          <OpenShiftModal
+            branchId={branchId}
+            onClose={() => setShowOpenRegister(false)}
+          />
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col">
+
+      {/* شريط حالة الصندوق — كان إغلاق الجلسة متاحًا فقط من صفحة الورديات المنفصلة،
+          فالكاشير مضطر يترك شاشة البيع كل مرة يحتاج ينهي جلسته. الزر هنا يفتح نفس
+          CloseShiftModal المستخدم هناك (لا نظام مكرر) على نفس currentShift المحمَّل أصلًا. */}
+      <div className="flex items-center justify-between gap-3 px-4 pt-4 sm:px-6">
+        <div className="flex items-center gap-2 text-sm font-medium text-emerald-600 dark:text-emerald-400">
+          <LockOpen className="h-4 w-4" />
+          {t('cashRegister.openStatus')}
+        </div>
+        <button
+          onClick={() => setShowCloseRegister(true)}
+          className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:border-gray-700 dark:text-slate-400 dark:hover:bg-gray-800"
+        >
+          {t('cashRegister.closeButton')}
+        </button>
+      </div>
 
       {/* Matches pos-cloud's own POS page structure exactly: no internal
           scroll container anywhere. Both columns size to their natural
@@ -388,6 +451,13 @@ export function POSPage() {
           branchId={branchId}
           onClose={() => setShowHeldOrders(false)}
           onResume={handleResumeHeldOrder}
+        />
+      )}
+
+      {showCloseRegister && currentShift && (
+        <CloseShiftModal
+          shift={currentShift}
+          onClose={() => setShowCloseRegister(false)}
         />
       )}
     </div>
