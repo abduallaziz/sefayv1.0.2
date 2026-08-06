@@ -5,7 +5,8 @@ import { TableSkeleton } from '@/shared/components/ui/Skeleton';
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { Plus, ArrowLeftRight, Download } from 'lucide-react';
-import { useTransfers, useCreateTransfer } from '../hooks/useTransfers';
+import { Pagination } from '@/shared/components/ui/Pagination';
+import { usePagedTransfers, useCreateTransfer } from '../hooks/useTransfers';
 import { TransferFiltersBar } from '../components/TransferFilters';
 import { TransfersTable } from '../components/TransfersTable';
 import { TransferFormModal } from '../components/TransferFormModal';
@@ -20,7 +21,31 @@ export function TransfersPage() {
   const [filters, setFilters] = useState<TransferFilters>({});
   const [formOpen, setFormOpen] = useState(false);
 
-  const { data: transfers = [], isLoading } = useTransfers(filters);
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPageState] = useState(25);
+
+  // Reset to page 1 in the same event that changes the filter — doing it in an
+  // effect leaves one render where the new filter pairs with the old page and
+  // requests an offset past the end.
+  const handleFiltersChange = (next: TransferFilters) => {
+    setFilters(next);
+    setPage(1);
+  };
+  const setPerPage = (next: number) => {
+    setPerPageState(next);
+    setPage(1);
+  };
+
+  const { data: paged, isLoading, isFetching } = usePagedTransfers({
+    ...filters,
+    page,
+    perPage,
+  });
+
+  const transfers = paged?.data ?? [];
+  const total = paged?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / perPage));
+
   const createTransfer = useCreateTransfer();
 
   const handleView = (transfer: Transfer) => {
@@ -45,7 +70,8 @@ export function TransfersPage() {
           </div>
           <div>
             <h1 className="text-xl font-bold text-slate-800 dark:text-white">{t('transfers')}</h1>
-            <p className="text-sm text-slate-500">{transfers.length} {t('totalTransfers')}</p>
+            {/* Server total across all pages, not the length of this page. */}
+            <p className="text-sm text-slate-500">{total.toLocaleString('en-US')} {t('totalTransfers')}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -67,13 +93,32 @@ export function TransfersPage() {
         </div>
       </div>
 
-      <TransferFiltersBar filters={filters} onChange={setFilters} />
+      <TransferFiltersBar filters={filters} onChange={handleFiltersChange} />
 
       {isLoading ? (
         <TableSkeleton />
       ) : (
         <TransfersTable transfers={transfers} onView={handleView} />
       )}
+
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3 text-xs text-slate-500">
+          <select
+            value={perPage}
+            onChange={(e) => setPerPage(Number(e.target.value))}
+            aria-label={t('rowsPerPage')}
+            className="bg-transparent border border-slate-200 dark:border-gray-700 rounded-md px-2 py-1 text-xs tabular-nums focus:outline-none"
+          >
+            {[25, 50, 100].map((n) => (
+              <option key={n} value={n}>{n}</option>
+            ))}
+          </select>
+          {isFetching && <span>{t('loading')}</span>}
+        </div>
+        {totalPages > 1 && (
+          <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+        )}
+      </div>
 
       <TransferFormModal
         open={formOpen}

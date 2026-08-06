@@ -34,5 +34,6 @@
     "emailInvalid": "Invalid email address",
     "passwordShort": "Password is too short",
     "invalidCredentials": "Invalid email or password"
-  }
+  },
+  "noData": "No data"
 }

@@ -21,6 +21,7 @@ const labelClass = 'block text-sm font-medium text-slate-700 dark:text-slate-300
 
 export function CustomerFormModal({ customer, onClose, onSubmit, isLoading }: Props) {
   const t = useTranslations('customers');
+  const tCommon = useTranslations('common');
   const isEdit = !!customer;
   const { data: fieldDefs, isLoading: fieldsLoading } = useCustomerFieldDefinitions();
   const { data: profile } = useProfile();
@@ -82,7 +83,7 @@ export function CustomerFormModal({ customer, onClose, onSubmit, isLoading }: Pr
           {nameFieldEnabled && (
             <div>
               <label className={labelClass}>
-                الاسم <span className="text-red-500">*</span>
+                {t('form.name')} <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -97,7 +98,7 @@ export function CustomerFormModal({ customer, onClose, onSubmit, isLoading }: Pr
             <div className="h-10 bg-slate-100 dark:bg-gray-800 rounded-lg animate-pulse" />
           ) : activeFields.length === 0 ? (
             <p className="text-sm text-slate-400 text-center py-4">
-              لا توجد حقول مفعّلة — أضف حقول العميل من الإعدادات أولًا
+              {t('form.noFields')}
             </p>
           ) : (
             activeFields.map((field) => (
@@ -123,8 +124,8 @@ export function CustomerFormModal({ customer, onClose, onSubmit, isLoading }: Pr
                     className={inputClass}
                   >
                     <option value="">—</option>
-                    <option value="true">نعم</option>
-                    <option value="false">لا</option>
+                    <option value="true">{tCommon('yes')}</option>
+                    <option value="false">{tCommon('no')}</option>
                   </select>
                 ) : field.field_type === 'date' ? (
                   <SingleDatePicker

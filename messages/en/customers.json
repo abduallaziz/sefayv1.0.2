@@ -5,6 +5,7 @@
   "loading": "Loading...",
   "comingSoon": "Soon",
   "search_placeholder": "Search by name, phone, or email...",
+  "rows_per_page": "Rows per page",
   "count": "{count} customers",
   "stats": {
     "total": "Total Customers",
@@ -63,7 +64,8 @@
       "name": "Name is required (at least 2 characters)",
       "phone": "Phone number is required",
       "email": "Invalid email address"
-    }
+    },
+    "noFields": "No fields are enabled — add customer fields from Settings first"
   },
   "details": {
     "since": "Customer since",

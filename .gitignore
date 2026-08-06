@@ -44,3 +44,7 @@ next-env.d.ts
 .vercel
 
 .vercel
+
+testsprite_tests\tmp\config.json
+
+graphify-out/

@@ -73,7 +73,8 @@
     "locationsBreakdown": "Locations",
     "expandLocations": "Show locations",
     "collapseLocations": "Hide locations",
-    "noLocations": "No location"
+    "noLocations": "No location",
+    "status": "Status"
   },
   "adjustments": {
     "title": "Stock Adjustments",
@@ -236,7 +237,8 @@
       "received": "Received",
       "completed": "Completed",
       "cancelled": "Cancelled"
-    }
+    },
+    "rowsPerPage": "Rows per page"
   },
   "stockCounts": {
     "title": "Stock Counts",
@@ -296,5 +298,13 @@
     "stockCountVariance": "Stock Count Variance",
     "itemsCounted": "counted",
     "itemsWithVariance": "with variance"
+  },
+  "errors": {
+    "insufficientStock": "Not enough stock in the source warehouse for this quantity.",
+    "insufficientCostLayers": "This item has no recorded cost in the source warehouse. Receive stock into it before transferring.",
+    "notFound": "The record was not found. It may have been deleted.",
+    "invalidState": "This action is not allowed in the current status.",
+    "permission": "You do not have permission to perform this action.",
+    "generic": "The operation failed. Please try again."
   }
 }

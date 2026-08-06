@@ -207,6 +207,7 @@ export function EmployeesPage() {
 
 function LinkExistingUserModal({ onClose }: { onClose: () => void }) {
   const t = useTranslations('employees')
+  const tRoles = useTranslations('users')
   const { data: linkable = [], isLoading } = useLinkableUsers()
   const { mutate: linkAsEmployee, isPending } = useLinkAsEmployee()
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -250,7 +251,9 @@ function LinkExistingUserModal({ onClose }: { onClose: () => void }) {
                   <p className="text-sm font-medium text-gray-800 dark:text-white">{u.name}</p>
                   <p className="text-xs text-gray-400">{u.email}</p>
                 </div>
-                <span className="text-xs text-gray-400">{u.role}</span>
+                <span className="text-xs text-gray-400">
+                  {tRoles.has(`roles.${u.role}`) ? tRoles(`roles.${u.role}`) : u.role}
+                </span>
               </button>
             ))
           )}

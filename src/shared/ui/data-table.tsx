@@ -1,5 +1,8 @@
+'use client';
+
 import { cn } from '@/lib/utils';
 import { ReactNode } from 'react';
+import { useTranslations } from 'next-intl';
 
 export interface Column<T> {
   key: string;
@@ -34,6 +37,7 @@ export function DataTable<T>({
   // (superadmin area vs. regular dashboard), independent of the app's
   // global light/dark toggle (theme.store.ts) — preserved exactly as-is,
   // only the hardcoded hex values were tokenized to posCloud/posCloudDark.
+  const t = useTranslations('common');
   const bgColor       = theme === 'superadmin' ? 'bg-posCloudDark-surface'     : 'bg-posCloud-surface';
   const borderColor   = theme === 'superadmin' ? 'border-posCloudDark-border' : 'border-posCloud-border';
   const headerBg      = theme === 'superadmin' ? 'bg-posCloudDark-background'  : 'bg-posCloud-sidebar';
@@ -88,7 +92,7 @@ export function DataTable<T>({
                 <td colSpan={columns.length} className="px-4 py-12 text-center">
                   {emptyState ?? (
                     <span className={cn('text-sm', theme === 'superadmin' ? 'text-posCloudDark-text-tertiary' : 'text-posCloud-text-tertiary')}>
-                      لا توجد بيانات
+                      {t('noData')}
                     </span>
                   )}
                 </td>

@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { goodsReceiptsApi } from '../api/goods-receipts.api';
 import { GoodsReceiptFilters, CreateGoodsReceiptDTO } from '../types/goods-receipt.types';
+import { useInventoryErrorHandler } from '@/shared/hooks/useInventoryErrorHandler';
 
 export function useGoodsReceipts(filters: GoodsReceiptFilters = {}) {
   return useQuery({
@@ -20,7 +21,9 @@ export function useGoodsReceipt(id: string | null) {
 
 export function useCreateGoodsReceipt() {
   const qc = useQueryClient();
+  const onError = useInventoryErrorHandler();
   return useMutation({
+    onError,
     mutationFn: (data: CreateGoodsReceiptDTO) => goodsReceiptsApi.create(data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['goods-receipts'] }),
   });
@@ -28,7 +31,9 @@ export function useCreateGoodsReceipt() {
 
 export function usePostGoodsReceipt() {
   const qc = useQueryClient();
+  const onError = useInventoryErrorHandler();
   return useMutation({
+    onError,
     mutationFn: (id: string) => goodsReceiptsApi.post(id),
     onSuccess: (_res, id) => {
       qc.invalidateQueries({ queryKey: ['goods-receipts'] });
@@ -41,7 +46,9 @@ export function usePostGoodsReceipt() {
 
 export function useCancelGoodsReceipt() {
   const qc = useQueryClient();
+  const onError = useInventoryErrorHandler();
   return useMutation({
+    onError,
     mutationFn: (id: string) => goodsReceiptsApi.cancel(id),
     onSuccess: (_res, id) => {
       qc.invalidateQueries({ queryKey: ['goods-receipts'] });

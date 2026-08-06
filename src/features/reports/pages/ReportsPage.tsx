@@ -52,6 +52,7 @@ function StatCard({ label, value, icon: Icon, color }: {
 
 export function ReportsPage() {
   const t = useTranslations('reports')
+  const tOrders = useTranslations('orders')
   const currency = useCurrencyDisplay()
   const [range, setRange] = useState<DateRange>(defaultRange)
   const query = { period: 'custom' as const, from: range.from, to: range.to }
@@ -144,7 +145,9 @@ export function ReportsPage() {
           <div className="space-y-2">
             {Object.entries(byPaymentMethod).map(([method, data]: [string, any]) => (
               <div key={method} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
-                <span className="text-sm text-gray-600 dark:text-gray-400">{method}</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  {tOrders.has(`payment_method.${method}`) ? tOrders(`payment_method.${method}`) : method}
+                </span>
                 <div className="flex items-center gap-4 text-xs">
                   <span className="text-gray-500 dark:text-gray-500">{data.count} {t('orders')}</span>
                   <span className="text-gray-900 dark:text-white font-medium">{formatNumber(data.total ?? 0)} {currency}</span>
@@ -372,7 +375,9 @@ export function ReportsPage() {
               <div className="space-y-2">
                 {Object.entries(reconciliation?.sales.by_payment_method ?? {}).map(([method, data]) => (
                   <div key={method} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">{method}</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      {tOrders.has(`payment_method.${method}`) ? tOrders(`payment_method.${method}`) : method}
+                    </span>
                     <div className="flex items-center gap-4 text-xs">
                       <span className="text-gray-500 dark:text-gray-500">{data.count} {t('orders')}</span>
                       <span className="text-gray-900 dark:text-white font-medium">{formatNumber(data.total)} {currency}</span>

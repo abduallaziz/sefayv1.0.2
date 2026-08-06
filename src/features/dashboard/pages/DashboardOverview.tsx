@@ -21,7 +21,7 @@ import { reportsApi } from '@/features/reports/api/reports.api'
 import { shiftsApi } from '@/features/shifts/api/shifts.api'
 import { customersApi } from '@/features/customers/api/customers.api'
 import { tablesApi } from '@/features/tables/api/tables.api'
-import { itemsApi } from '@/features/items/api/items.api'
+import { useItemStats } from '@/features/items/hooks/useItems'
 import { fetchOrders } from '@/features/orders/api/orders.api'
 import { useBusinessType } from '@/shared/hooks/useBusinessType'
 import { DateRangePicker, type DateRange } from '@/shared/ui/date-range-picker'
@@ -131,15 +131,15 @@ const PAYMENT_COLORS: Record<string, string> = {
    docs/rebuild/PARKING_LOT.md for full backend wiring later. */
 const BRANDED_LOGO_KEYS = new Set(['mada', 'visa', 'mastercard', 'apple_pay', 'stc_pay'])
 
-const PAYMENT_METHOD_DEFS: { key: string; labelAr: string; labelEn: string; icon: React.ElementType }[] = [
-  { key: 'cash', labelAr: 'نقدي', labelEn: 'Cash', icon: Banknote },
-  { key: 'mada', labelAr: 'مدى', labelEn: 'mada', icon: CreditCard },
-  { key: 'visa', labelAr: 'فيزا', labelEn: 'Visa', icon: CreditCard },
-  { key: 'mastercard', labelAr: 'ماستر كارد', labelEn: 'Mastercard', icon: CreditCard },
-  { key: 'apple_pay', labelAr: 'آبل باي', labelEn: 'Apple Pay', icon: Smartphone },
-  { key: 'stc_pay', labelAr: 'STC Pay', labelEn: 'STC Pay', icon: Smartphone },
-  { key: 'bank_transfer', labelAr: 'تحويل بنكي', labelEn: 'Bank Transfer', icon: Landmark },
-  { key: 'wallet', labelAr: 'محفظة إلكترونية', labelEn: 'E-Wallet', icon: WalletCards },
+const PAYMENT_METHOD_DEFS: { key: string; icon: React.ElementType }[] = [
+  { key: 'cash', icon: Banknote },
+  { key: 'mada', icon: CreditCard },
+  { key: 'visa', icon: CreditCard },
+  { key: 'mastercard', icon: CreditCard },
+  { key: 'apple_pay', icon: Smartphone },
+  { key: 'stc_pay', icon: Smartphone },
+  { key: 'bank_transfer', icon: Landmark },
+  { key: 'wallet', icon: WalletCards },
 ]
 
 export function DashboardOverview() {
@@ -151,7 +151,7 @@ export function DashboardOverview() {
   const t = useTranslations('dashboard')
   const { config } = useBusinessType()
   const isRTL = locale === 'ar'
-  const vsYesterdayLabel = isRTL ? 'مقارنة بالأمس' : 'vs yesterday'
+  const vsYesterdayLabel = t('ov.vsYesterday')
   const showTables = config.sidebar.includes('tables')
 
   useEffect(() => {
@@ -196,11 +196,11 @@ export function DashboardOverview() {
   // Invoices have no real data anywhere in the system (no stock-quantity
   // field exists — see docs/rebuild/PARKING_LOT.md B1) and are shown as
   // "Soon" rather than pos-cloud's mock numbers.
-  const { data: items } = useQuery({
-    queryKey: ['dashboard', 'items-count'],
-    queryFn: () => itemsApi.getAll(),
-    enabled: !!user, staleTime: 120000,
-  })
+  // Tenant-wide count from GET /items/stats, not the length of the items
+  // list: that list is paginated (50/page), so `.length` reported "50" for
+  // any tenant with more than 50 products. Also avoids pulling a full
+  // 50-item payload just to render one integer.
+  const { data: itemStats } = useItemStats()
 
   // Reuses the existing orders.api.ts fetchOrders() (already used by the
   // Orders page) for a real "Recent Invoices" list — real customer_name,
@@ -285,7 +285,7 @@ export function DashboardOverview() {
     const real = realPaymentData[def.key]
     return {
       ...def,
-      label: isRTL ? def.labelAr : def.labelEn,
+      label: t(`payMethodLabels.${def.key}`),
       color: PAYMENT_COLORS[def.key] ?? '#94a3b8',
       value: real?.total ?? null,
       pct: real && donutTotal > 0 ? Math.round((real.total / donutTotal) * 100) : null,
@@ -319,9 +319,7 @@ export function DashboardOverview() {
       {dashboardError && (
         <div className="mb-4 flex items-center gap-2 rounded-lg border border-posCloud-danger/30 bg-posCloud-danger-light dark:bg-posCloud-danger/15 px-3.5 py-2.5 text-[13px] text-posCloud-danger">
           <AlertCircle size={16} />
-          <span>{isRTL
-            ? 'تعذّر تحميل بعض بيانات الداشبورد. تحقّق من الاتصال أو حاول تسجيل الدخول مجدداً.'
-            : 'Some dashboard data failed to load. Check your connection or try logging in again.'}</span>
+          <span>{t('ov.loadError')}</span>
         </div>
       )}
 
@@ -393,7 +391,7 @@ export function DashboardOverview() {
         <SectionCard className="lg:col-span-2">
           <SectionHeader
             title={t('salesOver7Days')}
-            action={<span className="rounded-lg border border-posCloud-border dark:border-posCloudDark-border px-3 py-1.5 text-xs font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{isRTL ? 'آخر 7 أيام' : 'Last 7 days'}</span>}
+            action={<span className="rounded-lg border border-posCloud-border dark:border-posCloudDark-border px-3 py-1.5 text-xs font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{t('ov.last7Days')}</span>}
           />
           <div className="h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -421,7 +419,7 @@ export function DashboardOverview() {
         </SectionCard>
 
         <SectionCard>
-          <SectionHeader title={isRTL ? 'المبيعات حسب طرق الدفع' : 'Sales by Payment Method'} />
+          <SectionHeader title={t('ov.salesByPaymentMethod')} />
           <div className="relative h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -435,7 +433,7 @@ export function DashboardOverview() {
             </ResponsiveContainer>
             <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
               <span className="text-2xl font-extrabold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{donutTotal.toLocaleString('en-US')}</span>
-              <span className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary mt-1">{isRTL ? 'إجمالي المبيعات' : 'Total Sales'} {currency}</span>
+              <span className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary mt-1">{t('ov.totalSales')} {currency}</span>
             </div>
           </div>
           {/* Full 8-method list, 2 columns, per explicit user request —
@@ -460,7 +458,7 @@ export function DashboardOverview() {
                   {row.pct !== null ? (
                     <p className="text-xs font-bold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{row.pct}%</p>
                   ) : (
-                    <p className="text-[10px] text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{isRTL ? 'قريبًا' : 'Soon'}</p>
+                    <p className="text-[10px] text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('ov.soon')}</p>
                   )}
                 </div>
               </div>
@@ -475,13 +473,13 @@ export function DashboardOverview() {
             shown as "Soon" rather than pos-cloud's mock numbers (1,245 /
             23 / 8,752 / 5). ── */}
         <SectionCard>
-          <SectionHeader title={isRTL ? 'نظرة عامة' : 'Overview'} />
+          <SectionHeader title={t('overview.title')} />
           <div className="space-y-4">
             {[
-              { icon: Boxes, color: 'text-posCloud-primary bg-posCloud-primary-light dark:bg-posCloud-primary/15', label: isRTL ? 'إجمالي المنتجات' : 'Total Products', value: (items ?? []).length.toLocaleString('en-US') },
-              { icon: PackageOpen, color: 'text-posCloud-warning bg-posCloud-warning-light dark:bg-posCloud-warning/15', label: isRTL ? 'المنتجات منخفضة المخزون' : 'Low Stock', value: null },
-              { icon: Layers3, color: 'text-posCloud-info bg-posCloud-info-light dark:bg-posCloud-info/15', label: isRTL ? 'إجمالي المخزون' : 'Total Stock', value: null },
-              { icon: Receipt, color: 'text-posCloud-danger bg-posCloud-danger-light dark:bg-posCloud-danger/15', label: isRTL ? 'الفواتير المستحقة' : 'Due Invoices', value: null },
+              { icon: Boxes, color: 'text-posCloud-primary bg-posCloud-primary-light dark:bg-posCloud-primary/15', label: t('overview.totalProducts'), value: itemStats ? itemStats.total.toLocaleString('en-US') : '—' },
+              { icon: PackageOpen, color: 'text-posCloud-warning bg-posCloud-warning-light dark:bg-posCloud-warning/15', label: t('overview.lowStock'), value: null },
+              { icon: Layers3, color: 'text-posCloud-info bg-posCloud-info-light dark:bg-posCloud-info/15', label: t('overview.totalStock'), value: null },
+              { icon: Receipt, color: 'text-posCloud-danger bg-posCloud-danger-light dark:bg-posCloud-danger/15', label: t('overview.dueInvoices'), value: null },
             ].map((row, i) => (
               <div key={i} className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -493,7 +491,7 @@ export function DashboardOverview() {
                 {row.value !== null ? (
                   <span className="text-sm font-bold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{row.value}</span>
                 ) : (
-                  <span className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{isRTL ? 'قريبًا' : 'Soon'}</span>
+                  <span className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('ov.soon')}</span>
                 )}
               </div>
             ))}
@@ -512,8 +510,8 @@ export function DashboardOverview() {
 
         <SectionCard>
           <SectionHeader
-            title={isRTL ? 'آخر الفواتير' : 'Recent Invoices'}
-            action={<Link href={`/${locale}/dashboard/orders`} className="text-xs font-semibold text-posCloud-primary">{isRTL ? 'عرض الكل' : 'View all'}</Link>}
+            title={t('ov.recentInvoicesTitle')}
+            action={<Link href={`/${locale}/dashboard/orders`} className="text-xs font-semibold text-posCloud-primary">{t('ov.viewAll')}</Link>}
           />
           <div className="overflow-x-auto">
             {invoiceRows.length === 0 ? (
@@ -522,10 +520,10 @@ export function DashboardOverview() {
               <table className="w-full text-start text-[13px]">
                 <thead>
                   <tr className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-                    <th className="pb-3 font-medium">{isRTL ? 'رقم الفاتورة' : 'Invoice'}</th>
-                    <th className="pb-3 font-medium">{isRTL ? 'العميل' : 'Customer'}</th>
-                    <th className="pb-3 font-medium">{isRTL ? 'المبلغ' : 'Amount'}</th>
-                    <th className="pb-3 font-medium">{isRTL ? 'الحالة' : 'Status'}</th>
+                    <th className="pb-3 font-medium">{t('ov.invoice')}</th>
+                    <th className="pb-3 font-medium">{t('ov.customer')}</th>
+                    <th className="pb-3 font-medium">{t('ov.amount')}</th>
+                    <th className="pb-3 font-medium">{t('ov.statusCol')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -541,7 +539,7 @@ export function DashboardOverview() {
                             : o.status === 'pending' ? 'bg-posCloud-warning-light dark:bg-posCloud-warning/15 text-posCloud-warning'
                             : 'bg-posCloud-danger-light dark:bg-posCloud-danger/15 text-posCloud-danger'
                         )}>
-                          {o.status === 'completed' ? (isRTL ? 'مدفوعة' : 'Paid') : o.status === 'pending' ? (isRTL ? 'مستحقة' : 'Due') : (isRTL ? 'ملغاة' : 'Cancelled')}
+                          {o.status === 'completed' ? t('ov.paid') : o.status === 'pending' ? t('ov.due') : t('ov.cancelled')}
                         </span>
                       </td>
                     </tr>
@@ -554,12 +552,12 @@ export function DashboardOverview() {
 
         <SectionCard>
           <SectionHeader
-            title={isRTL ? 'المبيعات حسب الفروع' : 'Sales by Branch'}
-            action={<span className="rounded-lg border border-posCloud-border dark:border-posCloudDark-border px-3 py-1.5 text-xs font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{isRTL ? 'هذا الشهر' : 'This month'}</span>}
+            title={t('ov.salesByBranch')}
+            action={<span className="rounded-lg border border-posCloud-border dark:border-posCloudDark-border px-3 py-1.5 text-xs font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{t('ov.thisMonth')}</span>}
           />
           <div className="flex h-[220px] flex-col items-center justify-center gap-2 text-center">
             <BarChart3 className="h-8 w-8 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary" />
-            <p className="text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{isRTL ? 'قريبًا — يحتاج نظام فروع حقيقي' : 'Soon — needs a real branch system'}</p>
+            <p className="text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('ov.soonNeedsBranches')}</p>
           </div>
         </SectionCard>
 
@@ -604,12 +602,12 @@ export function DashboardOverview() {
 
         <SectionCard>
           <SectionHeader
-            title={isRTL ? 'ملخص الفروع' : 'Branches Overview'}
-            action={<span className="text-xs font-semibold text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{isRTL ? 'عرض الكل' : 'View all'}</span>}
+            title={t('ov.branchesOverview')}
+            action={<span className="text-xs font-semibold text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('ov.viewAll')}</span>}
           />
           <div className="flex h-[180px] flex-col items-center justify-center gap-2 text-center">
             <Landmark className="h-8 w-8 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary" />
-            <p className="text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{isRTL ? 'قريبًا — يحتاج نظام فروع حقيقي' : 'Soon — needs a real branch system'}</p>
+            <p className="text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('ov.soonNeedsBranches')}</p>
           </div>
         </SectionCard>
 

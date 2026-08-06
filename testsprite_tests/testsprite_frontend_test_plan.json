@@ -1,0 +1,1919 @@
+[
+  {
+    "id": "TC001",
+    "title": "Log in and reach the dashboard",
+    "description": "A user can sign in with valid credentials and land on the authenticated dashboard.",
+    "category": "User Login",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the authenticated dashboard is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify key dashboard content is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC002",
+    "title": "Complete POS sale with branch selection and checkout",
+    "description": "This test verifies that a cashier can select a branch, build a cart, adjust quantities, and complete a sale with a final confirmation displayed.",
+    "category": "Point of Sale",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the POS navigation link"
+      },
+      {
+        "type": "action",
+        "description": "Select a branch"
+      },
+      {
+        "type": "action",
+        "description": "Add an item to the cart"
+      },
+      {
+        "type": "action",
+        "description": "Increase the quantity of the added item"
+      },
+      {
+        "type": "action",
+        "description": "Proceed to checkout"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a completed sale confirmation is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC003",
+    "title": "Create a tenant account through onboarding",
+    "description": "A new tenant owner can complete onboarding and finish with account creation confirmed.",
+    "category": "Tenant Onboarding",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /onboarding"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the business information fields"
+      },
+      {
+        "type": "action",
+        "description": "Select a business activity type"
+      },
+      {
+        "type": "action",
+        "description": "Select a currency"
+      },
+      {
+        "type": "action",
+        "description": "Select a country and dial code"
+      },
+      {
+        "type": "action",
+        "description": "Set a password"
+      },
+      {
+        "type": "action",
+        "description": "Submit the onboarding form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify account creation completion is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the onboarding flow is complete"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC004",
+    "title": "Finalize a completed stock count session",
+    "description": "This verifies that a user can finalize a stock count session after entering counts and see the session marked as completed.",
+    "category": "Stock Counts",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/stock-counts"
+      },
+      {
+        "type": "action",
+        "description": "Start a stock count session"
+      },
+      {
+        "type": "action",
+        "description": "Open the session detail"
+      },
+      {
+        "type": "action",
+        "description": "Enter counted quantities for items"
+      },
+      {
+        "type": "action",
+        "description": "Finalize the stock count"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the session is marked as completed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC005",
+    "title": "Hold a POS order and restore it from the held orders list",
+    "description": "This test verifies that a cashier can hold an in-progress order, view it in the held orders list, and restore it back into the cart.",
+    "category": "Point of Sale",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the POS navigation link"
+      },
+      {
+        "type": "action",
+        "description": "Select a branch"
+      },
+      {
+        "type": "action",
+        "description": "Add an item to the cart"
+      },
+      {
+        "type": "action",
+        "description": "Hold the order"
+      },
+      {
+        "type": "action",
+        "description": "Open the held orders list"
+      },
+      {
+        "type": "action",
+        "description": "Restore the held order to the cart"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the held order is available again in the cart"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC006",
+    "title": "Update a counted item and save it",
+    "description": "This verifies that a user can change a counted quantity for an item in an active stock count session and see the updated value reflected.",
+    "category": "Stock Counts",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/stock-counts"
+      },
+      {
+        "type": "action",
+        "description": "Open a stock count session"
+      },
+      {
+        "type": "action",
+        "description": "Update the counted quantity for an item"
+      },
+      {
+        "type": "action",
+        "description": "Save the item entry"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated count value is reflected in the session"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "Delete a held POS order",
+    "description": "This test verifies that a cashier can remove a held order from the held orders list and no longer sees it afterward.",
+    "category": "Point of Sale",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the POS navigation link"
+      },
+      {
+        "type": "action",
+        "description": "Select a branch"
+      },
+      {
+        "type": "action",
+        "description": "Add an item to the cart"
+      },
+      {
+        "type": "action",
+        "description": "Hold the order"
+      },
+      {
+        "type": "action",
+        "description": "Open the held orders list"
+      },
+      {
+        "type": "action",
+        "description": "Delete the held order"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the held order is removed from the list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC008",
+    "title": "View dashboard business metrics and operational snapshots",
+    "description": "An authenticated user can open the dashboard and see KPI cards, charts, and current operational summaries.",
+    "category": "Dashboard Overview",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify KPI summary cards are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify recent orders and table status are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC009",
+    "title": "Start a stock count session",
+    "description": "This verifies that a user can create a new stock count session and open its detail view for counting items.",
+    "category": "Stock Counts",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/stock-counts"
+      },
+      {
+        "type": "action",
+        "description": "Start a stock count session"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new stock count session detail is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC010",
+    "title": "Create a new catalog item",
+    "description": "This test verifies that a manager can create a new item and see it appear in the item catalog.",
+    "category": "Item Catalog Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the items navigation link"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a new item"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the item name field with a unique item name"
+      },
+      {
+        "type": "action",
+        "description": "Save the item"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new item appears in the catalog"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC011",
+    "title": "Check in and view the attendance record",
+    "description": "This test verifies that a logged-in user can check in from attendance and see the newly created attendance record.",
+    "category": "Attendance Tracking",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/attendance"
+      },
+      {
+        "type": "action",
+        "description": "Check in"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the attendance record is created"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the check-in is reflected in the attendance log"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC012",
+    "title": "Reject invalid login credentials",
+    "description": "A user sees a validation error when signing in with invalid credentials.",
+    "category": "User Login",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with invalid@example.com"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with invalid-password"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a login error message is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the authenticated dashboard is not displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC013",
+    "title": "Show and hide a held POS order",
+    "description": "This test verifies that a cashier can toggle a held order's visibility and see the order update in the held orders list.",
+    "category": "Point of Sale",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the POS navigation link"
+      },
+      {
+        "type": "action",
+        "description": "Select a branch"
+      },
+      {
+        "type": "action",
+        "description": "Add an item to the cart"
+      },
+      {
+        "type": "action",
+        "description": "Hold the order"
+      },
+      {
+        "type": "action",
+        "description": "Open the held orders list"
+      },
+      {
+        "type": "action",
+        "description": "Toggle the held order's visibility"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the held order visibility state is updated"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC014",
+    "title": "Create a new employee record",
+    "description": "This test verifies that a user can add a new employee from the employee directory and see the record appear in the list.",
+    "category": "Employee Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/employees"
+      },
+      {
+        "type": "action",
+        "description": "Open the new employee form"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the employee name field with Test Employee"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the employee details required to save the form"
+      },
+      {
+        "type": "action",
+        "description": "Save the employee record"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the employee appears in the employee list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the employee directory remains accessible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC015",
+    "title": "Create a purchase order",
+    "description": "This test verifies that a user can create and save a new purchase order and see it in the purchase order list.",
+    "category": "Purchase Orders",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/purchase-orders"
+      },
+      {
+        "type": "action",
+        "description": "Create a purchase order"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the required purchase order details"
+      },
+      {
+        "type": "action",
+        "description": "Save the purchase order"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new purchase order appears in the list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the purchase order remains accessible from the list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC016",
+    "title": "Edit an existing catalog item",
+    "description": "This test verifies that a manager can update an existing item's details and see the changes reflected in the catalog.",
+    "category": "Item Catalog Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the items navigation link"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing item"
+      },
+      {
+        "type": "action",
+        "description": "Edit the item details"
+      },
+      {
+        "type": "action",
+        "description": "Save the changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated item information is shown"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC017",
+    "title": "Create an employee from the new employee page",
+    "description": "This test verifies that a user can create an employee record directly from the dedicated creation form and return to a populated employee list.",
+    "category": "Employee Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/employees/new"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the employee name field with New Hire"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the remaining employee details required by the form"
+      },
+      {
+        "type": "action",
+        "description": "Save the employee form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new employee record is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the employee list contains the created record"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC018",
+    "title": "Add a supplier to the directory",
+    "description": "This test verifies that a user can create a supplier record and then see it appear in the supplier directory.",
+    "category": "Supplier Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/suppliers"
+      },
+      {
+        "type": "action",
+        "description": "Add a new supplier"
+      },
+      {
+        "type": "action",
+        "description": "Save the supplier record"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new supplier appears in the directory"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC019",
+    "title": "See stock count detail for an existing session",
+    "description": "This verifies that a user can open an existing stock count session and view its counted items and status.",
+    "category": "Stock Counts",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/stock-counts"
+      },
+      {
+        "type": "action",
+        "description": "Open a stock count session"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the session detail view is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify counted items are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC020",
+    "title": "Prevent checkout before selecting a branch",
+    "description": "This test verifies that the POS requires a branch selection before a sale can be completed.",
+    "category": "Point of Sale",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the POS navigation link"
+      },
+      {
+        "type": "action",
+        "description": "Add an item to the cart"
+      },
+      {
+        "type": "action",
+        "description": "Proceed to checkout"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a branch selection validation message is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC021",
+    "title": "View current shift information on the dashboard",
+    "description": "An authenticated user can open the dashboard and see current shift details when a shift is active.",
+    "category": "Dashboard Overview",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify current shift information is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify dashboard operational summaries are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC022",
+    "title": "Check out from attendance",
+    "description": "This test verifies that a user can check out after checking in and see the attendance record updated accordingly.",
+    "category": "Attendance Tracking",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/attendance"
+      },
+      {
+        "type": "action",
+        "description": "Check in"
+      },
+      {
+        "type": "action",
+        "description": "Check out"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the attendance record is updated"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the check-out status is visible in the attendance log"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC023",
+    "title": "Link an employee to a user account and role",
+    "description": "This test verifies that an existing employee can be connected to a user account and assigned a role with the updated profile reflected in the directory.",
+    "category": "Employee Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/employees"
+      },
+      {
+        "type": "action",
+        "description": "Select an employee from the list"
+      },
+      {
+        "type": "action",
+        "description": "Open the user linking controls"
+      },
+      {
+        "type": "action",
+        "description": "Link the employee to a user account"
+      },
+      {
+        "type": "action",
+        "description": "Assign a role to the linked user"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the linked employee profile is updated"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the employee remains listed with the updated account association"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC024",
+    "title": "Keep the session detail available after saving a count",
+    "description": "This verifies that saving a counted quantity preserves the session detail view and does not remove the item from the session.",
+    "category": "Stock Counts",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/stock-counts"
+      },
+      {
+        "type": "action",
+        "description": "Open a stock count session"
+      },
+      {
+        "type": "action",
+        "description": "Update the counted quantity for an item"
+      },
+      {
+        "type": "action",
+        "description": "Save the item entry"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the session detail remains visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC025",
+    "title": "Require onboarding fields before account creation",
+    "description": "The onboarding wizard prevents completion until the required business and account fields are provided.",
+    "category": "Tenant Onboarding",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /onboarding"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to submit the onboarding form without completing the required fields"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify field validation errors are visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify account creation completion is not visible"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC026",
+    "title": "Submit a purchase order",
+    "description": "This test verifies that a saved purchase order can be opened and submitted, changing its status to submitted.",
+    "category": "Purchase Orders",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/purchase-orders"
+      },
+      {
+        "type": "action",
+        "description": "Open a purchase order"
+      },
+      {
+        "type": "action",
+        "description": "Submit the purchase order"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the purchase order status changes to submitted"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the submitted order remains visible in the list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC027",
+    "title": "Toggle a role permission",
+    "description": "This test verifies that changing a permission grant for a role updates the role permissions shown in the matrix.",
+    "category": "Access Control (RBAC)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/settings/access-control"
+      },
+      {
+        "type": "action",
+        "description": "Toggle a permission grant for a role"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated permission state is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC028",
+    "title": "Add a variant to an existing item",
+    "description": "This test verifies that a manager can add item variants and see the updated variant list saved on the item.",
+    "category": "Item Catalog Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the items navigation link"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing item"
+      },
+      {
+        "type": "action",
+        "description": "Manage the item's variants"
+      },
+      {
+        "type": "action",
+        "description": "Save the variant changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated variant list is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC029",
+    "title": "Search for a customer and open their record",
+    "description": "This test verifies that a user can search the customer list, open a matching record, and view the customer's purchase history.",
+    "category": "Customer CRM",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/customers"
+      },
+      {
+        "type": "action",
+        "description": "Search for an existing customer"
+      },
+      {
+        "type": "action",
+        "description": "Open the customer record"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the customer purchase history is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify recent customer activity is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC030",
+    "title": "Approve a submitted purchase order",
+    "description": "This test verifies that a submitted purchase order can be approved and its status updates to approved.",
+    "category": "Purchase Orders",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/purchase-orders"
+      },
+      {
+        "type": "action",
+        "description": "Open a submitted purchase order"
+      },
+      {
+        "type": "action",
+        "description": "Approve the purchase order"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the purchase order status changes to approved"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the approved order details remain visible"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC031",
+    "title": "See stock count sessions list",
+    "description": "This verifies that a user can open the stock counts hub and view existing sessions.",
+    "category": "Stock Counts",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/stock-counts"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify stock count sessions are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC032",
+    "title": "Look up and attach a barcode to an item",
+    "description": "This test verifies that a manager can search for a barcode and link it to an item so it appears on the item record.",
+    "category": "Item Catalog Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the items navigation link"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing item"
+      },
+      {
+        "type": "action",
+        "description": "Look up a barcode"
+      },
+      {
+        "type": "action",
+        "description": "Attach the barcode to the item"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the barcode is linked to the item"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC033",
+    "title": "View the role and permission matrix",
+    "description": "This test verifies that administrators can open access control and view the role and permission matrix.",
+    "category": "Access Control (RBAC)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/settings/access-control"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the role matrix is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify permission groups are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC034",
+    "title": "Create a new role in access control",
+    "description": "This test verifies that an administrator can create a new role and see it listed in the permission matrix.",
+    "category": "Access Control (RBAC)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/settings/access-control"
+      },
+      {
+        "type": "action",
+        "description": "Create a new role"
+      },
+      {
+        "type": "action",
+        "description": "Save the role"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new role is listed in the matrix"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC035",
+    "title": "Filter attendance logs by date and employee",
+    "description": "This test verifies that a user can narrow attendance logs using date and employee filters and see matching results.",
+    "category": "Attendance Tracking",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/attendance"
+      },
+      {
+        "type": "action",
+        "description": "Filter attendance by a date"
+      },
+      {
+        "type": "action",
+        "description": "Filter attendance by an employee"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify matching attendance logs are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify unrelated attendance entries are hidden"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC036",
+    "title": "View supplier purchasing statistics",
+    "description": "This test verifies that opening a supplier profile shows purchasing statistics and activity summaries.",
+    "category": "Supplier Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/suppliers"
+      },
+      {
+        "type": "action",
+        "description": "Open a supplier profile"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify supplier statistics are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify purchasing activity summaries are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC037",
+    "title": "Cancel a purchase order",
+    "description": "This test verifies that a purchase order can be cancelled from its detail view and that the cancelled status is shown.",
+    "category": "Purchase Orders",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/purchase-orders"
+      },
+      {
+        "type": "action",
+        "description": "Open a purchase order"
+      },
+      {
+        "type": "action",
+        "description": "Cancel the purchase order"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the purchase order status changes to cancelled"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the cancelled order remains listed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC038",
+    "title": "View inventory analytics overview",
+    "description": "This test verifies that an inventory user can open the inventory dashboard and see analytics summaries and charts.",
+    "category": "Inventory Analytics",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the inventory navigation link"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify inventory analytics summaries are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an inventory analytics chart is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC039",
+    "title": "Update customer field definitions",
+    "description": "This test verifies that a user can review customer custom fields, update the configuration, and see the saved setup reflected in the UI.",
+    "category": "Customer CRM",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/customers"
+      },
+      {
+        "type": "action",
+        "description": "Open the customer field definitions"
+      },
+      {
+        "type": "action",
+        "description": "Update the field configuration"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the saved custom field setup is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC040",
+    "title": "Create an attendance exception",
+    "description": "This test verifies that a user can open the attendance exceptions view, create an exception, and see it added to the list.",
+    "category": "Attendance Tracking",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/attendance"
+      },
+      {
+        "type": "action",
+        "description": "Open the attendance exceptions view"
+      },
+      {
+        "type": "action",
+        "description": "Create an attendance exception"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the exception is added to the list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the attendance exceptions view remains populated"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC041",
+    "title": "Reset a role to its default permissions",
+    "description": "This test verifies that a selected role can be reset and its permissions are restored to the default state.",
+    "category": "Access Control (RBAC)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/settings/access-control"
+      },
+      {
+        "type": "action",
+        "description": "Select a role"
+      },
+      {
+        "type": "action",
+        "description": "Reset the role permissions"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the role permissions are restored"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC042",
+    "title": "Delete a role from access control",
+    "description": "This test verifies that an administrator can delete a role and see it removed from the matrix.",
+    "category": "Access Control (RBAC)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/settings/access-control"
+      },
+      {
+        "type": "action",
+        "description": "Select a role"
+      },
+      {
+        "type": "action",
+        "description": "Delete the role"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the role is removed from the matrix"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC043",
+    "title": "Handle an empty stock count sessions view",
+    "description": "This verifies that a user sees an empty state when no stock count sessions are available to open.",
+    "category": "Stock Counts",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/stock-counts"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an empty state message is visible"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC044",
+    "title": "Show an empty dashboard state when operational data is unavailable",
+    "description": "An authenticated user sees empty or fallback dashboard content when there are no recent orders or table updates to display.",
+    "category": "Dashboard Overview",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an empty state or fallback summary is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the dashboard remains accessible"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC045",
+    "title": "Search for an unavailable barcode",
+    "description": "This test verifies that barcode lookup gracefully shows an empty result when no matching barcode exists.",
+    "category": "Item Catalog Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the items navigation link"
+      },
+      {
+        "type": "action",
+        "description": "Open the barcode lookup"
+      },
+      {
+        "type": "action",
+        "description": "Search for a barcode that does not match any item"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an empty search result message is visible"
+      }
+    ],
+    "priority": "Low"
+  }
+]

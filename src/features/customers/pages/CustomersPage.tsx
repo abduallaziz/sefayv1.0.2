@@ -10,8 +10,10 @@ import { CustomersTable } from '../components/CustomersTable';
 import { CustomerFormModal } from '../components/CustomerFormModal';
 import { CustomerDetailsModal } from '../components/CustomerDetailsModal';
 import { DeleteCustomerModal } from '../components/DeleteCustomerModal';
+import { Pagination } from '@/shared/components/ui/Pagination';
+import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
 import {
-  useCustomers,
+  usePagedCustomers,
   useCustomerStats,
   useCreateCustomer,
   useUpdateCustomer,
@@ -32,7 +34,46 @@ export function CustomersPage() {
   const [showDetails, setShowDetails] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
 
-  const { data: customers, isLoading } = useCustomers();
+  // Search is debounced before it reaches the server: the input updates
+  // `filters.search` on every keystroke, but only the settled value drives a
+  // request.
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPageState] = useState(20);
+  const debouncedSearch = useDebouncedValue(filters.search, 350);
+
+  // Both resets below used to live in a useEffect. That was wrong: an effect
+  // runs *after* render, so there was one render where the new perPage (or
+  // narrowed search) paired with the old page and requested an offset past
+  // the end of the result set — PostgREST answers that with PGRST103 and the
+  // API turned it into a 500.
+
+  // perPage changes come from an event, so reset in the same handler.
+  const setPerPage = (next: number) => {
+    setPerPageState(next);
+    setPage(1);
+  };
+
+  // A debounced search change isn't an event, so it's corrected during render:
+  // React re-renders immediately with page 1 and the stale-page request is
+  // never issued. `effectivePage` is what the query actually uses.
+  const [searchAtPage, setSearchAtPage] = useState(debouncedSearch);
+  let effectivePage = page;
+  if (searchAtPage !== debouncedSearch) {
+    effectivePage = 1;
+    setSearchAtPage(debouncedSearch);
+    setPage(1);
+  }
+
+  const { data: paged, isLoading, isFetching } = usePagedCustomers({
+    search: debouncedSearch || undefined,
+    page: effectivePage,
+    perPage,
+  });
+
+  const customers = paged?.data;
+  const total = paged?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / perPage));
+
   const { data: stats } = useCustomerStats();
   const createMutation = useCreateCustomer();
   const updateMutation = useUpdateCustomer();
@@ -43,18 +84,13 @@ export function CustomersPage() {
     [customers],
   );
 
+  // Search and pagination are now the server's job — no client-side filtering
+  // here, which is what capped this page at one page of results.
+  // Sort is still client-side and therefore orders ONLY the current page;
+  // GET /customers has no sort parameter yet (see note in the migration report).
   const filtered = useMemo(() => {
     if (!customers) return [];
-    let list = [...customers];
-    if (filters.search) {
-      const q = filters.search.toLowerCase();
-      list = list.filter(
-        (c) =>
-          c.full_name?.toLowerCase().includes(q) ||
-          c.phone?.includes(q) ||
-          c.email?.toLowerCase().includes(q),
-      );
-    }
+    const list = [...customers];
     list.sort((a, b) => {
       const key = filters.sortBy as keyof Customer;
       const aVal = a[key] ?? 0;
@@ -63,7 +99,7 @@ export function CustomersPage() {
       return aVal < bVal ? 1 : -1;
     });
     return list;
-  }, [customers, filters]);
+  }, [customers, filters.sortBy, filters.sortOrder]);
 
   const handleSubmit = async (data: CreateCustomerDto) => {
     if (selectedCustomer) {
@@ -139,8 +175,26 @@ export function CustomersPage() {
             onDelete={(c) => { setSelectedCustomer(c); setShowDelete(true); }}
           />
         )}
-        <div className="px-4 py-3 border-t border-posCloud-border dark:border-posCloudDark-border text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-          {t('count', { count: filtered.length })}
+        {/* `total` is the server's count across all pages, not the page length —
+            that distinction is the whole point of this migration. */}
+        <div className="px-4 py-3 border-t border-posCloud-border dark:border-posCloudDark-border flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3 text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+            <span>{t('count', { count: total })}</span>
+            <select
+              value={perPage}
+              onChange={(e) => setPerPage(Number(e.target.value))}
+              aria-label={t('rows_per_page')}
+              className="bg-transparent border border-posCloud-border dark:border-posCloudDark-border rounded-md px-2 py-1 text-xs tabular-nums focus:outline-none focus:border-posCloud-primary"
+            >
+              {[20, 50, 100].map((n) => (
+                <option key={n} value={n}>{n}</option>
+              ))}
+            </select>
+            {isFetching && <span>{t('loading')}</span>}
+          </div>
+          {totalPages > 1 && (
+            <Pagination page={effectivePage} totalPages={totalPages} onChange={setPage} />
+          )}
         </div>
       </div>
 

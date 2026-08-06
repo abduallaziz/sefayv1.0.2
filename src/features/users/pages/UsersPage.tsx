@@ -108,7 +108,7 @@ export function UsersPage() {
                 </div>
                 <div className="flex items-center gap-2 mt-2 pt-2 border-t border-gray-100 dark:border-gray-700">
                   <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${ROLE_COLORS[user.role] ?? 'bg-gray-500/10 text-gray-600 dark:text-gray-400 border-gray-500/20'}`}>
-                    {user.role}
+                    {t.has(`roles.${user.role}`) ? t(`roles.${user.role}`) : user.role}
                   </span>
                   <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${user.is_active ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-red-500/10 text-red-600 dark:text-red-400'}`}>
                     {user.is_active ? t('active') : t('inactive')}
@@ -150,7 +150,7 @@ export function UsersPage() {
                       <td className="px-3 py-3 text-sm text-gray-500 dark:text-gray-400 max-w-[180px] truncate">{user.email}</td>
                       <td className="px-3 py-3 w-24">
                         <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${ROLE_COLORS[user.role] ?? 'bg-gray-500/10 text-gray-600 dark:text-gray-400 border-gray-500/20'}`}>
-                          {user.role}
+                          {t.has(`roles.${user.role}`) ? t(`roles.${user.role}`) : user.role}
                         </span>
                       </td>
                       <td className="px-3 py-3 w-20">

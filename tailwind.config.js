@@ -67,7 +67,7 @@ module.exports = {
           },
           border: '#e2e8f0',
           surface: '#ffffff',
-          background: '#f1f5f9',
+          background: '#ffffff',
           sidebar: '#f8fafc',
           navy: {
             950: '#0b1220',

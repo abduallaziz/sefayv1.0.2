@@ -1,5 +1,5 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { customersApi, customerFieldDefinitionsApi } from '../api/customers.api';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import { customersApi, customerFieldDefinitionsApi, type CustomersQuery } from '../api/customers.api';
 import { useAuthStore } from '@/core/auth/stores/auth.store';
 import {
   CreateCustomerDto,
@@ -10,6 +10,18 @@ import {
 
 export const useCustomers = () =>
   useQuery({ queryKey: ['customers'], queryFn: () => customersApi.getAll() });
+
+/**
+ * Table hook — server-side search + pagination. `placeholderData` keeps the
+ * previous page on screen while the next one loads, so paging doesn't flash
+ * an empty table on a slow connection.
+ */
+export const usePagedCustomers = (query: CustomersQuery) =>
+  useQuery({
+    queryKey: ['customers', 'paged', query],
+    queryFn: () => customersApi.getPaged(query),
+    placeholderData: keepPreviousData,
+  });
 
 export const useCustomerSearch = (search: string) =>
   useQuery({

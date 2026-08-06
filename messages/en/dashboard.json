@@ -23,5 +23,43 @@
   "shiftOpenedAt": "Shift opened",
   "quickStats": "Today's Summary",
   "salesByPayment": "Sales by Payment",
-  "refresh": "Refresh"
+  "refresh": "Refresh",
+  "overview": {
+    "title": "Overview",
+    "totalProducts": "Total Products",
+    "lowStock": "Low Stock",
+    "totalStock": "Total Stock",
+    "dueInvoices": "Due Invoices"
+  },
+  "ov": {
+    "vsYesterday": "vs yesterday",
+    "loadError": "Some dashboard data failed to load. Check your connection or try logging in again.",
+    "salesByPaymentMethod": "Sales by Payment Method",
+    "totalSales": "Total Sales",
+    "soon": "Soon",
+    "recentInvoicesTitle": "Recent Invoices",
+    "viewAll": "View all",
+    "invoice": "Invoice",
+    "customer": "Customer",
+    "amount": "Amount",
+    "statusCol": "Status",
+    "paid": "Paid",
+    "due": "Due",
+    "cancelled": "Cancelled",
+    "salesByBranch": "Sales by Branch",
+    "branchesOverview": "Branches Overview",
+    "soonNeedsBranches": "Soon — needs a real branch system",
+    "last7Days": "Last 7 days",
+    "thisMonth": "This month"
+  },
+  "payMethodLabels": {
+    "cash": "Cash",
+    "mada": "mada",
+    "visa": "Visa",
+    "mastercard": "Mastercard",
+    "apple_pay": "Apple Pay",
+    "stc_pay": "STC Pay",
+    "bank_transfer": "Bank Transfer",
+    "wallet": "E-Wallet"
+  }
 }

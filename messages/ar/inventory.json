@@ -73,7 +73,8 @@
     "locationsBreakdown": "المواقع",
     "expandLocations": "إظهار المواقع",
     "collapseLocations": "إخفاء المواقع",
-    "noLocations": "بدون موقع"
+    "noLocations": "بدون موقع",
+    "status": "الحالة"
   },
   "adjustments": {
     "title": "تسويات المخزون",
@@ -236,7 +237,8 @@
       "received": "مُستلَم",
       "completed": "مكتمل",
       "cancelled": "ملغي"
-    }
+    },
+    "rowsPerPage": "صفوف بالصفحة"
   },
   "stockCounts": {
     "title": "جرد المخزون",
@@ -296,5 +298,13 @@
     "stockCountVariance": "فرق جرد المخزون",
     "itemsCounted": "معدودة",
     "itemsWithVariance": "بها فرق"
+  },
+  "errors": {
+    "insufficientStock": "الرصيد غير كافٍ في المستودع المصدر لهذه الكمية.",
+    "insufficientCostLayers": "لا توجد تكلفة مسجّلة لهذا الصنف في المستودع المصدر. استلم كمية فيه أولًا قبل التحويل.",
+    "notFound": "السجل غير موجود، ربما تم حذفه.",
+    "invalidState": "لا يمكن تنفيذ هذا الإجراء في الحالة الحالية.",
+    "permission": "لا تملك صلاحية تنفيذ هذا الإجراء.",
+    "generic": "فشلت العملية. حاول مرة أخرى."
   }
 }

@@ -18,15 +18,18 @@ const NOTIFICATION_KEYS: (keyof NotificationPreferences)[] = [
   'payment_success',
 ];
 
+// `symbol` is the currency's own glyph (ر.س, $, €) — not translatable UI text,
+// it renders identically in every locale. The Arabic `label` that used to sit
+// here was never rendered; the picker shows symbol + ISO code only.
 const CURRENCIES = [
-  { code: 'SAR', symbol: 'ر.س', label: 'ريال سعودي' },
-  { code: 'USD', symbol: '$', label: 'دولار أمريكي' },
-  { code: 'EUR', symbol: '€', label: 'يورو' },
-  { code: 'AED', symbol: 'د.إ', label: 'درهم إماراتي' },
-  { code: 'KWD', symbol: 'د.ك', label: 'دينار كويتي' },
-  { code: 'BHD', symbol: 'د.ب', label: 'دينار بحريني' },
-  { code: 'QAR', symbol: 'ر.ق', label: 'ريال قطري' },
-  { code: 'OMR', symbol: 'ر.ع', label: 'ريال عماني' },
+  { code: 'SAR', symbol: 'ر.س' },
+  { code: 'USD', symbol: '$' },
+  { code: 'EUR', symbol: '€' },
+  { code: 'AED', symbol: 'د.إ' },
+  { code: 'KWD', symbol: 'د.ك' },
+  { code: 'BHD', symbol: 'د.ب' },
+  { code: 'QAR', symbol: 'ر.ق' },
+  { code: 'OMR', symbol: 'ر.ع' },
 ];
 
 export function SettingsPage() {

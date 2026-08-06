@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adjustmentsApi } from '../api/adjustments.api';
 import { AdjustmentFilters, CreateAdjustmentDTO } from '../types/adjustment.types';
+import { useInventoryErrorHandler } from '@/shared/hooks/useInventoryErrorHandler';
 
 export function useAdjustments(filters: AdjustmentFilters = {}) {
   return useQuery({
@@ -20,7 +21,9 @@ export function useAdjustment(id: string | null) {
 
 export function useCreateAdjustment() {
   const qc = useQueryClient();
+  const onError = useInventoryErrorHandler();
   return useMutation({
+    onError,
     mutationFn: (data: CreateAdjustmentDTO) => adjustmentsApi.create(data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['adjustments'] }),
   });
@@ -28,7 +31,9 @@ export function useCreateAdjustment() {
 
 export function useApproveAdjustment() {
   const qc = useQueryClient();
+  const onError = useInventoryErrorHandler();
   return useMutation({
+    onError,
     mutationFn: (id: string) => adjustmentsApi.approve(id),
     onSuccess: (_res, id) => {
       qc.invalidateQueries({ queryKey: ['adjustments'] });
@@ -39,7 +44,9 @@ export function useApproveAdjustment() {
 
 export function useRejectAdjustment() {
   const qc = useQueryClient();
+  const onError = useInventoryErrorHandler();
   return useMutation({
+    onError,
     mutationFn: (id: string) => adjustmentsApi.reject(id),
     onSuccess: (_res, id) => {
       qc.invalidateQueries({ queryKey: ['adjustments'] });
@@ -50,7 +57,9 @@ export function useRejectAdjustment() {
 
 export function usePostAdjustment() {
   const qc = useQueryClient();
+  const onError = useInventoryErrorHandler();
   return useMutation({
+    onError,
     mutationFn: (id: string) => adjustmentsApi.post(id),
     onSuccess: (_res, id) => {
       qc.invalidateQueries({ queryKey: ['adjustments'] });

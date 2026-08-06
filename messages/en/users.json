@@ -56,5 +56,12 @@
     "radiusM": "Radius (meters)",
     "pickOnMap": "Or pick the location by clicking the map",
     "addZone": "Add zone"
+  },
+  "roles": {
+    "owner": "Owner",
+    "manager": "Manager",
+    "cashier": "Cashier",
+    "worker": "Worker",
+    "none": "None"
   }
 }

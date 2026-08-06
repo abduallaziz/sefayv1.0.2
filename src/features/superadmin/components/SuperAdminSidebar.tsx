@@ -20,6 +20,7 @@ export function SuperAdminSidebar({ open, onClose }: SuperAdminSidebarProps) {
   const pathname = usePathname();
   const locale = useLocale();
   const t = useTranslations('nav');
+  const tSa = useTranslations('superadmin');
   const user = useAuthStore((s) => s.user);
   const clearAuth = useAuthStore((s) => s.clearAuth);
   const isDark = useThemeStore((s) => s.theme === 'dark');
@@ -32,13 +33,13 @@ export function SuperAdminSidebar({ open, onClose }: SuperAdminSidebarProps) {
 
   const NAV = [
     {
-      title: locale === 'ar' ? 'عام' : 'General',
+      title: tSa('navGroups.general'),
       items: [
         { key: 'overview', href: '/superadmin', label: t('overview'), icon: LayoutDashboard },
       ],
     },
     {
-      title: locale === 'ar' ? 'الإدارة' : 'Management',
+      title: tSa('navGroups.management'),
       items: [
         { key: 'tenants',       href: '/superadmin/tenants',       label: t('tenants'),       icon: Building2  },
         { key: 'subscriptions', href: '/superadmin/subscriptions', label: t('subscriptions'), icon: CreditCard  },
@@ -48,7 +49,7 @@ export function SuperAdminSidebar({ open, onClose }: SuperAdminSidebarProps) {
       ],
     },
     {
-      title: locale === 'ar' ? 'التقارير' : 'Reports',
+      title: tSa('navGroups.reports'),
       items: [
         { key: 'reports', href: '/superadmin/reports', label: t('reports'), icon: BarChart3 },
       ],
@@ -86,7 +87,7 @@ export function SuperAdminSidebar({ open, onClose }: SuperAdminSidebarProps) {
       >
         {/* Mobile close */}
         <div className="flex items-center justify-between px-4 py-3 lg:hidden border-b" style={{ borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.4)' }}>
-          <span className="text-sm font-semibold" style={{ color: textMuted }}>{locale === 'ar' ? 'القائمة' : 'Menu'}</span>
+          <span className="text-sm font-semibold" style={{ color: textMuted }}>{tSa('navGroups.menu')}</span>
           <button
             onClick={onClose}
             style={{

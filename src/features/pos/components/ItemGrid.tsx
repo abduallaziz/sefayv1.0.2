@@ -8,20 +8,28 @@ import Image from 'next/image'
 import { toast } from 'sonner'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { POSItem, POSVariant } from '../types/pos.types'
-import { useItems, useCategories, useItemVariants } from '@/features/items/hooks/useItems'
+import { useCatalogItems, useCategories, useItemVariants } from '@/features/items/hooks/useItems'
 import { itemsApi } from '@/features/items/api/items.api'
 import { ApiError } from '@/lib/api'
 import { useOpenDrawer } from '@/features/shifts/hooks/useShifts'
 
 // Sefay's real Item model has no image_url field anywhere (confirmed — no
 // backend upload feature exists yet, see docs/rebuild/PARKING_LOT.md B3).
-// Per explicit user decision, a temporary stand-in photo is pulled from a
-// public stock-photo service keyed by the item's own name (real, tenant-
-// specific text — not a fabricated value) and locked to the item's id so
-// the same item always gets the same photo across renders, exactly the
-// technique pos-cloud's own mock data uses (loremflickr, ?lock=id).
-function itemImageUrl(item: POSItem) {
-  return `https://loremflickr.com/300/300/${encodeURIComponent(item.name_ar || item.name)}?lock=${item.id}`
+// Supersedes the earlier stand-in-photo approach (loremflickr keyed by item
+// name + id), which was an explicit decision at the time and is now reversed:
+// the grid shows the item's own image_url, or a local placeholder.
+//
+// Local placeholder — no network request. Previously every card fetched a
+// 300x300 image from loremflickr.com, so a 50-card grid meant 50 unoptimized
+// requests to a third-party host on every till that opened. On a weak
+// connection that dominated POS load time and it depended on a service
+// outside our control.
+function ImagePlaceholder() {
+  return (
+    <div className="flex h-full w-full items-center justify-center bg-posCloud-background dark:bg-posCloudDark-background">
+      <ImageOff className="h-7 w-7 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary" strokeWidth={1.5} />
+    </div>
+  )
 }
 
 // Premium product-card image: fills its slot edge-to-edge (object-cover,
@@ -30,16 +38,14 @@ function itemImageUrl(item: POSItem) {
 // reflows either way.
 function ProductImage({ item }: { item: POSItem }) {
   const [failed, setFailed] = useState(false)
-  if (failed) {
-    return (
-      <div className="flex h-full w-full items-center justify-center bg-posCloud-background dark:bg-posCloudDark-background">
-        <ImageOff className="h-7 w-7 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary" strokeWidth={1.5} />
-      </div>
-    )
-  }
+
+  // No image on the item, or the real one failed to load: render the local
+  // placeholder. It occupies exactly the same box, so the card never reflows.
+  if (!item.image_url || failed) return <ImagePlaceholder />
+
   return (
     <Image
-      src={itemImageUrl(item)}
+      src={item.image_url}
       alt={item.name_ar}
       fill
       sizes="180px"
@@ -143,7 +149,9 @@ export function ItemGrid({ onAddItem, onOpenHeldOrders, heldOrdersCount = 0 }: P
   const keyGapsRef = useRef<number[]>([])
   const barcodeDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const { data: rawItems = [], isLoading } = useItems()
+  // Whole active catalog, accumulated page by page — not one 50-item page.
+  // Filtering below stays client-side so search remains instant at the till.
+  const { items: rawItems, isLoading } = useCatalogItems()
   const { data: categories = [] } = useCategories()
   const openDrawer = useOpenDrawer()
 
@@ -166,6 +174,7 @@ export function ItemGrid({ onAddItem, onOpenHeldOrders, heldOrdersCount = 0 }: P
       type: i.type,
       has_variants: i.has_variants,
       variants: [],
+      image_url: i.image_url ?? undefined,
     }))
 
   const filtered = items.filter((item) => {

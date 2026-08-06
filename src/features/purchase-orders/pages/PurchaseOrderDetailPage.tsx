@@ -5,6 +5,7 @@ import { PageHeaderSkeleton, CardListSkeleton, TableSkeleton } from '@/shared/co
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
+import { toast } from 'sonner';
 import { useAuthStore } from '@/core/auth/stores/auth.store';
 import {
   usePurchaseOrder,
@@ -190,7 +191,11 @@ export function PurchaseOrderDetailPage({ id }: Props) {
       <div className="flex gap-3">
         {order.status === 'draft' && (
           <button
-            onClick={() => submitOrder.mutate(order.id)}
+            onClick={() =>
+              submitOrder.mutate(order.id, {
+                onError: (error: any) => toast.error(error?.message ?? 'Failed to submit purchase order'),
+              })
+            }
             disabled={submitOrder.isPending}
             className="px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] text-white rounded-lg text-sm font-medium disabled:opacity-50"
           >
@@ -199,7 +204,11 @@ export function PurchaseOrderDetailPage({ id }: Props) {
         )}
         {order.status === 'submitted' && canApprove && (
           <button
-            onClick={() => approveOrder.mutate(order.id)}
+            onClick={() =>
+              approveOrder.mutate(order.id, {
+                onError: (error: any) => toast.error(error?.message ?? 'Failed to approve purchase order'),
+              })
+            }
             disabled={approveOrder.isPending}
             className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-medium disabled:opacity-50"
           >

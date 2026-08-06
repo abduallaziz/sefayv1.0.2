@@ -23,5 +23,43 @@
   "shiftOpenedAt": "فُتحت الوردية",
   "quickStats": "ملخص اليوم",
   "salesByPayment": "المبيعات حسب الدفع",
-  "refresh": "تحديث"
+  "refresh": "تحديث",
+  "overview": {
+    "title": "نظرة عامة",
+    "totalProducts": "إجمالي المنتجات",
+    "lowStock": "المنتجات منخفضة المخزون",
+    "totalStock": "إجمالي المخزون",
+    "dueInvoices": "الفواتير المستحقة"
+  },
+  "ov": {
+    "vsYesterday": "مقارنة بالأمس",
+    "loadError": "تعذّر تحميل بعض بيانات الداشبورد. تحقّق من الاتصال أو حاول تسجيل الدخول مجدداً.",
+    "salesByPaymentMethod": "المبيعات حسب طرق الدفع",
+    "totalSales": "إجمالي المبيعات",
+    "soon": "قريبًا",
+    "recentInvoicesTitle": "آخر الفواتير",
+    "viewAll": "عرض الكل",
+    "invoice": "رقم الفاتورة",
+    "customer": "العميل",
+    "amount": "المبلغ",
+    "statusCol": "الحالة",
+    "paid": "مدفوعة",
+    "due": "مستحقة",
+    "cancelled": "ملغاة",
+    "salesByBranch": "المبيعات حسب الفروع",
+    "branchesOverview": "ملخص الفروع",
+    "soonNeedsBranches": "قريبًا — يحتاج نظام فروع حقيقي",
+    "last7Days": "آخر 7 أيام",
+    "thisMonth": "هذا الشهر"
+  },
+  "payMethodLabels": {
+    "cash": "نقدي",
+    "mada": "مدى",
+    "visa": "فيزا",
+    "mastercard": "ماستر كارد",
+    "apple_pay": "آبل باي",
+    "stc_pay": "STC Pay",
+    "bank_transfer": "تحويل بنكي",
+    "wallet": "محفظة إلكترونية"
+  }
 }
