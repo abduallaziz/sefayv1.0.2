@@ -34,7 +34,6 @@ const PAYMENT_PILL_BG: Record<string, string> = {
   mastercard: 'bg-red-50 dark:bg-red-500/10',
   apple_pay: 'bg-slate-100 dark:bg-white/10',
   stc_pay: 'bg-purple-50 dark:bg-purple-500/10',
-  gift_card: 'bg-amber-50 dark:bg-amber-500/10',
   cash: 'bg-slate-100 dark:bg-white/5',
   wallet: 'bg-slate-100 dark:bg-white/5',
   split: 'bg-slate-100 dark:bg-white/5',

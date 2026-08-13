@@ -26,5 +26,28 @@
   "deleteConfirm": "Are you sure you want to delete",
   "required": "This field is required",
   "loading": "Loading...",
-  "saveError": "Failed to save location. Please try again."
+  "saveError": "Failed to save location. Please try again.",
+  "parentLocation": "Parent Location",
+  "noParent": "No parent (top-level)",
+  "locationType": "Structural Type",
+  "types": {
+    "zone": "Zone",
+    "aisle": "Aisle",
+    "rack": "Rack",
+    "shelf": "Shelf",
+    "bin": "Bin"
+  },
+  "locationPurpose": "Purpose",
+  "purposes": {
+    "receiving": "Receiving",
+    "storage": "Storage",
+    "picking": "Picking",
+    "packing": "Packing",
+    "quality_hold": "Quality Hold",
+    "damaged": "Damaged",
+    "shipping": "Shipping"
+  },
+  "maxQuantity": "Max Quantity",
+  "maxWeight": "Max Weight",
+  "maxVolume": "Max Volume"
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { ItemGrid } from '../components/ItemGrid'
 import { CartPanel } from '../components/CartPanel'
@@ -12,7 +12,6 @@ import { useCart } from '../hooks/useCart'
 import { useHeldOrders, useHoldOrder, useCancelHeldOrder } from '../hooks/useHeldOrders'
 import { PaymentData } from '../types/pos.types'
 import { createOrder, fetchHeldOrder, type HeldOrder } from '@/features/orders/api/orders.api'
-import { giftCardsApi } from '@/features/gift-cards/api/gift-cards.api'
 import { useActiveNotePresets } from '@/features/note-presets/hooks/useNotePresets'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { apiClient } from '@/lib/api'
@@ -30,21 +29,21 @@ export function POSPage() {
   const [receipt, setReceipt] = useState<{ payment: PaymentData; invoiceNumber: string; taxRate: number; total: number } | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [paymentError, setPaymentError] = useState<string | null>(null)
+  // M187 idempotency: one id per checkout attempt — reused across a
+  // double-click/retry of the SAME attempt (openPayment only generates a
+  // new one when none is pending), reset only after a successful order so
+  // the next sale gets a fresh id.
+  const saleAttemptIdRef = useRef<string | null>(null)
   const [showCustomerPicker, setShowCustomerPicker] = useState(false)
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
   const [showHeldOrders, setShowHeldOrders] = useState(false)
   const [showOpenRegister, setShowOpenRegister] = useState(false)
   const [showCloseRegister, setShowCloseRegister] = useState(false)
 
-  // Gift-card and loyalty-points state lives here (not in CartPanel or PaymentModal)
-  // so the same real, server-validated selection is shared by both the cart panel's
+  // Loyalty-points state lives here (not in CartPanel or PaymentModal) so the
+  // same real, server-validated selection is shared by both the cart panel's
   // preview row and the payment modal's confirm step — never two independent copies.
   const [redeemPoints, setRedeemPoints] = useState('')
-  const [giftCardCode, setGiftCardCode] = useState('')
-  const [giftCardApplied, setGiftCardApplied] = useState(false)
-  const [giftCardAmount, setGiftCardAmount] = useState('')
-  const [giftCardError, setGiftCardError] = useState<string | null>(null)
-  const [validatingGiftCard, setValidatingGiftCard] = useState(false)
 
   // Order notes: either preset selections or one free-text note, joined into the
   // single real `Order.notes` string at checkout — the contract itself never changes.
@@ -85,34 +84,7 @@ export function POSPage() {
 
   const availablePoints = loyaltyEnabled ? (selectedCustomer?.loyalty_points ?? 0) : 0
 
-  // يتحقق فعليًا من الكود والمبلغ عبر /gift-cards/validate قبل قبول البطاقة —
-  // لا تُعرَض كمطبَّقة أبدًا إلا بعد تأكيد رصيدها الحقيقي من السيرفر.
-  const handleApplyGiftCard = async () => {
-    const code = giftCardCode.trim()
-    if (!code || cart.total <= 0) return
-    setValidatingGiftCard(true)
-    setGiftCardError(null)
-    try {
-      await giftCardsApi.validate(code, cart.total)
-      setGiftCardApplied(true)
-      setGiftCardAmount(cart.total.toFixed(2))
-    } catch (error: any) {
-      setGiftCardError(error?.message ?? t('payment.giftCardInvalid'))
-    } finally {
-      setValidatingGiftCard(false)
-    }
-  }
-
-  const handleRemoveGiftCard = () => {
-    setGiftCardApplied(false)
-    setGiftCardCode('')
-  }
-
-  const resetGiftCardAndLoyalty = () => {
-    setGiftCardApplied(false)
-    setGiftCardCode('')
-    setGiftCardAmount('')
-    setGiftCardError(null)
+  const resetLoyalty = () => {
     setRedeemPoints('')
   }
 
@@ -138,6 +110,7 @@ export function POSPage() {
       const order = await createOrder({
         branch_id: branchId,
         shift_id: currentShift?.id,
+        sale_attempt_id: saleAttemptIdRef.current!,
         customer_id: selectedCustomer?.id,
         payment_method: data.method,
         cash_tendered: data.method === 'cash' ? data.cash_tendered : undefined,
@@ -145,8 +118,6 @@ export function POSPage() {
         card_amount: data.method === 'split' ? data.split_card : undefined,
         redeem_points: data.redeem_points,
         coupon_code: cart.coupon_code,
-        gift_card_code: data.gift_card_code,
-        gift_card_amount: data.gift_card_amount,
         notes: finalNotes || undefined,
         items: cart.items.map(item => ({
           item_id: item.item_id,
@@ -157,6 +128,7 @@ export function POSPage() {
           unit_price: item.unit_price,
         })),
       })
+      saleAttemptIdRef.current = null
       setShowPayment(false)
       setReceipt({
         payment: data,
@@ -190,7 +162,9 @@ export function POSPage() {
   }
 
   const openPayment = () => {
-    if (!giftCardAmount) setGiftCardAmount(cart.total.toFixed(2))
+    if (!saleAttemptIdRef.current) {
+      saleAttemptIdRef.current = crypto.randomUUID()
+    }
     setShowPayment(true)
   }
 
@@ -206,7 +180,7 @@ export function POSPage() {
     clearCart()
     setReceipt(null)
     setSelectedCustomer(null)
-    resetGiftCardAndLoyalty()
+    resetLoyalty()
     resetNotes()
   }
 
@@ -236,7 +210,7 @@ export function POSPage() {
           toast.success(t('heldOrders.held'))
           clearCart()
           setSelectedCustomer(null)
-          resetGiftCardAndLoyalty()
+          resetLoyalty()
           resetNotes()
         },
         onError: (error: any) => {
@@ -371,7 +345,7 @@ export function POSPage() {
             onApplyCoupon={applyCoupon}
             onClearCoupon={clearCoupon}
             onCheckout={handleCheckoutClick}
-            onClear={() => { clearCart(); resetGiftCardAndLoyalty(); resetNotes() }}
+            onClear={() => { clearCart(); resetLoyalty(); resetNotes() }}
             onHold={handleHold}
             isHolding={holdOrderMutation.isPending}
             customerCaptureEnabled={customerCaptureEnabled}
@@ -381,13 +355,6 @@ export function POSPage() {
             availablePoints={availablePoints}
             redeemPoints={redeemPoints}
             onRedeemPointsChange={setRedeemPoints}
-            giftCardCode={giftCardCode}
-            giftCardApplied={giftCardApplied}
-            giftCardError={giftCardError}
-            validatingGiftCard={validatingGiftCard}
-            onGiftCardCodeChange={(v) => { setGiftCardCode(v); setGiftCardError(null) }}
-            onApplyGiftCard={handleApplyGiftCard}
-            onRemoveGiftCard={handleRemoveGiftCard}
             notePresets={notePresets}
             noteTab={noteTab}
             onNoteTabChange={setNoteTab}
@@ -411,15 +378,6 @@ export function POSPage() {
           availablePoints={availablePoints}
           redeemPoints={redeemPoints}
           onRedeemPointsChange={setRedeemPoints}
-          giftCardCode={giftCardCode}
-          giftCardApplied={giftCardApplied}
-          giftCardAmount={giftCardAmount}
-          giftCardError={giftCardError}
-          validatingGiftCard={validatingGiftCard}
-          onGiftCardCodeChange={(v) => { setGiftCardCode(v); setGiftCardError(null) }}
-          onGiftCardAmountChange={setGiftCardAmount}
-          onApplyGiftCard={handleApplyGiftCard}
-          onRemoveGiftCard={handleRemoveGiftCard}
         />
       )}
 

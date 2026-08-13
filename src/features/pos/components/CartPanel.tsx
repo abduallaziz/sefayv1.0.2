@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
-import { User, X, ChevronDown, ChevronLeft, ImageOff, Tag, Gift, Sparkles, List, PenLine, PauseCircle } from 'lucide-react'
+import { User, X, ChevronDown, ChevronLeft, ImageOff, Tag, Sparkles, List, PenLine, PauseCircle } from 'lucide-react'
 import Image from 'next/image'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { couponsApi } from '@/features/coupons/api/coupons.api'
@@ -11,7 +11,7 @@ import type { Customer } from '@/features/customers/types/customer.types'
 import type { NotePreset } from '@/features/note-presets/api/note-presets.api'
 import { Button } from '@/shared/ui/button'
 
-// Shared collapsed/expanded row shape for coupon / gift card / loyalty points —
+// Shared collapsed/expanded row shape for coupon / loyalty points —
 // same icon+label+chevron shell, only the expanded body differs per section.
 function AccordionRow({
   icon: Icon, label, sublabel, applied, expanded, onToggle, children,
@@ -130,13 +130,6 @@ interface Props {
   availablePoints: number
   redeemPoints: string
   onRedeemPointsChange: (v: string) => void
-  giftCardCode: string
-  giftCardApplied: boolean
-  giftCardError: string | null
-  validatingGiftCard: boolean
-  onGiftCardCodeChange: (v: string) => void
-  onApplyGiftCard: () => void
-  onRemoveGiftCard: () => void
   notePresets: NotePreset[]
   noteTab: 'list' | 'custom'
   onNoteTabChange: (tab: 'list' | 'custom') => void
@@ -153,8 +146,6 @@ export function CartPanel({
   onHold, isHolding,
   customerCaptureEnabled, selectedCustomer, onClearCustomer,
   loyaltyEnabled, availablePoints, redeemPoints, onRedeemPointsChange,
-  giftCardCode, giftCardApplied, giftCardError, validatingGiftCard,
-  onGiftCardCodeChange, onApplyGiftCard, onRemoveGiftCard,
   notePresets, noteTab, onNoteTabChange, selectedPresetIds, onTogglePreset, customNote, onCustomNoteChange,
 }: Props) {
   const t = useTranslations('pos')
@@ -164,8 +155,8 @@ export function CartPanel({
   const [couponError, setCouponError] = useState<string | null>(null)
   const [validatingCoupon, setValidatingCoupon] = useState(false)
   const [showAllItems, setShowAllItems] = useState(false)
-  const [openSection, setOpenSection] = useState<'coupon' | 'giftcard' | 'loyalty' | 'notes' | null>(null)
-  const toggleSection = (key: 'coupon' | 'giftcard' | 'loyalty' | 'notes') =>
+  const [openSection, setOpenSection] = useState<'coupon' | 'loyalty' | 'notes' | null>(null)
+  const toggleSection = (key: 'coupon' | 'loyalty' | 'notes') =>
     setOpenSection((prev) => (prev === key ? null : key))
 
   const hiddenCount = Math.max(0, cart.items.length - VISIBLE_ROWS)
@@ -271,7 +262,7 @@ export function CartPanel({
         </div>
       )}
 
-      {/* الكود يُتحقَّق منه فعليًا عبر /coupons/validate و/gift-cards/validate وقت التطبيق —
+      {/* الكود يُتحقَّق منه فعليًا عبر /coupons/validate وقت التطبيق —
           القيم الحقيقية (نسبة/مبلغ الخصم) تُجلَب من السيرفر، لا تُحدَّد يدويًا هنا أبدًا. */}
       <div className="border-t border-posCloud-border dark:border-posCloudDark-border pt-1 mb-3">
         <AccordionRow
@@ -304,40 +295,6 @@ export function CartPanel({
                 </button>
               </div>
               {couponError && <p className="text-[11px] text-posCloud-danger">{couponError}</p>}
-            </div>
-          )}
-        </AccordionRow>
-
-        <AccordionRow
-          icon={Gift}
-          label={t('payment.giftCard')}
-          sublabel={giftCardApplied ? giftCardCode : undefined}
-          applied={giftCardApplied}
-          expanded={openSection === 'giftcard'}
-          onToggle={() => toggleSection('giftcard')}
-        >
-          {giftCardApplied ? (
-            <button onClick={onRemoveGiftCard} className="text-xs text-posCloud-danger hover:brightness-90">
-              {t('payment.giftCardRemove')}
-            </button>
-          ) : (
-            <div className="space-y-1.5">
-              <div className="flex gap-2">
-                <input
-                  placeholder={t('payment.giftCardCode')}
-                  value={giftCardCode}
-                  onChange={(e) => onGiftCardCodeChange(e.target.value.toUpperCase())}
-                  className="flex-1 min-w-0 rounded-full border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-background dark:bg-posCloudDark-background px-3.5 py-2 text-xs uppercase text-posCloud-text-primary dark:text-posCloudDark-text-primary outline-none placeholder:normal-case placeholder:text-posCloud-text-tertiary dark:placeholder:text-posCloudDark-text-tertiary"
-                />
-                <button
-                  onClick={onApplyGiftCard}
-                  disabled={!giftCardCode.trim() || validatingGiftCard}
-                  className="shrink-0 rounded-full bg-posCloud-primary-light px-4 text-xs font-semibold text-posCloud-primary disabled:opacity-50"
-                >
-                  {validatingGiftCard ? t('checking') : t('apply')}
-                </button>
-              </div>
-              {giftCardError && <p className="text-[11px] text-posCloud-danger">{giftCardError}</p>}
             </div>
           )}
         </AccordionRow>

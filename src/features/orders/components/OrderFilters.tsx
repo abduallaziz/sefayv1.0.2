@@ -32,7 +32,6 @@ export function OrderFilters({ filters, onChange }: Props) {
     { value: 'stc_pay', labelKey: 'payment_method.stc_pay' },
     { value: 'wallet', labelKey: 'payment_method.wallet' },
     { value: 'split', labelKey: 'payment_method.split' },
-    { value: 'gift_card', labelKey: 'payment_method.gift_card' },
   ];
 
   const hasActiveFilters = !!(filters.status || filters.payment_method || filters.branch_id || filters.search || filters.date_from || filters.date_to);

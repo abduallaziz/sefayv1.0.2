@@ -133,6 +133,7 @@ export function LocationsPage() {
         onClose={() => { setFormOpen(false); setSelectedLocation(null); setFormError(null); }}
         onSubmit={handleSubmit}
         location={selectedLocation}
+        locations={locations}
         isLoading={createLocation.isPending || updateLocation.isPending}
         submitError={formError}
       />

@@ -281,6 +281,197 @@
       "cancelled": "Cancelled"
     }
   },
+  "planning": {
+    "title": "Planning & Replenishment",
+    "subtitle": "Reorder rules, low-stock alerts and purchase suggestions",
+    "tabs": {
+      "rules": "Reorder Rules",
+      "lowStock": "Low Stock",
+      "suggestions": "Purchase Suggestions"
+    },
+    "addRule": "Add Rule",
+    "editRule": "Edit Rule",
+    "columns": {
+      "item": "Item",
+      "warehouse": "Warehouse",
+      "min": "Min Quantity",
+      "max": "Max Quantity",
+      "reorderQty": "Reorder Quantity",
+      "leadTime": "Lead Time",
+      "available": "Available",
+      "incoming": "Incoming",
+      "avgDailyDemand": "Avg Daily Demand",
+      "suggestedQty": "Suggested Quantity",
+      "actions": "Actions"
+    },
+    "days": "days",
+    "empty": "No reorder rules configured yet",
+    "noShortages": "No items below minimum stock",
+    "noSuggestions": "No purchase suggestions right now",
+    "selectWarehouse": "Select Warehouse",
+    "selectItem": "Select Item",
+    "serviceLevelZ": "Service Level Z-score (optional)",
+    "serviceLevelHint": "Higher Z means a higher target service level (95% ≈ 1.65, 98% ≈ 2.05). Leave empty to use the default (1.65).",
+    "convertToRequest": "Convert to Purchase Request",
+    "generatedFromSuggestions": "Generated from purchase suggestions",
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+  "inventoryAnalytics": {
+    "title": "Inventory Analytics",
+    "subtitle": "Valuation, turnover, aging, ABC, dead stock, slow moving, overstock, accuracy and coverage",
+    "tabs": {
+      "dashboard": "Dashboard",
+      "valuation": "Valuation",
+      "turnover": "Turnover",
+      "aging": "Aging",
+      "abc": "ABC Analysis",
+      "deadStock": "Dead Stock",
+      "slowMoving": "Slow Moving",
+      "overstock": "Overstock",
+      "accuracy": "Stock Accuracy",
+      "coverage": "Coverage"
+    },
+    "kpi": {
+      "totalValuation": "Total Inventory Valuation",
+      "slowMovingValue": "Slow Moving Value",
+      "deadStockValue": "Dead Stock Value",
+      "overstockValue": "Overstock Value",
+      "stockAccuracy": "Stock Accuracy"
+    },
+    "charts": {
+      "abcByValue": "ABC Classification by Value",
+      "agingBuckets": "Inventory Value by Age"
+    },
+    "columns": {
+      "item": "Item",
+      "warehouse": "Warehouse",
+      "quantity": "Quantity",
+      "unitCost": "Unit Cost",
+      "totalValue": "Total Value",
+      "cogs": "COGS",
+      "avgInventoryValue": "Avg Inventory Value",
+      "turnoverRatio": "Turnover Ratio",
+      "classification": "Class",
+      "valueContribution": "Value Contribution",
+      "cumulativePercentage": "Cumulative %",
+      "daysWithoutMovement": "Days Without Movement",
+      "unitsSold": "Units Sold",
+      "movementRate": "Movement Rate",
+      "excessQuantity": "Excess Quantity",
+      "excessValue": "Excess Value",
+      "expectedQuantity": "Expected Quantity",
+      "variance": "Variance",
+      "accuracy": "Accuracy",
+      "available": "Available",
+      "avgDailyDemand": "Avg Daily Demand",
+      "coverageDays": "Coverage Days"
+    },
+    "buckets": {
+      "0_30": "0-30 days",
+      "31_60": "31-60 days",
+      "61_90": "61-90 days",
+      "90_plus": "90+ days"
+    },
+    "allWarehouses": "All Warehouses",
+    "lookbackDays": "Lookback Days",
+    "days": "days",
+    "never": "Never",
+    "export": "Export",
+    "noData": "No data available"
+  },
+  "quality": {
+    "title": "Quality Management",
+    "subtitle": "Inspections, quality holds, non-conformances, and corrective actions",
+    "tabs": {
+      "dashboard": "Dashboard",
+      "inspections": "Inspections",
+      "holds": "Quality Holds",
+      "ncr": "Non-Conformances",
+      "capa": "Corrective Actions"
+    },
+    "kpi": {
+      "passRate": "Inspection Pass Rate",
+      "failureRate": "Inspection Failure Rate",
+      "activeHolds": "Active Holds",
+      "openNcr": "Open Non-Conformances",
+      "ncrTotal": "Total NCRs",
+      "capaCompletion": "CAPA Completion Rate",
+      "capaOverdue": "Overdue Actions",
+      "pendingInspections": "Pending Inspections"
+    },
+    "columns": {
+      "item": "Item",
+      "source": "Source",
+      "status": "Status",
+      "actions": "Actions",
+      "quantityHeld": "Quantity Held",
+      "reason": "Reason",
+      "description": "Description",
+      "severity": "Severity",
+      "title": "Title",
+      "priority": "Priority",
+      "dueDate": "Due Date"
+    },
+    "actions": {
+      "pass": "Pass",
+      "fail": "Fail",
+      "conditional": "Conditional",
+      "release": "Release",
+      "reject": "Reject",
+      "advanceTo": "Advance to",
+      "start": "Start",
+      "complete": "Complete",
+      "verify": "Verify",
+      "close": "Close"
+    },
+    "noData": "No data available"
+  },
+  "wms": {
+    "title": "Warehouse Operations",
+    "subtitle": "Putaway, replenishment, tasks, picking, packing, and shipping",
+    "tabs": {
+      "dashboard": "Dashboard",
+      "putaway": "Putaway",
+      "tasks": "Warehouse Tasks",
+      "picking": "Picking",
+      "packing": "Packing",
+      "shipping": "Shipping"
+    },
+    "kpi": {
+      "pendingPutaway": "Pending Putaway",
+      "pendingReplenishment": "Pending Replenishment",
+      "activePickLists": "Active Pick Lists",
+      "readyToShip": "Ready to Ship"
+    },
+    "putawayRules": "Putaway Rules",
+    "replenishmentRules": "Replenishment Rules",
+    "selectWarehouse": "Select Warehouse",
+    "runReplenishmentCheck": "Run Replenishment Check",
+    "anyItem": "Any item",
+    "columns": {
+      "name": "Name",
+      "item": "Item",
+      "priority": "Priority",
+      "min": "Min",
+      "max": "Max",
+      "type": "Type",
+      "quantity": "Quantity",
+      "status": "Status",
+      "actions": "Actions",
+      "reference": "Reference",
+      "tracking": "Tracking Number"
+    },
+    "actions": {
+      "assign": "Assign to me",
+      "confirm": "Confirm",
+      "cancel": "Cancel",
+      "confirmPick": "Confirm Pick",
+      "confirmPack": "Confirm Pack",
+      "ship": "Ship"
+    },
+    "noData": "No data available"
+  },
   "reports": {
     "title": "Inventory Reports",
     "loading": "Loading...",

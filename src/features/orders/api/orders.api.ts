@@ -42,6 +42,7 @@ export interface CreateOrderDiscount {
 export interface CreateOrderPayload {
   branch_id: string;
   shift_id?: string;
+  sale_attempt_id: string;
   payment_method: string;
   cash_tendered?: number;
   cash_amount?: number;
@@ -53,8 +54,6 @@ export interface CreateOrderPayload {
   tax_rate?: number;
   redeem_points?: number;
   coupon_code?: string;
-  gift_card_code?: string;
-  gift_card_amount?: number;
 }
 
 export async function createOrder(payload: CreateOrderPayload): Promise<Order> {

@@ -8,9 +8,9 @@ import {
   LayoutDashboard, ShoppingCart, Package, Users,
   Receipt, Clock, BarChart3, Settings, UserCog,
   X, Zap, Truck, Warehouse, ClipboardList, PackageCheck, Boxes, SlidersHorizontal,
-  ChevronDown, ArrowLeftRight, FileBarChart, Layers, ClipboardCheck, MapPin,
+  ChevronDown, ArrowLeftRight, FileBarChart, Layers, ClipboardCheck, MapPin, ListChecks, LineChart, ShieldCheck, Forklift,
   Utensils, ChefHat, CalendarClock, CalendarDays, Wallet, ClipboardCheck as LeavesIcon,
-  IdCard, Ticket, Gift, StickyNote,
+  IdCard, Ticket, StickyNote,
 } from 'lucide-react'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { useBusinessType } from '@/shared/hooks/useBusinessType'
@@ -43,7 +43,6 @@ const ALL_NAV_ITEMS: NavItem[] = [
   { key: 'tables',    href: '/dashboard/tables',     icon: Utensils,        section: 'sales' },
   { key: 'kitchen',   href: '/dashboard/kitchen',    icon: ChefHat,         section: 'sales' },
   { key: 'coupons',   href: '/dashboard/coupons',    icon: Ticket,          section: 'sales',    roles: ['owner', 'manager'] },
-  { key: 'giftCards', href: '/dashboard/gift-cards', icon: Gift,            section: 'sales',    roles: ['owner', 'manager'] },
   { key: 'notePresets', href: '/dashboard/note-presets', icon: StickyNote, section: 'sales',    roles: ['owner', 'manager'] },
   { key: 'reports',   href: '/dashboard/reports',    icon: BarChart3,       section: 'reports',  roles: ['owner', 'manager'] },
   { key: 'users',     href: '/dashboard/users',      icon: UserCog,         section: 'hr',       roles: ['owner', 'manager'] },
@@ -66,6 +65,10 @@ const INVENTORY_GROUP_ITEMS: NavItem[] = [
   { key: 'transfers',          href: '/dashboard/transfers',         icon: Layers,            section: 'inventory-group', roles: INVENTORY_ROLES },
   { key: 'adjustments',        href: '/dashboard/adjustments',       icon: SlidersHorizontal, section: 'inventory-group', roles: INVENTORY_ROLES },
   { key: 'stockCounts',        href: '/dashboard/stock-counts',      icon: ClipboardCheck,    section: 'inventory-group', roles: INVENTORY_ROLES },
+  { key: 'planning',           href: '/dashboard/planning',          icon: ListChecks,        section: 'inventory-group', roles: INVENTORY_ROLES },
+  { key: 'inventoryAnalytics', href: '/dashboard/inventory-analytics', icon: LineChart,       section: 'inventory-group', roles: INVENTORY_ROLES },
+  { key: 'quality',            href: '/dashboard/quality',            icon: ShieldCheck,      section: 'inventory-group', roles: INVENTORY_ROLES },
+  { key: 'wms',                href: '/dashboard/wms',                icon: Forklift,         section: 'inventory-group', roles: INVENTORY_ROLES },
   { key: 'suppliers',          href: '/dashboard/suppliers',         icon: Truck,             section: 'inventory-group', roles: INVENTORY_ROLES },
   { key: 'purchaseOrders',     href: '/dashboard/purchase-orders',   icon: ClipboardList,     section: 'inventory-group', roles: INVENTORY_ROLES },
   { key: 'goodsReceipts',      href: '/dashboard/goods-receipts',    icon: PackageCheck,      section: 'inventory-group', roles: INVENTORY_ROLES },

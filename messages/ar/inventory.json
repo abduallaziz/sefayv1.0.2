@@ -281,6 +281,197 @@
       "cancelled": "ملغي"
     }
   },
+  "planning": {
+    "title": "التخطيط وإعادة التزويد",
+    "subtitle": "قواعد إعادة الطلب، تنبيهات نقص المخزون، واقتراحات الشراء",
+    "tabs": {
+      "rules": "قواعد إعادة الطلب",
+      "lowStock": "نقص المخزون",
+      "suggestions": "اقتراحات الشراء"
+    },
+    "addRule": "إضافة قاعدة",
+    "editRule": "تعديل القاعدة",
+    "columns": {
+      "item": "المنتج",
+      "warehouse": "المستودع",
+      "min": "الحد الأدنى",
+      "max": "الحد الأقصى",
+      "reorderQty": "كمية إعادة الطلب",
+      "leadTime": "مدة التوريد",
+      "available": "المتاح",
+      "incoming": "الوارد",
+      "avgDailyDemand": "متوسط الطلب اليومي",
+      "suggestedQty": "الكمية المقترحة",
+      "actions": "إجراءات"
+    },
+    "days": "يوم",
+    "empty": "لا توجد قواعد إعادة طلب بعد",
+    "noShortages": "لا توجد عناصر أقل من الحد الأدنى",
+    "noSuggestions": "لا توجد اقتراحات شراء حاليًا",
+    "selectWarehouse": "اختر المستودع",
+    "selectItem": "اختر المنتج",
+    "serviceLevelZ": "معامل مستوى الخدمة Z (اختياري)",
+    "serviceLevelHint": "كلما زاد المعامل زاد مستوى الخدمة المستهدف (95% ≈ 1.65، 98% ≈ 2.05). اتركه فارغًا لاستخدام الافتراضي (1.65).",
+    "convertToRequest": "تحويل إلى طلب شراء",
+    "generatedFromSuggestions": "تم إنشاؤه من اقتراحات الشراء",
+    "cancel": "إلغاء",
+    "save": "حفظ"
+  },
+  "inventoryAnalytics": {
+    "title": "تحليلات المخزون",
+    "subtitle": "التقييم، معدل الدوران، التقادم، تحليل ABC، الراكد، بطيء الحركة، الفائض، الدقة، والتغطية",
+    "tabs": {
+      "dashboard": "لوحة المعلومات",
+      "valuation": "التقييم",
+      "turnover": "معدل الدوران",
+      "aging": "التقادم",
+      "abc": "تحليل ABC",
+      "deadStock": "المخزون الراكد",
+      "slowMoving": "بطيء الحركة",
+      "overstock": "الفائض",
+      "accuracy": "دقة المخزون",
+      "coverage": "التغطية"
+    },
+    "kpi": {
+      "totalValuation": "إجمالي تقييم المخزون",
+      "slowMovingValue": "قيمة بطيء الحركة",
+      "deadStockValue": "قيمة المخزون الراكد",
+      "overstockValue": "قيمة الفائض",
+      "stockAccuracy": "دقة المخزون"
+    },
+    "charts": {
+      "abcByValue": "تصنيف ABC حسب القيمة",
+      "agingBuckets": "قيمة المخزون حسب العمر"
+    },
+    "columns": {
+      "item": "المنتج",
+      "warehouse": "المستودع",
+      "quantity": "الكمية",
+      "unitCost": "تكلفة الوحدة",
+      "totalValue": "القيمة الإجمالية",
+      "cogs": "تكلفة البضاعة المباعة",
+      "avgInventoryValue": "متوسط قيمة المخزون",
+      "turnoverRatio": "معدل الدوران",
+      "classification": "التصنيف",
+      "valueContribution": "المساهمة بالقيمة",
+      "cumulativePercentage": "النسبة التراكمية",
+      "daysWithoutMovement": "أيام بدون حركة",
+      "unitsSold": "الوحدات المباعة",
+      "movementRate": "معدل الحركة",
+      "excessQuantity": "الكمية الزائدة",
+      "excessValue": "القيمة الزائدة",
+      "expectedQuantity": "الكمية المتوقعة",
+      "variance": "الفرق",
+      "accuracy": "الدقة",
+      "available": "المتاح",
+      "avgDailyDemand": "متوسط الطلب اليومي",
+      "coverageDays": "أيام التغطية"
+    },
+    "buckets": {
+      "0_30": "0-30 يوم",
+      "31_60": "31-60 يوم",
+      "61_90": "61-90 يوم",
+      "90_plus": "90+ يوم"
+    },
+    "allWarehouses": "كل المستودعات",
+    "lookbackDays": "عدد أيام المراجعة",
+    "days": "يوم",
+    "never": "أبدًا",
+    "export": "تصدير",
+    "noData": "لا توجد بيانات"
+  },
+  "quality": {
+    "title": "إدارة الجودة",
+    "subtitle": "الفحوصات، حجز الجودة، حالات عدم المطابقة، والإجراءات التصحيحية",
+    "tabs": {
+      "dashboard": "لوحة المعلومات",
+      "inspections": "الفحوصات",
+      "holds": "حجز الجودة",
+      "ncr": "عدم المطابقة",
+      "capa": "الإجراءات التصحيحية"
+    },
+    "kpi": {
+      "passRate": "معدل نجاح الفحص",
+      "failureRate": "معدل فشل الفحص",
+      "activeHolds": "حجوزات نشطة",
+      "openNcr": "حالات عدم مطابقة مفتوحة",
+      "ncrTotal": "إجمالي حالات عدم المطابقة",
+      "capaCompletion": "معدل إنجاز الإجراءات التصحيحية",
+      "capaOverdue": "إجراءات متأخرة",
+      "pendingInspections": "فحوصات معلقة"
+    },
+    "columns": {
+      "item": "المنتج",
+      "source": "المصدر",
+      "status": "الحالة",
+      "actions": "إجراءات",
+      "quantityHeld": "الكمية المحجوزة",
+      "reason": "السبب",
+      "description": "الوصف",
+      "severity": "الخطورة",
+      "title": "العنوان",
+      "priority": "الأولوية",
+      "dueDate": "تاريخ الاستحقاق"
+    },
+    "actions": {
+      "pass": "نجاح",
+      "fail": "فشل",
+      "conditional": "مشروط",
+      "release": "إطلاق",
+      "reject": "رفض",
+      "advanceTo": "الانتقال إلى",
+      "start": "بدء",
+      "complete": "إكمال",
+      "verify": "تحقق",
+      "close": "إغلاق"
+    },
+    "noData": "لا توجد بيانات"
+  },
+  "wms": {
+    "title": "عمليات المستودع",
+    "subtitle": "التخزين، التجديد، المهام، الانتقاء، التعبئة، والشحن",
+    "tabs": {
+      "dashboard": "لوحة المعلومات",
+      "putaway": "التخزين",
+      "tasks": "مهام المستودع",
+      "picking": "الانتقاء",
+      "packing": "التعبئة",
+      "shipping": "الشحن"
+    },
+    "kpi": {
+      "pendingPutaway": "تخزين معلق",
+      "pendingReplenishment": "تجديد معلق",
+      "activePickLists": "قوائم انتقاء نشطة",
+      "readyToShip": "جاهز للشحن"
+    },
+    "putawayRules": "قواعد التخزين",
+    "replenishmentRules": "قواعد التجديد",
+    "selectWarehouse": "اختر المستودع",
+    "runReplenishmentCheck": "تشغيل فحص التجديد",
+    "anyItem": "أي منتج",
+    "columns": {
+      "name": "الاسم",
+      "item": "المنتج",
+      "priority": "الأولوية",
+      "min": "الحد الأدنى",
+      "max": "الحد الأقصى",
+      "type": "النوع",
+      "quantity": "الكمية",
+      "status": "الحالة",
+      "actions": "إجراءات",
+      "reference": "المرجع",
+      "tracking": "رقم التتبع"
+    },
+    "actions": {
+      "assign": "تعيين لي",
+      "confirm": "تأكيد",
+      "cancel": "إلغاء",
+      "confirmPick": "تأكيد الانتقاء",
+      "confirmPack": "تأكيد التعبئة",
+      "ship": "شحن"
+    },
+    "noData": "لا توجد بيانات"
+  },
   "reports": {
     "title": "تقارير المخزون",
     "loading": "جارٍ التحميل...",

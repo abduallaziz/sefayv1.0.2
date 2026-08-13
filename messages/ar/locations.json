@@ -26,5 +26,28 @@
   "deleteConfirm": "هل أنت متأكد من حذف",
   "required": "هذا الحقل مطلوب",
   "loading": "جاري التحميل...",
-  "saveError": "فشل حفظ الموقع. حاول مرة أخرى."
+  "saveError": "فشل حفظ الموقع. حاول مرة أخرى.",
+  "parentLocation": "الموقع الأب",
+  "noParent": "بدون أب (المستوى الأعلى)",
+  "locationType": "النوع الهيكلي",
+  "types": {
+    "zone": "منطقة",
+    "aisle": "ممر",
+    "rack": "رف كبير",
+    "shelf": "رف",
+    "bin": "صندوق"
+  },
+  "locationPurpose": "الغرض",
+  "purposes": {
+    "receiving": "استلام",
+    "storage": "تخزين",
+    "picking": "انتقاء",
+    "packing": "تعبئة",
+    "quality_hold": "حجز جودة",
+    "damaged": "تالف",
+    "shipping": "شحن"
+  },
+  "maxQuantity": "أقصى كمية",
+  "maxWeight": "أقصى وزن",
+  "maxVolume": "أقصى حجم"
 }

@@ -1,9 +1,9 @@
-import { Banknote, Wallet as WalletIcon, Gift } from 'lucide-react'
+import { Banknote, Wallet as WalletIcon } from 'lucide-react'
 import Image from 'next/image'
 
 export type MethodMarkId =
   | 'cash' | 'card' | 'split' | 'wallet' | 'mada' | 'visa'
-  | 'mastercard' | 'stc_pay' | 'apple_pay' | 'tab' | 'gift_card'
+  | 'mastercard' | 'stc_pay' | 'apple_pay' | 'tab'
 
 // Real brand logo files (public/payment-methods/*.svg, downloaded from
 // Wikimedia Commons per explicit user-provided URLs) — used for nominative
@@ -44,8 +44,6 @@ export function MethodMark({ id, className }: { id: MethodMarkId; className?: st
           <span className="h-4 w-5 rounded-sm border-2 border-current" />
         </span>
       )
-    case 'gift_card':
-      return <Gift className="h-5 w-5" />
     case 'card':
     case 'tab':
       return <Banknote className="h-5 w-5" />

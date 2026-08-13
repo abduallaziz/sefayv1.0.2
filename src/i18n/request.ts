@@ -48,7 +48,6 @@ export default getRequestConfig(async ({ requestLocale }) => {
     employeeWizard,
     accessControl,
     coupons,
-    giftCards,
     notePresets,
   ] = await Promise.all([
     loadFile(`${locale}.json`),
@@ -82,7 +81,6 @@ export default getRequestConfig(async ({ requestLocale }) => {
     loadFile(`${locale}/employee-wizard.json`),
     loadFile(`${locale}/access-control.json`),
     loadFile(`${locale}/coupons.json`),
-    loadFile(`${locale}/gift-cards.json`),
     loadFile(`${locale}/note-presets.json`),
   ])
 
@@ -127,7 +125,6 @@ export default getRequestConfig(async ({ requestLocale }) => {
       employeeWizard,
       accessControl,
       coupons,
-      giftCards,
       notePresets,
       stock: inventory?.stock,
       adjustments: inventory?.adjustments,
@@ -136,6 +133,10 @@ export default getRequestConfig(async ({ requestLocale }) => {
       transfers: inventory?.transfers,
       stockCounts: inventory?.stockCounts,
       inventoryReports: inventory?.reports,
+      planning: inventory?.planning,
+      inventoryAnalytics: inventory?.inventoryAnalytics,
+      quality: inventory?.quality,
+      wms: inventory?.wms,
     }
   }
 })
