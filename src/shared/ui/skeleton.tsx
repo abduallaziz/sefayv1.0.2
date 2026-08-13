@@ -10,7 +10,11 @@ export function Skeleton({ className, theme = 'dashboard' }: SkeletonProps) {
     <div
       className={cn(
         'animate-pulse rounded-md',
-        theme === 'superadmin' ? 'bg-[#1e2436]' : 'bg-[#f1f5f9]',
+        // 'dashboard' previously had no dark: variant at all — same class of
+        // gap as SectionCard/EmptyState (Step 1). Only 2 consumers exist
+        // (both accounting), both require a visible loading state on the
+        // dark shell. Additive only, light mode unchanged.
+        theme === 'superadmin' ? 'bg-[#1e2436]' : 'bg-[#f1f5f9] dark:bg-posCloudDark-border/40',
         className
       )}
     />

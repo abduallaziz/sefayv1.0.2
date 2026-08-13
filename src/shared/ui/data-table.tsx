@@ -38,13 +38,17 @@ export function DataTable<T>({
   // global light/dark toggle (theme.store.ts) — preserved exactly as-is,
   // only the hardcoded hex values were tokenized to posCloud/posCloudDark.
   const t = useTranslations('common');
-  const bgColor       = theme === 'superadmin' ? 'bg-posCloudDark-surface'     : 'bg-posCloud-surface';
-  const borderColor   = theme === 'superadmin' ? 'border-posCloudDark-border' : 'border-posCloud-border';
-  const headerBg      = theme === 'superadmin' ? 'bg-posCloudDark-background'  : 'bg-posCloud-sidebar';
-  const headerText    = theme === 'superadmin' ? 'text-posCloudDark-text-tertiary' : 'text-posCloud-text-tertiary';
-  const rowHover      = theme === 'superadmin' ? 'hover:bg-posCloudDark-border/40' : 'hover:bg-posCloud-sidebar';
-  const divColor      = theme === 'superadmin' ? 'divide-posCloudDark-border' : 'divide-slate-100';
-  const cellText      = theme === 'superadmin' ? 'text-posCloudDark-text-secondary' : 'text-posCloud-text-primary';
+  // 'dashboard' previously had no dark: variant at all — same class of gap
+  // as SectionCard/EmptyState/Skeleton. DataTable had zero prior consumers
+  // (confirmed via repo-wide search) before Step 2's Journal Entries list,
+  // so this fix has zero blast radius on existing pages. Additive only.
+  const bgColor       = theme === 'superadmin' ? 'bg-posCloudDark-surface'     : 'bg-posCloud-surface dark:bg-posCloudDark-surface';
+  const borderColor   = theme === 'superadmin' ? 'border-posCloudDark-border' : 'border-posCloud-border dark:border-posCloudDark-border';
+  const headerBg      = theme === 'superadmin' ? 'bg-posCloudDark-background'  : 'bg-posCloud-sidebar dark:bg-posCloudDark-background';
+  const headerText    = theme === 'superadmin' ? 'text-posCloudDark-text-tertiary' : 'text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary';
+  const rowHover      = theme === 'superadmin' ? 'hover:bg-posCloudDark-border/40' : 'hover:bg-posCloud-sidebar dark:hover:bg-posCloudDark-background';
+  const divColor      = theme === 'superadmin' ? 'divide-posCloudDark-border' : 'divide-slate-100 dark:divide-posCloudDark-border';
+  const cellText      = theme === 'superadmin' ? 'text-posCloudDark-text-secondary' : 'text-posCloud-text-primary dark:text-posCloudDark-text-primary';
 
   const alignClass = (align?: string) => {
     if (align === 'center') return 'text-center';
@@ -81,7 +85,7 @@ export function DataTable<T>({
                     <td key={col.key} className="px-4 py-3">
                       <div className={cn(
                         'h-4 rounded animate-pulse',
-                        theme === 'superadmin' ? 'bg-posCloudDark-border/40' : 'bg-posCloud-background'
+                        theme === 'superadmin' ? 'bg-posCloudDark-border/40' : 'bg-posCloud-background dark:bg-posCloudDark-border/40'
                       )} />
                     </td>
                   ))}
@@ -91,7 +95,7 @@ export function DataTable<T>({
               <tr>
                 <td colSpan={columns.length} className="px-4 py-12 text-center">
                   {emptyState ?? (
-                    <span className={cn('text-sm', theme === 'superadmin' ? 'text-posCloudDark-text-tertiary' : 'text-posCloud-text-tertiary')}>
+                    <span className={cn('text-sm', theme === 'superadmin' ? 'text-posCloudDark-text-tertiary' : 'text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary')}>
                       {t('noData')}
                     </span>
                   )}

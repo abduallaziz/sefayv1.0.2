@@ -1,7 +1,8 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
-import { DollarSign, Wallet, Receipt, Landmark, TrendingUp, AlertTriangle, Building2 } from 'lucide-react'
+import { useTranslations, useLocale } from 'next-intl'
+import Link from 'next/link'
+import { DollarSign, Wallet, Receipt, Landmark, TrendingUp, AlertTriangle, Building2, BookText } from 'lucide-react'
 import { PageHeader } from '@/shared/ui/page-header'
 import { SectionCard } from '@/shared/ui/section-card'
 import { StatCard } from '@/shared/ui/stat-card'
@@ -25,7 +26,9 @@ function formatAmount(value: number): string {
 
 export function AccountingCommandCenterPage() {
   const t = useTranslations('accounting.commandCenter')
+  const locale = useLocale()
   const canView = usePermission('accounting.view')
+  const canViewJournal = usePermission('accounting.journal.view')
 
   // Gated on the client-known permission — avoids firing (and console-
   // logging) a request we already know will 403, matching the
@@ -71,7 +74,22 @@ export function AccountingCommandCenterPage() {
 
   return (
     <div className="p-4 lg:p-6 space-y-6">
-      <PageHeader title={t('title')} description={t('description')} theme="dashboard" />
+      <PageHeader
+        title={t('title')}
+        description={t('description')}
+        theme="dashboard"
+        actions={
+          canViewJournal && (
+            <Link
+              href={`/${locale}/dashboard/accounting/journal-entries`}
+              className="flex items-center gap-2 px-4 py-2 border border-posCloud-border dark:border-posCloudDark-border rounded-lg text-sm font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary hover:bg-posCloud-background dark:hover:bg-posCloudDark-background transition-colors"
+            >
+              <BookText className="w-4 h-4" />
+              {t('viewJournalEntries')}
+            </Link>
+          )
+        }
+      />
 
       {hasError && !isLoading && (
         <EmptyState

@@ -33,6 +33,108 @@
       "open": "Open — posting allowed",
       "closed": "Closed — posting blocked",
       "none": "No fiscal period covers today"
+    },
+    "viewJournalEntries": "View Journal Entries"
+  },
+  "journalEntries": {
+    "title": "Journal Entries",
+    "description": "Every posted, draft, and reversed entry in the General Ledger",
+    "breadcrumbAccounting": "Accounting",
+    "backToCommandCenter": "Back to Accounting Command Center",
+    "fiscalPeriodLabel": "Period {number}",
+    "noPermission": {
+      "title": "No access to Journal Entries",
+      "description": "You don't have permission to view Journal Entries. Contact your owner or manager."
+    },
+    "error": {
+      "title": "Couldn't load Journal Entries",
+      "description": "Something went wrong while loading the list. Try again."
+    },
+    "empty": {
+      "title": "No journal entries match these filters",
+      "description": "Try widening the date range or clearing a filter."
+    },
+    "status": {
+      "draft": "Draft",
+      "posted": "Posted",
+      "reversed": "Reversed"
+    },
+    "columns": {
+      "reference": "Reference",
+      "postingDate": "Posting Date",
+      "source": "Source",
+      "description": "Description",
+      "status": "Status",
+      "fiscalPeriod": "Fiscal Period",
+      "createdBy": "Created By"
+    },
+    "filters": {
+      "dateRange": "Date range",
+      "fiscalPeriod": "Fiscal period",
+      "branch": "Branch",
+      "account": "Account",
+      "source": "Source",
+      "sourceSales": "Sales",
+      "status": "Status",
+      "statusDraft": "Draft",
+      "statusPosted": "Posted",
+      "statusReversed": "Reversed",
+      "user": "User",
+      "amountMin": "Min amount",
+      "amountMax": "Max amount"
+    },
+    "detail": {
+      "title": "Journal Entry",
+      "description": "Header, lines, and audit context for this entry",
+      "noPermission": {
+        "title": "No access to this entry",
+        "description": "You don't have permission to view Journal Entry details."
+      },
+      "notFound": {
+        "title": "Journal entry not found",
+        "description": "This entry may have been removed or the link is incorrect."
+      },
+      "error": {
+        "title": "Couldn't load this entry",
+        "description": "Something went wrong while loading the details. Try again."
+      },
+      "header": {
+        "title": "Journal Header",
+        "reference": "Reference",
+        "postingDate": "Posting Date",
+        "status": "Status",
+        "source": "Source",
+        "cogsFlag": "Requires COGS reconciliation"
+      },
+      "lines": {
+        "title": "Journal Lines"
+      },
+      "order": {
+        "title": "Source Order",
+        "paymentMethod": "Payment Method",
+        "subtotal": "Subtotal",
+        "discount": "Discount",
+        "tax": "Tax",
+        "total": "Total",
+        "viewInOrders": "View in Orders"
+      },
+      "priceOverride": {
+        "title": "Price Override Audit",
+        "official": "Official Price",
+        "approved": "Approved Price"
+      },
+      "reversal": {
+        "title": "Reversal Chain",
+        "reversalOf": "This entry reverses entry {id}",
+        "reversedByTitle": "Reversed By"
+      },
+      "audit": {
+        "title": "Audit Context",
+        "createdBy": "Created By",
+        "createdAt": "Created At",
+        "postedAt": "Posted At",
+        "reversedAt": "Reversed At"
+      }
     }
   }
 }

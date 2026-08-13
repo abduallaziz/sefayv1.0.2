@@ -33,6 +33,108 @@
       "open": "مفتوحة — الترحيل مسموح",
       "closed": "مغلقة — الترحيل ممنوع",
       "none": "لا توجد فترة مالية تغطي اليوم"
+    },
+    "viewJournalEntries": "عرض قيود اليومية"
+  },
+  "journalEntries": {
+    "title": "قيود اليومية",
+    "description": "كل قيد مرحّل أو مسودة أو معكوس في دفتر الأستاذ العام",
+    "breadcrumbAccounting": "المحاسبة",
+    "backToCommandCenter": "العودة إلى مركز قيادة المحاسبة",
+    "fiscalPeriodLabel": "الفترة {number}",
+    "noPermission": {
+      "title": "لا تملك صلاحية الوصول لقيود اليومية",
+      "description": "لا تملك صلاحية عرض قيود اليومية. تواصل مع المالك أو المدير."
+    },
+    "error": {
+      "title": "تعذّر تحميل قيود اليومية",
+      "description": "حدث خطأ أثناء تحميل القائمة. حاول مرة أخرى."
+    },
+    "empty": {
+      "title": "لا توجد قيود مطابقة لهذه الفلاتر",
+      "description": "جرّب توسيع نطاق التاريخ أو مسح أحد الفلاتر."
+    },
+    "status": {
+      "draft": "مسودة",
+      "posted": "مُرحّل",
+      "reversed": "معكوس"
+    },
+    "columns": {
+      "reference": "المرجع",
+      "postingDate": "تاريخ الترحيل",
+      "source": "المصدر",
+      "description": "الوصف",
+      "status": "الحالة",
+      "fiscalPeriod": "الفترة المالية",
+      "createdBy": "أنشأه"
+    },
+    "filters": {
+      "dateRange": "نطاق التاريخ",
+      "fiscalPeriod": "الفترة المالية",
+      "branch": "الفرع",
+      "account": "الحساب",
+      "source": "المصدر",
+      "sourceSales": "المبيعات",
+      "status": "الحالة",
+      "statusDraft": "مسودة",
+      "statusPosted": "مُرحّل",
+      "statusReversed": "معكوس",
+      "user": "المستخدم",
+      "amountMin": "أقل مبلغ",
+      "amountMax": "أعلى مبلغ"
+    },
+    "detail": {
+      "title": "قيد اليومية",
+      "description": "الرأسية والبنود وسياق التدقيق لهذا القيد",
+      "noPermission": {
+        "title": "لا تملك صلاحية الوصول لهذا القيد",
+        "description": "لا تملك صلاحية عرض تفاصيل قيد اليومية."
+      },
+      "notFound": {
+        "title": "قيد اليومية غير موجود",
+        "description": "ربما تمت إزالة هذا القيد أو الرابط غير صحيح."
+      },
+      "error": {
+        "title": "تعذّر تحميل هذا القيد",
+        "description": "حدث خطأ أثناء تحميل التفاصيل. حاول مرة أخرى."
+      },
+      "header": {
+        "title": "رأسية القيد",
+        "reference": "المرجع",
+        "postingDate": "تاريخ الترحيل",
+        "status": "الحالة",
+        "source": "المصدر",
+        "cogsFlag": "يتطلب تسوية تكلفة البضاعة المباعة"
+      },
+      "lines": {
+        "title": "بنود القيد"
+      },
+      "order": {
+        "title": "الطلب المصدر",
+        "paymentMethod": "طريقة الدفع",
+        "subtotal": "المجموع الفرعي",
+        "discount": "الخصم",
+        "tax": "الضريبة",
+        "total": "الإجمالي",
+        "viewInOrders": "عرض في الطلبات"
+      },
+      "priceOverride": {
+        "title": "تدقيق تجاوز السعر",
+        "official": "السعر الرسمي",
+        "approved": "السعر المعتمد"
+      },
+      "reversal": {
+        "title": "سلسلة العكس",
+        "reversalOf": "هذا القيد يعكس القيد {id}",
+        "reversedByTitle": "تم عكسه بواسطة"
+      },
+      "audit": {
+        "title": "سياق التدقيق",
+        "createdBy": "أنشأه",
+        "createdAt": "تاريخ الإنشاء",
+        "postedAt": "تاريخ الترحيل",
+        "reversedAt": "تاريخ العكس"
+      }
     }
   }
 }
