@@ -1,0 +1,38 @@
+{
+  "commandCenter": {
+    "title": "Accounting Command Center",
+    "description": "Financial overview backed by the General Ledger",
+    "noPermission": {
+      "title": "No access to Accounting",
+      "description": "You don't have permission to view Accounting. Contact your owner or manager."
+    },
+    "error": {
+      "title": "Couldn't load Accounting data",
+      "description": "Something went wrong while loading the Command Center. Try again."
+    },
+    "kpis": {
+      "revenue": "Revenue",
+      "cashAndBank": "Cash & Bank",
+      "accountsReceivable": "Accounts Receivable",
+      "taxLiability": "Tax Liability",
+      "grossProfit": "Gross Profit",
+      "reconciliationExceptions": "Reconciliation Exceptions"
+    },
+    "readiness": {
+      "title": "Accounting Readiness",
+      "description": "Branches must be assigned to an Accounting Owner before Sales Posting can run for them.",
+      "branchesAssigned": "Branches Assigned",
+      "of": "of",
+      "tenantHasOwner": "Tenant has an Accounting Owner",
+      "tenantMissingOwner": "Tenant has no Accounting Owner",
+      "allBranchesAssigned": "All branches are assigned",
+      "branchesUnassigned": "{count} branch(es) not yet assigned"
+    },
+    "fiscalPeriod": {
+      "title": "Current Fiscal Period",
+      "open": "Open — posting allowed",
+      "closed": "Closed — posting blocked",
+      "none": "No fiscal period covers today"
+    }
+  }
+}

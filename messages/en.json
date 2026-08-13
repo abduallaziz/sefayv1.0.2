@@ -10,6 +10,7 @@
   "sidebar": {
     "menu": "Menu",
     "dashboard": "Dashboard",
+    "accounting": "Accounting",
     "pos": "Point of Sale",
     "orders": "Orders",
     "items": "Items",

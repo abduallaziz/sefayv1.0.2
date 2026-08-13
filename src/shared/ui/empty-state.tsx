@@ -53,10 +53,15 @@ export function EmptyState({
   }
 
   // Matrix D6: `theme` prop is a per-section variant, unrelated to the
-  // global light/dark toggle — preserved as-is, hex values tokenized only.
-  const iconBg   = theme === 'superadmin' ? 'bg-posCloudDark-border/40 text-posCloudDark-text-tertiary' : 'bg-posCloud-background text-posCloud-text-tertiary';
-  const titleC   = theme === 'superadmin' ? 'text-posCloudDark-text-secondary' : 'text-posCloud-text-primary';
-  const descC    = theme === 'superadmin' ? 'text-posCloudDark-text-tertiary' : 'text-posCloud-text-tertiary';
+  // global light/dark toggle. 'superadmin' keeps its own fixed dark navy
+  // surface (unchanged). 'dashboard' previously had no dark: classes at
+  // all — confirmed live (permission-denied title was low-contrast on a
+  // dark shell) — added here matching the 'inventory' branch's existing
+  // posCloud/posCloudDark pairing above, additive only, light mode
+  // unchanged.
+  const iconBg   = theme === 'superadmin' ? 'bg-posCloudDark-border/40 text-posCloudDark-text-tertiary' : 'bg-posCloud-background dark:bg-posCloudDark-background text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary';
+  const titleC   = theme === 'superadmin' ? 'text-posCloudDark-text-secondary' : 'text-posCloud-text-primary dark:text-posCloudDark-text-primary';
+  const descC    = theme === 'superadmin' ? 'text-posCloudDark-text-tertiary' : 'text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary';
 
   return (
     <div className={cn('flex flex-col items-center justify-center text-center', s.padding, className)}>
