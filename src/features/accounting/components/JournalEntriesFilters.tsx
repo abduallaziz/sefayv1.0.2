@@ -12,12 +12,17 @@ interface Props {
   filters: JournalEntriesQuery
   onChange: (filters: JournalEntriesQuery) => void
   canView: boolean
+  // Step 3 (COGS Reconciliation) always queries source_module='sales'
+  // server-side (AccountingService.listCogsReconciliation overrides it
+  // unconditionally) — showing a Source selector there would be dead UI,
+  // so it's opt-out rather than duplicating this whole filter bar.
+  hideSource?: boolean
 }
 
 const inputClass =
   'border border-posCloud-border dark:border-posCloudDark-border rounded-lg px-3 py-2 text-sm bg-posCloud-surface dark:bg-posCloudDark-surface text-posCloud-text-primary dark:text-posCloudDark-text-primary focus:outline-none focus:border-posCloud-primary'
 
-export function JournalEntriesFilters({ filters, onChange, canView }: Props) {
+export function JournalEntriesFilters({ filters, onChange, canView, hideSource = false }: Props) {
   const t = useTranslations('accounting.journalEntries.filters')
   const tRoot = useTranslations('accounting.journalEntries')
 
@@ -78,14 +83,16 @@ export function JournalEntriesFilters({ filters, onChange, canView }: Props) {
         ))}
       </select>
 
-      <select
-        value={filters.source_module ?? ''}
-        onChange={(e) => set('source_module', e.target.value || undefined)}
-        className={inputClass}
-      >
-        <option value="">{t('source')}</option>
-        <option value="sales">{t('sourceSales')}</option>
-      </select>
+      {!hideSource && (
+        <select
+          value={filters.source_module ?? ''}
+          onChange={(e) => set('source_module', e.target.value || undefined)}
+          className={inputClass}
+        >
+          <option value="">{t('source')}</option>
+          <option value="sales">{t('sourceSales')}</option>
+        </select>
+      )}
 
       <select
         value={filters.status ?? ''}

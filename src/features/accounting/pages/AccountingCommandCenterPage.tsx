@@ -29,6 +29,7 @@ export function AccountingCommandCenterPage() {
   const locale = useLocale()
   const canView = usePermission('accounting.view')
   const canViewJournal = usePermission('accounting.journal.view')
+  const canViewReconciliation = usePermission('accounting.reconciliation.view')
 
   // Gated on the client-known permission — avoids firing (and console-
   // logging) a request we already know will 403, matching the
@@ -156,6 +157,13 @@ export function AccountingCommandCenterPage() {
               icon={AlertTriangle}
               variant={commandCenter.data.reconciliationExceptions > 0 ? 'warning' : 'default'}
               theme="dashboard"
+              sub={
+                canViewReconciliation && (
+                  <Link href={`/${locale}/dashboard/accounting/cogs-reconciliation`} className="text-posCloud-primary hover:underline">
+                    {t('viewCogsReconciliation')}
+                  </Link>
+                )
+              }
             />
           </div>
 

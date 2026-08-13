@@ -28,3 +28,11 @@ export function useChartOfAccounts(enabled: boolean) {
     staleTime: 5 * 60_000,
   })
 }
+
+export function useCogsReconciliation(query: JournalEntriesQuery, enabled: boolean) {
+  return useQuery({
+    queryKey: ['accounting', 'cogs-reconciliation', query],
+    queryFn: () => accountingApi.getCogsReconciliation(query),
+    enabled,
+  })
+}

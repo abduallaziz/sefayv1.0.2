@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
-import { AlertTriangle, BookText } from 'lucide-react'
+import { AlertTriangle, CheckCircle2 } from 'lucide-react'
 import { PageHeader } from '@/shared/ui/page-header'
 import { DataTable, Column } from '@/shared/ui/data-table'
 import { StatusBadge, StatusTone } from '@/shared/ui/status-badge'
@@ -10,7 +10,7 @@ import { EmptyState } from '@/shared/ui/empty-state'
 import { Pagination } from '@/shared/components/ui/Pagination'
 import { usePermission } from '@/core/permissions/hooks/usePermission'
 import { ApiError } from '@/lib/api'
-import { useJournalEntries } from '../hooks/useJournalEntries'
+import { useCogsReconciliation } from '../hooks/useJournalEntries'
 import { useFiscalPeriods } from '../hooks/useAccountingCommandCenter'
 import { useUsers } from '@/features/users/hooks/useUsers'
 import { JournalEntriesFilters } from '../components/JournalEntriesFilters'
@@ -23,11 +23,11 @@ const statusTone: Record<string, StatusTone> = {
   reversed: 'danger',
 }
 
-export function JournalEntriesListPage() {
-  const t = useTranslations('accounting.journalEntries')
+export function CogsReconciliationPage() {
+  const t = useTranslations('accounting.cogsReconciliation')
+  const tJournal = useTranslations('accounting.journalEntries')
   const locale = useLocale()
-  const canView = usePermission('accounting.journal.view')
-  const canViewReconciliation = usePermission('accounting.reconciliation.view')
+  const canView = usePermission('accounting.reconciliation.view')
 
   const [filters, setFilters] = useState<JournalEntriesQuery>({})
   const [page, setPage] = useState(1)
@@ -39,7 +39,7 @@ export function JournalEntriesListPage() {
     setPage(1)
   }
 
-  const query = useJournalEntries({ ...filters, page, per_page: perPage }, canView)
+  const query = useCogsReconciliation({ ...filters, page, per_page: perPage }, canView)
   const fiscalPeriods = useFiscalPeriods(canView)
   const fiscalPeriodById = new Map((fiscalPeriods.data ?? []).map((p) => [p.id, p]))
   const users = useUsers()
@@ -61,38 +61,37 @@ export function JournalEntriesListPage() {
   const columns: Column<JournalEntry>[] = [
     {
       key: 'reference',
-      header: t('columns.reference'),
+      header: tJournal('columns.reference'),
       render: (row) => (
         <span className="text-posCloud-text-primary dark:text-posCloudDark-text-primary">{row.reference ?? row.id}</span>
       ),
     },
-    { key: 'posting_date', header: t('columns.postingDate'), render: (row) => <span className="tabular-nums">{row.posting_date}</span> },
-    { key: 'source_module', header: t('columns.source') },
+    { key: 'posting_date', header: tJournal('columns.postingDate'), render: (row) => <span className="tabular-nums">{row.posting_date}</span> },
     {
       key: 'description',
-      header: t('columns.description'),
+      header: tJournal('columns.description'),
       render: (row) => <span className="truncate block max-w-xs">{row.description ?? '—'}</span>,
     },
     {
       key: 'status',
-      header: t('columns.status'),
-      render: (row) => <StatusBadge label={t(`status.${row.status}`)} tone={statusTone[row.status] ?? 'neutral'} />,
+      header: tJournal('columns.status'),
+      render: (row) => <StatusBadge label={tJournal(`status.${row.status}`)} tone={statusTone[row.status] ?? 'neutral'} />,
     },
     {
       key: 'fiscal_period_id',
-      header: t('columns.fiscalPeriod'),
+      header: tJournal('columns.fiscalPeriod'),
       render: (row) => {
         const period = row.fiscal_period_id ? fiscalPeriodById.get(row.fiscal_period_id) : undefined
         return (
           <span className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary tabular-nums">
-            {period ? t('fiscalPeriodLabel', { number: period.period_number }) : '—'}
+            {period ? tJournal('fiscalPeriodLabel', { number: period.period_number }) : '—'}
           </span>
         )
       },
     },
     {
       key: 'created_by',
-      header: t('columns.createdBy'),
+      header: tJournal('columns.createdBy'),
       render: (row) => (
         <span className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
           {row.created_by ? (userNameById.get(row.created_by) ?? row.created_by) : '—'}
@@ -113,7 +112,7 @@ export function JournalEntriesListPage() {
         ]}
       />
 
-      <JournalEntriesFilters filters={filters} onChange={handleFiltersChange} canView={canView} />
+      <JournalEntriesFilters filters={filters} onChange={handleFiltersChange} canView={canView} hideSource />
 
       {isForbidden ? (
         <EmptyState icon={AlertTriangle} title={t('noPermission.title')} description={t('noPermission.description')} theme="dashboard" size="lg" />
@@ -128,7 +127,9 @@ export function JournalEntriesListPage() {
           loading={query.isLoading}
           onRowClick={(row) => setSelectedId(row.id)}
           emptyState={
-            <EmptyState icon={BookText} title={t('empty.title')} description={t('empty.description')} theme="dashboard" size="md" />
+            // No exceptions is the healthy state here, unlike an empty
+            // Journal Entries list — framed positively, not as an error.
+            <EmptyState icon={CheckCircle2} title={t('empty.title')} description={t('empty.description')} theme="dashboard" size="md" />
           }
         />
       )}
@@ -142,7 +143,7 @@ export function JournalEntriesListPage() {
         open={selectedId !== null}
         onOpenChange={(open) => { if (!open) setSelectedId(null) }}
         canView={canView}
-        canViewReconciliation={canViewReconciliation}
+        canViewReconciliation={canView}
       />
     </div>
   )

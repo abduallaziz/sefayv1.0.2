@@ -153,4 +153,12 @@ export const accountingApi = {
   getJournalEntry: (id: string) =>
     apiClient.get<JournalEntryDetail>(`/accounting/journal-entries/${id}`),
   getChartOfAccounts: () => apiClient.get<Account[]>('/accounting/chart-of-accounts'),
+  // Step 3 — COGS Reconciliation. Same PagedResult<JournalEntry> shape as
+  // getJournalEntries: AccountingService.listCogsReconciliation() calls the
+  // identical findJournalEntries() repository method, just server-side
+  // pre-filtered to source_module='sales' + requires_cogs_reconciliation=true
+  // (confirmed against both source and the live deployed API — no
+  // COGS-specific field exists anywhere in this response).
+  getCogsReconciliation: (query: JournalEntriesQuery) =>
+    apiClient.get<PagedResult<JournalEntry>>(`/accounting/cogs-reconciliation${toQueryString(query)}`),
 }

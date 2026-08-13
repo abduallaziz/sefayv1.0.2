@@ -17,6 +17,7 @@ interface Props {
   open: boolean
   onOpenChange: (open: boolean) => void
   canView: boolean
+  canViewReconciliation?: boolean
 }
 
 const numberFormatter = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -30,7 +31,7 @@ const statusTone: Record<string, StatusTone> = {
   reversed: 'danger',
 }
 
-export function JournalEntryDetailSheet({ entryId, open, onOpenChange, canView }: Props) {
+export function JournalEntryDetailSheet({ entryId, open, onOpenChange, canView, canViewReconciliation = false }: Props) {
   const t = useTranslations('accounting.journalEntries.detail')
   const tStatus = useTranslations('accounting.journalEntries.status')
   const locale = useLocale()
@@ -103,6 +104,14 @@ export function JournalEntryDetailSheet({ entryId, open, onOpenChange, canView }
                     <div className="flex items-center gap-2 text-posCloud-warning text-xs pt-1">
                       <AlertTriangle className="w-3.5 h-3.5" />
                       {t('header.cogsFlag')}
+                      {canViewReconciliation && (
+                        <Link
+                          href={`/${locale}/dashboard/accounting/cogs-reconciliation`}
+                          className="text-posCloud-primary hover:underline"
+                        >
+                          {t('header.viewInCogs')}
+                        </Link>
+                      )}
                     </div>
                   )}
                 </div>

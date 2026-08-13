@@ -34,7 +34,8 @@
       "closed": "Closed — posting blocked",
       "none": "No fiscal period covers today"
     },
-    "viewJournalEntries": "View Journal Entries"
+    "viewJournalEntries": "View Journal Entries",
+    "viewCogsReconciliation": "View exceptions"
   },
   "journalEntries": {
     "title": "Journal Entries",
@@ -104,7 +105,8 @@
         "postingDate": "Posting Date",
         "status": "Status",
         "source": "Source",
-        "cogsFlag": "Requires COGS reconciliation"
+        "cogsFlag": "Requires COGS reconciliation",
+        "viewInCogs": "View in COGS Reconciliation"
       },
       "lines": {
         "title": "Journal Lines"
@@ -135,6 +137,23 @@
         "postedAt": "Posted At",
         "reversedAt": "Reversed At"
       }
+    }
+  },
+  "cogsReconciliation": {
+    "title": "COGS Reconciliation",
+    "description": "Sales journal entries flagged for missing inventory cost",
+    "breadcrumbAccounting": "Accounting",
+    "noPermission": {
+      "title": "No access to COGS Reconciliation",
+      "description": "You don't have permission to view COGS Reconciliation. Contact your owner or manager."
+    },
+    "error": {
+      "title": "Couldn't load COGS Reconciliation",
+      "description": "Something went wrong while loading the list. Try again."
+    },
+    "empty": {
+      "title": "No reconciliation exceptions",
+      "description": "Every sales entry has a resolved inventory cost."
     }
   }
 }
