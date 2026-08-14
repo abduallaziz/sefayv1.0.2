@@ -28,6 +28,7 @@ export function JournalEntriesListPage() {
   const locale = useLocale()
   const canView = usePermission('accounting.journal.view')
   const canViewReconciliation = usePermission('accounting.reconciliation.view')
+  const canViewPriceOverride = usePermission('price_override.audit.view')
 
   const [filters, setFilters] = useState<JournalEntriesQuery>({})
   const [page, setPage] = useState(1)
@@ -143,6 +144,7 @@ export function JournalEntriesListPage() {
         onOpenChange={(open) => { if (!open) setSelectedId(null) }}
         canView={canView}
         canViewReconciliation={canViewReconciliation}
+        canViewPriceOverride={canViewPriceOverride}
       />
     </div>
   )

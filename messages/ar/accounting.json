@@ -123,7 +123,8 @@
       "priceOverride": {
         "title": "تدقيق تجاوز السعر",
         "official": "السعر الرسمي",
-        "approved": "السعر المعتمد"
+        "approved": "السعر المعتمد",
+        "viewInAudit": "عرض في تدقيق تجاوز السعر"
       },
       "reversal": {
         "title": "سلسلة العكس",
@@ -154,6 +155,110 @@
     "empty": {
       "title": "لا توجد استثناءات للتسوية",
       "description": "كل قيود المبيعات لها تكلفة مخزون محددة."
+    }
+  },
+  "priceOverrideAudit": {
+    "title": "تدقيق تجاوز السعر",
+    "description": "كل تجاوز سعري تمت الموافقة عليه خارج السعر الرسمي، مع سياق تدقيق كامل",
+    "breadcrumbAccounting": "المحاسبة",
+    "noPermission": {
+      "title": "لا تملك صلاحية الوصول لتدقيق تجاوز السعر",
+      "description": "لا تملك صلاحية عرض تدقيق تجاوز السعر. تواصل مع المالك أو المدير."
+    },
+    "error": {
+      "title": "تعذّر تحميل تدقيق تجاوز السعر",
+      "description": "حدث خطأ أثناء تحميل القائمة. حاول مرة أخرى."
+    },
+    "empty": {
+      "title": "لا توجد تجاوزات سعرية مطابقة لهذه الفلاتر",
+      "description": "جرّب توسيع نطاق التاريخ أو مسح أحد الفلاتر."
+    },
+    "direction": {
+      "discount": "خصم",
+      "increase": "زيادة"
+    },
+    "columns": {
+      "date": "التاريخ",
+      "item": "المنتج",
+      "officialPrice": "السعر الرسمي",
+      "approvedPrice": "السعر المعتمد",
+      "differencePercent": "نسبة الفرق",
+      "direction": "الاتجاه",
+      "effectiveRole": "الدور الفعلي",
+      "user": "المستخدم",
+      "branch": "الفرع",
+      "reason": "السبب"
+    },
+    "filters": {
+      "dateRange": "نطاق التاريخ",
+      "orderId": "رقم الطلب",
+      "item": "المنتج",
+      "user": "المستخدم",
+      "effectiveRole": "الدور الفعلي",
+      "branch": "الفرع",
+      "direction": "الاتجاه",
+      "directionDiscount": "خصم",
+      "directionIncrease": "زيادة",
+      "percentMin": "أقل نسبة",
+      "percentMax": "أعلى نسبة",
+      "reason": "يحتوي السبب على"
+    },
+    "detail": {
+      "title": "تجاوز السعر",
+      "description": "المسار الكامل للتدقيق من الطلب حتى المحاسبة",
+      "noPermission": {
+        "title": "لا تملك صلاحية الوصول لهذا السجل",
+        "description": "لا تملك صلاحية عرض سجل تدقيق تجاوز السعر هذا."
+      },
+      "notFound": {
+        "title": "سجل تجاوز السعر غير موجود",
+        "description": "ربما تمت إزالة هذا السجل أو الرابط غير صحيح."
+      },
+      "error": {
+        "title": "تعذّر تحميل هذا السجل",
+        "description": "حدث خطأ أثناء تحميل التفاصيل. حاول مرة أخرى."
+      },
+      "direction": {
+        "discount": "خصم",
+        "increase": "زيادة"
+      },
+      "override": {
+        "title": "تجاوز السعر",
+        "officialPrice": "السعر الرسمي",
+        "approvedPrice": "السعر المعتمد",
+        "difference": "الفرق",
+        "direction": "الاتجاه"
+      },
+      "actor": {
+        "title": "المُنفِّذ والسياسة",
+        "user": "المستخدم",
+        "effectiveRole": "الدور الفعلي",
+        "branch": "الفرع",
+        "policySnapshot": "لقطة السياسة الفعلية"
+      },
+      "order": {
+        "title": "الطلب",
+        "orderId": "رقم الطلب",
+        "status": "الحالة",
+        "total": "الإجمالي",
+        "item": "المنتج",
+        "quantity": "الكمية",
+        "viewInOrders": "عرض في الطلبات"
+      },
+      "journal": {
+        "title": "قيد اليومية",
+        "status": "الحالة",
+        "postingDate": "تاريخ الترحيل",
+        "reference": "المرجع",
+        "viewInJournal": "عرض في قيود اليومية",
+        "none": "لم يُرحَّل بعد إلى دفتر الأستاذ العام"
+      },
+      "journalStatus": {
+        "draft": "مسودة",
+        "posted": "مُرحّل",
+        "reversed": "معكوس"
+      },
+      "createdAt": "تاريخ الإنشاء"
     }
   }
 }

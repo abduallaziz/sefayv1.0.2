@@ -18,6 +18,7 @@ interface Props {
   onOpenChange: (open: boolean) => void
   canView: boolean
   canViewReconciliation?: boolean
+  canViewPriceOverride?: boolean
 }
 
 const numberFormatter = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -31,7 +32,7 @@ const statusTone: Record<string, StatusTone> = {
   reversed: 'danger',
 }
 
-export function JournalEntryDetailSheet({ entryId, open, onOpenChange, canView, canViewReconciliation = false }: Props) {
+export function JournalEntryDetailSheet({ entryId, open, onOpenChange, canView, canViewReconciliation = false, canViewPriceOverride = false }: Props) {
   const t = useTranslations('accounting.journalEntries.detail')
   const tStatus = useTranslations('accounting.journalEntries.status')
   const locale = useLocale()
@@ -197,6 +198,16 @@ export function JournalEntryDetailSheet({ entryId, open, onOpenChange, canView, 
                       </div>
                     ))}
                   </div>
+                  {canViewPriceOverride && (
+                    <div className="px-5 py-3">
+                      <Link
+                        href={`/${locale}/dashboard/accounting/price-override-audit`}
+                        className="text-sm text-posCloud-primary hover:underline"
+                      >
+                        {t('priceOverride.viewInAudit')}
+                      </Link>
+                    </div>
+                  )}
                 </SectionCard>
               )}
 

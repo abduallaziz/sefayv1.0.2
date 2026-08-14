@@ -123,7 +123,8 @@
       "priceOverride": {
         "title": "Price Override Audit",
         "official": "Official Price",
-        "approved": "Approved Price"
+        "approved": "Approved Price",
+        "viewInAudit": "View in Price Override Audit"
       },
       "reversal": {
         "title": "Reversal Chain",
@@ -154,6 +155,110 @@
     "empty": {
       "title": "No reconciliation exceptions",
       "description": "Every sales entry has a resolved inventory cost."
+    }
+  },
+  "priceOverrideAudit": {
+    "title": "Price Override Audit",
+    "description": "Every price override approved outside the official price, with full audit context",
+    "breadcrumbAccounting": "Accounting",
+    "noPermission": {
+      "title": "No access to Price Override Audit",
+      "description": "You don't have permission to view Price Override Audit. Contact your owner or manager."
+    },
+    "error": {
+      "title": "Couldn't load Price Override Audit",
+      "description": "Something went wrong while loading the list. Try again."
+    },
+    "empty": {
+      "title": "No price overrides match these filters",
+      "description": "Try widening the date range or clearing a filter."
+    },
+    "direction": {
+      "discount": "Discount",
+      "increase": "Increase"
+    },
+    "columns": {
+      "date": "Date",
+      "item": "Item",
+      "officialPrice": "Official Price",
+      "approvedPrice": "Approved Price",
+      "differencePercent": "Difference %",
+      "direction": "Direction",
+      "effectiveRole": "Effective Role",
+      "user": "User",
+      "branch": "Branch",
+      "reason": "Reason"
+    },
+    "filters": {
+      "dateRange": "Date range",
+      "orderId": "Order ID",
+      "item": "Item",
+      "user": "User",
+      "effectiveRole": "Effective Role",
+      "branch": "Branch",
+      "direction": "Direction",
+      "directionDiscount": "Discount",
+      "directionIncrease": "Increase",
+      "percentMin": "Min %",
+      "percentMax": "Max %",
+      "reason": "Reason contains"
+    },
+    "detail": {
+      "title": "Price Override",
+      "description": "Full audit trail from the requested override through to accounting",
+      "noPermission": {
+        "title": "No access to this record",
+        "description": "You don't have permission to view this Price Override Audit record."
+      },
+      "notFound": {
+        "title": "Price override record not found",
+        "description": "This record may have been removed or the link is incorrect."
+      },
+      "error": {
+        "title": "Couldn't load this record",
+        "description": "Something went wrong while loading the details. Try again."
+      },
+      "direction": {
+        "discount": "Discount",
+        "increase": "Increase"
+      },
+      "override": {
+        "title": "Price Override",
+        "officialPrice": "Official Price",
+        "approvedPrice": "Approved Price",
+        "difference": "Difference",
+        "direction": "Direction"
+      },
+      "actor": {
+        "title": "Actor & Policy",
+        "user": "User",
+        "effectiveRole": "Effective Role",
+        "branch": "Branch",
+        "policySnapshot": "Effective Policy Snapshot"
+      },
+      "order": {
+        "title": "Order",
+        "orderId": "Order ID",
+        "status": "Status",
+        "total": "Total",
+        "item": "Item",
+        "quantity": "Quantity",
+        "viewInOrders": "View in Orders"
+      },
+      "journal": {
+        "title": "Journal Entry",
+        "status": "Status",
+        "postingDate": "Posting Date",
+        "reference": "Reference",
+        "viewInJournal": "View in Journal Entries",
+        "none": "Not yet posted to the General Ledger"
+      },
+      "journalStatus": {
+        "draft": "Draft",
+        "posted": "Posted",
+        "reversed": "Reversed"
+      },
+      "createdAt": "Created At"
     }
   }
 }

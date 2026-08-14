@@ -28,6 +28,7 @@ export function CogsReconciliationPage() {
   const tJournal = useTranslations('accounting.journalEntries')
   const locale = useLocale()
   const canView = usePermission('accounting.reconciliation.view')
+  const canViewPriceOverride = usePermission('price_override.audit.view')
 
   const [filters, setFilters] = useState<JournalEntriesQuery>({})
   const [page, setPage] = useState(1)
@@ -144,6 +145,7 @@ export function CogsReconciliationPage() {
         onOpenChange={(open) => { if (!open) setSelectedId(null) }}
         canView={canView}
         canViewReconciliation={canView}
+        canViewPriceOverride={canViewPriceOverride}
       />
     </div>
   )

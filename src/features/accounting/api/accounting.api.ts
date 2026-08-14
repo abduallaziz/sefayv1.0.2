@@ -134,7 +134,7 @@ export interface Account {
   roleCodes: string[]
 }
 
-function toQueryString(query: JournalEntriesQuery): string {
+function toQueryString<T extends object>(query: T): string {
   const params = new URLSearchParams()
   Object.entries(query).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== '') {
@@ -143,6 +143,62 @@ function toQueryString(query: JournalEntriesQuery): string {
   })
   const qs = params.toString()
   return qs ? `?${qs}` : ''
+}
+
+// Step 4 — Price Override Audit. Field set matches AccountingRepository's
+// findPriceOverrideAudits()/findPriceOverrideAuditDetail() exactly (confirmed
+// against both source and the live deployed API). Every reference field
+// (branch_id, order_id, order_item_id, actor_id, actor_role_id, item_id) is
+// a raw UUID with no server-side join — resolved client-side via the
+// existing branches/users/items/roles hooks, same pattern as Step 2/3's
+// account/fiscal-period labeling. actor_role_name_snapshot is the one
+// exception: already a plain string captured at action time, no join needed.
+export interface PriceOverrideAudit {
+  id: string
+  branch_id: string
+  order_id: string
+  order_item_id: string
+  actor_id: string
+  actor_role_id: string
+  actor_role_name_snapshot: string
+  item_id: string
+  official_unit_price: number
+  approved_unit_price: number
+  difference_amount: number
+  difference_percent: number
+  direction: 'discount' | 'increase'
+  reason: string | null
+  created_at: string
+}
+
+// journalEntry here is {id, status, posting_date} only — no `reference`
+// string (confirmed live). The Detail sheet resolves a human reference by
+// calling the existing GET /accounting/journal-entries/:id on demand, not
+// by inventing a field that doesn't exist on this response.
+export interface PriceOverrideAuditDetail extends PriceOverrideAudit {
+  tenant_id: string
+  effective_policy_snapshot: Record<string, unknown> | null
+  journalEntry: { id: string; status: string; posting_date: string } | null
+}
+
+// No `amount` or `policy` filter exists in the backend DTO at all (confirmed
+// against PriceOverrideAuditQueryDto) — only difference_percent_min/max.
+// Deliberately not included here; do not add client-side params the API
+// silently ignores.
+export interface PriceOverrideAuditQuery {
+  page?: number
+  per_page?: number
+  date_from?: string
+  date_to?: string
+  branch_id?: string
+  order_id?: string
+  item_id?: string
+  actor_id?: string
+  actor_role_id?: string
+  direction?: 'discount' | 'increase'
+  difference_percent_min?: number
+  difference_percent_max?: number
+  reason?: string
 }
 
 export const accountingApi = {
@@ -161,4 +217,8 @@ export const accountingApi = {
   // COGS-specific field exists anywhere in this response).
   getCogsReconciliation: (query: JournalEntriesQuery) =>
     apiClient.get<PagedResult<JournalEntry>>(`/accounting/cogs-reconciliation${toQueryString(query)}`),
+  getPriceOverrideAudits: (query: PriceOverrideAuditQuery) =>
+    apiClient.get<PagedResult<PriceOverrideAudit>>(`/accounting/price-override-audit${toQueryString(query)}`),
+  getPriceOverrideAudit: (id: string) =>
+    apiClient.get<PriceOverrideAuditDetail>(`/accounting/price-override-audit/${id}`),
 }
