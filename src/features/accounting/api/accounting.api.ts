@@ -201,6 +201,35 @@ export interface PriceOverrideAuditQuery {
   reason?: string
 }
 
+// Step 5 — Fiscal + Configuration Foundation. Field sets match
+// AccountingRepository's findAccountingOwners()/findBranchAssignments()
+// exactly (confirmed against both source and the live deployed API).
+export interface AccountingOwner {
+  id: string
+  branch_id: string
+  owner_type_code: string
+  name: string
+  status: string
+  created_at: string
+}
+
+export interface BranchAssignment {
+  id: string
+  branch_id: string
+  accounting_owner_id: string
+  effective_from: string
+  effective_to: string | null
+  reason: string | null
+  created_at: string
+}
+
+export interface AssignBranchAccountingOwnerPayload {
+  branch_id: string
+  accounting_owner_id: string
+  effective_from: string
+  reason?: string
+}
+
 export const accountingApi = {
   getCommandCenter: () => apiClient.get<CommandCenterSummary>('/accounting/command-center'),
   getFiscalPeriods: () => apiClient.get<FiscalPeriod[]>('/accounting/fiscal-periods'),
@@ -221,4 +250,8 @@ export const accountingApi = {
     apiClient.get<PagedResult<PriceOverrideAudit>>(`/accounting/price-override-audit${toQueryString(query)}`),
   getPriceOverrideAudit: (id: string) =>
     apiClient.get<PriceOverrideAuditDetail>(`/accounting/price-override-audit/${id}`),
+  getAccountingOwners: () => apiClient.get<AccountingOwner[]>('/accounting/owners'),
+  getBranchAssignments: () => apiClient.get<BranchAssignment[]>('/accounting/branch-assignments'),
+  assignBranchAccountingOwner: (payload: AssignBranchAccountingOwnerPayload) =>
+    apiClient.post<BranchAssignment>('/accounting/branch-assignments', payload),
 }

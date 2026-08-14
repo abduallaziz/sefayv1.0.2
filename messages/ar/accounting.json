@@ -26,7 +26,8 @@
       "tenantHasOwner": "يملك المستأجر مسؤولًا محاسبيًا",
       "tenantMissingOwner": "لا يملك المستأجر مسؤولًا محاسبيًا",
       "allBranchesAssigned": "كل الفروع مرتبطة",
-      "branchesUnassigned": "{count} فرع غير مرتبط"
+      "branchesUnassigned": "{count} فرع غير مرتبط",
+      "manageAssignments": "إدارة ربط الفروع"
     },
     "fiscalPeriod": {
       "title": "الفترة المالية الحالية",
@@ -259,6 +260,88 @@
         "reversed": "معكوس"
       },
       "createdAt": "تاريخ الإنشاء"
+    }
+  },
+  "configuration": {
+    "title": "إعدادات المحاسبة",
+    "description": "الفترات المالية، المسؤولون المحاسبيون، ربط الفروع، ودليل الحسابات",
+    "breadcrumbAccounting": "المحاسبة",
+    "yes": "نعم",
+    "no": "لا",
+    "noPermission": {
+      "title": "لا تملك صلاحية الوصول لإعدادات المحاسبة",
+      "description": "لا تملك صلاحية عرض أي قسم من الإعدادات. تواصل مع المالك أو المدير."
+    },
+    "fiscalPeriods": {
+      "title": "الفترات المالية",
+      "description": "للعرض فقط — الفترات تُدار بواسطة محرك الترحيل",
+      "empty": "لا توجد فترات مالية",
+      "periodLabel": "الفترة {number}",
+      "columns": {
+        "period": "الفترة",
+        "startDate": "تاريخ البداية",
+        "endDate": "تاريخ النهاية",
+        "status": "الحالة"
+      },
+      "status": {
+        "open": "مفتوحة",
+        "closed": "مغلقة"
+      }
+    },
+    "owners": {
+      "title": "المسؤولون المحاسبيون",
+      "description": "الجهات المسؤولة عن محاسبة الفرع",
+      "empty": "لا يوجد مسؤولون محاسبيون",
+      "columns": {
+        "name": "الاسم",
+        "type": "النوع",
+        "branch": "الفرع",
+        "status": "الحالة"
+      }
+    },
+    "assignments": {
+      "title": "ربط الفروع بالمحاسبة",
+      "description": "يجب ربط الفروع بمسؤول قبل أن يعمل ترحيل المبيعات لها",
+      "empty": "لا توجد ارتباطات فروع",
+      "assign": "ربط فرع",
+      "columns": {
+        "branch": "الفرع",
+        "owner": "المسؤول",
+        "effectiveFrom": "ساري من",
+        "effectiveTo": "ساري حتى",
+        "reason": "السبب"
+      }
+    },
+    "chartOfAccounts": {
+      "title": "دليل الحسابات",
+      "description": "للعرض فقط — الحسابات تُدار بواسطة محرك الترحيل",
+      "empty": "لا توجد حسابات",
+      "columns": {
+        "code": "الرمز",
+        "name": "الاسم",
+        "type": "النوع",
+        "normalBalance": "الرصيد الطبيعي",
+        "postingAccount": "حساب ترحيل",
+        "active": "نشط",
+        "roles": "الأدوار"
+      }
+    },
+    "assignForm": {
+      "title": "ربط فرع بمسؤول",
+      "description": "إنشاء ارتباط جديد بين فرع ومسؤول محاسبي",
+      "branch": "الفرع",
+      "selectBranch": "اختر فرعًا",
+      "owner": "المسؤول المحاسبي",
+      "selectOwner": "اختر مسؤولًا",
+      "effectiveFrom": "ساري من",
+      "selectDate": "اختر تاريخًا",
+      "reason": "السبب (اختياري)",
+      "reasonPlaceholder": "مثال: افتتاح فرع جديد",
+      "cancel": "إلغاء",
+      "submit": "ربط",
+      "submitting": "جارٍ الربط…",
+      "success": "تم ربط الفرع بنجاح",
+      "error": "تعذّر ربط الفرع. حاول مرة أخرى."
     }
   }
 }

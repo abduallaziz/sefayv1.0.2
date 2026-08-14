@@ -26,7 +26,8 @@
       "tenantHasOwner": "Tenant has an Accounting Owner",
       "tenantMissingOwner": "Tenant has no Accounting Owner",
       "allBranchesAssigned": "All branches are assigned",
-      "branchesUnassigned": "{count} branch(es) not yet assigned"
+      "branchesUnassigned": "{count} branch(es) not yet assigned",
+      "manageAssignments": "Manage branch assignments"
     },
     "fiscalPeriod": {
       "title": "Current Fiscal Period",
@@ -259,6 +260,88 @@
         "reversed": "Reversed"
       },
       "createdAt": "Created At"
+    }
+  },
+  "configuration": {
+    "title": "Accounting Configuration",
+    "description": "Fiscal periods, accounting owners, branch assignments, and the chart of accounts",
+    "breadcrumbAccounting": "Accounting",
+    "yes": "Yes",
+    "no": "No",
+    "noPermission": {
+      "title": "No access to Accounting Configuration",
+      "description": "You don't have permission to view any Configuration section. Contact your owner or manager."
+    },
+    "fiscalPeriods": {
+      "title": "Fiscal Periods",
+      "description": "Visibility only — periods are managed by the posting engine",
+      "empty": "No fiscal periods found",
+      "periodLabel": "Period {number}",
+      "columns": {
+        "period": "Period",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "status": "Status"
+      },
+      "status": {
+        "open": "Open",
+        "closed": "Closed"
+      }
+    },
+    "owners": {
+      "title": "Accounting Owners",
+      "description": "Entities responsible for a branch's accounting",
+      "empty": "No accounting owners found",
+      "columns": {
+        "name": "Name",
+        "type": "Type",
+        "branch": "Branch",
+        "status": "Status"
+      }
+    },
+    "assignments": {
+      "title": "Branch Accounting Assignments",
+      "description": "Branches must be assigned to an owner before Sales Posting can run for them",
+      "empty": "No branch assignments found",
+      "assign": "Assign Branch",
+      "columns": {
+        "branch": "Branch",
+        "owner": "Owner",
+        "effectiveFrom": "Effective From",
+        "effectiveTo": "Effective To",
+        "reason": "Reason"
+      }
+    },
+    "chartOfAccounts": {
+      "title": "Chart of Accounts",
+      "description": "View only — accounts are managed by the posting engine",
+      "empty": "No accounts found",
+      "columns": {
+        "code": "Code",
+        "name": "Name",
+        "type": "Type",
+        "normalBalance": "Normal Balance",
+        "postingAccount": "Posting Account",
+        "active": "Active",
+        "roles": "Roles"
+      }
+    },
+    "assignForm": {
+      "title": "Assign Branch to Owner",
+      "description": "Create a new branch accounting assignment",
+      "branch": "Branch",
+      "selectBranch": "Select a branch",
+      "owner": "Accounting Owner",
+      "selectOwner": "Select an owner",
+      "effectiveFrom": "Effective From",
+      "selectDate": "Select a date",
+      "reason": "Reason (optional)",
+      "reasonPlaceholder": "e.g. New branch opening",
+      "cancel": "Cancel",
+      "submit": "Assign",
+      "submitting": "Assigning…",
+      "success": "Branch assigned successfully",
+      "error": "Couldn't assign the branch. Try again."
     }
   }
 }

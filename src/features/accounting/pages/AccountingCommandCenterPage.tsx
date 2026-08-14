@@ -30,6 +30,7 @@ export function AccountingCommandCenterPage() {
   const canView = usePermission('accounting.view')
   const canViewJournal = usePermission('accounting.journal.view')
   const canViewReconciliation = usePermission('accounting.reconciliation.view')
+  const canManageConfig = usePermission('accounting.configuration.manage')
 
   // Gated on the client-known permission — avoids firing (and console-
   // logging) a request we already know will 403, matching the
@@ -194,6 +195,14 @@ export function AccountingCommandCenterPage() {
                         count: commandCenter.data.totalBranches - commandCenter.data.branchesAssigned,
                       })}
                 </p>
+                {canManageConfig && (
+                  <Link
+                    href={`/${locale}/dashboard/accounting/configuration`}
+                    className="inline-block text-sm text-posCloud-primary hover:underline"
+                  >
+                    {t('readiness.manageAssignments')}
+                  </Link>
+                )}
               </div>
             </SectionCard>
 
