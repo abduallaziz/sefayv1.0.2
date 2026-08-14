@@ -53,7 +53,13 @@ export function AssignBranchOwnerSheet({ open, onOpenChange }: Props) {
   }
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    // modal={false}: SingleDatePicker's calendar portals to document.body,
+    // outside this Sheet's own DOM subtree. Radix's default modal focus
+    // trap fights clicks on anything portaled outside its content, which
+    // silently ate every day-button click. Scoped to this Sheet usage only
+    // (Sheet/SingleDatePicker themselves are untouched) — every other Sheet
+    // in the app keeps the default modal trap.
+    <Sheet open={open} onOpenChange={onOpenChange} modal={false}>
       <SheetContent side="end">
         <SheetHeader>
           <SheetTitle>{t('title')}</SheetTitle>
