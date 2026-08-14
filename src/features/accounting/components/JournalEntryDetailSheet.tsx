@@ -35,6 +35,7 @@ const statusTone: Record<string, StatusTone> = {
 export function JournalEntryDetailSheet({ entryId, open, onOpenChange, canView, canViewReconciliation = false, canViewPriceOverride = false }: Props) {
   const t = useTranslations('accounting.journalEntries.detail')
   const tStatus = useTranslations('accounting.journalEntries.status')
+  const tRoot = useTranslations('accounting.journalEntries')
   const locale = useLocale()
 
   const detail = useJournalEntryDetail(entryId, open && canView)
@@ -270,7 +271,7 @@ export function JournalEntryDetailSheet({ entryId, open, onOpenChange, canView, 
                 href={`/${locale}/dashboard/accounting`}
                 className="inline-block text-sm text-posCloud-primary hover:underline"
               >
-                {t('backToCommandCenter')}
+                {tRoot('backToCommandCenter')}
               </Link>
             </>
           )}
