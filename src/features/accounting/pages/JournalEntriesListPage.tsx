@@ -23,6 +23,20 @@ const statusTone: Record<string, StatusTone> = {
   reversed: 'danger',
 }
 
+const knownSourceLabelKeys = new Set(['sales_order'])
+
+function sourceLabelKey(row: JournalEntry): string {
+  const key = `${row.source_module}_${row.source_entity_type}`
+  return knownSourceLabelKeys.has(key) ? key : 'manual'
+}
+
+// Never render a raw 36-char UUID as a "reference" — shorten to its last
+// 8 characters, which is enough to disambiguate in a filtered list. The
+// full id is always available in the Detail sheet.
+function shortenReference(id: string): string {
+  return id.slice(-8)
+}
+
 export function JournalEntriesListPage() {
   const t = useTranslations('accounting.journalEntries')
   const locale = useLocale()
@@ -64,15 +78,23 @@ export function JournalEntriesListPage() {
       key: 'reference',
       header: t('columns.reference'),
       render: (row) => (
-        <span className="text-posCloud-text-primary dark:text-posCloudDark-text-primary">{row.reference ?? row.id}</span>
+        <span className="text-posCloud-text-primary dark:text-posCloudDark-text-primary tabular-nums">
+          {t('referenceFallback', { shortId: shortenReference(row.reference ?? row.id) })}
+        </span>
       ),
     },
     { key: 'posting_date', header: t('columns.postingDate'), render: (row) => <span className="tabular-nums">{row.posting_date}</span> },
-    { key: 'source_module', header: t('columns.source') },
+    {
+      key: 'source_module',
+      header: t('columns.source'),
+      render: (row) => <span>{t(`sourceLabels.${sourceLabelKey(row)}`)}</span>,
+    },
     {
       key: 'description',
       header: t('columns.description'),
-      render: (row) => <span className="truncate block max-w-xs">{row.description ?? '—'}</span>,
+      render: (row) => (
+        <span className="truncate block max-w-xs">{row.description ?? t(`sourceLabels.${sourceLabelKey(row)}`)}</span>
+      ),
     },
     {
       key: 'status',

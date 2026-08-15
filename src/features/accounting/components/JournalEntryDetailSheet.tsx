@@ -32,6 +32,20 @@ const statusTone: Record<string, StatusTone> = {
   reversed: 'danger',
 }
 
+const knownSourceLabelKeys = new Set(['sales_order'])
+
+function sourceLabelKey(sourceModule: string, sourceEntityType: string): string {
+  const key = `${sourceModule}_${sourceEntityType}`
+  return knownSourceLabelKeys.has(key) ? key : 'manual'
+}
+
+// Never render a raw 36-char UUID — shorten to its last 8 characters,
+// enough to disambiguate; the linked Order section below carries full
+// traceability for sales-sourced entries.
+function shortenReference(id: string): string {
+  return id.slice(-8)
+}
+
 export function JournalEntryDetailSheet({ entryId, open, onOpenChange, canView, canViewReconciliation = false, canViewPriceOverride = false }: Props) {
   const t = useTranslations('accounting.journalEntries.detail')
   const tStatus = useTranslations('accounting.journalEntries.status')
@@ -83,7 +97,9 @@ export function JournalEntryDetailSheet({ entryId, open, onOpenChange, canView, 
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center justify-between">
                     <span className="text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('header.reference')}</span>
-                    <span className="text-posCloud-text-primary dark:text-posCloudDark-text-primary">{detail.data.reference ?? '—'}</span>
+                    <span className="text-posCloud-text-primary dark:text-posCloudDark-text-primary tabular-nums">
+                      {tRoot('referenceFallback', { shortId: shortenReference(detail.data.reference ?? detail.data.id) })}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('header.postingDate')}</span>
@@ -95,13 +111,13 @@ export function JournalEntryDetailSheet({ entryId, open, onOpenChange, canView, 
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('header.source')}</span>
-                    <span className="text-posCloud-text-primary dark:text-posCloudDark-text-primary">{detail.data.source_module}</span>
+                    <span className="text-posCloud-text-primary dark:text-posCloudDark-text-primary">
+                      {tRoot(`sourceLabels.${sourceLabelKey(detail.data.source_module, detail.data.source_entity_type)}`)}
+                    </span>
                   </div>
-                  {detail.data.description && (
-                    <div className="pt-2 border-t border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">
-                      {detail.data.description}
-                    </div>
-                  )}
+                  <div className="pt-2 border-t border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">
+                    {detail.data.description ?? tRoot(`sourceLabels.${sourceLabelKey(detail.data.source_module, detail.data.source_entity_type)}`)}
+                  </div>
                   {detail.data.requires_cogs_reconciliation && (
                     <div className="flex items-center gap-2 text-posCloud-warning text-xs pt-1">
                       <AlertTriangle className="w-3.5 h-3.5" />

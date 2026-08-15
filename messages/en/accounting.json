@@ -61,6 +61,12 @@
       "posted": "Posted",
       "reversed": "Reversed"
     },
+    "sourceLabels": {
+      "sales_order": "POS Sale",
+      "manual": "Manual Entry"
+    },
+    "referenceFallback": "Reference {shortId}",
+    "noDescription": "No description",
     "columns": {
       "reference": "Reference",
       "postingDate": "Posting Date",

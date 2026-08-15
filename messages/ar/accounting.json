@@ -61,6 +61,12 @@
       "posted": "مُرحّل",
       "reversed": "معكوس"
     },
+    "sourceLabels": {
+      "sales_order": "مبيعات نقطة بيع",
+      "manual": "قيد يدوي"
+    },
+    "referenceFallback": "مرجع {shortId}",
+    "noDescription": "بلا وصف",
     "columns": {
       "reference": "المرجع",
       "postingDate": "تاريخ الترحيل",
