@@ -46,6 +46,10 @@ function shortenReference(id: string): string {
   return id.slice(-8)
 }
 
+// See JournalEntriesListPage's LEGACY_SALES_DESCRIPTION comment — same
+// DB immutability constraint, same recognizer, kept in sync deliberately.
+const LEGACY_SALES_DESCRIPTION = /^Sales posting for order [0-9a-f-]{36}$/i
+
 export function JournalEntryDetailSheet({ entryId, open, onOpenChange, canView, canViewReconciliation = false, canViewPriceOverride = false }: Props) {
   const t = useTranslations('accounting.journalEntries.detail')
   const tStatus = useTranslations('accounting.journalEntries.status')
@@ -116,7 +120,9 @@ export function JournalEntryDetailSheet({ entryId, open, onOpenChange, canView, 
                     </span>
                   </div>
                   <div className="pt-2 border-t border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">
-                    {detail.data.description ?? tRoot(`sourceLabels.${sourceLabelKey(detail.data.source_module, detail.data.source_entity_type)}`)}
+                    {!detail.data.description || LEGACY_SALES_DESCRIPTION.test(detail.data.description)
+                      ? tRoot(`sourceLabels.${sourceLabelKey(detail.data.source_module, detail.data.source_entity_type)}`)
+                      : detail.data.description}
                   </div>
                   {detail.data.requires_cogs_reconciliation && (
                     <div className="flex items-center gap-2 text-posCloud-warning text-xs pt-1">

@@ -303,6 +303,16 @@
         "type": "Type",
         "branch": "Branch",
         "status": "Status"
+      },
+      "type": {
+        "branch": "Independent Branch",
+        "central": "Central Accounting",
+        "regional": "Regional Accounting",
+        "other": "Other Structure"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
       }
     },
     "assignments": {
@@ -330,6 +340,27 @@
         "postingAccount": "Posting Account",
         "active": "Active",
         "roles": "Roles"
+      },
+      "type": {
+        "asset": "Asset",
+        "liability": "Liability",
+        "equity": "Equity",
+        "revenue": "Revenue",
+        "expense": "Expense"
+      },
+      "normalBalanceValue": {
+        "debit": "Debit",
+        "credit": "Credit"
+      },
+      "roleLabels": {
+        "sales_revenue": "Sales Revenue",
+        "inventory_asset": "Inventory Asset",
+        "cogs": "Cost of Goods Sold",
+        "accounts_receivable": "Accounts Receivable",
+        "accounts_payable": "Accounts Payable",
+        "tax_payable": "Tax Payable",
+        "default_cash": "Default Cash Account",
+        "default_bank": "Default Bank Account"
       }
     },
     "assignForm": {

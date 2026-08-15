@@ -37,6 +37,21 @@ function shortenReference(id: string): string {
   return id.slice(-8)
 }
 
+// journal_entries.description is permanently immutable once an entry is
+// posted (DB guard trigger, migration 182) — historical rows posted
+// before migration 196 still carry the old fabricated English sentence
+// and can never be rewritten at the DB level. This recognizes that exact
+// legacy pattern so it renders translated too, without ever touching a
+// real, user-entered reason (e.g. a reversal's actual cancellation note).
+const LEGACY_SALES_DESCRIPTION = /^Sales posting for order [0-9a-f-]{36}$/i
+
+function displayDescription(row: JournalEntry, t: (key: string) => string): string {
+  if (!row.description || LEGACY_SALES_DESCRIPTION.test(row.description)) {
+    return t(`sourceLabels.${sourceLabelKey(row)}`)
+  }
+  return row.description
+}
+
 export function JournalEntriesListPage() {
   const t = useTranslations('accounting.journalEntries')
   const locale = useLocale()
@@ -92,9 +107,7 @@ export function JournalEntriesListPage() {
     {
       key: 'description',
       header: t('columns.description'),
-      render: (row) => (
-        <span className="truncate block max-w-xs">{row.description ?? t(`sourceLabels.${sourceLabelKey(row)}`)}</span>
-      ),
+      render: (row) => <span className="truncate block max-w-xs">{displayDescription(row, t)}</span>,
     },
     {
       key: 'status',

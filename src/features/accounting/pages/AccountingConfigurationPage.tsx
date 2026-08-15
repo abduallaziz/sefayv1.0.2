@@ -61,12 +61,12 @@ export function AccountingConfigurationPage() {
 
   const ownerColumns: Column<AccountingOwner>[] = [
     { key: 'name', header: t('owners.columns.name') },
-    { key: 'owner_type_code', header: t('owners.columns.type') },
+    { key: 'owner_type_code', header: t('owners.columns.type'), render: (row) => <span>{t(`owners.type.${row.owner_type_code}`)}</span> },
     { key: 'branch_id', header: t('owners.columns.branch'), render: (row) => <span className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{branchNameById.get(row.branch_id) ?? row.branch_id}</span> },
     {
       key: 'status',
       header: t('owners.columns.status'),
-      render: (row) => <StatusBadge label={row.status} tone={row.status === 'active' ? 'success' : 'neutral'} />,
+      render: (row) => <StatusBadge label={t(`owners.status.${row.status}`)} tone={row.status === 'active' ? 'success' : 'neutral'} />,
     },
   ]
 
@@ -81,8 +81,8 @@ export function AccountingConfigurationPage() {
   const accountColumns: Column<Account>[] = [
     { key: 'code', header: t('chartOfAccounts.columns.code'), render: (row) => <span className="tabular-nums">{row.code}</span> },
     { key: 'name', header: t('chartOfAccounts.columns.name') },
-    { key: 'account_type', header: t('chartOfAccounts.columns.type') },
-    { key: 'normal_balance', header: t('chartOfAccounts.columns.normalBalance') },
+    { key: 'account_type', header: t('chartOfAccounts.columns.type'), render: (row) => <span>{t(`chartOfAccounts.type.${row.account_type}`)}</span> },
+    { key: 'normal_balance', header: t('chartOfAccounts.columns.normalBalance'), render: (row) => <span>{t(`chartOfAccounts.normalBalanceValue.${row.normal_balance}`)}</span> },
     {
       key: 'is_posting_account',
       header: t('chartOfAccounts.columns.postingAccount'),
@@ -96,7 +96,13 @@ export function AccountingConfigurationPage() {
     {
       key: 'roleCodes',
       header: t('chartOfAccounts.columns.roles'),
-      render: (row) => <span className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{row.roleCodes.join(', ') || '—'}</span>,
+      render: (row) => (
+        <span className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+          {row.roleCodes.length
+            ? row.roleCodes.map((code) => t(`chartOfAccounts.roleLabels.${code}`)).join(locale === 'ar' ? '، ' : ', ')
+            : '—'}
+        </span>
+      ),
     },
   ]
 

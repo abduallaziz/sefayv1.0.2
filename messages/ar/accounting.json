@@ -303,6 +303,16 @@
         "type": "النوع",
         "branch": "الفرع",
         "status": "الحالة"
+      },
+      "type": {
+        "branch": "فرع مستقل",
+        "central": "محاسبة مركزية",
+        "regional": "محاسبة إقليمية",
+        "other": "هيكل محاسبي آخر"
+      },
+      "status": {
+        "active": "نشط",
+        "inactive": "غير نشط"
       }
     },
     "assignments": {
@@ -330,6 +340,27 @@
         "postingAccount": "حساب ترحيل",
         "active": "نشط",
         "roles": "الأدوار"
+      },
+      "type": {
+        "asset": "أصول",
+        "liability": "التزامات",
+        "equity": "حقوق ملكية",
+        "revenue": "إيرادات",
+        "expense": "مصروفات"
+      },
+      "normalBalanceValue": {
+        "debit": "مدين",
+        "credit": "دائن"
+      },
+      "roleLabels": {
+        "sales_revenue": "إيرادات المبيعات",
+        "inventory_asset": "أصول المخزون",
+        "cogs": "تكلفة البضاعة المباعة",
+        "accounts_receivable": "حسابات مدينة",
+        "accounts_payable": "حسابات دائنة",
+        "tax_payable": "ضريبة مستحقة",
+        "default_cash": "الصندوق الافتراضي",
+        "default_bank": "البنك الافتراضي"
       }
     },
     "assignForm": {
