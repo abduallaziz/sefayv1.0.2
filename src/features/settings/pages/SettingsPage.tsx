@@ -100,7 +100,12 @@ export function SettingsPage() {
   // and setState synchronously if it changed, instead of in an effect.
   // React re-renders immediately with the update applied before committing,
   // so this is not an extra visible render, just not a `useEffect`.
-  const [prevProfile, setPrevProfile] = useState(profile);
+  // Starts as `undefined` (NOT `profile`) on purpose: when the page is opened
+  // again and the profile is already cached, `profile` is defined on the very
+  // first render. Seeding with `profile` made that render look "unchanged", so
+  // the form never filled from the server and showed its defaults instead
+  // (e.g. auto-print always OFF after navigating away and back).
+  const [prevProfile, setPrevProfile] = useState<typeof profile>(undefined);
   if (profile !== prevProfile) {
     setPrevProfile(profile);
     if (profile?.tax_rate !== undefined) {
