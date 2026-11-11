@@ -33,6 +33,10 @@
     "itemIdPlaceholder": "Item ID to grant free",
     "percentageValue": "Discount Percentage",
     "fixedValue": "Discount Amount",
+    "taxMode": "VAT treatment",
+    "taxModeExcluding": "Excluding VAT (taken off the price before VAT)",
+    "taxModeIncluding": "Including VAT (taken off what the customer pays)",
+    "taxModeHint": "Any unused amount stays on the reward as a balance for the next purchase.",
     "couponId": "Coupon ID",
     "couponIdPlaceholder": "Coupon ID to link"
   },

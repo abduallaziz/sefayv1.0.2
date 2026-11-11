@@ -28,6 +28,10 @@ export function RewardFormModal({ reward, onClose }: Props) {
   const [name, setName] = useState(reward?.name ?? '')
   const [triggerType, setTriggerType] = useState<RewardTriggerType>(reward?.trigger_type ?? 'purchase_count')
   const [rewardType, setRewardType] = useState<RewardType>(reward?.reward_type ?? 'fixed_discount')
+  // fixed_discount only: is the amount taken off before VAT (default) or off the VAT-inclusive total?
+  const [taxMode, setTaxMode] = useState<'excluding' | 'including'>(
+    reward?.reward_config?.tax_mode === 'including' ? 'including' : 'excluding',
+  )
   const [branchScope, setBranchScope] = useState<RewardBranchScope>(reward?.branch_scope ?? 'all')
   const [branchId, setBranchId] = useState(reward?.branch_id ?? '')
   const [expirationDays, setExpirationDays] = useState(reward?.expiration_days ? String(reward.expiration_days) : '')
@@ -100,7 +104,7 @@ export function RewardFormModal({ reward, onClose }: Props) {
     if (rewardType === 'coupon_reference') {
       return { coupon_id: couponId }
     }
-    return { amount: parseFloat(discountValue) || 0 }
+    return { amount: parseFloat(discountValue) || 0, tax_mode: taxMode }
   }
 
   const buildUsageConditions = (): Record<string, unknown> | undefined => {
@@ -275,6 +279,20 @@ export function RewardFormModal({ reward, onClose }: Props) {
                 onChange={(e) => setDiscountValue(e.target.value)}
                 className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white"
               />
+              {rewardType === 'fixed_discount' && (
+                <div className="mt-3">
+                  <label className="text-xs text-gray-500 mb-1 block">{t('rewardConfig.taxMode')}</label>
+                  <select
+                    value={taxMode}
+                    onChange={(e) => setTaxMode(e.target.value as 'excluding' | 'including')}
+                    className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white"
+                  >
+                    <option value="excluding">{t('rewardConfig.taxModeExcluding')}</option>
+                    <option value="including">{t('rewardConfig.taxModeIncluding')}</option>
+                  </select>
+                  <p className="mt-1 text-[11px] text-gray-400">{t('rewardConfig.taxModeHint')}</p>
+                </div>
+              )}
             </div>
           )}
 
