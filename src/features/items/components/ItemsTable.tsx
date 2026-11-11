@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store';
-import { Edit, Trash2, Layers, ToggleLeft, ToggleRight, Barcode } from 'lucide-react';
+import { Edit, Trash2, Layers, ToggleLeft, ToggleRight, Barcode, Boxes } from 'lucide-react';
 import { Item } from '../types/item.types';
 
 interface Props {
@@ -11,10 +11,11 @@ interface Props {
   onDelete: (item: Item) => void;
   onVariants: (item: Item) => void;
   onBarcodes: (item: Item) => void;
+  onPackaging: (item: Item) => void;
   onToggleActive: (item: Item) => void;
 }
 
-export function ItemsTable({ items, onEdit, onDelete, onVariants, onBarcodes, onToggleActive }: Props) {
+export function ItemsTable({ items, onEdit, onDelete, onVariants, onBarcodes, onPackaging, onToggleActive }: Props) {
   const t = useTranslations('items');
   const currency = useCurrencyDisplay();
 
@@ -59,6 +60,9 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onBarcodes, on
                 <button onClick={() => onBarcodes(item)} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary transition-colors">
                   <Barcode className="w-3.5 h-3.5" />
                 </button>
+                <button onClick={() => onPackaging(item)} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary transition-colors">
+                  <Boxes className="w-3.5 h-3.5" />
+                </button>
                 <button onClick={() => onEdit(item)} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary transition-colors">
                   <Edit className="w-3.5 h-3.5" />
                 </button>
@@ -75,7 +79,7 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onBarcodes, on
                 {item.has_variants && (
                   <button onClick={() => onVariants(item)} className="flex items-center gap-1 text-posCloud-primary hover:underline text-xs">
                     <Layers className="w-3 h-3" />
-                    {(item as any).variants_count ?? 0}
+                    {item.variants_count ?? 0}
                   </button>
                 )}
                 <button
@@ -106,7 +110,7 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onBarcodes, on
               <th className="text-start px-3 py-3 font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary w-24">{t('price')}</th>
               <th className="text-start px-3 py-3 font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('variants')}</th>
               <th className="text-start px-3 py-3 font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary w-20">{t('status')}</th>
-              <th className="px-3 py-3 w-24" />
+              <th className="px-3 py-3 w-32" />
             </tr>
           </thead>
           <tbody className="divide-y divide-posCloud-border dark:divide-posCloudDark-border">
@@ -133,7 +137,7 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onBarcodes, on
                       className="flex items-center gap-1 text-posCloud-primary hover:underline text-xs"
                     >
                       <Layers className="w-3 h-3" />
-                      {(item as any).variants_count ?? 0} {t('variants')}
+                      {item.variants_count ?? 0} {t('variants')}
                     </button>
                   ) : (
                     <span className="text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary text-xs">—</span>
@@ -152,7 +156,7 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onBarcodes, on
                     }
                   </button>
                 </td>
-                <td className="px-3 py-3 w-24">
+                <td className="px-3 py-3 w-32">
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => onBarcodes(item)}
@@ -160,6 +164,13 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onBarcodes, on
                       title={t('barcodes')}
                     >
                       <Barcode className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => onPackaging(item)}
+                      className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary transition-colors"
+                      title={t('attributesAndPackaging')}
+                    >
+                      <Boxes className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={() => onEdit(item)}

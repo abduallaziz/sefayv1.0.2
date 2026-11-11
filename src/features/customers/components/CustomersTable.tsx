@@ -1,8 +1,9 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Eye, Edit2, Trash2, Phone, Mail, Gauge, Calendar, MoreVertical, CircleCheck, CircleOff, Clock, User } from 'lucide-react';
 import { Customer } from '../types/customer.types';
+import { formatNumber } from '@/lib/locale';
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store';
 import { useProfile } from '@/features/settings/hooks/useSettings';
 import {
@@ -33,6 +34,12 @@ interface Props {
 
 export function CustomersTable({ customers, onView, onEdit, onDelete }: Props) {
   const t = useTranslations('customers');
+  const rawLocale = useLocale();
+  const locale: 'ar' | 'en' = rawLocale === 'ar' ? 'ar' : 'en';
+  // Latin numerals in both locales (project-wide numerals rule) via the
+  // -u-nu-latn Unicode extension, but real Arabic month/weekday names in
+  // Arabic — same pattern as DashboardOverview's dateLocale.
+  const dateLocale = locale === 'ar' ? 'ar-SA-u-nu-latn' : 'en-US';
   const currency = useCurrencyDisplay();
   const { data: profile } = useProfile();
   const showVehicleColumn = !!profile?.business_type && VEHICLE_BUSINESS_TYPES.includes(profile.business_type);
@@ -69,10 +76,10 @@ export function CustomersTable({ customers, onView, onEdit, onDelete }: Props) {
                         <span className="flex items-center gap-0.5"><PlateIcon className="w-3.5 h-2.5" /><span dir="ltr">{customer.plate_number}</span></span>
                       )}
                       {customer.odometer != null && (
-                        <span className="flex items-center gap-0.5"><Gauge className="w-3 h-3" />{customer.odometer.toLocaleString('en-US')}</span>
+                        <span className="flex items-center gap-0.5"><Gauge className="w-3 h-3" />{formatNumber(customer.odometer, { locale, decimals: 0 })}</span>
                       )}
                       {customer.visit_date && (
-                        <span className="flex items-center gap-0.5"><Calendar className="w-3 h-3" />{new Date(customer.visit_date).toLocaleDateString('en-US')}</span>
+                        <span className="flex items-center gap-0.5"><Calendar className="w-3 h-3" />{new Date(customer.visit_date).toLocaleDateString(dateLocale)}</span>
                       )}
                     </div>
                   )}
@@ -102,8 +109,8 @@ export function CustomersTable({ customers, onView, onEdit, onDelete }: Props) {
                 {customer.is_active ? <CircleCheck className="w-3.5 h-3.5" /> : <CircleOff className="w-3.5 h-3.5" />}
                 {customer.is_active ? t('fields.status.active') : t('fields.status.inactive')}
               </span>
-              <span className="text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{customer.orders_count ?? 0} {t('table.orders')}</span>
-              <span className="font-medium text-gray-900 dark:text-white">{(customer.total_spent ?? 0).toLocaleString('en-US')} {currency}</span>
+              <span className="text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{formatNumber(customer.orders_count ?? 0, { locale, decimals: 0 })} {t('table.orders')}</span>
+              <span className="font-medium text-gray-900 dark:text-white">{formatNumber(customer.total_spent ?? 0, { locale, decimals: 2 })} {currency}</span>
             </div>
           </div>
         ))}
@@ -114,84 +121,44 @@ export function CustomersTable({ customers, onView, onEdit, onDelete }: Props) {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-200 dark:border-gray-700">
-              <th className="py-3 px-4" />
-              <th className="text-start py-3 px-4 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary font-medium">{t('table.status')}</th>
-              <th className="text-start py-3 px-4 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary font-medium">{t('table.lastOperation')}</th>
-              <th className="text-start py-3 px-4 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary font-medium">{t('table.lastAmount')}</th>
-              <th className="text-start py-3 px-4 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary font-medium">{t('table.totalSpent')}</th>
-              <th className="text-start py-3 px-4 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary font-medium">{t('table.invoiceCount')}</th>
-              <th className="text-start py-3 px-4 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary font-medium">{t('table.classification')}</th>
-              <th className="text-start py-3 px-4 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary font-medium">{t('table.email')}</th>
-              <th className="text-start py-3 px-4 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary font-medium">{t('table.phone')}</th>
+              {/* Canonical Sefay Customers column order (Customer -> ... -> Status),
+                  authored in this exact source order so the native <table>'s
+                  browser-default RTL mirroring (inherited from the ancestor
+                  dir="rtl") reverses it automatically for Arabic — no explicit
+                  CSS/flex reversal needed, same as the rest of this page. The
+                  row-actions (⋮) column is placed LAST in source for the same
+                  reason: last-in-source renders as the trailing/outer edge in
+                  both directions (right edge in LTR, left edge in RTL), which
+                  is the required position — it must NOT stay physically fixed
+                  to one side when direction changes. */}
+              <th className="text-start py-3 px-4 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary font-medium">{t('table.customer')}</th>
               {showVehicleColumn && (
                 <th className="text-center py-3 px-4 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary font-medium">{t('table.vehicle')}</th>
               )}
-              <th className="text-start py-3 px-4 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary font-medium">{t('table.customer')}</th>
+              <th className="text-start py-3 px-4 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary font-medium">{t('table.phone')}</th>
+              <th className="text-start py-3 px-4 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary font-medium">{t('table.email')}</th>
+              <th className="text-start py-3 px-4 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary font-medium">{t('table.classification')}</th>
+              <th className="text-start py-3 px-4 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary font-medium">{t('table.invoiceCount')}</th>
+              <th className="text-start py-3 px-4 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary font-medium">{t('table.totalSpent')}</th>
+              <th className="text-start py-3 px-4 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary font-medium">{t('table.lastAmount')}</th>
+              <th className="text-start py-3 px-4 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary font-medium">{t('table.lastOperation')}</th>
+              <th className="text-start py-3 px-4 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary font-medium">{t('table.status')}</th>
+              <th className="py-3 px-4" />
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
             {customers.map((customer) => (
               <tr key={customer.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                 <td className="py-3 px-4">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                        <MoreVertical className="w-4 h-4" />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start">
-                      <DropdownMenuItem onClick={() => onView(customer)}>
-                        <Eye className="w-3.5 h-3.5" /> {t('actions.view')}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => onEdit(customer)}>
-                        <Edit2 className="w-3.5 h-3.5" /> {t('actions.edit')}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => onDelete(customer)} className="text-posCloud-danger hover:bg-posCloud-danger-light dark:hover:bg-posCloud-danger/10">
-                        <Trash2 className="w-3.5 h-3.5" /> {t('actions.delete')}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </td>
-                <td className="py-3 px-4">
-                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${customer.is_active ? 'bg-posCloud-success-light dark:bg-posCloud-success/15 text-posCloud-success' : 'bg-gray-100 dark:bg-gray-800 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary'}`}>
-                    {customer.is_active ? <CircleCheck className="w-3 h-3" /> : <CircleOff className="w-3 h-3" />}
-                    {customer.is_active ? t('fields.status.active') : t('fields.status.inactive')}
-                  </span>
-                </td>
-                <td className="py-3 px-4">
-                  <span title={t('comingSoon')} className="flex items-center gap-1 text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary opacity-50 cursor-not-allowed">
-                    <Clock className="w-3.5 h-3.5" /> —
-                  </span>
-                </td>
-                <td className="py-3 px-4">
-                  <span title={t('comingSoon')} className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary opacity-50 cursor-not-allowed">—</span>
-                </td>
-                <td className="py-3 px-4">
-                  <span className="text-gray-900 dark:text-white font-medium">
-                    {(customer.total_spent ?? 0).toLocaleString('en-US')} {currency}
-                  </span>
-                </td>
-                <td className="py-3 px-4">
-                  <span className="text-gray-900 dark:text-white font-medium">{customer.orders_count ?? 0}</span>
-                </td>
-                <td className="py-3 px-4">
-                  <span title={t('comingSoon')} className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary opacity-50 cursor-not-allowed">—</span>
-                </td>
-                <td className="py-3 px-4">
-                  {customer.email ? (
-                    <div className="flex items-center gap-1.5 text-gray-600 dark:text-gray-300">
-                      <Mail className="w-3.5 h-3.5 shrink-0" />
-                      <span className="text-xs truncate max-w-[160px]">{customer.email}</span>
-                    </div>
-                  ) : (
-                    <span className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">—</span>
-                  )}
-                </td>
-                <td className="py-3 px-4">
-                  <div className="flex items-center gap-1.5 text-gray-600 dark:text-gray-300">
-                    <Phone className="w-3.5 h-3.5 shrink-0" />
-                    <span className="text-xs" dir="ltr">{customer.phone}</span>
-                  </div>
+                  <button onClick={() => onView(customer)} className="flex items-center gap-2 text-start hover:underline">
+                    <span className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-[#0C447C] dark:text-[#5B9BD5] shrink-0">
+                      <User className="w-4 h-4" />
+                    </span>
+                    <span>
+                      <span className="block font-medium text-gray-900 dark:text-white">{customer.full_name}</span>
+                      <span className="block text-xs text-posCloud-primary font-mono">#CUST-{customer.id.slice(-6).toUpperCase()}</span>
+                    </span>
+                  </button>
                 </td>
                 {showVehicleColumn && (
                   <td className="py-3 px-4">
@@ -205,13 +172,13 @@ export function CustomersTable({ customers, onView, onEdit, onDelete }: Props) {
                       {customer.odometer != null && (
                         <div className="flex items-center gap-1.5 text-gray-400">
                           <Gauge className="w-3.5 h-3.5" />
-                          <span className="text-xs">{customer.odometer.toLocaleString('en-US')}</span>
+                          <span className="text-xs">{formatNumber(customer.odometer, { locale, decimals: 0 })}</span>
                         </div>
                       )}
                       {customer.visit_date && (
                         <div className="flex items-center gap-1.5 text-gray-400">
                           <Calendar className="w-3.5 h-3.5" />
-                          <span className="text-xs">{new Date(customer.visit_date).toLocaleDateString('en-US')}</span>
+                          <span className="text-xs">{new Date(customer.visit_date).toLocaleDateString(dateLocale)}</span>
                         </div>
                       )}
                       {!customer.plate_number && customer.odometer == null && !customer.visit_date && (
@@ -221,15 +188,65 @@ export function CustomersTable({ customers, onView, onEdit, onDelete }: Props) {
                   </td>
                 )}
                 <td className="py-3 px-4">
-                  <button onClick={() => onView(customer)} className="flex items-center gap-2 text-start hover:underline">
-                    <span className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-[#0C447C] dark:text-[#5B9BD5] shrink-0">
-                      <User className="w-4 h-4" />
-                    </span>
-                    <span>
-                      <span className="block font-medium text-gray-900 dark:text-white">{customer.full_name}</span>
-                      <span className="block text-xs text-posCloud-primary font-mono">#CUST-{customer.id.slice(-6).toUpperCase()}</span>
-                    </span>
-                  </button>
+                  <div className="flex items-center gap-1.5 text-gray-600 dark:text-gray-300">
+                    <Phone className="w-3.5 h-3.5 shrink-0" />
+                    <span className="text-xs" dir="ltr">{customer.phone}</span>
+                  </div>
+                </td>
+                <td className="py-3 px-4">
+                  {customer.email ? (
+                    <div className="flex items-center gap-1.5 text-gray-600 dark:text-gray-300">
+                      <Mail className="w-3.5 h-3.5 shrink-0" />
+                      <span className="text-xs truncate max-w-[160px]">{customer.email}</span>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">—</span>
+                  )}
+                </td>
+                <td className="py-3 px-4">
+                  <span title={t('comingSoon')} className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary opacity-50 cursor-not-allowed">—</span>
+                </td>
+                <td className="py-3 px-4">
+                  <span className="text-gray-900 dark:text-white font-medium">{formatNumber(customer.orders_count ?? 0, { locale, decimals: 0 })}</span>
+                </td>
+                <td className="py-3 px-4">
+                  <span className="text-gray-900 dark:text-white font-medium">
+                    {formatNumber(customer.total_spent ?? 0, { locale, decimals: 2 })} {currency}
+                  </span>
+                </td>
+                <td className="py-3 px-4">
+                  <span title={t('comingSoon')} className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary opacity-50 cursor-not-allowed">—</span>
+                </td>
+                <td className="py-3 px-4">
+                  <span title={t('comingSoon')} className="flex items-center gap-1 text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary opacity-50 cursor-not-allowed">
+                    <Clock className="w-3.5 h-3.5" /> —
+                  </span>
+                </td>
+                <td className="py-3 px-4">
+                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${customer.is_active ? 'bg-posCloud-success-light dark:bg-posCloud-success/15 text-posCloud-success' : 'bg-gray-100 dark:bg-gray-800 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary'}`}>
+                    {customer.is_active ? <CircleCheck className="w-3 h-3" /> : <CircleOff className="w-3 h-3" />}
+                    {customer.is_active ? t('fields.status.active') : t('fields.status.inactive')}
+                  </span>
+                </td>
+                <td className="py-3 px-4">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <MoreVertical className="w-4 h-4" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => onView(customer)}>
+                        <Eye className="w-3.5 h-3.5" /> {t('actions.view')}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onEdit(customer)}>
+                        <Edit2 className="w-3.5 h-3.5" /> {t('actions.edit')}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onDelete(customer)} className="text-posCloud-danger hover:bg-posCloud-danger-light dark:hover:bg-posCloud-danger/10">
+                        <Trash2 className="w-3.5 h-3.5" /> {t('actions.delete')}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </td>
               </tr>
             ))}

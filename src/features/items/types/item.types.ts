@@ -68,6 +68,61 @@ export interface ItemVariant {
   is_active: boolean;
 }
 
+// Sub-phase 2b (Item #2) — structured attributes + multi-level packaging.
+export interface ItemAttribute {
+  id: string;
+  name: string;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface ItemAttributeValue {
+  id: string;
+  item_attribute_id: string;
+  value: string;
+  created_at: string;
+}
+
+export interface CreateAttributeDTO {
+  name: string;
+}
+
+export interface CreateAttributeValueDTO {
+  item_attribute_id: string;
+  value: string;
+}
+
+export interface VariantAttributeAssignment {
+  id: string;
+  item_variant_id: string;
+  item_attribute_id: string;
+  item_attribute_value_id: string;
+  item_attributes: { id: string; name: string } | null;
+  item_attribute_values: { id: string; value: string } | null;
+}
+
+export interface AssignVariantAttributeDTO {
+  item_variant_id: string;
+  item_attribute_id: string;
+  item_attribute_value_id: string;
+}
+
+export interface ItemPackagingLevel {
+  id: string;
+  item_id: string;
+  parent_level_id: string | null;
+  level_name: string;
+  quantity_in_parent: number;
+  created_at: string;
+}
+
+export interface CreatePackagingLevelDTO {
+  item_id: string;
+  level_name: string;
+  parent_level_id?: string;
+  quantity_in_parent?: number;
+}
+
 export interface Item {
   id: string;
   name: string;
@@ -82,6 +137,9 @@ export interface Item {
   is_active: boolean;
   created_at: string;
   variants?: ItemVariant[];
+  // List endpoints return a count instead of the full array (perf) — detail
+  // endpoints populate `variants` instead. Never both at once.
+  variants_count?: number;
   // Only present when has_variants is false — live sum of stock_levels
   // (quantity_on_hand) across all warehouses, not the frozen legacy column.
   stock_quantity?: number;

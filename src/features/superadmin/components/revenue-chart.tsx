@@ -6,11 +6,17 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer,
 } from 'recharts'
+import type { TooltipContentProps } from 'recharts/types/component/Tooltip'
+import type { ValueType, NameType } from 'recharts/types/component/DefaultTooltipContent'
 import { useThemeStore } from '@/core/theme/stores/theme.store'
 import { DateRangePicker, type DateRange } from '@/shared/ui/date-range-picker'
 import type { MRRHistoryPoint } from '../types'
 
-function CustomTooltip({ active, payload, label }: any) {
+// Rendered as `<Tooltip content={<CustomTooltip />} />` — recharts clones the
+// element and injects active/payload/label itself at runtime, so none of
+// these props are actually supplied at the JSX call site; `Partial` reflects
+// that real usage instead of the library's internal (all-required) type.
+function CustomTooltip({ active, payload, label }: Partial<TooltipContentProps<ValueType, NameType>>) {
   if (!active || !payload?.length) return null
   return (
     <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0d1117] p-4 shadow-2xl">
@@ -53,7 +59,7 @@ export function RevenueChart({ data, range, onRangeChange }: RevenueChartProps) 
           <h3 className="text-lg font-bold text-slate-800 dark:text-white">{t('title')}</h3>
           <p className="text-xs text-slate-400 dark:text-white/40 mt-0.5">{t('subtitle')}</p>
         </div>
-        <DateRangePicker value={range} onChange={(r) => r.from && r.to && onRangeChange(r)} align="left" />
+        <DateRangePicker value={range} onChange={(r) => r.from && r.to && onRangeChange(r)} />
       </div>
 
       <div className="relative flex items-center gap-4 mb-4">

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { ApiError } from '@/lib/api';
 import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 import {
@@ -32,6 +33,7 @@ import { ItemsTable } from './components/ItemsTable';
 import { ItemFormModal } from './components/ItemFormModal';
 import { VariantsModal } from './components/VariantsModal';
 import { BarcodesModal } from './components/BarcodesModal';
+import { PackagingAttributesModal } from './components/PackagingAttributesModal';
 import { DeleteItemModal } from './components/DeleteItemModal';
 import { Item, ItemFilters, ItemType, CreateItemDTO } from './types/item.types';
 
@@ -140,6 +142,7 @@ export function ItemsPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [variantsOpen, setVariantsOpen] = useState(false);
   const [barcodesOpen, setBarcodesOpen] = useState(false);
+  const [packagingOpen, setPackagingOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   // Type chosen from the "New Item" dropdown, pre-selected in the create form.
@@ -150,6 +153,11 @@ export function ItemsPage() {
   // shared modal-open state across routes.
   const searchParams = useSearchParams();
   useEffect(() => {
+    // Genuinely reacting to an external system (the URL) — a one-directional
+    // trigger, not derivable render state: it must fire once when the param
+    // is present, but manually closing the form afterwards must not reopen
+    // it on the next render while the param is still in the URL.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (searchParams.get('create') === '1') setFormOpen(true);
   }, [searchParams]);
 
@@ -165,7 +173,7 @@ export function ItemsPage() {
       );
     } else {
       createItem.mutate(data, {
-        onSuccess: (newItem: any) => {
+        onSuccess: (newItem: Item) => {
           setFormOpen(false);
           // Variants are managed exclusively from VariantsModal (single
           // source of truth) — jump straight there when the item was created
@@ -329,6 +337,7 @@ export function ItemsPage() {
           onDelete={(item) => { setSelectedItem(item); setDeleteOpen(true); }}
           onVariants={(item) => { setSelectedItem(item); setVariantsOpen(true); }}
           onBarcodes={(item) => { setSelectedItem(item); setBarcodesOpen(true); }}
+          onPackaging={(item) => { setSelectedItem(item); setPackagingOpen(true); }}
           onToggleActive={handleToggleActive}
         />
       )}
@@ -370,25 +379,30 @@ export function ItemsPage() {
         onAddVariant={(itemId, data) =>
           createVariant.mutate(
             { itemId, data },
-            { onError: (error: any) => toast.error(error?.message ?? 'Failed to add variant') },
+            { onError: (error: unknown) => toast.error(error instanceof ApiError ? error.message : 'Failed to add variant') },
           )
         }
         onUpdateVariant={(itemId, variantId, data) =>
           updateVariant.mutate(
             { itemId, variantId, data },
-            { onError: (error: any) => toast.error(error?.message ?? 'Failed to update variant') },
+            { onError: (error: unknown) => toast.error(error instanceof ApiError ? error.message : 'Failed to update variant') },
           )
         }
         onDeleteVariant={(itemId, variantId) =>
           deleteVariant.mutate(
             { itemId, variantId },
-            { onError: (error: any) => toast.error(error?.message ?? 'Failed to delete variant') },
+            { onError: (error: unknown) => toast.error(error instanceof ApiError ? error.message : 'Failed to delete variant') },
           )
         }
       />
       <BarcodesModal
         open={barcodesOpen}
         onClose={() => { setBarcodesOpen(false); setSelectedItem(null); }}
+        item={selectedItem}
+      />
+      <PackagingAttributesModal
+        open={packagingOpen}
+        onClose={() => { setPackagingOpen(false); setSelectedItem(null); }}
         item={selectedItem}
       />
       <DeleteItemModal

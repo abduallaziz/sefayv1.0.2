@@ -1,11 +1,8 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
 import { Shield, Clock } from 'lucide-react';
 
 export default function AuthControlPage() {
-  const t = useTranslations('common');
-
   return (
     <div className="p-6 space-y-6">
       <div>

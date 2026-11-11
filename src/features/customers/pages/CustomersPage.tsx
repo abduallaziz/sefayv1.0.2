@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { useTranslations } from 'next-intl';
-import { Plus, Users, TrendingUp, Star } from 'lucide-react';
+import { useState } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
+import { Plus, Users, TrendingUp, Star, AlertCircle } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
 import { Customer, CustomerFilters, CreateCustomerDto } from '../types/customer.types';
 import { CustomerFiltersBar } from '../components/CustomerFilters';
@@ -11,7 +11,9 @@ import { CustomerFormModal } from '../components/CustomerFormModal';
 import { CustomerDetailsModal } from '../components/CustomerDetailsModal';
 import { DeleteCustomerModal } from '../components/DeleteCustomerModal';
 import { Pagination } from '@/shared/components/ui/Pagination';
+import { TableSkeleton } from '@/shared/components/ui/Skeleton';
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
+import { formatNumber } from '@/lib/locale';
 import {
   usePagedCustomers,
   useCustomerStats,
@@ -22,6 +24,8 @@ import {
 
 export function CustomersPage() {
   const t = useTranslations('customers');
+  const rawLocale = useLocale();
+  const locale: 'ar' | 'en' = rawLocale === 'ar' ? 'ar' : 'en';
 
   const [filters, setFilters] = useState<CustomerFilters>({
     search: '',
@@ -57,49 +61,43 @@ export function CustomersPage() {
   // React re-renders immediately with page 1 and the stale-page request is
   // never issued. `effectivePage` is what the query actually uses.
   const [searchAtPage, setSearchAtPage] = useState(debouncedSearch);
+  // A sort change goes through the same same-render correction as search
+  // above — same PGRST103-on-stale-offset risk if the current page no
+  // longer exists once the roster is reordered.
+  const sortKey = `${filters.sortBy}:${filters.sortOrder}`;
+  const [sortAtPage, setSortAtPage] = useState(sortKey);
   let effectivePage = page;
-  if (searchAtPage !== debouncedSearch) {
+  if (searchAtPage !== debouncedSearch || sortAtPage !== sortKey) {
     effectivePage = 1;
     setSearchAtPage(debouncedSearch);
+    setSortAtPage(sortKey);
     setPage(1);
   }
 
-  const { data: paged, isLoading, isFetching } = usePagedCustomers({
+  const { data: paged, isLoading, isFetching, isError: isPagedError } = usePagedCustomers({
     search: debouncedSearch || undefined,
     page: effectivePage,
     perPage,
+    // Server-side now (migration 236 / fn_customers_page_by_spend) — sorts
+    // the full tenant roster before pagination, not just the current page.
+    sortBy: filters.sortBy,
+    sortOrder: filters.sortOrder,
   });
 
   const customers = paged?.data;
   const total = paged?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / perPage));
 
-  const { data: stats } = useCustomerStats();
+  const { data: stats, isError: isStatsError } = useCustomerStats();
+  const hasError = isPagedError || isStatsError;
   const createMutation = useCreateCustomer();
   const updateMutation = useUpdateCustomer();
   const deleteMutation = useDeleteCustomer();
 
-  const totalLoyaltyPoints = useMemo(
-    () => customers?.reduce((sum, c) => sum + (c.loyalty_points ?? 0), 0) ?? 0,
-    [customers],
-  );
-
-  // Search and pagination are now the server's job — no client-side filtering
-  // here, which is what capped this page at one page of results.
-  // Sort is still client-side and therefore orders ONLY the current page;
-  // GET /customers has no sort parameter yet (see note in the migration report).
-  const filtered = useMemo(() => {
-    if (!customers) return [];
-    const list = [...customers];
-    list.sort((a, b) => {
-      const key = filters.sortBy as keyof Customer;
-      const aVal = a[key] ?? 0;
-      const bVal = b[key] ?? 0;
-      if (filters.sortOrder === 'asc') return aVal > bVal ? 1 : -1;
-      return aVal < bVal ? 1 : -1;
-    });
-    return list;
-  }, [customers, filters.sortBy, filters.sortOrder]);
+  // Search, pagination, and sort are all the server's job now — no
+  // client-side reordering, which previously capped sort to whatever
+  // happened to already be on the current page.
+  const filtered = customers ?? [];
 
   const handleSubmit = async (data: CreateCustomerDto) => {
     if (selectedCustomer) {
@@ -131,13 +129,20 @@ export function CustomersPage() {
         </Button>
       </div>
 
+      {hasError && (
+        <div className="flex items-center gap-2 rounded-lg border border-posCloud-danger/30 bg-posCloud-danger-light dark:bg-posCloud-danger/15 px-3.5 py-2.5 text-[13px] text-posCloud-danger">
+          <AlertCircle size={16} />
+          <span>{t('loadError')}</span>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div className="bg-posCloud-surface dark:bg-posCloudDark-surface border border-posCloud-border dark:border-posCloudDark-border rounded-xl p-3 sm:p-4 flex items-center gap-3">
           <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-posCloud-primary-light dark:bg-posCloud-primary/15 flex items-center justify-center shrink-0">
             <Users className="w-4 h-4 sm:w-5 sm:h-5 text-posCloud-primary" />
           </div>
           <div className="min-w-0">
-            <p className="text-lg sm:text-2xl font-bold text-posCloud-text-primary dark:text-posCloudDark-text-primary tabular-nums">{stats?.total ?? '—'}</p>
+            <p className="text-lg sm:text-2xl font-bold text-posCloud-text-primary dark:text-posCloudDark-text-primary tabular-nums">{stats ? formatNumber(stats.total, { locale, decimals: 0 }) : '—'}</p>
             <p className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary truncate">{t('stats.total')}</p>
           </div>
         </div>
@@ -146,7 +151,7 @@ export function CustomersPage() {
             <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-posCloud-success" />
           </div>
           <div className="min-w-0">
-            <p className="text-lg sm:text-2xl font-bold text-posCloud-text-primary dark:text-posCloudDark-text-primary tabular-nums">+{stats?.new_this_month ?? 0}</p>
+            <p className="text-lg sm:text-2xl font-bold text-posCloud-text-primary dark:text-posCloudDark-text-primary tabular-nums">{stats ? `+${formatNumber(stats.new_this_month, { locale, decimals: 0 })}` : '—'}</p>
             <p className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary truncate">{t('stats.new_month')}</p>
           </div>
         </div>
@@ -155,7 +160,7 @@ export function CustomersPage() {
             <Star className="w-4 h-4 sm:w-5 sm:h-5 text-posCloud-warning" />
           </div>
           <div className="min-w-0">
-            <p className="text-lg sm:text-2xl font-bold text-posCloud-text-primary dark:text-posCloudDark-text-primary tabular-nums">{totalLoyaltyPoints.toLocaleString('en-US')}</p>
+            <p className="text-lg sm:text-2xl font-bold text-posCloud-text-primary dark:text-posCloudDark-text-primary tabular-nums">{stats ? formatNumber(stats.total_loyalty_points, { locale, decimals: 0 }) : '—'}</p>
             <p className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary truncate">{t('stats.total_points')}</p>
           </div>
         </div>
@@ -166,7 +171,9 @@ export function CustomersPage() {
           <CustomerFiltersBar filters={filters} onChange={setFilters} />
         </div>
         {isLoading ? (
-          <div className="text-center py-16 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('loading')}</div>
+          <div className="p-4">
+            <TableSkeleton rows={8} cols={7} />
+          </div>
         ) : (
           <CustomersTable
             customers={filtered}

@@ -9,13 +9,20 @@ import {
   Receipt, Clock, BarChart3, Settings, UserCog,
   X, Zap, Truck, Warehouse, ClipboardList, PackageCheck, Boxes, SlidersHorizontal,
   ChevronDown, ArrowLeftRight, FileBarChart, Layers, ClipboardCheck, MapPin, ListChecks, LineChart, ShieldCheck, Forklift,
-  Utensils, ChefHat, CalendarClock, CalendarDays, Wallet, ClipboardCheck as LeavesIcon,
-  IdCard, Ticket, StickyNote, Calculator,
+  Utensils, ChefHat, Car, CalendarClock, CalendarDays, Wallet, ClipboardCheck as LeavesIcon,
+  IdCard, Ticket, StickyNote, Calculator, Building2, Gift,
 } from 'lucide-react'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { useBusinessType } from '@/shared/hooks/useBusinessType'
+import { useSubscription } from '@/features/settings/hooks/useSettings'
 import { cn } from '@/lib/utils'
 import type { NavKey } from '@/shared/config/business-type.config'
+
+// Same valid-status set BillingService.checkBranchLimit() and the Branch
+// Management capacity card use — kept in sync manually, no shared enum
+// between the two apps. A subscription outside this set has no real
+// remaining-days concept, trial or otherwise.
+const VALID_SUBSCRIPTION_STATUSES = ['trial', 'active', 'grace_period']
 
 interface SidebarProps {
   open: boolean
@@ -38,12 +45,14 @@ const ALL_NAV_ITEMS: NavItem[] = [
   { key: 'orders',    href: '/dashboard/orders',     icon: Receipt,         section: 'sales' },
   { key: 'items',     href: '/dashboard/items',      icon: Package,         section: 'inventory' },
   { key: 'customers', href: '/dashboard/customers',  icon: Users,           section: 'customers' },
-  { key: 'expenses',  href: '/dashboard/expenses',   icon: Receipt,         section: 'finance', roles: ['owner', 'manager'] },
+  { key: 'expenses',  href: '/dashboard/expenses-v2/expenses',   icon: Receipt,         section: 'finance', roles: ['owner', 'manager'] },
   { key: 'accounting', href: '/dashboard/accounting', icon: Calculator,     section: 'finance', roles: ['owner', 'manager'] },
   { key: 'shifts',    href: '/dashboard/shifts',     icon: Clock,           section: 'hr' },
   { key: 'tables',    href: '/dashboard/tables',     icon: Utensils,        section: 'sales' },
   { key: 'kitchen',   href: '/dashboard/kitchen',    icon: ChefHat,         section: 'sales' },
+  { key: 'washQueue', href: '/dashboard/queue',      icon: Car,             section: 'sales' },
   { key: 'coupons',   href: '/dashboard/coupons',    icon: Ticket,          section: 'sales',    roles: ['owner', 'manager'] },
+  { key: 'rewards',   href: '/dashboard/rewards',    icon: Gift,            section: 'sales',    roles: ['owner', 'manager'] },
   { key: 'notePresets', href: '/dashboard/note-presets', icon: StickyNote, section: 'sales',    roles: ['owner', 'manager'] },
   { key: 'reports',   href: '/dashboard/reports',    icon: BarChart3,       section: 'reports',  roles: ['owner', 'manager'] },
   { key: 'users',     href: '/dashboard/users',      icon: UserCog,         section: 'hr',       roles: ['owner', 'manager'] },
@@ -52,6 +61,7 @@ const ALL_NAV_ITEMS: NavItem[] = [
   { key: 'schedules', href: '/dashboard/schedules',  icon: CalendarDays,    section: 'hr',       roles: ['owner', 'manager'] },
   { key: 'payroll',   href: '/dashboard/payroll',    icon: Wallet,          section: 'hr',       roles: ['owner'] },
   { key: 'leaves',    href: '/dashboard/leaves',     icon: LeavesIcon,      section: 'hr',       roles: ['owner', 'manager'] },
+  { key: 'branches',  href: '/dashboard/branches',   icon: Building2,       section: 'admin',    roles: ['owner', 'manager'] },
   { key: 'settings',  href: '/dashboard/settings',   icon: Settings,        section: 'admin',    roles: ['owner'] },
 ]
 
@@ -84,6 +94,18 @@ export function DashboardSidebar({ open, onClose }: SidebarProps) {
   const pathname = usePathname()
   const { user } = useAuthStore()
   const { config } = useBusinessType()
+  const { data: subData } = useSubscription()
+  // Lazy initializer, not a direct Date.now() call in the render body —
+  // same pattern already used elsewhere in this codebase (system-health.tsx)
+  // to keep "now" a stable, pure render input instead of drifting per render.
+  const [now] = useState(() => Date.now())
+
+  const sub = subData?.subscription
+  const isValidSubscription = !!sub && VALID_SUBSCRIPTION_STATUSES.includes(sub.status)
+  const isTrialing = sub?.status === 'trial'
+  const trialDaysLeft = isTrialing && subData?.trial_ends_at
+    ? Math.max(0, Math.ceil((new Date(subData.trial_ends_at).getTime() - now) / 86_400_000))
+    : null
 
   const userRole = user?.role ?? 'cashier'
 
@@ -109,10 +131,18 @@ export function DashboardSidebar({ open, onClose }: SidebarProps) {
   const [inventoryExpanded, setInventoryExpanded] = useState(inventoryGroupActive)
 
   useEffect(() => {
+    // Deliberately deferred to a post-mount effect rather than a useState
+    // lazy initializer: `window.localStorage` doesn't exist during SSR, so
+    // reading it in the initializer would return a different value on the
+    // server render than on the client's first render and produce a
+    // hydration mismatch. This effect intentionally runs once, client-only,
+    // after hydration completes.
     const stored = window.localStorage.getItem(INVENTORY_GROUP_STORAGE_KEY)
     if (stored !== null) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setInventoryExpanded(stored === 'true')
     } else if (inventoryGroupActive) {
+       
       setInventoryExpanded(true)
     }
     // Only read the persisted preference once on mount; active-route detection
@@ -121,6 +151,9 @@ export function DashboardSidebar({ open, onClose }: SidebarProps) {
   }, [])
 
   useEffect(() => {
+    // Keeps the group expanded whenever route navigation lands inside it —
+    // a genuine external-signal (route) -> state sync, not initialization.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (inventoryGroupActive) setInventoryExpanded(true)
   }, [inventoryGroupActive])
 
@@ -233,19 +266,30 @@ export function DashboardSidebar({ open, onClose }: SidebarProps) {
                   {t('planLabel')}
                 </div>
                 <div className="text-[13px] font-bold text-white">
-                  Pro — {t('trial')}
+                  {sub?.plan_name ?? '—'}
+                  {isTrialing && <> — {t('trial')}</>}
+                  {!isValidSubscription && <> — {t(`subStatus.${sub?.status ?? 'none'}`)}</>}
                 </div>
               </div>
             </div>
 
-            {/* Progress bar */}
-            <div className="mb-[7px] h-1.5 overflow-hidden rounded-full bg-white/20">
-              <div className="h-1.5 w-2/3 rounded-full bg-white" />
-            </div>
+            {/* Progress bar only makes sense as a trial countdown — hidden
+                for every other state instead of showing a fake fill. */}
+            {isTrialing && (
+              <div className="mb-[7px] h-1.5 overflow-hidden rounded-full bg-white/20">
+                <div className="h-1.5 w-2/3 rounded-full bg-white" />
+              </div>
+            )}
 
-            <div className="text-[11px] text-white/75">
-              {t('planDaysLeft', { days: 9 })}
-            </div>
+            {isTrialing && trialDaysLeft !== null ? (
+              <div className="text-[11px] text-white/75">
+                {t('planDaysLeft', { days: trialDaysLeft })}
+              </div>
+            ) : !isValidSubscription ? (
+              <div className="text-[11px] text-white/75">
+                {t('subscriptionInactive')}
+              </div>
+            ) : null}
 
             <Link
               href={`/${locale}/dashboard/settings`}

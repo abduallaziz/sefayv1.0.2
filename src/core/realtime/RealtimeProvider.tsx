@@ -52,6 +52,11 @@ export function RealtimeProvider() {
       )
       .on(
         'postgres_changes',
+        { event: '*', schema: 'public', table: 'wash_jobs', filter: `tenant_id=eq.${tenantId}` },
+        () => qc.invalidateQueries({ queryKey: ['queue'] }),
+      )
+      .on(
+        'postgres_changes',
         { event: '*', schema: 'public', table: 'order_items' },
         () => {
           qc.invalidateQueries({ queryKey: ['kitchen'] })

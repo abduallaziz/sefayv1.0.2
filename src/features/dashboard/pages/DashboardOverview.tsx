@@ -17,6 +17,8 @@ import {
 } from 'lucide-react'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
+import { formatNumber } from '@/lib/locale'
+import { KpiCardSkeleton, TableSkeleton, CardListSkeleton, Skeleton } from '@/shared/components/ui/Skeleton'
 import { reportsApi } from '@/features/reports/api/reports.api'
 import { shiftsApi } from '@/features/shifts/api/shifts.api'
 import { customersApi } from '@/features/customers/api/customers.api'
@@ -78,13 +80,23 @@ function SectionHeader({ title, action }: { title: string; action?: React.ReactN
 /* ── pos-cloud's exact StatCard: icon chip, label, value+unit, delta
    ("↑/↓ N% vs yesterday") pinned to the bottom via mt-auto. ── */
 function StatCard({
-  icon: Icon, iconBg, iconColor, label, value, unit, delta, vsYesterdayLabel,
+  icon: Icon, iconBg, iconColor, label, value, unit, delta, vsYesterdayLabel, loading,
 }: {
   icon: React.ElementType; iconBg: string; iconColor: string
   label: string; value: string; unit?: string
   delta: { pct: string; positive: boolean } | null
   vsYesterdayLabel: string
+  loading?: boolean
 }) {
+  // Loading = skeleton, never a fake 0 — the skeleton fills the same
+  // h-full grid cell as the real card, so no layout shift on resolve.
+  if (loading) {
+    return (
+      <div className="h-full">
+        <KpiCardSkeleton />
+      </div>
+    )
+  }
   return (
     <div className="flex h-full flex-col rounded-2xl border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface p-5">
       <div className={cn('flex h-11 w-11 items-center justify-center rounded-xl', iconBg)}>
@@ -133,6 +145,9 @@ const BRANDED_LOGO_KEYS = new Set(['mada', 'visa', 'mastercard', 'apple_pay', 's
 
 const PAYMENT_METHOD_DEFS: { key: string; icon: React.ElementType }[] = [
   { key: 'cash', icon: Banknote },
+  // Generic card: where the card share of a split payment is reported (the
+  // reports service decomposes splits into cash + card), so the legend adds up.
+  { key: 'card', icon: CreditCard },
   { key: 'mada', icon: CreditCard },
   { key: 'visa', icon: CreditCard },
   { key: 'mastercard', icon: CreditCard },
@@ -146,7 +161,10 @@ export function DashboardOverview() {
   const user = useAuthStore((s) => s.user)
   const currency = useCurrencyDisplay()
   const router = useRouter()
-  const locale = useLocale()
+  const rawLocale = useLocale()
+  // next-intl's useLocale() types as `string`; lib/locale.ts's formatters are
+  // typed to the project's actual two supported locales — narrow once here.
+  const locale: 'ar' | 'en' = rawLocale === 'ar' ? 'ar' : 'en'
   const [range, setRange] = useState<DateRange>(defaultRange)
   const t = useTranslations('dashboard')
   const { config } = useBusinessType()
@@ -167,25 +185,26 @@ export function DashboardOverview() {
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6)
   const last7 = { from: toYMD(sevenDaysAgo), to: toYMD(new Date()) }
 
-  const { data: revenue, error: revenueError } = useQuery({
+  const { data: revenue, error: revenueError, isLoading: revenueLoading } = useQuery({
     queryKey: ['dashboard', 'revenue', range.from, range.to],
     queryFn: () => reportsApi.getRevenue(rangeQuery),
     enabled: !!user && !!range.from && !!range.to, refetchInterval: 120000, staleTime: 60000,
   })
 
-  const { data: revenue7d, error: revenue7dError } = useQuery({
+  const { data: revenue7d, error: revenue7dError, isLoading: revenue7dLoading } = useQuery({
     queryKey: ['dashboard', 'revenue-7d', last7.from, last7.to],
     queryFn: () => reportsApi.getRevenue({ period: 'custom', from: last7.from, to: last7.to }),
     enabled: !!user, refetchInterval: 120000, staleTime: 60000,
   })
 
-  const { data: payments, error: paymentsError } = useQuery({
-    queryKey: ['dashboard', 'payments', range.from, range.to],
-    queryFn: () => reportsApi.getPayments(rangeQuery),
-    enabled: !!user && !!range.from && !!range.to, refetchInterval: 120000, staleTime: 60000,
+  // T10 / R4: real profit needs the cost of goods sold (net revenue - COGS - expenses).
+  const { data: cogs, error: cogsError, isLoading: cogsLoading } = useQuery({
+    queryKey: ['dashboard', 'cogs', rangeQuery],
+    queryFn: () => reportsApi.getCogs(rangeQuery),
+    enabled: !!user, staleTime: 30000,
   })
 
-  const { data: expenses, error: expensesError } = useQuery({
+  const { data: expenses, error: expensesError, isLoading: expensesLoading } = useQuery({
     queryKey: ['dashboard', 'expenses', range.from, range.to],
     queryFn: () => reportsApi.getExpenses(rangeQuery),
     enabled: !!user && !!range.from && !!range.to, refetchInterval: 120000, staleTime: 60000,
@@ -205,7 +224,7 @@ export function DashboardOverview() {
   // Reuses the existing orders.api.ts fetchOrders() (already used by the
   // Orders page) for a real "Recent Invoices" list — real customer_name,
   // total, status (completed/pending/cancelled mapped to paid/due badges).
-  const { data: recentOrders } = useQuery({
+  const { data: recentOrders, isLoading: recentOrdersLoading } = useQuery({
     queryKey: ['dashboard', 'recent-orders'],
     queryFn: () => fetchOrders({}),
     enabled: !!user, staleTime: 60000,
@@ -215,7 +234,7 @@ export function DashboardOverview() {
   // page) — no new API, just consumed from this page too. Occupied count is
   // a simple aggregation of the already-fetched list, matching pos-cloud's
   // food-service-only "occupied tables" stat card exactly.
-  const { data: tables } = useQuery({
+  const { data: tables, isLoading: tablesLoading } = useQuery({
     queryKey: ['dashboard', 'tables'],
     queryFn: () => tablesApi.getAll(),
     enabled: !!user && showTables, refetchInterval: 30000, staleTime: 15000,
@@ -227,9 +246,9 @@ export function DashboardOverview() {
     enabled: !!user, refetchInterval: 30000, staleTime: 15000,
   })
 
-  const { data: customerStats, error: customerStatsError } = useQuery({
-    queryKey: ['dashboard', 'customers'],
-    queryFn: () => customersApi.getStats(),
+  const { data: customerStats, error: customerStatsError, isLoading: customerStatsLoading } = useQuery({
+    queryKey: ['dashboard', 'customers', range.from, range.to],
+    queryFn: () => customersApi.getStats(range.from && range.to ? { from: range.from, to: range.to } : undefined),
     enabled: !!user, refetchInterval: 120000, staleTime: 60000,
   })
 
@@ -239,13 +258,13 @@ export function DashboardOverview() {
     enabled: !!user, staleTime: 60000,
   })
 
-  const { data: topItems, error: topItemsError } = useQuery({
+  const { data: topItems, error: topItemsError, isLoading: topItemsLoading } = useQuery({
     queryKey: ['dashboard', 'top-items', range.from, range.to],
     queryFn: () => reportsApi.getTopItems(rangeQuery),
     enabled: !!user && !!range.from && !!range.to, staleTime: 60000,
   })
 
-  const { data: recentActivity, error: recentActivityError } = useQuery({
+  const { data: recentActivity, error: recentActivityError, isLoading: recentActivityLoading } = useQuery({
     queryKey: ['dashboard', 'recent-activity'],
     queryFn: () => reportsApi.getRecentActivity(),
     enabled: !!user, refetchInterval: 120000, staleTime: 60000,
@@ -256,8 +275,25 @@ export function DashboardOverview() {
   // getAuditSummary() endpoints themselves are untouched; they'll be
   // called from their own future sidebar page instead.
 
-  const dashboardError = revenueError || revenue7dError || paymentsError || expensesError || shiftError
-    || customerStatsError || sparklinesError || topItemsError || recentActivityError
+  // Which sections failed to load, so the banner can name them instead of a
+  // generic "some data" message.
+  const failedSections = (
+    [
+      [revenueError, 'revenue'],
+      [revenue7dError, 'revenue7d'],
+      [expensesError, 'expenses'],
+      [cogsError, 'cogs'],
+      [shiftError, 'shift'],
+      [customerStatsError, 'customers'],
+      [sparklinesError, 'sparklines'],
+      [topItemsError, 'topItems'],
+      [recentActivityError, 'recentActivity'],
+    ] as [unknown, string][]
+  )
+    .filter(([err]) => !!err)
+    .map(([, key]) => t(`ov.errSections.${key}`))
+  const dashboardError = failedSections.length > 0
+  const failedSectionsLabel = new Intl.ListFormat(locale, { style: 'long', type: 'conjunction' }).format(failedSections)
 
   if (!user) return null
 
@@ -265,19 +301,38 @@ export function DashboardOverview() {
   const totalOrders = revenue?.summary?.total_orders ?? 0
   const avgOrder = revenue?.summary?.avg_order_value ?? 0
   const totalExpenses = expenses?.summary?.total_approved_amount ?? 0
-  const totalCustomers = customerStats?.total ?? 0
+  // statNewCustomers must reflect customers acquired this period, not the
+  // all-time total (that number is already shown correctly on /customers
+  // as "Total Customers" via the same customerStats.total field).
+  // Follows the selected range like the other cards; falls back to the month
+  // only when no range is selected.
+  const newCustomers = customerStats?.new_in_range ?? customerStats?.new_this_month ?? 0
   // Simple arithmetic on already-loaded totals — no new call, no invented data.
-  const netProfit = totalRevenue - totalExpenses
+  // T10 / R4: profit = revenue WITHOUT VAT (after discounts and returns) - cost
+  // of goods sold - expenses (before VAT). VAT is not income.
+  const netRevenue = revenue?.summary?.net_revenue_after_returns ?? revenue?.summary?.net_revenue ?? totalRevenue
+  const netProfit = netRevenue - (cogs?.summary?.total_cogs ?? 0) - totalExpenses
+  // Net Profit depends on both revenue and expenses — it must show a
+  // skeleton until BOTH have resolved, or it would render 0 - loadedExpenses
+  // (or vice versa) as a real-looking negative/positive number.
+  const netProfitLoading = revenueLoading || expensesLoading || cogsLoading
 
   const dateLocale = locale === 'ar' ? 'ar-SA-u-nu-latn' : 'en-US'
 
-  const barData = (revenue7d?.daily_breakdown ?? []).map((d) => ({
-    label: new Date(d.date).toLocaleDateString(dateLocale, { weekday: 'short' }),
-    value: d.total,
-  }))
+  // The report only returns days that have sales, so lay out all 7 days
+  // ourselves and put 0 on the quiet ones (otherwise the chart skips them).
+  const dailyTotals = new Map((revenue7d?.daily_breakdown ?? []).map((d) => [String(d.date).slice(0, 10), d.total]))
+  const barData = Array.from({ length: 7 }, (_, i) => {
+    const day = new Date(sevenDaysAgo)
+    day.setDate(sevenDaysAgo.getDate() + i)
+    return {
+      label: day.toLocaleDateString(dateLocale, { weekday: 'short' }),
+      value: dailyTotals.get(toYMD(day)) ?? 0,
+    }
+  })
 
   const realPaymentData = revenue?.by_payment_method ?? {}
-  const donutTotal = Object.values(realPaymentData).reduce((s, v) => s + v.total, 0)
+  const donutTotal = Object.values(realPaymentData).reduce((s, v) => s + (Number(v.total) || 0), 0)
   // Every method in the requested list, with real data where it exists in
   // realPaymentData (by key match) and null (shown as a "soon" badge, never
   // a fabricated number) where it doesn't yet.
@@ -313,13 +368,16 @@ export function DashboardOverview() {
   // event twice in two different cards.
   const nonOrderActivity = (recentActivity?.activity ?? []).filter((item) => item.type !== 'order')
 
+  const yAxisTickFormatter = (v: number) => v >= 1000 ? `${(v / 1000).toFixed(0)}K` : String(v)
+  const chartTooltipFormatter = (v: unknown) => [`${formatNumber(Number(v) || 0, { locale, decimals: 2 })} ${currency}`, t('statSales')] as [string, string]
+
   return (
     <div className="mx-auto max-w-[1400px]">
 
       {dashboardError && (
         <div className="mb-4 flex items-center gap-2 rounded-lg border border-posCloud-danger/30 bg-posCloud-danger-light dark:bg-posCloud-danger/15 px-3.5 py-2.5 text-[13px] text-posCloud-danger">
           <AlertCircle size={16} />
-          <span>{t('ov.loadError')}</span>
+          <span>{t('ov.loadErrorSections', { sections: failedSectionsLabel })}</span>
         </div>
       )}
 
@@ -345,23 +403,23 @@ export function DashboardOverview() {
       {/* ── Stat cards — matches pos-cloud's 6-card grid exactly ── */}
       <div className="grid grid-cols-2 items-stretch gap-4 sm:grid-cols-3 lg:grid-cols-6">
         <StatCard icon={TrendingUp} iconBg="bg-posCloud-success-light dark:bg-posCloud-success/15" iconColor="text-posCloud-success"
-          label={t('statSales')} value={totalRevenue.toLocaleString('en-US')} unit={currency}
-          delta={computeDelta(sp.sales)} vsYesterdayLabel={vsYesterdayLabel} />
+          label={t('statSales')} value={formatNumber(totalRevenue, { locale, decimals: 2 })} unit={currency}
+          delta={computeDelta(sp.sales)} vsYesterdayLabel={vsYesterdayLabel} loading={revenueLoading} />
         <StatCard icon={Wallet} iconBg="bg-posCloud-success-light dark:bg-posCloud-success/15" iconColor="text-posCloud-success"
-          label={t('netProfit')} value={netProfit.toLocaleString('en-US')} unit={currency}
-          delta={computeDelta(sp.sales)} vsYesterdayLabel={vsYesterdayLabel} />
+          label={t('netProfit')} value={formatNumber(netProfit, { locale, decimals: 2 })} unit={currency}
+          delta={computeDelta(sp.sales)} vsYesterdayLabel={vsYesterdayLabel} loading={netProfitLoading} />
         <StatCard icon={Tag} iconBg="bg-posCloud-warning-light dark:bg-posCloud-warning/15" iconColor="text-posCloud-warning"
-          label={t('avgOrder')} value={avgOrder.toLocaleString('en-US', { maximumFractionDigits: 1 })} unit={currency}
-          delta={null} vsYesterdayLabel={vsYesterdayLabel} />
+          label={t('avgOrder')} value={formatNumber(avgOrder, { locale, decimals: 2 })} unit={currency}
+          delta={null} vsYesterdayLabel={vsYesterdayLabel} loading={revenueLoading} />
         <StatCard icon={ShoppingCart} iconBg="bg-posCloud-info-light dark:bg-posCloud-info/15" iconColor="text-posCloud-info"
-          label={t('statOrders')} value={totalOrders.toLocaleString('en-US')}
-          delta={computeDelta(sp.orders)} vsYesterdayLabel={vsYesterdayLabel} />
+          label={t('statOrders')} value={formatNumber(totalOrders, { locale, decimals: 0 })}
+          delta={computeDelta(sp.orders)} vsYesterdayLabel={vsYesterdayLabel} loading={revenueLoading} />
         <StatCard icon={Users} iconBg="bg-posCloud-primary-light dark:bg-posCloud-primary/15" iconColor="text-posCloud-primary"
-          label={t('statNewCustomers')} value={totalCustomers.toLocaleString('en-US')}
-          delta={computeDelta(sp.customers)} vsYesterdayLabel={vsYesterdayLabel} />
+          label={t('statNewCustomers')} value={formatNumber(newCustomers, { locale, decimals: 0 })}
+          delta={computeDelta(sp.customers)} vsYesterdayLabel={vsYesterdayLabel} loading={customerStatsLoading} />
         <StatCard icon={Wallet} iconBg="bg-posCloud-danger-light dark:bg-posCloud-danger/15" iconColor="text-posCloud-danger"
-          label={t('statExpensesTitle')} value={totalExpenses.toLocaleString('en-US')} unit={currency}
-          delta={computeDelta(sp.expenses)} vsYesterdayLabel={vsYesterdayLabel} />
+          label={t('statExpensesTitle')} value={formatNumber(totalExpenses, { locale, decimals: 2 })} unit={currency}
+          delta={computeDelta(sp.expenses)} vsYesterdayLabel={vsYesterdayLabel} loading={expensesLoading} />
       </div>
 
       {/* HR/Audit KPI rows moved out — see docs/rebuild/PARKING_LOT.md (A1).
@@ -376,8 +434,8 @@ export function DashboardOverview() {
       {showTables && (
         <div className="mt-4 grid grid-cols-2 items-stretch gap-4 sm:grid-cols-4">
           <StatCard icon={UtensilsCrossed} iconBg="bg-posCloud-warning-light dark:bg-posCloud-warning/15" iconColor="text-posCloud-warning"
-            label={t('occupiedTables')} value={`${occupiedTables} / ${totalTables}`}
-            delta={null} vsYesterdayLabel={vsYesterdayLabel} />
+            label={t('occupiedTables')} value={`${formatNumber(occupiedTables, { locale, decimals: 0 })} / ${formatNumber(totalTables, { locale, decimals: 0 })}`}
+            delta={null} vsYesterdayLabel={vsYesterdayLabel} loading={tablesLoading} />
         </div>
       )}
 
@@ -394,27 +452,29 @@ export function DashboardOverview() {
             action={<span className="rounded-lg border border-posCloud-border dark:border-posCloudDark-border px-3 py-1.5 text-xs font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{t('ov.last7Days')}</span>}
           />
           <div className="h-[200px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={barData} margin={{ top: 10, right: 8, left: -20, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="salesFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#2563eb" stopOpacity={0.25} />
-                    <stop offset="100%" stopColor="#2563eb" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid vertical={false} stroke="#e2e8f0" />
-                <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} reversed={isRTL} />
-                <YAxis tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false}
-                  tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(0)}K` : String(v)} orientation={isRTL ? 'right' : 'left'} />
-                <Tooltip
-                  contentStyle={{ borderRadius: 12, border: '1px solid #e2e8f0', background: '#fff', color: '#0f172a', fontSize: 12 }}
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  formatter={(v: any) => [`${(Number(v) || 0).toLocaleString('en-US')} ${currency}`, t('statSales')]}
-                />
-                <Area type="monotone" dataKey="value" stroke="#2563eb" strokeWidth={2.5} fill="url(#salesFill)"
-                  dot={{ r: 4, fill: '#2563eb', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} isAnimationActive={false} />
-              </AreaChart>
-            </ResponsiveContainer>
+            {revenue7dLoading && <Skeleton className="h-full w-full" />}
+            {!revenue7dLoading && (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={barData} margin={{ top: 10, right: 8, left: -20, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="salesFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#2563eb" stopOpacity={0.25} />
+                      <stop offset="100%" stopColor="#2563eb" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid vertical={false} stroke="#e2e8f0" />
+                  <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} reversed={isRTL} />
+                  <YAxis tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false}
+                    tickFormatter={yAxisTickFormatter} orientation={isRTL ? 'right' : 'left'} />
+                  <Tooltip
+                    contentStyle={{ borderRadius: 12, border: '1px solid #e2e8f0', background: '#fff', color: '#0f172a', fontSize: 12 }}
+                    formatter={chartTooltipFormatter}
+                  />
+                  <Area type="monotone" dataKey="value" stroke="#2563eb" strokeWidth={2.5} fill="url(#salesFill)"
+                    dot={{ r: 4, fill: '#2563eb', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} isAnimationActive={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </SectionCard>
 
@@ -432,7 +492,7 @@ export function DashboardOverview() {
               </PieChart>
             </ResponsiveContainer>
             <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-2xl font-extrabold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{donutTotal.toLocaleString('en-US')}</span>
+              <span className="text-2xl font-extrabold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{formatNumber(donutTotal, { locale, decimals: 2 })}</span>
               <span className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary mt-1">{t('ov.totalSales')} {currency}</span>
             </div>
           </div>
@@ -476,7 +536,7 @@ export function DashboardOverview() {
           <SectionHeader title={t('overview.title')} />
           <div className="space-y-4">
             {[
-              { icon: Boxes, color: 'text-posCloud-primary bg-posCloud-primary-light dark:bg-posCloud-primary/15', label: t('overview.totalProducts'), value: itemStats ? itemStats.total.toLocaleString('en-US') : '—' },
+              { icon: Boxes, color: 'text-posCloud-primary bg-posCloud-primary-light dark:bg-posCloud-primary/15', label: t('overview.totalProducts'), value: itemStats ? formatNumber(itemStats.total, { locale, decimals: 0 }) : '—' },
               { icon: PackageOpen, color: 'text-posCloud-warning bg-posCloud-warning-light dark:bg-posCloud-warning/15', label: t('overview.lowStock'), value: null },
               { icon: Layers3, color: 'text-posCloud-info bg-posCloud-info-light dark:bg-posCloud-info/15', label: t('overview.totalStock'), value: null },
               { icon: Receipt, color: 'text-posCloud-danger bg-posCloud-danger-light dark:bg-posCloud-danger/15', label: t('overview.dueInvoices'), value: null },
@@ -514,7 +574,9 @@ export function DashboardOverview() {
             action={<Link href={`/${locale}/dashboard/orders`} className="text-xs font-semibold text-posCloud-primary">{t('ov.viewAll')}</Link>}
           />
           <div className="overflow-x-auto">
-            {invoiceRows.length === 0 ? (
+            {recentOrdersLoading ? (
+              <TableSkeleton rows={5} cols={4} />
+            ) : invoiceRows.length === 0 ? (
               <p className="py-4 text-center text-[13px] text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('noDataLabel')}</p>
             ) : (
               <table className="w-full text-start text-[13px]">
@@ -531,7 +593,7 @@ export function DashboardOverview() {
                     <tr key={o.id} className="border-t border-posCloud-border dark:border-posCloudDark-border">
                       <td className="py-3 font-semibold text-posCloud-primary">#{o.id.slice(-6).toUpperCase()}</td>
                       <td className="py-3 text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{o.customer_name || '—'}</td>
-                      <td className="py-3 font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{o.total.toLocaleString('en-US')} {currency}</td>
+                      <td className="py-3 font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{formatNumber(o.total, { locale, decimals: 2 })} {currency}</td>
                       <td className="py-3">
                         <span className={cn(
                           'px-2 py-0.5 rounded-full text-xs font-medium',
@@ -567,10 +629,12 @@ export function DashboardOverview() {
             action={<span className="rounded-lg border border-posCloud-border dark:border-posCloudDark-border px-3 py-1.5 text-xs font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{rangeLabel}</span>}
           />
           <div className="space-y-3">
-            {(topItems?.items ?? []).length === 0 && (
+            {topItemsLoading ? (
+              <CardListSkeleton rows={5} />
+            ) : (topItems?.items ?? []).length === 0 ? (
               <p className="py-4 text-center text-[13px] text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('noDataLabel')}</p>
-            )}
-            {(topItems?.items ?? []).slice(0, 5).map((item, i) => (
+            ) : null}
+            {!topItemsLoading && (topItems?.items ?? []).slice(0, 5).map((item, i) => (
               <div key={i} className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-posCloud-text-secondary dark:bg-white/5 dark:text-posCloudDark-text-secondary">
                   <Star className="h-4 w-4" />
@@ -582,7 +646,7 @@ export function DashboardOverview() {
                   </div>
                 </div>
                 <span className="text-[13px] font-bold text-posCloud-text-primary dark:text-posCloudDark-text-primary shrink-0">
-                  {item.total.toLocaleString('en-US')} {currency}
+                  {formatNumber(item.total, { locale, decimals: 2 })} {currency}
                 </span>
                 <span className={cn('flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white', rankColor[i] ?? rankColor[4])}>
                   {i + 1}
@@ -614,10 +678,12 @@ export function DashboardOverview() {
         <SectionCard>
           <SectionHeader title={t('recentActivity')} />
           <div>
-            {nonOrderActivity.length === 0 && (
+            {recentActivityLoading ? (
+              <CardListSkeleton rows={5} />
+            ) : nonOrderActivity.length === 0 ? (
               <p className="py-4 text-center text-[13px] text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('noActivity')}</p>
-            )}
-            {nonOrderActivity.slice(0, 5).map((item, i, arr) => (
+            ) : null}
+            {!recentActivityLoading && nonOrderActivity.slice(0, 5).map((item, i, arr) => (
               <div key={i} className={cn('flex items-start gap-3 py-3', i < arr.length - 1 && 'border-b border-posCloud-border dark:border-posCloudDark-border')}>
                 <div className={cn(
                   'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg',
@@ -632,10 +698,10 @@ export function DashboardOverview() {
                 </div>
                 <div className="text-end shrink-0">
                   <p className={cn('text-sm font-bold', item.amount !== null && item.amount < 0 ? 'text-posCloud-danger' : 'text-posCloud-text-primary dark:text-posCloudDark-text-primary')}>
-                    {item.amount !== null ? `${item.amount.toLocaleString('en-US')} ${currency}` : t('alertLabel')}
+                    {item.amount !== null ? `${formatNumber(item.amount, { locale, decimals: 2 })} ${currency}` : t('alertLabel')}
                   </p>
                   <p className="mt-0.5 text-[10px] text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-                    {new Date(item.time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                    {new Date(item.time).toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
               </div>

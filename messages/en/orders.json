@@ -43,7 +43,8 @@
     "apple_pay": "Apple Pay",
     "tab": "Tab",
     "gift_card": "Gift Card",
-    "unknown": "—"
+    "unknown": "—",
+    "split_unallocated": "Split (not allocated)"
   },
   "details": {
     "title": "Order Details",
@@ -59,7 +60,11 @@
     "journalEntry": "Journal Entry",
     "downloadPdf": "Download PDF",
     "sendPdf": "Send PDF",
-    "print": "Print"
+    "print": "Print",
+    "cancelledInfo": "Cancellation",
+    "cancelledAt": "Cancelled at",
+    "cancelReason": "Reason",
+    "noReason": "No reason recorded"
   },
   "edit": {
     "action": "Edit",
@@ -99,5 +104,24 @@
     "cancelled": "Cancelled",
     "todayRevenue": "Today's Revenue",
     "vsLastMonth": "vs previous period"
+  },
+  "returns": {
+    "action": "Return items",
+    "title": "Return items",
+    "available": "Available",
+    "less": "Fewer",
+    "more": "More",
+    "fullyReturned": "Fully returned",
+    "reasonPlaceholder": "Why are the items being returned?",
+    "net": "Net amount",
+    "tax": "Tax",
+    "refund": "Refund",
+    "cashFromRegister": "Cash from the open register",
+    "backToMethod": "Back to {method}",
+    "previous": "{count} earlier return(s) on this invoice",
+    "submit": "Confirm return",
+    "submitting": "Returning...",
+    "done": "Return recorded",
+    "failed": "Could not complete the return"
   }
 }

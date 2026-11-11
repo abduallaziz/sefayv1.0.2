@@ -7,6 +7,7 @@ import {
   Shield, Search, RefreshCw, ChevronDown,
   FileText, DollarSign, LogIn, Settings,
   AlertTriangle, Trash2, CheckCircle, XCircle,
+  type LucideIcon,
 } from 'lucide-react'
 import { superadminApi } from '../../api/superadmin.api'
 import type { AuditLog } from '../../types'
@@ -22,7 +23,7 @@ function timeAgo(iso: string) {
   return `${Math.floor(h / 24)}d ago`
 }
 
-function getActionIcon(action: string): { icon: any; color: string } {
+function getActionIcon(action: string): { icon: LucideIcon; color: string } {
   if (action.startsWith('invoice'))  return { icon: FileText,      color: 'text-blue-400' }
   if (action.startsWith('expense'))  return { icon: DollarSign,    color: 'text-emerald-400' }
   if (action.startsWith('shift'))    return { icon: CheckCircle,   color: 'text-emerald-400' }

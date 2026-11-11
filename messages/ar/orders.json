@@ -43,7 +43,8 @@
     "apple_pay": "Apple Pay",
     "tab": "حساب آجل",
     "gift_card": "بطاقة هدية",
-    "unknown": "—"
+    "unknown": "—",
+    "split_unallocated": "مقسّم (غير موزّع)"
   },
   "details": {
     "title": "تفاصيل الفاتورة",
@@ -59,7 +60,11 @@
     "journalEntry": "القيد المحاسبي",
     "downloadPdf": "تنزيل PDF",
     "sendPdf": "إرسال PDF",
-    "print": "طباعة"
+    "print": "طباعة",
+    "cancelledInfo": "الإلغاء",
+    "cancelledAt": "وقت الإلغاء",
+    "cancelReason": "السبب",
+    "noReason": "لم يُسجَّل سبب"
   },
   "actions": {
     "view": "عرض",
@@ -99,5 +104,24 @@
     "cancelled": "ملغاة",
     "todayRevenue": "الإيراد اليوم",
     "vsLastMonth": "عن الفترة السابقة"
+  },
+  "returns": {
+    "action": "إرجاع أصناف",
+    "title": "إرجاع أصناف",
+    "available": "المتاح",
+    "less": "أقل",
+    "more": "أكثر",
+    "fullyReturned": "أُرجعت بالكامل",
+    "reasonPlaceholder": "لماذا تُرجَع الأصناف؟",
+    "net": "المبلغ الصافي",
+    "tax": "الضريبة",
+    "refund": "المبلغ المسترد",
+    "cashFromRegister": "نقداً من الصندوق المفتوح",
+    "backToMethod": "يعود إلى {method}",
+    "previous": "{count} مرتجع سابق على هذه الفاتورة",
+    "submit": "تأكيد الإرجاع",
+    "submitting": "جارٍ الإرجاع...",
+    "done": "تم تسجيل المرتجع",
+    "failed": "تعذّر إتمام الإرجاع"
   }
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useAuthStore, type UserRole, type BusinessType } from './stores/auth.store';
-import { refreshSession } from '@/lib/api';
+import { refreshSession, wasLastRefreshTransient } from '@/lib/api';
 
 interface AuthProviderProps {
   children: React.ReactNode;
@@ -33,19 +33,39 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     const tryAutoRefresh = async () => {
       try {
-        const refreshed = await refreshSession();
+        // A passing failure (network drop, rate limit, server restart) is not
+        // a lost session: retry a couple of times before signing the user out.
+        const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+        let refreshed = await refreshSession();
+        for (const delay of [1000, 2500]) {
+          if (refreshed || !wasLastRefreshTransient()) break;
+          await wait(delay);
+          refreshed = await refreshSession();
+        }
 
         if (!refreshed) {
           clearAuth();
           return;
         }
 
-        const meRes = await fetch(`${API_BASE}/auth/me`, {
-          headers: { Authorization: `Bearer ${refreshed.access_token}` },
-          credentials: 'include',
-        });
+        const fetchMe = () =>
+          fetch(`${API_BASE}/auth/me`, {
+            headers: { Authorization: `Bearer ${refreshed.access_token}` },
+            credentials: 'include',
+          });
+        let meRes: Response | null = null;
+        for (const delay of [0, 1000, 2500]) {
+          if (delay) await wait(delay);
+          try {
+            meRes = await fetchMe();
+          } catch {
+            meRes = null; // network drop: try again
+            continue;
+          }
+          if (meRes.status !== 429 && meRes.status < 500) break;
+        }
 
-        if (meRes.ok) {
+        if (meRes?.ok) {
           const user = await meRes.json();
           setAuth(
             {
@@ -54,6 +74,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
               name: user.name,
               role: user.role as UserRole,
               tenantId: user.tenant_id,
+              branchId: user.branch_id ?? null,
               sessionId: user.session_id,
               permissions: user.permissions ?? [],
               features: user.features ?? [],
@@ -74,7 +95,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     };
 
     tryAutoRefresh();
-  }, []);
+    // clearAuth/setAuth/setLoading are stable Zustand action references (never
+    // change identity) — listing them doesn't change when this runs; the
+    // `hasAttemptedRefresh` ref above is what actually guarantees "once".
+  }, [clearAuth, setAuth, setLoading]);
 
   return <>{children}</>;
 }

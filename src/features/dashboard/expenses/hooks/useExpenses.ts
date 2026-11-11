@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { expensesApi, CreateExpenseDto, CreateCategoryDto, UpdateExpenseTemplateDto } from '../api/expenses.api';
+import { expensesApi, CreateExpenseDto, CreateCategoryDto, UpdateExpenseTemplateDto, ExpenseCategory } from '../api/expenses.api';
 
 const KEYS = {
   all: ['expenses'] as const,
@@ -99,7 +99,7 @@ export const useDeleteCategory = () => {
     onMutate: async (id) => {
       await qc.cancelQueries({ queryKey: KEYS.categories });
       const previous = qc.getQueryData(KEYS.categories);
-      qc.setQueryData(KEYS.categories, (old: any[]) =>
+      qc.setQueryData(KEYS.categories, (old: ExpenseCategory[] | undefined) =>
         (old ?? []).filter((cat) => cat.id !== id)
       );
       return { previous };

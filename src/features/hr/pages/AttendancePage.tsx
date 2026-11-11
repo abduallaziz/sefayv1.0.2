@@ -135,12 +135,12 @@ function AllEmployeesAttendance({
   const [departmentFilter, setDepartmentFilter] = useState('')
   const [page, setPage] = useState(1)
 
-  const usersById = useMemo(() => new Map((users as any[]).map((u) => [u.id, u])), [users])
+  const usersById = useMemo(() => new Map(users.map((u) => [u.id, u])), [users])
   const departments = useMemo(
-    () => Array.from(new Set((users as any[]).map((u) => u.department).filter(Boolean))) as string[],
+    () => Array.from(new Set(users.map((u) => u.department).filter(Boolean))) as string[],
     [users],
   )
-  const scheduledUserIdsOnDate = useMemo(() => new Set(dateSchedules.map((s: any) => s.user_id)), [dateSchedules])
+  const scheduledUserIdsOnDate = useMemo(() => new Set(dateSchedules.map((s) => s.user_id)), [dateSchedules])
 
   const latestPerEmployee = useMemo(() => {
     const byUser = new Map<string, (typeof records)[number]>()
@@ -348,7 +348,7 @@ function AllEmployeesAttendance({
         </>
       )}
       {historyUser && (
-        <EmployeeHistoryModal user={historyUser} onClose={() => setHistoryUser(null)} t={t} fmtDateTime={fmtDateTime} />
+        <EmployeeHistoryModal user={historyUser} onClose={() => setHistoryUser(null)} t={t} />
       )}
     </>
   )
@@ -358,12 +358,10 @@ function EmployeeHistoryModal({
   user,
   onClose,
   t,
-  fmtDateTime,
 }: {
   user: { id: string; name: string; jobTitle?: string | null; avatarUrl?: string | null }
   onClose: () => void
   t: ReturnType<typeof useTranslations>
-  fmtDateTime: (iso: string) => string
 }) {
   const [range, setRange] = useState<{ from: string | undefined; to: string | undefined }>({ from: undefined, to: undefined })
   const { data: records = [], isLoading } = useAllAttendance({
@@ -377,7 +375,7 @@ function EmployeeHistoryModal({
     const totalHours = records.reduce((sum, r) => sum + (r.hours_worked ?? 0), 0)
     const workDays = new Set(records.map((r) => r.check_in_at.substring(0, 10))).size
     const scheduledDaysWithEarliestStart = new Map<string, string>()
-    for (const s of schedules as any[]) {
+    for (const s of schedules) {
       const existing = scheduledDaysWithEarliestStart.get(s.scheduled_date)
       if (!existing || s.start_time < existing) scheduledDaysWithEarliestStart.set(s.scheduled_date, s.start_time)
     }

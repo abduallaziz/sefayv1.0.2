@@ -13,10 +13,13 @@ import { useUsers, useUpdateEmployee, useGenerateAttendanceLink, useUnbindAttend
 import { useLeaveRequests, useEmployeeGeofences, useCreateEmployeeGeofence, useDeleteEmployeeGeofence } from '@/features/hr/hooks/useHr'
 import { usePayrollReport } from '@/features/reports/hooks/useReports'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
+import { useBranches, useBranchById } from '@/shared/hooks/useBranches'
 import { formatNumber } from '@/lib/format'
 import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
 import { DateRangePicker } from '@/shared/ui/date-range-picker'
-import type { LateDeductionMode } from '../api/users.api'
+import type { LateDeductionMode, User } from '../api/users.api'
+import type { LeaveRequest } from '@/features/hr/api/hr.api'
+import type { PayrollEmployee } from '@/features/reports/api/reports.api'
 
 // Leaflet touches `window` at module load time, which breaks SSR — must be
 // loaded client-only.
@@ -179,10 +182,10 @@ function OverviewTab({
   t, user, leaveSummary, leaves, payrollRow, currency,
 }: {
   t: ReturnType<typeof useTranslations>
-  user: any
+  user: User
   leaveSummary: { pending: number; approved: number; rejected: number }
-  leaves: any[]
-  payrollRow: any
+  leaves: LeaveRequest[]
+  payrollRow: PayrollEmployee | undefined
   currency: string
 }) {
   return (
@@ -229,7 +232,7 @@ function OverviewTab({
 }
 
 /* ── Job Information tab ── */
-function JobInfoTab({ t, user }: { t: ReturnType<typeof useTranslations>; user: any }) {
+function JobInfoTab({ t, user }: { t: ReturnType<typeof useTranslations>; user: User }) {
   const employmentTypeLabel = user.employment_type === 'full_time' ? t('employmentTypeFullTime')
     : user.employment_type === 'part_time' ? t('employmentTypePartTime')
     : t('notSet')
@@ -247,13 +250,68 @@ function JobInfoTab({ t, user }: { t: ReturnType<typeof useTranslations>; user: 
         </div>
       </div>
 
+      <BranchSection t={t} user={user} />
       <PayrollSection t={t} user={user} />
     </div>
   )
 }
 
+/* ── Branch assignment (Branch System Step 2) ── */
+function BranchSection({ t, user }: { t: ReturnType<typeof useTranslations>; user: User }) {
+  const { data: branches = [] } = useBranches()
+  const currentBranchId = user.branch_id ?? ''
+  const currentBranchInList = branches.some((b) => b.id === currentBranchId)
+  // The current assignment may point at a branch that's since gone inactive
+  // (active_only filtering in useBranches() would otherwise silently drop it
+  // from the <select>, making the select fall back to its first option and
+  // misrepresent what's actually assigned) — fetch it by id only in that case,
+  // purely to keep it readable, never as a re-selectable target.
+  const { data: currentBranch } = useBranchById(
+    currentBranchId && !currentBranchInList ? currentBranchId : undefined,
+  )
+  const { mutate: updateEmployee, isPending: saving } = useUpdateEmployee()
+  const [branchId, setBranchId] = useState(currentBranchId)
+
+  function save() {
+    updateEmployee({ id: user.id, data: { branch_id: branchId || null } })
+  }
+
+  return (
+    <div className="border border-slate-100 dark:border-gray-800 rounded-2xl p-5">
+      <SectionTitle icon={Building2} title={t('branchAssignment')} />
+      <div className="flex flex-wrap items-end gap-3 mt-3">
+        <div className="min-w-[220px]">
+          <label className="text-xs text-slate-500 mb-1 block">{t('branch')}</label>
+          <select
+            value={branchId}
+            onChange={(e) => setBranchId(e.target.value)}
+            className="w-full bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white"
+          >
+            <option value="">{t('centralNoBranch')}</option>
+            {currentBranch && !currentBranchInList && (
+              <option value={currentBranch.id} disabled>
+                {t('inactiveBranchOption', { name: currentBranch.name })}
+              </option>
+            )}
+            {branches.map((b) => (
+              <option key={b.id} value={b.id}>{b.name}</option>
+            ))}
+          </select>
+        </div>
+        <button
+          onClick={save}
+          disabled={saving || branchId === currentBranchId}
+          className="px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 text-white rounded-lg text-sm font-medium"
+        >
+          {saving ? t('saving') : t('save')}
+        </button>
+      </div>
+    </div>
+  )
+}
+
 /* ── Payroll section (moved from the old EmployeeSettingsModal) ── */
-function PayrollSection({ t, user }: { t: ReturnType<typeof useTranslations>; user: any }) {
+function PayrollSection({ t, user }: { t: ReturnType<typeof useTranslations>; user: User }) {
   const { mutate: updateEmployee, isPending: saving } = useUpdateEmployee()
 
   const [baseSalary, setBaseSalary] = useState(user.base_salary?.toString() ?? '')
@@ -336,7 +394,7 @@ function AttendanceTab({
   t, user,
 }: {
   t: ReturnType<typeof useTranslations>
-  user: any
+  user: User
 }) {
   const { mutate: generateLink, isPending: generating } = useGenerateAttendanceLink()
   const { mutate: unbindDevice, isPending: unbinding } = useUnbindAttendanceDevice()
@@ -450,7 +508,7 @@ function AttendanceTab({
 }
 
 /* ── Geofence / GPS section (moved from the old EmployeeSettingsModal) ── */
-function GeofenceSection({ t, user }: { t: ReturnType<typeof useTranslations>; user: any }) {
+function GeofenceSection({ t, user }: { t: ReturnType<typeof useTranslations>; user: User }) {
   const { data: zones = [] } = useEmployeeGeofences(user.id)
   const { mutate: createZone, isPending: creatingZone } = useCreateEmployeeGeofence()
   const { mutate: deleteZone } = useDeleteEmployeeGeofence()

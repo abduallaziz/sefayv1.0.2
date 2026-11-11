@@ -1,5 +1,6 @@
 import { apiClient } from '@/lib/api';
 import { Order, OrderFilters, CancelOrderPayload } from '../types/order.types';
+import type { CustomerCapture } from '@/features/customers/types/customer.types';
 
 export async function fetchOrders(filters: OrderFilters = {}): Promise<Order[]> {
   const params: Record<string, string> = {};
@@ -31,6 +32,8 @@ export interface CreateOrderItem {
   variant_name?: string;
   quantity: number;
   unit_price: number;
+  // G4 - worker of this line; commission is snapshotted server-side.
+  worker_id?: string;
 }
 
 export interface CreateOrderDiscount {
@@ -50,10 +53,18 @@ export interface CreateOrderPayload {
   items: CreateOrderItem[];
   discount?: CreateOrderDiscount;
   customer_id?: string;
+  // T12 - phone/plate/size resolved (found or created) by the server on confirm.
+  customer_capture?: CustomerCapture;
   notes?: string;
   tax_rate?: number;
   redeem_points?: number;
   coupon_code?: string;
+  redeem_reward_instance_ids?: string[];
+}
+
+// G6 - edits ONLY the non-financial note of an already-sold invoice.
+export async function updateInvoiceNote(id: string, note: string): Promise<{ id: string; notes: string | null }> {
+  return apiClient.patch<{ id: string; notes: string | null }>(`/invoices/${id}/note`, { note });
 }
 
 export async function createOrder(payload: CreateOrderPayload): Promise<Order> {

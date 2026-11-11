@@ -1,0 +1,88 @@
+{
+  "title": "Rewards",
+  "subtitle": "Automatic reward definitions customers unlock and redeem at checkout",
+  "newReward": "New Reward",
+  "editReward": "Edit Reward",
+  "name": "Name",
+  "namePlaceholder": "e.g. Free Coffee After 5 Purchases",
+  "triggerType": "Trigger Type",
+  "trigger": {
+    "purchase_count": "Purchase Count",
+    "spend_threshold": "Spend Threshold",
+    "product_category": "Product Category",
+    "birthday": "Birthday",
+    "campaign": "Campaign",
+    "loyalty_points": "Loyalty Points"
+  },
+  "triggerConfig": {
+    "count": "Number of Purchases",
+    "threshold": "Spend Threshold Amount",
+    "categoryId": "Category ID",
+    "categoryIdPlaceholder": "Product category ID",
+    "points": "Lifetime Points Required"
+  },
+  "rewardType": "Reward Type",
+  "rewardTypeOptions": {
+    "free_item": "Free Item",
+    "percentage_discount": "Percentage Discount",
+    "fixed_discount": "Fixed Discount",
+    "coupon_reference": "Coupon Reference"
+  },
+  "rewardConfig": {
+    "itemId": "Free Item ID",
+    "itemIdPlaceholder": "Item ID to grant free",
+    "percentageValue": "Discount Percentage",
+    "fixedValue": "Discount Amount",
+    "couponId": "Coupon ID",
+    "couponIdPlaceholder": "Coupon ID to link"
+  },
+  "usageConditions": {
+    "minOrderAmount": "Minimum Order Amount",
+    "minOrderAmountPlaceholder": "No minimum"
+  },
+  "triggerConfigNote": {
+    "birthday": "Automatically unlocked on the customer's birthday, no extra configuration needed",
+    "campaign": "Unlocked manually per campaign, no extra configuration needed"
+  },
+  "branchScope": "Branch Scope",
+  "branchScopeOptions": {
+    "all": "All Branches",
+    "specific": "Specific Branch"
+  },
+  "branch": "Branch",
+  "selectBranch": "Select a branch",
+  "expirationDays": "Expires After (days)",
+  "noExpiryPlaceholder": "No expiry",
+  "noExpiry": "No expiry",
+  "active": "Active",
+  "inactive": "Inactive",
+  "status": "Status",
+  "noRewards": "No rewards yet",
+  "noRewardsHint": "Create a reward definition to give your customers unlockable rewards",
+  "deleteReward": "Delete Reward",
+  "deleteConfirm": "Are you sure you want to delete reward {name}?",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "save": "Save",
+  "saving": "Saving...",
+  "error": "Something went wrong, try again",
+  "customer": {
+    "title": "Rewards",
+    "loading": "Loading rewards...",
+    "empty": "No rewards yet",
+    "status": {
+      "locked": "Locked",
+      "unlocked": "Available",
+      "redeemed": "Redeemed",
+      "expired": "Expired"
+    },
+    "expiresOn": "Expires {date}",
+    "redeemedOn": "Redeemed {date}"
+  },
+  "pos": {
+    "sectionLabel": "Rewards",
+    "availableCount": "{count} available",
+    "noneAvailable": "No rewards available",
+    "selectRewards": "Select rewards to redeem"
+  }
+}

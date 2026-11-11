@@ -36,5 +36,22 @@
   "avgLeadTime": "متوسط مدة التوريد",
   "days": "يوم",
   "lastPurchaseDate": "تاريخ آخر شراء",
-  "never": "لم يحدث"
+  "never": "لم يحدث",
+  "priceTimelineTitle": "الجدول الزمني للأسعار",
+  "priceTimelineSelectItem": "اختر صنفًا",
+  "priceTimelineNoItem": "اختر صنفًا لعرض الجدول الزمني لأسعاره مع هذا المورد.",
+  "priceTimelineLoading": "جارٍ تحميل الجدول الزمني للأسعار…",
+  "priceTimelineError": "فشل تحميل الجدول الزمني للأسعار. حاول مرة أخرى.",
+  "priceTimelineEmptyTitle": "لا يوجد سجل أسعار بعد",
+  "priceTimelineEmptyDescription": "لا توجد عروض أسعار أو أوامر شراء أو إيصالات استلام مسجلة لهذا الصنف مع هذا المورد.",
+  "priceTimelineColumnDate": "التاريخ",
+  "priceTimelineColumnStage": "المرحلة",
+  "priceTimelineColumnPrice": "السعر",
+  "priceTimelineColumnDocument": "المستند",
+  "priceTimelineColumnWarehouse": "المستودع",
+  "priceTimelineStageQuote": "عرض سعر",
+  "priceTimelineStagePurchaseOrder": "أمر شراء",
+  "priceTimelineStageGoodsReceipt": "إيصال استلام",
+  "priceTimelineCount": "{count} نقطة سعر",
+  "priceTimelineRowsPerPage": "الصفوف لكل صفحة"
 }

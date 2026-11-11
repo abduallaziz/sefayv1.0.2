@@ -4,6 +4,7 @@ export interface Feature {
   id: string
   key: string
   name: string
+  name_ar?: string
   description: string
   category: FeatureCategory
   is_enabled: boolean

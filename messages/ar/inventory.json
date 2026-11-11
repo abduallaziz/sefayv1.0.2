@@ -434,6 +434,7 @@
       "dashboard": "لوحة المعلومات",
       "putaway": "التخزين",
       "tasks": "مهام المستودع",
+      "waves": "الموجات",
       "picking": "الانتقاء",
       "packing": "التعبئة",
       "shipping": "الشحن"
@@ -470,7 +471,499 @@
       "confirmPack": "تأكيد التعبئة",
       "ship": "شحن"
     },
-    "noData": "لا توجد بيانات"
+    "noData": "لا توجد بيانات",
+    "dashboard": {
+      "allWarehouses": "كل المستودعات",
+      "exceptionDateRange": "نطاق تاريخ الاستثناءات",
+      "loadError": "تعذر تحميل هذا العنصر، يرجى المحاولة مرة أخرى.",
+      "noExceptions": "لا توجد استثناءات في النطاق المحدد",
+      "openTasks": "مهام مفتوحة",
+      "activePickLists": "قوائم انتقاء نشطة",
+      "activeWaves": "موجات نشطة",
+      "openExceptions": "استثناءات مفتوحة",
+      "sections": {
+        "tasks": "أعمال المستودع",
+        "picking": "الانتقاء",
+        "waves": "الموجات",
+        "shipments": "الشحنات / التنفيذ",
+        "exceptions": "الاستثناءات",
+        "reservations": "الحجوزات"
+      },
+      "total": "الإجمالي",
+      "pending": "قيد الانتظار",
+      "assigned": "مُسندة",
+      "unassigned": "غير مُسندة",
+      "inProgress": "قيد التنفيذ",
+      "completed": "مكتملة",
+      "cancelled": "ملغاة",
+      "open": "مفتوحة",
+      "active": "نشطة",
+      "released": "مُصدرة",
+      "picking": "قيد الانتقاء",
+      "picked": "مُنتقاة",
+      "shipped": "مشحونة",
+      "strategyDistribution": "توزيع الاستراتيجية",
+      "eligibleShipments": "الشحنات المؤهلة",
+      "claimedShipments": "الشحنات المرتبطة",
+      "excludedShipments": "الشحنات المستبعدة",
+      "claimFailures": "فشل الارتباط",
+      "requestedQty": "الكمية المطلوبة",
+      "pickedQty": "الكمية المنتقاة",
+      "exceptionQty": "كمية الاستثناءات",
+      "unfulfilledQty": "الكمية غير المنفذة",
+      "qty": "الكمية {qty}",
+      "topReasons": "أكثر الأسباب",
+      "reservedQty": "الكمية المحجوزة",
+      "reservedCount": "{count} حجز",
+      "consumed": "مستهلكة",
+      "reservationAffectingExceptions": "استثناءات مؤثرة على الحجز",
+      "strategies": {
+        "single": "مفرد",
+        "batch": "دفعة",
+        "zone": "منطقة",
+        "wave": "موجة"
+      },
+      "exceptionTypes": {
+        "short_pick": "نقص انتقاء",
+        "damaged": "تالفة",
+        "lost": "مفقودة",
+        "cancelled": "ملغاة"
+      }
+    },
+    "pickLists": {
+      "filters": {
+        "warehouse": "المستودع",
+        "allWarehouses": "كل المستودعات",
+        "status": "الحالة",
+        "allStatuses": "كل الحالات",
+        "strategy": "الاستراتيجية",
+        "allStrategies": "كل الاستراتيجيات",
+        "priority": "الأولوية",
+        "allPriorities": "كل الأولويات",
+        "sortBy": "الترتيب حسب",
+        "sortOrder": "الاتجاه",
+        "sortAsc": "تصاعدي",
+        "sortDesc": "تنازلي"
+      },
+      "columns": {
+        "id": "قائمة الانتقاء",
+        "strategy": "الاستراتيجية",
+        "status": "الحالة",
+        "priority": "الأولوية",
+        "warehouse": "المستودع",
+        "assignment": "المُسندة إلى",
+        "shipments": "الشحنات",
+        "quantity": "الكمية",
+        "wave": "الموجة",
+        "zone": "المنطقة",
+        "createdAt": "تاريخ الإنشاء",
+        "completedAt": "تاريخ الاكتمال"
+      },
+      "status": {
+        "open": "مفتوحة",
+        "in_progress": "قيد التنفيذ",
+        "completed": "مكتملة",
+        "cancelled": "ملغاة"
+      },
+      "priority": {
+        "low": "منخفضة",
+        "medium": "متوسطة",
+        "high": "عالية",
+        "urgent": "عاجلة"
+      },
+      "unassigned": "غير مُسندة",
+      "notLinked": "—",
+      "loading": "جارٍ التحميل…",
+      "sortCreatedAt": "تاريخ الإنشاء",
+      "sortPriority": "الأولوية",
+      "rowsPerPage": "عدد الصفوف",
+      "count": "{count} قائمة انتقاء",
+      "loadError": "تعذر تحميل قوائم الانتقاء. حاول مرة أخرى.",
+      "emptyTitle": "لا توجد قوائم انتقاء بعد",
+      "emptyDescription": "ستظهر هنا قوائم الانتقاء المُنشأة للشحنات.",
+      "emptyFilteredTitle": "لا توجد قوائم انتقاء مطابقة لهذه الفلاتر",
+      "emptyFilteredDescription": "حاول تعديل الفلاتر أعلاه أو مسحها."
+    },
+    "pickListDetail": {
+      "title": "قائمة الانتقاء {id}",
+      "description": "التفاصيل التشغيلية لقائمة الانتقاء هذه.",
+      "notFound": { "title": "قائمة الانتقاء غير موجودة", "description": "هذه القائمة غير موجودة أو ليس لديك صلاحية الوصول إليها." },
+      "error": { "title": "فشل التحميل", "description": "يرجى المحاولة مرة أخرى." },
+      "header": {
+        "warehouse": "المستودع",
+        "assignedTo": "المُسندة إلى",
+        "createdAt": "تاريخ الإنشاء",
+        "startedAt": "تاريخ البدء",
+        "completedAt": "تاريخ الاكتمال",
+        "cancellationReason": "سبب الإلغاء"
+      },
+      "assign": {
+        "assign": "إسناد",
+        "reassign": "إعادة إسناد",
+        "selectAssignee": "اختر الموظف",
+        "confirm": "تأكيد",
+        "cancel": "إلغاء",
+        "submitting": "جارٍ الإسناد…",
+        "success": "تم إسناد قائمة الانتقاء",
+        "error": "تعذر إسناد قائمة الانتقاء. حاول مرة أخرى."
+      },
+      "cancel": {
+        "action": "إلغاء",
+        "title": "إلغاء قائمة الانتقاء",
+        "warning": "سيؤدي هذا إلى إلغاء قائمة الانتقاء، وتحرير الحجوزات المرتبطة بها، وإعادة الشحنات المرتبطة إلى حالة الانتظار. لا يمكن التراجع عن هذا الإجراء.",
+        "reasonLabel": "سبب الإلغاء",
+        "reasonPlaceholder": "اشرح سبب إلغاء قائمة الانتقاء هذه",
+        "reasonRequired": "سبب الإلغاء مطلوب.",
+        "confirm": "إلغاء قائمة الانتقاء",
+        "keep": "الإبقاء على القائمة",
+        "cancelling": "جارٍ الإلغاء…",
+        "success": "تم إلغاء قائمة الانتقاء",
+        "error": "تعذر إلغاء قائمة الانتقاء. حاول مرة أخرى."
+      },
+      "summary": {
+        "title": "الملخص",
+        "shipments": "الشحنات",
+        "lines": "السطور",
+        "requestedQty": "الكمية المطلوبة",
+        "pickedQty": "الكمية المنتقاة",
+        "remainingQty": "الكمية المتبقية",
+        "exceptionQty": "كمية الاستثناءات"
+      },
+      "lines": {
+        "title": "السطور",
+        "item": "الصنف",
+        "location": "الموقع",
+        "requested": "المطلوبة",
+        "picked": "المنتقاة",
+        "exception": "استثناء",
+        "remaining": "المتبقية",
+        "state": "الحالة",
+        "notStarted": "لم تبدأ",
+        "partial": "جزئية",
+        "complete": "مكتملة",
+        "noLocation": "بدون موقع"
+      },
+      "shipments": {
+        "title": "الشحنات",
+        "reference": "المرجع",
+        "status": {
+          "pending": "قيد الانتظار",
+          "picking": "قيد الانتقاء",
+          "picked": "مُنتقاة",
+          "packing": "قيد التعبئة",
+          "packed": "مُعبأة",
+          "shipped": "مشحونة",
+          "cancelled": "ملغاة"
+        }
+      },
+      "wave": {
+        "title": "الموجة",
+        "linked": "مرتبطة بالموجة {id}",
+        "none": "ليست ضمن موجة"
+      },
+      "zone": {
+        "title": "المنطقة",
+        "linked": "مرتبطة بالمنطقة {id}",
+        "none": "بدون سياق منطقة"
+      },
+      "history": {
+        "title": "السجل",
+        "empty": "لا يوجد سجل حالة بعد.",
+        "transition": "{from} ← {to}",
+        "unknownActor": "النظام"
+      },
+      "notLinked": "—"
+    },
+    "zoneSplit": {
+      "action": "تقسيم حسب المنطقة",
+      "title": "تقسيم حسب المنطقة",
+      "description": "إنشاء قوائم انتقاء تلقائيًا حسب المنطقة للشحنات المعلّقة. يكتشف الخادم كل منطقة معنية وينشئ قائمة انتقاء واحدة لكل منطقة.",
+      "warehouse": "المستودع",
+      "selectWarehouse": "اختر المستودع",
+      "selectShipments": "اختر الشحنات المعلّقة",
+      "selectShipment": "اختر الشحنة {id}",
+      "loading": "جارٍ التحميل…",
+      "noPendingShipments": "لا توجد شحنات معلّقة في هذا المستودع.",
+      "lineCount": "{count} سطور",
+      "selectedCount": "تم اختيار {count}",
+      "explainer": "الشحنة التي تمتد سطورها عبر عدة مناطق ستنتج قائمة انتقاء واحدة لكل منطقة — يتم الحفاظ على السطور وعلاقات الشحنة، وتُنشأ الحجوزات تلقائيًا من الخادم.",
+      "confirm": "إنشاء قوائم الانتقاء حسب المنطقة",
+      "creating": "جارٍ الإنشاء…",
+      "resultTitle": "قوائم الانتقاء المُنشأة",
+      "viewDetail": "عرض التفاصيل",
+      "zoneLabel": "المنطقة {id}",
+      "splitMore": "تقسيم شحنات أخرى",
+      "success": "تم إنشاء {count} قائمة انتقاء",
+      "error": "تعذر إنشاء قوائم الانتقاء حسب المنطقة. حاول مرة أخرى.",
+      "noResolvableZone": "لا تحتوي أي من الشحنات المحددة على سطور ضمن منطقة انتقاء — لم يتم استلام أو إنشاء أي شيء."
+    },
+    "waves": {
+      "unknownActor": "غير معروف",
+      "notYet": "لم يحدث بعد",
+      "loading": "جارٍ التحميل…",
+      "loadError": "تعذر تحميل الموجات. حاول مرة أخرى.",
+      "count": "{count} موجة",
+      "rowsPerPage": "صفوف لكل صفحة",
+      "sortCreatedAt": "الترتيب: تاريخ الإنشاء",
+      "sortStatus": "الترتيب: الحالة",
+      "emptyTitle": "لا توجد موجات بعد",
+      "emptyDescription": "ستظهر الموجات هنا بعد إنشائها.",
+      "emptyFilteredTitle": "لا توجد موجات مطابقة لهذه الفلاتر",
+      "emptyFilteredDescription": "جرّب مستودعًا أو حالة مختلفة.",
+      "columns": {
+        "id": "معرّف الموجة",
+        "status": "الحالة",
+        "warehouse": "المستودع",
+        "createdBy": "أُنشئت بواسطة",
+        "createdAt": "تاريخ الإنشاء",
+        "evaluatedAt": "تاريخ التقييم",
+        "releasedAt": "تاريخ الإصدار",
+        "completedAt": "تاريخ الاكتمال"
+      },
+      "filters": {
+        "warehouse": "المستودع",
+        "allWarehouses": "كل المستودعات",
+        "status": "الحالة",
+        "allStatuses": "كل الحالات",
+        "sortBy": "الترتيب حسب",
+        "sortOrder": "اتجاه الترتيب",
+        "sortAsc": "تصاعدي",
+        "sortDesc": "تنازلي"
+      },
+      "status": {
+        "planning": "تخطيط",
+        "evaluating": "قيد التقييم",
+        "reviewing": "قيد المراجعة",
+        "released": "تم الإصدار",
+        "picking": "قيد الانتقاء",
+        "completed": "مكتملة",
+        "cancelled": "ملغاة"
+      },
+      "criteria": {
+        "none": "لا توجد معايير محددة",
+        "yes": "نعم",
+        "no": "لا",
+        "release_after": "الإصدار بعد",
+        "release_before": "الإصدار قبل",
+        "priority_min": "الحد الأدنى للأولوية",
+        "route": "خط السير",
+        "carrier": "شركة الشحن",
+        "order_type": "نوع الطلب",
+        "cutoff_before": "الموعد النهائي قبل",
+        "require_inventory_ready": "يتطلب جاهزية المخزون",
+        "require_replenishment_ready": "يتطلب جاهزية التجديد",
+        "capacity_ok": "السعة متاحة",
+        "labor_available": "العمالة متاحة",
+        "dock_ready": "الرصيف جاهز",
+        "customer_service_level_ok": "مستوى خدمة العملاء مقبول",
+        "zone_ids": "المناطق"
+      },
+      "create": {
+        "trigger": "إنشاء موجة",
+        "title": "إنشاء موجة",
+        "description": "إنشاء موجة جديدة وتحديد معايير الأهلية لها اختياريًا.",
+        "warehouse": "المستودع",
+        "selectWarehouse": "اختر مستودعًا",
+        "criteriaTitle": "المعايير (اختياري)",
+        "criteriaExplainer": "يتم تقييم المعايير لاحقًا عند تقييم هذه الموجة. اترك أي حقل بدون تحديد لتخطي ذلك الشرط.",
+        "notSet": "غير محدد",
+        "freeTextPlaceholder": "اتركه فارغًا للتخطي",
+        "selectDate": "اختر تاريخًا",
+        "selectWarehouseFirst": "اختر مستودعًا لاختيار المناطق",
+        "zonesLoading": "جارٍ تحميل المناطق…",
+        "zonesError": "فشل تحميل المناطق. حاول مرة أخرى.",
+        "noZones": "لا توجد مناطق متاحة",
+        "selectZone": "اختر المنطقة {name}",
+        "zonesSelectedCount": "تم اختيار {count} منطقة",
+        "clearZones": "مسح المناطق",
+        "confirm": "إنشاء موجة",
+        "creating": "جارٍ الإنشاء…",
+        "success": "تم إنشاء الموجة",
+        "error": "فشل إنشاء هذه الموجة. حاول مرة أخرى."
+      },
+      "detail": {
+        "title": "الموجة {id}",
+        "description": "التفاصيل التشغيلية لهذه الموجة.",
+        "notFound": {
+          "title": "الموجة غير موجودة",
+          "description": "هذه الموجة غير موجودة أو ليس لديك صلاحية الوصول إليها."
+        },
+        "error": {
+          "title": "تعذر تحميل الموجة",
+          "description": "حاول مرة أخرى."
+        },
+        "header": {
+          "warehouse": "المستودع",
+          "createdBy": "أُنشئت بواسطة",
+          "createdAt": "تاريخ الإنشاء",
+          "evaluatedAt": "تاريخ التقييم",
+          "releasedAt": "تاريخ الإصدار",
+          "completedAt": "تاريخ الاكتمال",
+          "cancellationReason": "سبب الإلغاء"
+        },
+        "actions": {
+          "evaluate": "تقييم",
+          "evaluating": "جارٍ التقييم…",
+          "evaluateSuccess": "اكتمل التقييم — {included} مؤهلة، {excluded} مستبعدة",
+          "evaluateError": "تعذر تقييم هذه الموجة. حاول مرة أخرى.",
+          "release": "إصدار",
+          "releasing": "جارٍ الإصدار…",
+          "confirmRelease": "تأكيد الإصدار",
+          "cancelRelease": "إلغاء",
+          "releasePriority": "الأولوية",
+          "releaseSuccess": "تم إنشاء {count} قائمة انتقاء",
+          "releaseNoEligible": "لا يمكن استلام أي شحنة لهذه الموجة — إما لم تكن أي شحنة مؤهلة، أو لم تعد أي شحنة مؤهلة متاحة.",
+          "releaseError": "تعذر إصدار هذه الموجة. حاول مرة أخرى.",
+          "cancel": "إلغاء الموجة",
+          "cancelTitle": "إلغاء هذه الموجة؟",
+          "cancelWarning": "سيتم وضع علامة على هذه الموجة كملغاة ولن يمكن تقييمها أو إصدارها بعد ذلك.",
+          "cancelReasonLabel": "سبب الإلغاء",
+          "cancelReasonPlaceholder": "اشرح سبب إلغاء هذه الموجة…",
+          "cancelReasonRequired": "سبب الإلغاء مطلوب.",
+          "cancelConfirm": "إلغاء الموجة",
+          "cancelKeep": "الإبقاء على الموجة",
+          "cancelling": "جارٍ الإلغاء…",
+          "cancelSuccess": "تم إلغاء الموجة",
+          "cancelWaveError": "تعذر إلغاء هذه الموجة. حاول مرة أخرى."
+        },
+        "summary": {
+          "title": "تفصيل الشحنات",
+          "eligible": "مؤهلة",
+          "excluded": "مستبعدة",
+          "failedAtRelease": "فشلت عند الإصدار"
+        },
+        "criteria": {
+          "title": "المعايير"
+        },
+        "shipments": {
+          "title": "الشحنات",
+          "claimed": "تم الاستحواذ",
+          "eligible": "مؤهلة",
+          "excluded": "مستبعدة",
+          "showWhy": "السبب؟",
+          "hideWhy": "إخفاء",
+          "reasons": {
+            "external_signal_blocked": "محظورة بإشارة خارجية",
+            "priority": "الأولوية",
+            "priority_min_required": "الحد الأدنى المطلوب للأولوية",
+            "zone_ids_required": "المناطق المطلوبة",
+            "route": "خط السير",
+            "route_required": "خط السير المطلوب",
+            "carrier": "شركة الشحن",
+            "carrier_required": "شركة الشحن المطلوبة",
+            "order_type": "نوع الطلب",
+            "order_type_required": "نوع الطلب المطلوب",
+            "cutoff_at": "الموعد النهائي",
+            "cutoff_before_required": "يجب أن يكون قبل",
+            "inventory_ready": "المخزون جاهز",
+            "replenishment_ready": "التجديد جاهز"
+          }
+        }
+      }
+    },
+    "tasks": {
+      "loadError": "فشل تحميل مهام المستودع. حاول مرة أخرى.",
+      "count": "{count} مهمة",
+      "emptyTitle": "لا توجد مهام مستودع بعد",
+      "emptyDescription": "ستظهر مهام التخزين والتجديد هنا بمجرد إنشائها.",
+      "emptyFilteredTitle": "لا توجد مهام مطابقة لهذه الفلاتر",
+      "emptyFilteredDescription": "جرّب مستودعًا أو نوعًا أو حالة مختلفة.",
+      "columns": {
+        "id": "رقم المهمة",
+        "type": "النوع",
+        "item": "الصنف",
+        "quantity": "الكمية",
+        "status": "الحالة",
+        "priority": "الأولوية",
+        "warehouse": "المستودع",
+        "assignedTo": "المسند إلى",
+        "createdAt": "تاريخ الإنشاء"
+      },
+      "filters": {
+        "warehouse": "المستودع",
+        "allWarehouses": "كل المستودعات",
+        "type": "النوع",
+        "allTypes": "كل الأنواع",
+        "status": "الحالة",
+        "allStatuses": "كل الحالات",
+        "sortBy": "ترتيب حسب",
+        "sortCreatedAt": "ترتيب: تاريخ الإنشاء",
+        "sortPriority": "ترتيب: الأولوية",
+        "sortStatus": "ترتيب: الحالة",
+        "sortOrder": "اتجاه الترتيب"
+      },
+      "status": {
+        "pending": "قيد الانتظار",
+        "assigned": "مُسندة",
+        "in_progress": "قيد التنفيذ",
+        "completed": "مكتملة",
+        "cancelled": "ملغاة"
+      },
+      "type": {
+        "putaway": "تخزين",
+        "replenishment": "تجديد"
+      },
+      "detail": {
+        "title": "المهمة {id}",
+        "description": "التفاصيل التشغيلية لهذه المهمة.",
+        "quantity": "الكمية",
+        "notFound": {
+          "title": "المهمة غير موجودة",
+          "description": "هذه المهمة غير موجودة أو ليس لديك صلاحية الوصول إليها."
+        },
+        "error": {
+          "title": "فشل تحميل المهمة",
+          "description": "حاول مرة أخرى."
+        },
+        "assign": {
+          "assign": "إسناد",
+          "reassign": "إعادة إسناد",
+          "selectAssignee": "اختر المسؤول",
+          "confirm": "تأكيد",
+          "cancel": "إلغاء",
+          "submitting": "جارٍ الإسناد…",
+          "success": "تم إسناد المهمة",
+          "error": "فشل إسناد هذه المهمة. حاول مرة أخرى."
+        },
+        "confirm": {
+          "title": "تأكيد التقدم",
+          "action": "تأكيد التقدم",
+          "quantity": "الكمية ({remaining} متبقية)",
+          "location": "الموقع المؤكد",
+          "confirm": "تأكيد",
+          "submitting": "جارٍ التأكيد…",
+          "success": "تم تأكيد التقدم",
+          "error": "فشل تأكيد التقدم لهذه المهمة. حاول مرة أخرى."
+        },
+        "cancel": {
+          "action": "إلغاء المهمة",
+          "title": "إلغاء هذه المهمة؟",
+          "warning": "سيتم وضع علامة على هذه المهمة كملغاة ولا يمكن إسنادها أو تأكيدها بعد ذلك.",
+          "confirm": "إلغاء المهمة",
+          "keep": "الإبقاء على المهمة",
+          "cancelling": "جارٍ الإلغاء…",
+          "success": "تم إلغاء المهمة",
+          "error": "فشل إلغاء هذه المهمة. حاول مرة أخرى."
+        },
+        "history": {
+          "title": "السجل"
+        }
+      },
+      "create": {
+        "trigger": "إنشاء مهمة",
+        "title": "إنشاء مهمة مستودع",
+        "description": "إنشاء مهمة تخزين أو تجديد يدويًا.",
+        "selectWarehouse": "اختر مستودعًا",
+        "selectItem": "اختر صنفًا",
+        "quantity": "الكمية",
+        "sourceLocation": "موقع المصدر (اختياري)",
+        "suggestedLocation": "الموقع المقترح (اختياري)",
+        "confirm": "إنشاء مهمة",
+        "creating": "جارٍ الإنشاء…",
+        "success": "تم إنشاء المهمة",
+        "error": "فشل إنشاء هذه المهمة. حاول مرة أخرى."
+      }
+    }
   },
   "reports": {
     "title": "تقارير المخزون",

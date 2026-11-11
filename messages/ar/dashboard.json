@@ -50,10 +50,23 @@
     "branchesOverview": "ملخص الفروع",
     "soonNeedsBranches": "قريبًا — يحتاج نظام فروع حقيقي",
     "last7Days": "آخر 7 أيام",
-    "thisMonth": "هذا الشهر"
+    "thisMonth": "هذا الشهر",
+    "loadErrorSections": "تعذّر تحميل: {sections}. تحقّق من الاتصال أو حاول تسجيل الدخول مجدداً.",
+    "errSections": {
+      "revenue": "المبيعات",
+      "revenue7d": "رسم مبيعات 7 أيام",
+      "expenses": "المصروفات",
+      "cogs": "تكلفة البضاعة (صافي الربح)",
+      "shift": "حالة الصندوق",
+      "customers": "العملاء",
+      "sparklines": "مؤشرات الاتجاه",
+      "topItems": "الأكثر مبيعاً",
+      "recentActivity": "آخر النشاطات"
+    }
   },
   "payMethodLabels": {
     "cash": "نقدي",
+    "card": "بطاقة",
     "mada": "مدى",
     "visa": "فيزا",
     "mastercard": "ماستر كارد",

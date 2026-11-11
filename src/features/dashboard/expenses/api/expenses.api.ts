@@ -12,6 +12,13 @@ export interface ExpenseCategory {
   created_at: string;
 }
 
+export interface ExpenseStats {
+  pending_count: number;
+  approved_count: number;
+  total_amount: number;
+  rejected_count: number;
+}
+
 export interface ExpenseTemplate {
   id: string;
   tenant_id: string;
@@ -83,7 +90,7 @@ export const expensesApi = {
   },
 
   getStats: () =>
-    apiClient.get<any>('/expenses/stats'),
+    apiClient.get<ExpenseStats>('/expenses/stats'),
 
   create: (dto: CreateExpenseDto): Promise<Expense> =>
     apiClient.post<Expense>('/expenses', dto),

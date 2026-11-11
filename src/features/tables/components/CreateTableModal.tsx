@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useCreateTable } from '../hooks/useTables'
+import { ApiError } from '@/lib/api'
 
 interface Props {
   branchId: string
@@ -23,7 +24,7 @@ export function CreateTableModal({ branchId, onClose }: Props) {
       { branch_id: branchId, name: name.trim(), capacity: parseInt(capacity, 10) || 2 },
       {
         onSuccess: () => onClose(),
-        onError: (e: any) => setError(e?.message ?? t('error')),
+        onError: (e: unknown) => setError(e instanceof ApiError ? e.message : t('error')),
       },
     )
   }

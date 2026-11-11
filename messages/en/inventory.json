@@ -434,6 +434,7 @@
       "dashboard": "Dashboard",
       "putaway": "Putaway",
       "tasks": "Warehouse Tasks",
+      "waves": "Waves",
       "picking": "Picking",
       "packing": "Packing",
       "shipping": "Shipping"
@@ -470,7 +471,499 @@
       "confirmPack": "Confirm Pack",
       "ship": "Ship"
     },
-    "noData": "No data available"
+    "noData": "No data available",
+    "dashboard": {
+      "allWarehouses": "All Warehouses",
+      "exceptionDateRange": "Exception Date Range",
+      "loadError": "Failed to load this widget. Please try again.",
+      "noExceptions": "No exceptions in the selected range",
+      "openTasks": "Open Tasks",
+      "activePickLists": "Active Pick Lists",
+      "activeWaves": "Active Waves",
+      "openExceptions": "Open Exceptions",
+      "sections": {
+        "tasks": "Warehouse Work",
+        "picking": "Picking",
+        "waves": "Waves",
+        "shipments": "Shipments / Fulfillment",
+        "exceptions": "Exceptions",
+        "reservations": "Reservations"
+      },
+      "total": "Total",
+      "pending": "Pending",
+      "assigned": "Assigned",
+      "unassigned": "Unassigned",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "open": "Open",
+      "active": "Active",
+      "released": "Released",
+      "picking": "Picking",
+      "picked": "Picked",
+      "shipped": "Shipped",
+      "strategyDistribution": "Strategy distribution",
+      "eligibleShipments": "Eligible Shipments",
+      "claimedShipments": "Claimed Shipments",
+      "excludedShipments": "Excluded Shipments",
+      "claimFailures": "Claim Failures",
+      "requestedQty": "Requested Qty",
+      "pickedQty": "Picked Qty",
+      "exceptionQty": "Exception Qty",
+      "unfulfilledQty": "Unfulfilled Qty",
+      "qty": "qty {qty}",
+      "topReasons": "Top reasons",
+      "reservedQty": "Reserved Qty",
+      "reservedCount": "{count} reservations",
+      "consumed": "Consumed",
+      "reservationAffectingExceptions": "Reservation-Affecting Exceptions",
+      "strategies": {
+        "single": "Single",
+        "batch": "Batch",
+        "zone": "Zone",
+        "wave": "Wave"
+      },
+      "exceptionTypes": {
+        "short_pick": "Short Pick",
+        "damaged": "Damaged",
+        "lost": "Lost",
+        "cancelled": "Cancelled"
+      }
+    },
+    "pickLists": {
+      "filters": {
+        "warehouse": "Warehouse",
+        "allWarehouses": "All Warehouses",
+        "status": "Status",
+        "allStatuses": "All Statuses",
+        "strategy": "Strategy",
+        "allStrategies": "All Strategies",
+        "priority": "Priority",
+        "allPriorities": "All Priorities",
+        "sortBy": "Sort By",
+        "sortOrder": "Order",
+        "sortAsc": "Ascending",
+        "sortDesc": "Descending"
+      },
+      "columns": {
+        "id": "Pick List",
+        "strategy": "Strategy",
+        "status": "Status",
+        "priority": "Priority",
+        "warehouse": "Warehouse",
+        "assignment": "Assigned To",
+        "shipments": "Shipments",
+        "quantity": "Quantity",
+        "wave": "Wave",
+        "zone": "Zone",
+        "createdAt": "Created",
+        "completedAt": "Completed"
+      },
+      "status": {
+        "open": "Open",
+        "in_progress": "In Progress",
+        "completed": "Completed",
+        "cancelled": "Cancelled"
+      },
+      "priority": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High",
+        "urgent": "Urgent"
+      },
+      "unassigned": "Unassigned",
+      "notLinked": "—",
+      "loading": "Loading…",
+      "sortCreatedAt": "Created Date",
+      "sortPriority": "Priority",
+      "rowsPerPage": "Rows per page",
+      "count": "{count} pick lists",
+      "loadError": "Failed to load pick lists. Please try again.",
+      "emptyTitle": "No pick lists yet",
+      "emptyDescription": "Pick lists created for shipments will appear here.",
+      "emptyFilteredTitle": "No pick lists match these filters",
+      "emptyFilteredDescription": "Try adjusting or clearing the filters above."
+    },
+    "pickListDetail": {
+      "title": "Pick List {id}",
+      "description": "Operational detail for this pick list.",
+      "notFound": { "title": "Pick list not found", "description": "This pick list doesn't exist or you don't have access to it." },
+      "error": { "title": "Failed to load", "description": "Please try again." },
+      "header": {
+        "warehouse": "Warehouse",
+        "assignedTo": "Assigned To",
+        "createdAt": "Created",
+        "startedAt": "Started",
+        "completedAt": "Completed",
+        "cancellationReason": "Cancellation Reason"
+      },
+      "assign": {
+        "assign": "Assign",
+        "reassign": "Reassign",
+        "selectAssignee": "Select assignee",
+        "confirm": "Confirm",
+        "cancel": "Cancel",
+        "submitting": "Assigning…",
+        "success": "Pick list assigned",
+        "error": "Failed to assign pick list. Please try again."
+      },
+      "cancel": {
+        "action": "Cancel",
+        "title": "Cancel Pick List",
+        "warning": "This cancels the pick list, releases its reservations, and reverts any linked shipments to pending. This cannot be undone.",
+        "reasonLabel": "Cancellation reason",
+        "reasonPlaceholder": "Explain why this pick list is being cancelled",
+        "reasonRequired": "A cancellation reason is required.",
+        "confirm": "Cancel Pick List",
+        "keep": "Keep Pick List",
+        "cancelling": "Cancelling…",
+        "success": "Pick list cancelled",
+        "error": "Failed to cancel pick list. Please try again."
+      },
+      "summary": {
+        "title": "Summary",
+        "shipments": "Shipments",
+        "lines": "Lines",
+        "requestedQty": "Requested Qty",
+        "pickedQty": "Picked Qty",
+        "remainingQty": "Remaining Qty",
+        "exceptionQty": "Exception Qty"
+      },
+      "lines": {
+        "title": "Lines",
+        "item": "Item",
+        "location": "Location",
+        "requested": "Requested",
+        "picked": "Picked",
+        "exception": "Exception",
+        "remaining": "Remaining",
+        "state": "State",
+        "notStarted": "Not Started",
+        "partial": "Partial",
+        "complete": "Complete",
+        "noLocation": "No Location"
+      },
+      "shipments": {
+        "title": "Shipments",
+        "reference": "Reference",
+        "status": {
+          "pending": "Pending",
+          "picking": "Picking",
+          "picked": "Picked",
+          "packing": "Packing",
+          "packed": "Packed",
+          "shipped": "Shipped",
+          "cancelled": "Cancelled"
+        }
+      },
+      "wave": {
+        "title": "Wave",
+        "linked": "Linked to wave {id}",
+        "none": "Not part of a wave"
+      },
+      "zone": {
+        "title": "Zone",
+        "linked": "Linked to zone {id}",
+        "none": "No zone context"
+      },
+      "history": {
+        "title": "History",
+        "empty": "No status history yet.",
+        "transition": "{from} → {to}",
+        "unknownActor": "System"
+      },
+      "notLinked": "—"
+    },
+    "zoneSplit": {
+      "action": "Zone Split",
+      "title": "Zone Split",
+      "description": "Automatically create zone-based pick lists for pending shipments. The backend discovers every zone involved and creates one pick list per zone.",
+      "warehouse": "Warehouse",
+      "selectWarehouse": "Select warehouse",
+      "selectShipments": "Select Pending Shipments",
+      "selectShipment": "Select shipment {id}",
+      "loading": "Loading…",
+      "noPendingShipments": "No pending shipments in this warehouse.",
+      "lineCount": "{count} lines",
+      "selectedCount": "{count} selected",
+      "explainer": "A shipment whose lines span multiple zones will produce one pick list per zone — lines and shipment relationships are preserved, and reservations are created automatically by the backend.",
+      "confirm": "Create Zone Pick Lists",
+      "creating": "Creating…",
+      "resultTitle": "Created Pick Lists",
+      "viewDetail": "View Detail",
+      "zoneLabel": "Zone {id}",
+      "splitMore": "Split more shipments",
+      "success": "{count} pick list(s) created",
+      "error": "Failed to create zone pick lists. Please try again.",
+      "noResolvableZone": "None of the selected shipments have lines in a picking zone — nothing was claimed or created."
+    },
+    "waves": {
+      "unknownActor": "Unknown",
+      "notYet": "Not yet",
+      "loading": "Loading…",
+      "loadError": "Failed to load waves. Please try again.",
+      "count": "{count} wave(s)",
+      "rowsPerPage": "Rows per page",
+      "sortCreatedAt": "Sort: Created Date",
+      "sortStatus": "Sort: Status",
+      "emptyTitle": "No waves yet",
+      "emptyDescription": "Waves will appear here once created.",
+      "emptyFilteredTitle": "No waves match these filters",
+      "emptyFilteredDescription": "Try a different warehouse or status.",
+      "columns": {
+        "id": "Wave ID",
+        "status": "Status",
+        "warehouse": "Warehouse",
+        "createdBy": "Created By",
+        "createdAt": "Created",
+        "evaluatedAt": "Evaluated",
+        "releasedAt": "Released",
+        "completedAt": "Completed"
+      },
+      "filters": {
+        "warehouse": "Warehouse",
+        "allWarehouses": "All Warehouses",
+        "status": "Status",
+        "allStatuses": "All Statuses",
+        "sortBy": "Sort By",
+        "sortOrder": "Sort Order",
+        "sortAsc": "Ascending",
+        "sortDesc": "Descending"
+      },
+      "status": {
+        "planning": "Planning",
+        "evaluating": "Evaluating",
+        "reviewing": "Reviewing",
+        "released": "Released",
+        "picking": "Picking",
+        "completed": "Completed",
+        "cancelled": "Cancelled"
+      },
+      "criteria": {
+        "none": "No criteria set",
+        "yes": "Yes",
+        "no": "No",
+        "release_after": "Release After",
+        "release_before": "Release Before",
+        "priority_min": "Minimum Priority",
+        "route": "Route",
+        "carrier": "Carrier",
+        "order_type": "Order Type",
+        "cutoff_before": "Cutoff Before",
+        "require_inventory_ready": "Requires Inventory Ready",
+        "require_replenishment_ready": "Requires Replenishment Ready",
+        "capacity_ok": "Capacity OK",
+        "labor_available": "Labor Available",
+        "dock_ready": "Dock Ready",
+        "customer_service_level_ok": "Customer Service Level OK",
+        "zone_ids": "Zones"
+      },
+      "create": {
+        "trigger": "Create Wave",
+        "title": "Create Wave",
+        "description": "Create a new wave and optionally set its eligibility criteria.",
+        "warehouse": "Warehouse",
+        "selectWarehouse": "Select a warehouse",
+        "criteriaTitle": "Criteria (optional)",
+        "criteriaExplainer": "Criteria are evaluated later, when this wave is evaluated. Leave any field unset to skip that condition.",
+        "notSet": "Not set",
+        "freeTextPlaceholder": "Leave blank to skip",
+        "selectDate": "Select a date",
+        "selectWarehouseFirst": "Select a warehouse to choose zones",
+        "zonesLoading": "Loading zones…",
+        "zonesError": "Failed to load zones. Please try again.",
+        "noZones": "No zones available",
+        "selectZone": "Select zone {name}",
+        "zonesSelectedCount": "{count} zone(s) selected",
+        "clearZones": "Clear zones",
+        "confirm": "Create Wave",
+        "creating": "Creating…",
+        "success": "Wave created",
+        "error": "Failed to create this wave. Please try again."
+      },
+      "detail": {
+        "title": "Wave {id}",
+        "description": "Operational detail for this wave.",
+        "notFound": {
+          "title": "Wave not found",
+          "description": "This wave doesn't exist or you don't have access to it."
+        },
+        "error": {
+          "title": "Failed to load wave",
+          "description": "Please try again."
+        },
+        "header": {
+          "warehouse": "Warehouse",
+          "createdBy": "Created By",
+          "createdAt": "Created",
+          "evaluatedAt": "Evaluated",
+          "releasedAt": "Released",
+          "completedAt": "Completed",
+          "cancellationReason": "Cancellation Reason"
+        },
+        "actions": {
+          "evaluate": "Evaluate",
+          "evaluating": "Evaluating…",
+          "evaluateSuccess": "Evaluation complete — {included} eligible, {excluded} excluded",
+          "evaluateError": "Failed to evaluate this wave. Please try again.",
+          "release": "Release",
+          "releasing": "Releasing…",
+          "confirmRelease": "Confirm Release",
+          "cancelRelease": "Cancel",
+          "releasePriority": "Priority",
+          "releaseSuccess": "{count} pick list(s) created",
+          "releaseNoEligible": "No shipments could be claimed for this wave — none were eligible, or every eligible shipment is no longer available.",
+          "releaseError": "Failed to release this wave. Please try again.",
+          "cancel": "Cancel Wave",
+          "cancelTitle": "Cancel this wave?",
+          "cancelWarning": "This wave will be marked as cancelled and cannot be evaluated or released afterward.",
+          "cancelReasonLabel": "Cancellation reason",
+          "cancelReasonPlaceholder": "Explain why this wave is being cancelled…",
+          "cancelReasonRequired": "A cancellation reason is required.",
+          "cancelConfirm": "Cancel Wave",
+          "cancelKeep": "Keep Wave",
+          "cancelling": "Cancelling…",
+          "cancelSuccess": "Wave cancelled",
+          "cancelWaveError": "Failed to cancel this wave. Please try again."
+        },
+        "summary": {
+          "title": "Shipment Breakdown",
+          "eligible": "Eligible",
+          "excluded": "Excluded",
+          "failedAtRelease": "Failed at Release"
+        },
+        "criteria": {
+          "title": "Criteria"
+        },
+        "shipments": {
+          "title": "Shipments",
+          "claimed": "Claimed",
+          "eligible": "Eligible",
+          "excluded": "Excluded",
+          "showWhy": "Why?",
+          "hideWhy": "Hide",
+          "reasons": {
+            "external_signal_blocked": "Blocked by external signal",
+            "priority": "Priority",
+            "priority_min_required": "Minimum priority required",
+            "zone_ids_required": "Required zones",
+            "route": "Route",
+            "route_required": "Required route",
+            "carrier": "Carrier",
+            "carrier_required": "Required carrier",
+            "order_type": "Order type",
+            "order_type_required": "Required order type",
+            "cutoff_at": "Cutoff time",
+            "cutoff_before_required": "Required cutoff before",
+            "inventory_ready": "Inventory ready",
+            "replenishment_ready": "Replenishment ready"
+          }
+        }
+      }
+    },
+    "tasks": {
+      "loadError": "Failed to load warehouse tasks. Please try again.",
+      "count": "{count} task(s)",
+      "emptyTitle": "No warehouse tasks yet",
+      "emptyDescription": "Putaway and replenishment tasks will appear here once created.",
+      "emptyFilteredTitle": "No tasks match these filters",
+      "emptyFilteredDescription": "Try a different warehouse, type, or status.",
+      "columns": {
+        "id": "Task ID",
+        "type": "Type",
+        "item": "Item",
+        "quantity": "Quantity",
+        "status": "Status",
+        "priority": "Priority",
+        "warehouse": "Warehouse",
+        "assignedTo": "Assigned To",
+        "createdAt": "Created"
+      },
+      "filters": {
+        "warehouse": "Warehouse",
+        "allWarehouses": "All Warehouses",
+        "type": "Type",
+        "allTypes": "All Types",
+        "status": "Status",
+        "allStatuses": "All Statuses",
+        "sortBy": "Sort By",
+        "sortCreatedAt": "Sort: Created Date",
+        "sortPriority": "Sort: Priority",
+        "sortStatus": "Sort: Status",
+        "sortOrder": "Sort Order"
+      },
+      "status": {
+        "pending": "Pending",
+        "assigned": "Assigned",
+        "in_progress": "In Progress",
+        "completed": "Completed",
+        "cancelled": "Cancelled"
+      },
+      "type": {
+        "putaway": "Putaway",
+        "replenishment": "Replenishment"
+      },
+      "detail": {
+        "title": "Task {id}",
+        "description": "Operational detail for this warehouse task.",
+        "quantity": "Quantity",
+        "notFound": {
+          "title": "Task not found",
+          "description": "This task doesn't exist or you don't have access to it."
+        },
+        "error": {
+          "title": "Failed to load task",
+          "description": "Please try again."
+        },
+        "assign": {
+          "assign": "Assign",
+          "reassign": "Reassign",
+          "selectAssignee": "Select assignee",
+          "confirm": "Confirm",
+          "cancel": "Cancel",
+          "submitting": "Assigning…",
+          "success": "Task assigned",
+          "error": "Failed to assign this task. Please try again."
+        },
+        "confirm": {
+          "title": "Confirm Progress",
+          "action": "Confirm Progress",
+          "quantity": "Quantity ({remaining} remaining)",
+          "location": "Confirmed Location",
+          "confirm": "Confirm",
+          "submitting": "Confirming…",
+          "success": "Progress confirmed",
+          "error": "Failed to confirm progress on this task. Please try again."
+        },
+        "cancel": {
+          "action": "Cancel Task",
+          "title": "Cancel this task?",
+          "warning": "This task will be marked as cancelled and cannot be assigned or confirmed afterward.",
+          "confirm": "Cancel Task",
+          "keep": "Keep Task",
+          "cancelling": "Cancelling…",
+          "success": "Task cancelled",
+          "error": "Failed to cancel this task. Please try again."
+        },
+        "history": {
+          "title": "History"
+        }
+      },
+      "create": {
+        "trigger": "Create Task",
+        "title": "Create Warehouse Task",
+        "description": "Manually create a putaway or replenishment task.",
+        "selectWarehouse": "Select a warehouse",
+        "selectItem": "Select an item",
+        "quantity": "Quantity",
+        "sourceLocation": "Source Location (optional)",
+        "suggestedLocation": "Suggested Location (optional)",
+        "confirm": "Create Task",
+        "creating": "Creating…",
+        "success": "Task created",
+        "error": "Failed to create this task. Please try again."
+      }
+    }
   },
   "reports": {
     "title": "Inventory Reports",

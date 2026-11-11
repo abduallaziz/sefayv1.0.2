@@ -5,6 +5,8 @@
   "name": "Name",
   "email": "Email",
   "role": "Role",
+  "branch": "Branch",
+  "centralNoBranch": "No branch (Central user)",
   "status": "Status",
   "active": "Active",
   "inactive": "Inactive",

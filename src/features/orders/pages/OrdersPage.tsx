@@ -3,11 +3,15 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Order, OrderFilters as IOrderFilters, OrderStatus } from '../types/order.types';
 import { useOrders, useOrder, useCancelOrder } from '../hooks/useOrders';
+import { useRevenueReport } from '@/features/reports/hooks/useReports';
 import { OrdersTable } from '../components/OrdersTable';
 import { OrderFilters } from '../components/OrderFilters';
 import { OrderDetailsModal } from '../components/OrderDetailsModal';
 import { CancelOrderModal } from '../components/CancelOrderModal';
+import { ReturnOrderModal } from '../components/ReturnOrderModal';
 import { useTranslations, useLocale } from 'next-intl';
+import { toast } from 'sonner';
+import { usePrinting } from '@/lib/print/usePrinting';
 import { FileText, ClipboardList, Clock, CheckCircle2, XCircle, Wallet, ChevronRight, ChevronLeft, ChevronDown, Download, Settings2, ArrowUp, ArrowDown, Circle } from 'lucide-react';
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store';
 
@@ -21,6 +25,8 @@ const DELTA_CAP = 300;
 
 export function OrdersPage() {
   const t = useTranslations('orders');
+  const tPrint = useTranslations('print.actions');
+  const { printInvoice } = usePrinting();
   const locale = useLocale();
   const isRtl = locale !== 'en';
   // "Previous"/"Next" arrows must point in the actual backward/forward
@@ -39,14 +45,19 @@ export function OrdersPage() {
   const { data: orders = [], isLoading } = useOrders(filters);
   const { data: selectedOrder = null } = useOrder(selectedOrderId ?? '');
   const { mutate: cancelOrder, isPending: isCancelling } = useCancelOrder();
+  // T10 / R5: "today's revenue" comes from the revenue report for TODAY (local
+  // date), not from summing whatever orders the list happened to load.
+  const today = new Date().toLocaleDateString('en-CA');
+  const { data: todayRevenue } = useRevenueReport({ period: 'custom', from: today, to: today });
+  const [returnTarget, setReturnTarget] = useState<Order | null>(null);
 
   useEffect(() => {
     if (printRequestId && selectedOrder?.id === printRequestId) {
-      window.print();
+      printInvoice(printRequestId).catch(() => toast.error(tPrint('printFailed')));
       const timer = setTimeout(() => setPrintRequestId(null), 0);
       return () => clearTimeout(timer);
     }
-  }, [printRequestId, selectedOrder]);
+  }, [printRequestId, selectedOrder, printInvoice, tPrint]);
 
   const filteredOrders = useMemo(() => {
     return orders.filter(order => {
@@ -76,7 +87,6 @@ export function OrdersPage() {
     completed: orders.filter(o => o.status === 'completed').length,
     pending: orders.filter(o => o.status === 'pending').length,
     cancelled: orders.filter(o => o.status === 'cancelled').length,
-    revenue: orders.filter(o => o.status === 'completed').reduce((s, o) => s + o.total, 0),
   }), [orders]);
 
   // Real this-month-vs-last-month deltas, computed from the already-fetched
@@ -123,7 +133,7 @@ export function OrdersPage() {
     { labelKey: 'pendingCount', value: stats.pending, delta: deltas.pending, icon: Clock, iconBg: 'bg-posCloud-warning-light dark:bg-posCloud-warning/15', iconColor: 'text-posCloud-warning' },
     { labelKey: 'completedCount', value: stats.completed, delta: deltas.completed, icon: CheckCircle2, iconBg: 'bg-posCloud-success-light dark:bg-posCloud-success/15', iconColor: 'text-posCloud-success' },
     { labelKey: 'cancelledCount', value: stats.cancelled, delta: deltas.cancelled, icon: XCircle, iconBg: 'bg-posCloud-danger-light dark:bg-posCloud-danger/15', iconColor: 'text-posCloud-danger' },
-    { labelKey: 'todayRevenue', value: `${stats.revenue.toLocaleString('en-US')} ${currency}`, delta: deltas.revenue, icon: Wallet, iconBg: 'bg-posCloud-primary-light dark:bg-posCloud-primary/15', iconColor: 'text-posCloud-primary' },
+    { labelKey: 'todayRevenue', value: `${(todayRevenue?.summary.total_revenue ?? 0).toLocaleString('en-US')} ${currency}`, delta: null, icon: Wallet, iconBg: 'bg-posCloud-primary-light dark:bg-posCloud-primary/15', iconColor: 'text-posCloud-primary' },
   ];
 
   function handlePrintOrder(order: Order) {
@@ -265,6 +275,7 @@ export function OrdersPage() {
             onViewOrder={(order) => setSelectedOrderId(order.id)}
             onPrintOrder={handlePrintOrder}
             onCancelOrder={(order) => setCancelTarget(order)}
+            onReturnOrder={(order) => setReturnTarget(order)}
           />
 
           {filteredOrders.length > 0 && (
@@ -336,6 +347,7 @@ export function OrdersPage() {
         onConfirm={handleCancelConfirm}
         isLoading={isCancelling}
       />
+      <ReturnOrderModal order={returnTarget} onClose={() => setReturnTarget(null)} />
     </div>
   );
 }

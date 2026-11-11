@@ -1,4 +1,5 @@
 import { useAuthStore } from '@/core/auth/stores/auth.store';
+import { useActivityPreviewStore } from '@/shared/stores/activity-preview.store';
 import {
   ACTIVITY_CONFIG,
   ALL_ACTIVITIES_SIDEBAR,
@@ -14,8 +15,13 @@ export function useBusinessType(): {
   config: BusinessTypeConfig;
 } {
   const user = useAuthStore((s) => s.user);
+  const preview = useActivityPreviewStore((s) => s.override);
 
   if (user?.activity === 'all') {
+    // Internal test tenant only: an optional "preview as" activity (dev switcher).
+    if (preview && ACTIVITY_CONFIG[preview]) {
+      return { activity: preview, config: ACTIVITY_CONFIG[preview] };
+    }
     return { activity: 'all', config: ALL_ACTIVITIES_SIDEBAR };
   }
 

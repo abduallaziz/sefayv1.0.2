@@ -55,7 +55,7 @@ function ConfidenceBar({ value }: { value: number }) {
   )
 }
 
-function InsightCard({ insight, index, t }: { insight: Insight; index: number; t: any }) {
+function InsightCard({ insight, index, t }: { insight: Insight; index: number; t: ReturnType<typeof useTranslations> }) {
   const [expanded, setExpanded] = useState(false)
   const cfg = typeConfig[insight.type]
 

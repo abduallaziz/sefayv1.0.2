@@ -7,13 +7,22 @@ import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
 } from 'recharts'
+import type { ValueType } from 'recharts/types/component/DefaultTooltipContent'
 import {
   TrendingUp, TrendingDown, DollarSign, Users,
-  Download, Shield, ArrowUpRight, Activity,
+  Download, Shield, ArrowUpRight, Activity, type LucideIcon,
 } from 'lucide-react'
 import AuditLogViewer from './components/AuditLogViewer'
 import { superadminApi } from '../api/superadmin.api'
 import { DateRangePicker, type DateRange } from '@/shared/ui/date-range-picker'
+
+// recharts' Tooltip `formatter` value can be a single number/string or (for
+// stacked charts) an array of them — these two charts never stack, so the
+// single-value case is the only one that actually occurs at runtime.
+function toDisplayNumber(v: ValueType | undefined): number {
+  const first = Array.isArray(v) ? v[0] : v
+  return typeof first === 'number' ? first : Number(first ?? 0)
+}
 
 function toYMD(d: Date) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
@@ -29,7 +38,7 @@ function StatCard({ label, value, sub, icon: Icon, trend, trendUp }: {
   label: string
   value: string
   sub: string
-  icon: any
+  icon: LucideIcon
   trend?: string
   trendUp?: boolean
 }) {
@@ -72,16 +81,18 @@ export default function ReportsAuditPage() {
   const mrrQuery = useQuery({
     queryKey: ['superadmin', 'analytics', 'mrr'],
     queryFn: async () => {
-      const res = await superadminApi.getMRR() as any
-      return typeof res === 'number' ? res : res?.mrr ?? 0
+      const res: unknown = await superadminApi.getMRR()
+      if (typeof res === 'number') return res
+      return typeof res === 'object' && res && 'mrr' in res && typeof res.mrr === 'number' ? res.mrr : 0
     },
   })
 
   const arrQuery = useQuery({
     queryKey: ['superadmin', 'analytics', 'arr'],
     queryFn: async () => {
-      const res = await superadminApi.getARR() as any
-      return typeof res === 'number' ? res : res?.arr ?? 0
+      const res: unknown = await superadminApi.getARR()
+      if (typeof res === 'number') return res
+      return typeof res === 'object' && res && 'arr' in res && typeof res.arr === 'number' ? res.arr : 0
     },
   })
 
@@ -116,7 +127,7 @@ export default function ReportsAuditPage() {
   const growth     = growthQuery.data
   const byPlan     = revenueByPlanQuery.data ?? []
 
-  const tabs: { key: Tab; label: string; icon: any }[] = [
+  const tabs: { key: Tab; label: string; icon: LucideIcon }[] = [
     { key: 'overview', label: t('overview'), icon: Activity },
     { key: 'revenue',  label: t('revenue'),  icon: DollarSign },
     { key: 'tenants',  label: t('tenants'),  icon: Users },
@@ -197,7 +208,7 @@ export default function ReportsAuditPage() {
                     <CartesianGrid strokeDasharray="3 3" stroke="#1e2130" />
                     <XAxis dataKey="month" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
                     <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
-                    <Tooltip contentStyle={{ background: '#141720', border: '1px solid #1e2130', borderRadius: 8 }} labelStyle={{ color: '#fff' }} formatter={(v: any) => [`$${v.toLocaleString()}`, t('mrr')]} />
+                    <Tooltip contentStyle={{ background: '#141720', border: '1px solid #1e2130', borderRadius: 8 }} labelStyle={{ color: '#fff' }} formatter={(v: ValueType | undefined) => [`$${toDisplayNumber(v).toLocaleString()}`, t('mrr')]} />
                     <Line type="monotone" dataKey="mrr" stroke="#3b82f6" strokeWidth={2} dot={false} />
                   </LineChart>
                 </ResponsiveContainer>
@@ -253,7 +264,7 @@ export default function ReportsAuditPage() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#1e2130" />
                   <XAxis dataKey="month" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} />
-                  <Tooltip contentStyle={{ background: '#141720', border: '1px solid #1e2130', borderRadius: 8 }} formatter={(v: any) => [`${v}%`, t('churnRate')]} />
+                  <Tooltip contentStyle={{ background: '#141720', border: '1px solid #1e2130', borderRadius: 8 }} formatter={(v: ValueType | undefined) => [`${toDisplayNumber(v)}%`, t('churnRate')]} />
                   <Bar dataKey="rate" fill="#ef4444" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>

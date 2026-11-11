@@ -9,6 +9,7 @@ import { useTranslations } from 'next-intl'
 import { settingsApi } from '@/features/settings/api/settings.api'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
 import { RealtimeProvider } from '@/core/realtime/RealtimeProvider'
+import { ShiftReportHost } from '@/features/shifts/components/ShiftReportHost'
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { isLoading, isAuthenticated } = useTenantAuth()
@@ -45,6 +46,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider>
       <RealtimeProvider />
+      <ShiftReportHost />
       <div className="min-h-screen bg-posCloud-background dark:bg-posCloudDark-background">
         <DashboardHeader onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
 

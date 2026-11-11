@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useCurrentShift } from '../hooks/useShifts';
 import { CurrentShiftBanner } from '../components/CurrentShiftBanner';
 import { ShiftsList } from '../components/ShiftsList';
@@ -10,7 +10,7 @@ import { OpenShiftModal } from '../components/OpenShiftModal';
 import { CloseShiftModal } from '../components/CloseShiftModal';
 import { ShiftSummaryModal } from '../components/ShiftSummaryModal';
 import { useAuthStore } from '@/core/auth/stores/auth.store';
-import { apiClient } from '@/lib/api';
+import { useBranches } from '@/shared/hooks/useBranches';
 
 export function ShiftsPage() {
   const t = useTranslations('shifts');
@@ -22,13 +22,9 @@ export function ShiftsPage() {
   const [showClose, setShowClose] = useState(false);
   const [summaryShiftId, setSummaryShiftId] = useState<string | null>(null);
 
-  const { data: branches } = useQuery({
-    queryKey: ['branches'],
-    queryFn: () => apiClient.get('/branches') as any,
-    enabled: !!user,
-  });
+  const { data: branches } = useBranches();
 
-  const branchId = user?.branchId ?? (branches as any)?.[0]?.id ?? '';
+  const branchId = user?.branchId ?? branches?.[0]?.id ?? '';
 
   const handleCloseShift = () => {
     setShowClose(false);

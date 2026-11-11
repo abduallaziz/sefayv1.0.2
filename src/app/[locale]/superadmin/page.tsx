@@ -47,16 +47,18 @@ export default function SuperAdminPage() {
   const { data: mrr = 0 } = useQuery({
     queryKey: ['superadmin', 'analytics', 'mrr'],
     queryFn: async () => {
-      const res = await superadminApi.getMRR() as any;
-      return typeof res === 'number' ? res : res?.mrr ?? 0;
+      const res: unknown = await superadminApi.getMRR();
+      if (typeof res === 'number') return res;
+      return typeof res === 'object' && res && 'mrr' in res && typeof res.mrr === 'number' ? res.mrr : 0;
     },
   });
 
   const { data: arr = 0 } = useQuery({
     queryKey: ['superadmin', 'analytics', 'arr'],
     queryFn: async () => {
-      const res = await superadminApi.getARR() as any;
-      return typeof res === 'number' ? res : res?.arr ?? 0;
+      const res: unknown = await superadminApi.getARR();
+      if (typeof res === 'number') return res;
+      return typeof res === 'object' && res && 'arr' in res && typeof res.arr === 'number' ? res.arr : 0;
     },
   });
 

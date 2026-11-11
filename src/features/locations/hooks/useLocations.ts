@@ -4,7 +4,7 @@ import { CreateLocationDTO, UpdateLocationDTO } from '../types/location.types';
 
 export function useLocations(
   warehouseId: string | null,
-  params: { search?: string; page?: number; limit?: number; isActive?: boolean } = {},
+  params: { search?: string; page?: number; limit?: number; isActive?: boolean; locationType?: string } = {},
 ) {
   return useQuery({
     queryKey: ['locations', warehouseId, params],

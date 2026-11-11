@@ -24,6 +24,7 @@ Core Inventory modules are functional. UX consistency work is ongoing. Live end-
 
 | What | PR | Notes |
 | --- | --- | --- |
+| Product Specification docs created (documentation only, no code change) | — | Three local files: `C:\Fp\PRODUCT_SPEC.md` (Arabic, whole product `web`+`api`), `C:\Fp\PRODUCT_SPEC_EN.md` (English translation), `C:\Fp\api\API_SPEC.md` (API-only). A first draft built from `pos-cloud` was rejected by the owner and deleted — `pos-cloud` is not part of Sefay; rebuilt from `web` + `api` only. Point-in-time summaries, not a source of truth. Full detail in api STATUS.md, "Product Specification Documents — Created (2026-11-08)". Nothing pushed. November 8, 2026. |
 | Orders page toolbar rework + real backend bugs found/fixed via live testing session | — | Orders quick-filter row restyled (export/settings pinned to far edge, status pills reordered/centered, "All" pinned opposite edge, single white toolbar card, orders table header/date-column alignment fixes, Status column added to desktop table, view action moved into row dropdown, invoice-details items rendered as a real line-items table). Products Phase A shipped on the API side (Units + Brands modules, category delete-guard — see apiv1.0.2 STATUS.md §91) with no `web` UI yet (backend-only this session). **The bulk of this session was live-testing-driven bug discovery, not planned feature work** — full detail in apiv1.0.2 STATUS.md §91: (1) `AuthProvider`'s refresh call raced independently against `apiClient`'s own 401-triggered refresh, and the backend's single-use refresh-token rotation revoked the session whenever both landed together — every local page refresh logged the user out; fixed by funneling both through one deduped `refreshSession()` in `lib/api.ts`. (2) POS checkout's `stock_warning` field (new, from the API-side silent-failure fix) is now surfaced as a `sonner` toast in `POSPage.tsx` instead of being invisible to the cashier. (3) `InventoryDashboardPage.tsx` and `InventoryReportsPage.tsx` were rendering raw untranslated English enum values (`movement_type`, `status`) — wired to the existing `movements.type.*`/`purchasing.status.*`/`adjustments.status.*`/`transfers.status.*` catalogs already used elsewhere. (4) 24 missing `sidebar` translation keys (over half the nav menu was rendering raw i18n keys) + 3 missing `dashboard` keys (`netProfit`, `occupiedTables`, `salesOver7Days`) added to `messages/ar.json`/`en.json`. **Known deferred gap, explicit user decision**: the dashboard header's notification bell (`DashboardHeader.tsx`) is fully decorative (`useState(3)` hardcoded), not wired to the real `notifications` table — real fix postponed. July 22-23, 2026. |
 | POS rebuild session (pos-cloud visual parity, ongoing) — order notes, accordion discounts, mobile scroll fix | — | Part of the pos-cloud visual-parity rebuild (`docs/rebuild/PARKING_LOT.md`). Coupon/gift-card/loyalty rows in `CartPanel.tsx` unified into a single collapsed-by-default accordion (no business-logic change). New **order-notes feature, full real scope**: `note_presets` table + full CRUD/reorder API (`note_presets.manage` permission) in `apiv1.0.2` (see apiv1.0.2 STATUS.md §90 — migration `091_order_note_presets.sql` still needs to be run manually in Supabase before it works end-to-end), new `/dashboard/note-presets` admin page, and a 4th accordion row in the cart (choose-from-list / write-custom tabs) whose result joins into the existing real `Order.notes` field — contract unchanged. Also fixed a real mobile+desktop layout bug: the cart panel was independently height-clipped with its own internal scroll nested inside the dashboard shell's already-scrollable `<main>`, which visually read as the cart floating over the product grid and hid the checkout button entirely on desktop once the accordion content grew past the row height — replaced with a single bounded, internally-scrollable cart column (`h-full`/`overflow-y-auto`) so the checkout button is always reachable. July 17, 2026. |
 | POS checkout rework: coupons + gift cards with live validation, manual discount removed | — | Coupon field in the cart was dead (typed code silently dropped, never reached the API) and any code *looked* accepted with zero validation until checkout — where failures were silently console.error'd. Now both coupons (cart) and gift cards (payment modal) validate live via new preview-only `POST /coupons/validate` / `POST /gift-cards/validate` endpoints before showing as applied, the real server-computed discount shows in cart/payment/receipt totals, any cart mutation auto-clears the coupon (stale percentage math), checkout failures surface as visible errors, and the receipt shows the authoritative server `order.total`. Manual cashier discount removed entirely per explicit user decision — coupon only. Loyalty program on/off toggle added to Settings (hides redeem UI in POS when off, backed by `tenants.loyalty_enabled`). See apiv1.0.2 STATUS.md §77. July 9, 2026. |
@@ -128,3 +129,135 @@ Core Inventory modules are functional. UX consistency work is ongoing. Live end-
 | Feature | Notes |
 | --- | --- |
 | Company Factory Reset | Owner-only, multi-step, transactional wipe. Full spec in TASKS.md. |
+
+---
+
+## Held / Pending Orders — diagnosis note (2026-11-08)
+
+Owner reported "معلقة" (pending) rows still showing on the Orders page after deleting them from the POS held-orders screen. Root cause and fix are backend-side — full write-up in `api/STATUS.md`, section "الطلبات المعلقة (Held/Pending Orders)" dated 2026-11-08. Summary for frontend context:
+
+- A `pending` order comes from exactly two places: a cashier-held POS ticket (`held=true`, no `payment_method`, no stock deduction) or an open dine-in table order. Both are genuinely unpaid — that's why the payment-method column renders `—`.
+- Completing one is only possible from the POS held-orders modal (resume → cart → normal checkout) or the Tables page checkout. **The Orders page itself has no complete action** — its kebab offers cancel only, "تعديل" stays disabled per `docs/rebuild/PARKING_LOT.md` B9 (no `PATCH /invoices/:id` endpoint exists).
+- `POSPage.tsx`'s `handleResumeHeldOrder` calls `cancelHeldOrder` after loading items into the cart — that endpoint soft-deletes (`deleted_at`) but leaves `status='pending'`, and the orders list query was not filtering `deleted_at`. Fixed backend-side; no frontend change was made.
+- Two follow-ups are deferred by explicit owner decision (one of them product-level: whether live held orders belong in the Orders list at all, which affects the "معلقة" quick-filter pill). Both are listed in `api/TASKS.md`.
+
+
+---
+
+<!-- HISTORICAL-RECONSTRUCTION-2026-11-08 -->
+## Historical Reconstruction (2026-11-08)
+
+Append-only. Reconstructed from code and `git log`; original August conversations were auto-deleted (30-day default retention), so authorship is not provable. Web commits after 2026-07-22 had not been recorded here (this file's last committed update was 2026-07-22).
+
+### Features previously undocumented
+- `src/features/rewards` (uncommitted): `RewardsPage`, `RewardFormModal`, `useRewards`, `rewards.api` - UI for the API `reward-definitions` module.
+- `src/features/inventory-dashboard`: `InventoryDashboardPage`, `useInventoryDashboard`, `analytics.api`, `dashboard.types` - consumes inventory analytics RPCs (migrations 143-144).
+- Also uncommitted in web: expenses-v2, branches, customers and i18n message changes.
+
+### Uncommitted web working tree (150 entries)
+- `src/features/superadmin` — 15
+- `src/features/customers` — 9
+- `src/features/wms` — 9
+- `src/features/dashboard` — 8
+- `src/features/items` — 8
+- `src/features/pos` — 8
+- `src/shared/ui` — 8
+- `src/app/[locale]` — 7
+- `src/features/shifts` — 4
+- `src/features/suppliers` — 4
+- `src/features/users` — 4
+- `src/core/auth` — 3
+- `src/features/attend` — 3
+- `src/features/auth` — 3
+- `src/features/reports` — 3
+- `src/features/tables` — 3
+- `src/features/hr` — 2
+- `src/features/locations` — 2
+- `src/features/orders` — 2
+- `src/shared/hooks` — 2
+- `STATUS.md` — 1
+- `messages/ar.json` — 1
+- `messages/ar/customers.json` — 1
+- `messages/ar/employee-detail.json` — 1
+- `messages/ar/employee-wizard.json` — 1
+- `messages/ar/inventory.json` — 1
+- `messages/ar/items.json` — 1
+- `messages/ar/pos.json` — 1
+- `messages/ar/reports.json` — 1
+- `messages/ar/suppliers.json` — 1
+- `messages/ar/users.json` — 1
+- `messages/en.json` — 1
+- `messages/en/customers.json` — 1
+- `messages/en/employee-detail.json` — 1
+- `messages/en/employee-wizard.json` — 1
+- `messages/en/inventory.json` — 1
+- `messages/en/items.json` — 1
+- `messages/en/pos.json` — 1
+- `messages/en/reports.json` — 1
+- `messages/en/suppliers.json` — 1
+
+### Commit index since 2026-07-22 not cited by hash elsewhere (web)
+
+- `4201e68` 2026-08-14 — fix(accounting-ui): unblock date-picker clicks in Assign Branch sheet
+- `4d3e0f1` 2026-08-14 — feat(accounting-ui): add fiscal and configuration foundation
+- `896c80b` 2026-08-14 — fix(accounting-ui): resolve wrong-namespace i18n key in journal entry detail
+- `fa2d8c4` 2026-08-14 — feat(accounting-ui): add price override audit operations center
+- `6ff5ebc` 2026-08-14 — feat(accounting-ui): add COGS reconciliation center
+- `ed7ecdc` 2026-08-14 — feat(accounting-ui): add journal entries list and detail
+- `e24ebb0` 2026-08-13 — feat(accounting-ui): add accounting command center
+- `9509925` 2026-08-13 — Frontend pages for Planning, Quality, WMS, Inventory Analytics + gift cards removal
+- `bedf44e` 2026-08-06 — Frontend updates for inventory roadmap features + i18n and UX fixes
+- `92a0fd2` 2026-08-03 — Block POS checkout without an open cash register session
+- `5dfaa32` 2026-07-26 — chore: move design mockup files out of public/ to avoid public exposure
+- `b7daa40` 2026-07-26 — chore: track dev launch config and mockup reference files, ignore local dev-server log
+- `0cdf79d` 2026-07-25 — Allow same-warehouse transfers when locations differ (intra-warehouse moves)
+- `8204a41` 2026-07-25 — Add approve/complete steps to transfer detail UI (item #8 backend companion)
+- `13fd676` 2026-07-24 — feat: Hold & Resume Orders — POS frontend integration
+- `8145047` 2026-07-24 — feat(pos): quantity control accepts manual typing, not just +/-
+- `41c7c64` 2026-07-24 — feat(pos): scan-speed auto-submit + fix scan bar width and hint text
+- `2d67a28` 2026-07-23 — fix(pos): decouple barcode-scan bar from product-name search field
+- `041f462` 2026-07-23 — feat(pos): add prominent scan bar at top of POS page
+- `6d58bb8` 2026-07-23 — fix(pos): shrink search field further
+- `38cfc11` 2026-07-23 — fix(pos): reorder toolbar, keep on one line on mobile, resize search, unify blue
+- `db51b55` 2026-07-23 — fix(pos): make Search Products an actual input field, consolidate duplicate
+- `9ff1893` 2026-07-23 — feat(pos): add Search Products button next to New Product/Open Drawer
+- `9780079` 2026-07-23 — fix(pos): fix toolbar responsiveness on narrow screens
+- `23551da` 2026-07-23 — revert(pos): restore category toolbar to pre-redesign state
+- `1cf4193` 2026-07-23 — revert(pos): restore category pill gap to previous tight spacing
+- `b78d2e1` 2026-07-23 — fix(pos): increase gap between category pills slightly
+- `0519178` 2026-07-23 — fix(pos): tighten gap between New Product and Open Drawer buttons
+- `0d36445` 2026-07-23 — fix(pos): implement exact toolbar spec (bordered container, colors, sizing)
+- `5036448` 2026-07-23 — fix(pos): remove outer container box from category row
+- `6d9627d` 2026-07-23 — fix(pos): restore category icons, use exact #0D4F50 active color
+- `53fcdf6` 2026-07-23 — fix(pos): drop category icons per user's simplified reference sketch
+- `f3fb367` 2026-07-23 — fix(pos): make search bar fully rounded to match toolbar pill shape
+- `93944e4` 2026-07-23 — fix(pos): match plural Arabic juice category name for icon
+- `792b730` 2026-07-23 — fix(pos): match New Product button color/shape to reference
+- `92d2056` 2026-07-23 — fix(pos): add subtle divider between category segments
+- `71d7c11` 2026-07-23 — fix(pos): category pills as one connected segmented control
+- `36f32af` 2026-07-23 — fix(pos): match category pills exactly to reference design
+- `92db248a` 2026-07-23 — feat(pos): pill-style category cards with icons
+- `e2ccec3` 2026-07-23 — fix(pos): make search icon a real clickable search button
+- `f20e296` 2026-07-23 — feat(pos): add New Product + Open Cash Drawer toolbar
+- `65adb3e` 2026-07-23 — feat(pos): barcode scan feedback + clearer scan/search placeholder
+- `710429b` 2026-07-23 — Inventory Phase 2: barcode management UI + POS scan-to-cart
+- `39be933` 2026-07-23 — Customers page (F4): restyle to posCloud design tokens
+- `7294e51` 2026-07-23 — Auth refresh-race fix, POS stock-warning toast, inventory i18n fixes
+- `eed02c1` 2026-07-22 — Orders table: keep date/time under the column header (right-aligned) while fixing numeral order
+- `6575bbd` 2026-07-22 — Orders table: align date/time lines to the same left edge (dir=ltr on the cell, not per-line)
+- `cdd20dc` 2026-07-22 — Orders table: move view action into the actions dropdown, fix date column width
+- `292a88c` 2026-07-22 — Orders table: give every column a fixed matching width to fix header/row misalignment
+- `158b298` 2026-07-22 — Orders table: revert header to gray, make data rows white
+- `59b1bc4` 2026-07-22 — Orders table: white header row background instead of light gray
+- `03dec29` 2026-07-22 — Orders: single white toolbar, All pinned right, status column, items table
+- `87989a7` 2026-07-22 — Orders page: pin All to far right, center status pills, reorder to completed/pending/cancelled/draft
+- `dfbc908` 2026-07-22 — Merge remote-tracking branch 'origin/main'
+- `3b6231f` 2026-07-22 — Orders page: move export/settings actions to far edge, filters to opposite edge
+- `d07da51` 2026-07-22 — Restore original DateRangePicker full-calendar UI
+
+
+---
+
+<!-- CODE-DERIVED-BEHAVIOR-2026-11-08 -->
+## Code-derived behavior (2026-11-08)
+Web-side behavior of rewards, expenses-v2, branches and inventory-analytics/inventory-dashboard is documented in the "Code-Derived Behavior Documentation" section of `api/STATUS.md` (UI pages, hooks, API calls, form fields, i18n). Correction: analytics RPCs 143/144 are called by `src/features/inventory-analytics`; `inventory-dashboard` calls only `GET /inventory/analytics/dashboard`. Known UI/DB mismatch: rewards form sends `threshold` where the DB function reads `amount`.

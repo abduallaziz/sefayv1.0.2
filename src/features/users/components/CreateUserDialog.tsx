@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useCreateUser } from '../hooks/useUsers'
+import { useBranches } from '@/shared/hooks/useBranches'
 import { X } from 'lucide-react'
 
 interface Props {
@@ -15,19 +16,21 @@ const ROLES = ['owner', 'manager', 'cashier', 'worker', 'inventory_clerk']
 export function CreateUserDialog({ open, onClose }: Props) {
   const t = useTranslations('users')
   const { mutate: createUser, isPending } = useCreateUser()
+  const { data: branches = [] } = useBranches()
 
   const [form, setForm] = useState({
     name: '',
     email: '',
     password: '',
     role: 'cashier',
+    branch_id: '',
   })
 
   function handleSubmit() {
     if (!form.name || !form.email || !form.password) return
-    createUser(form, {
+    createUser({ ...form, branch_id: form.branch_id || undefined }, {
       onSuccess: () => {
-        setForm({ name: '', email: '', password: '', role: 'cashier' })
+        setForm({ name: '', email: '', password: '', role: 'cashier', branch_id: '' })
         onClose()
       },
     })
@@ -84,6 +87,19 @@ export function CreateUserDialog({ open, onClose }: Props) {
             >
               {ROLES.map((r) => (
                 <option key={r} value={r}>{r}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">{t('branch')}</label>
+            <select
+              value={form.branch_id}
+              onChange={(e) => setForm({ ...form, branch_id: e.target.value })}
+              className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-[#0C447C]"
+            >
+              <option value="">{t('centralNoBranch')}</option>
+              {branches.map((b) => (
+                <option key={b.id} value={b.id}>{b.name}</option>
               ))}
             </select>
           </div>

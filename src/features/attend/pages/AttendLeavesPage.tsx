@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { CalendarDays, Plus, X } from 'lucide-react'
 import { BottomNav } from '../components/BottomNav'
@@ -40,7 +40,7 @@ export function AttendLeavesPage({ token }: { token: string }) {
   )
   const exceedsBalance = balance !== null && requestedDays > balance
 
-  function loadLeaves() {
+  const loadLeaves = useCallback(() => {
     fetch(`/api/v1/attend/${token}/dashboard`)
       .then(async (res) => {
         if (res.ok) {
@@ -50,11 +50,11 @@ export function AttendLeavesPage({ token }: { token: string }) {
         }
       })
       .catch(() => {})
-  }
+  }, [token])
 
   useEffect(() => {
     loadLeaves()
-  }, [token])
+  }, [loadLeaves])
 
   async function handleSubmit() {
     if (!dateFrom || !dateTo || exceedsBalance) return

@@ -30,6 +30,7 @@ export interface LoginResponse {
     name: string;
     role: string;
     tenant_id: string | null;
+    branch_id: string | null;
     session_id: string;
     permissions: string[];
     features: string[];
@@ -44,6 +45,7 @@ export interface MeResponse {
   name: string;
   role: string;
   tenant_id: string | null;
+  branch_id: string | null;
   session_id: string;
   permissions: string[];
   features: string[];

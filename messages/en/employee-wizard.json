@@ -47,6 +47,7 @@
   "mapPlaceholder": "Map / Branch Location",
   "branch": "Branch",
   "selectBranch": "Select branch",
+  "centralNoBranch": "No branch (Central user)",
   "mainBranch": "Main Branch",
   "city": "City",
   "cityPlaceholder": "City",

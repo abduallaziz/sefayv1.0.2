@@ -22,13 +22,6 @@ export function useExpensesReport(query?: ReportQuery) {
   })
 }
 
-export function usePaymentsReport(query?: ReportQuery) {
-  return useQuery({
-    queryKey: ['reports', 'payments', query],
-    queryFn: () => reportsApi.getPayments(query),
-  })
-}
-
 export function useEmployeesReport(query?: ReportQuery) {
   return useQuery({
     queryKey: ['reports', 'employees', query],
@@ -96,6 +89,13 @@ export function useAuditSummary() {
   return useQuery({
     queryKey: ['reports', 'audit-summary'],
     queryFn: () => reportsApi.getAuditSummary(),
+  })
+}
+
+export function useCogsReport(query?: ReportQuery) {
+  return useQuery({
+    queryKey: ['reports', 'cogs', query],
+    queryFn: () => reportsApi.getCogs(query),
   })
 }
 

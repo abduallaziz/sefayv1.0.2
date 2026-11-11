@@ -20,6 +20,13 @@ const schema = z.object({
   sku: z.string().optional(),
 });
 
+// `price` is a zod `.transform()` — the form's actual input shape (what the
+// `<input>` holds, a string) differs from the resolver's output shape (what
+// `handleFormSubmit` receives, a number). react-hook-form's third generic is
+// exactly for this split.
+type FormInput = z.input<typeof schema>;
+type FormOutput = z.output<typeof schema>;
+
 interface Props {
   open: boolean;
   onClose: () => void;
@@ -37,7 +44,7 @@ const labelClass = "block text-xs font-medium text-posCloud-text-secondary dark:
 export function ItemFormModal({ open, onClose, onSubmit, item, defaultType = 'product', categories, isLoading }: Props) {
   const t = useTranslations('items');
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm({
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormInput, unknown, FormOutput>({
     resolver: zodResolver(schema),
     defaultValues: {
       has_inventory: false,
@@ -67,7 +74,7 @@ export function ItemFormModal({ open, onClose, onSubmit, item, defaultType = 'pr
 
   if (!open) return null;
 
-  const handleFormSubmit = (data: any) => {
+  const handleFormSubmit = (data: FormOutput) => {
     const { sku, ...rest } = data;
     const payload: CreateItemDTO = { ...rest, category_id: data.category_id || undefined };
     // Only include sku in the request if the user actually changed it —

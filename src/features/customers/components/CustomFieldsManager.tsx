@@ -10,6 +10,7 @@ import {
   useDeleteFieldDefinition,
 } from '../hooks/useCustomers'
 import { useProfile, useUpdateProfile } from '@/features/settings/hooks/useSettings'
+import { ApiError } from '@/lib/api'
 import type { ContactRole, CustomFieldType, CustomerFieldDefinition } from '../types/customer.types'
 
 const inputClass = 'w-full px-3 py-2 text-sm bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 text-slate-800 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C]'
@@ -322,8 +323,8 @@ export function CustomFieldsManager() {
   // Without this, a failed toggle (429 from the rate limiter, network error, etc.)
   // silently left the badge showing its old state with zero feedback — looked
   // exactly like "the toggle doesn't save."
-  function onToggleError(e: any) {
-    setToggleError(e?.message ?? t('fields.toggle_error'))
+  function onToggleError(e: unknown) {
+    setToggleError(e instanceof ApiError ? e.message : t('fields.toggle_error'))
   }
 
   return (

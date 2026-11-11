@@ -75,7 +75,20 @@ function SheetContent({ side = 'end', className, children, ...props }: SheetCont
   return (
     <SheetPortal>
       <SheetOverlay />
-      <DialogPrimitive.Content className={cn(sheetVariants({ side }), animationClass, className)} {...props}>
+      {/* Inventory #7 / F3 (Owner-approved) — Radix's Portal appends this
+          content as a direct child of <body>, outside the app's dir="rtl"
+          wrapper div. The sheetVariants positioning above uses logical
+          Tailwind utilities (start-0/end-0/border-s/border-e), which the
+          browser resolves from the nearest ancestor with `dir` set — with
+          no such ancestor here, they silently fall back to LTR regardless
+          of locale, so an Arabic session's drawer stayed pinned to the
+          physical right (matching this component's own animationClass
+          logic above, which already correctly computes the RTL-flipped
+          intent, just never got applied to positioning). Setting `dir`
+          directly on this element makes it the resolution ancestor for its
+          own subtree, fixing every Sheet-based drawer in the app, not
+          reinventing which side is "correct." */}
+      <DialogPrimitive.Content dir={isRtl ? 'rtl' : 'ltr'} className={cn(sheetVariants({ side }), animationClass, className)} {...props}>
         {children}
         <DialogPrimitive.Close className="absolute end-4 top-4 rounded opacity-70 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary transition-opacity hover:opacity-100 focus:outline-none">
           <X className="h-4 w-4" />

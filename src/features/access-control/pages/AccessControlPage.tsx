@@ -33,6 +33,11 @@ export function AccessControlPage({ initialRoleId }: { initialRoleId?: string } 
     // Only 'owner' opens read-only now — every other system role is editable
     // (matches RoleCard.tsx's isLocked; 'superadmin' never appears in `roles`
     // at all, filtered server-side).
+    // Genuinely reacting to an external async event (the roles query
+    // resolving), not deriving render output — TanStack Query v5 removed
+    // per-query onSuccess callbacks, so an effect watching the query result
+    // is the current recommended way to run this once when data arrives.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (role) setSheet({ mode: role.name === 'owner' ? 'view' : 'edit', role })
     // Only react to roles finishing their first load for this deep link —
     // not on every roles refetch, which would re-open a sheet the user closed.

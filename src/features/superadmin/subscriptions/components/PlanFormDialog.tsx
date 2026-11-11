@@ -29,7 +29,7 @@ interface Props {
 export function PlanFormDialog({ open, plan, onClose, onSubmit, isLoading }: Props) {
   const t = useTranslations('subscriptions')
   const { register, handleSubmit, reset, formState: { errors } } = useForm<CreatePlanDto>({
-    resolver: zodResolver(schema) as any,
+    resolver: zodResolver(schema),
   })
 
   useEffect(() => {

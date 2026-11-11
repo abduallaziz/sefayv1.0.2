@@ -31,7 +31,7 @@ export const useAuthControl = () => {
   const changeRoleMutation = useMutation({
     mutationFn: ({ userId, role }: { userId: string; role: TenantUser['role'] }) =>
       authControlApi.changeRole(userId, role),
-    onSuccess: (_, { userId }) => {
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['superadmin', 'tenant-users'] });
     },
   });

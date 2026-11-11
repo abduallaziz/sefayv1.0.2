@@ -3,9 +3,9 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
-import { useRevenueReport, useShiftsReport, useExpensesReport, useEmployeesReport, useTaxReport, useComparisonReport, useBranchComparisonReport, useCustomerChurnReport, useCustomersReport, useDailyReconciliation } from '../hooks/useReports'
+import { useRevenueReport, useShiftsReport, useExpensesReport, useEmployeesReport, useTaxReport, useComparisonReport, useBranchComparisonReport, useCustomerChurnReport, useCustomersReport, useDailyReconciliation, useCogsReport } from '../hooks/useReports'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { TrendingUp, Clock, TrendingDown, CreditCard, Users, Receipt, GitCompareArrows, Building2, UserMinus, ArrowUp, ArrowDown, Wallet } from 'lucide-react'
+import { TrendingUp, Clock, TrendingDown, CreditCard, Users, Receipt, GitCompareArrows, Building2, UserMinus, ArrowUp, ArrowDown, Wallet, PieChart, type LucideIcon } from 'lucide-react'
 import { DateRangePicker, SingleDatePicker, type DateRange } from '@/shared/ui/date-range-picker'
 import { formatNumber } from '@/lib/format'
 
@@ -34,7 +34,7 @@ function ChangeBadge({ pct }: { pct: number | null }) {
 function StatCard({ label, value, icon: Icon, color }: {
   label: string
   value: string
-  icon: any
+  icon: LucideIcon
   color: string
 }) {
   return (
@@ -68,6 +68,7 @@ export function ReportsPage() {
   const { data: churn, isLoading: churnLoading } = useCustomerChurnReport(query)
   const { data: customersReport, isLoading: customersLoading } = useCustomersReport(query)
   const { data: reconciliation, isLoading: reconciliationLoading } = useDailyReconciliation(reconciliationDate)
+  const { data: cogs, isLoading: cogsLoading } = useCogsReport(query)
 
   const summary = revenue?.summary
   const dailyBreakdown = revenue?.daily_breakdown ?? []
@@ -105,12 +106,14 @@ export function ReportsPage() {
           color="bg-violet-600"
         />
         <StatCard
-          label={t('totalExpenses')}
+          label={`${t('totalExpenses')} (${t('beforeTax')})`}
           value={expLoading ? '...' : `${formatNumber(expenses?.summary?.total_approved_amount ?? 0)} ${currency}`}
           icon={TrendingDown}
           color="bg-red-600"
         />
       </div>
+
+      <h2 className="pt-2 text-base font-bold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">{t('groups.sales')}</h2>
 
       <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
         <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">{t('revenueChart')}</h2>
@@ -143,7 +146,7 @@ export function ReportsPage() {
           <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
         ) : (
           <div className="space-y-2">
-            {Object.entries(byPaymentMethod).map(([method, data]: [string, any]) => (
+            {Object.entries(byPaymentMethod).map(([method, data]: [string, { count: number; total: number }]) => (
               <div key={method} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
                 <span className="text-sm text-gray-600 dark:text-gray-400">
                   {tOrders.has(`payment_method.${method}`) ? tOrders(`payment_method.${method}`) : method}
@@ -159,48 +162,6 @@ export function ReportsPage() {
       </div>
 
       <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
-        <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">{t('expensesByCategory')}</h2>
-        {expLoading ? (
-          <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
-        ) : (
-          <div className="space-y-2">
-            {byCategory.map((c: any) => (
-              <div key={c.category} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
-                <span className="text-sm text-gray-600 dark:text-gray-400">{c.category}</span>
-                <div className="flex items-center gap-4 text-xs">
-                  <span className="text-gray-500 dark:text-gray-500">{c.count} {t('items')}</span>
-                  <span className="text-gray-900 dark:text-white font-medium">{formatNumber(c.total ?? 0)} {currency}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <Users className="w-4 h-4 text-gray-400" />
-          <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{t('employeePerformance')}</h2>
-        </div>
-        {employeesLoading ? (
-          <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
-        ) : (
-          <div className="space-y-2">
-            {(employees?.employees ?? []).map((e) => (
-              <div key={e.cashier_id} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
-                <span className="text-sm text-gray-600 dark:text-gray-400">{e.name}</span>
-                <div className="flex items-center gap-4 text-xs">
-                  <span className="text-gray-500 dark:text-gray-500">{e.order_count} {t('orders')}</span>
-                  <span className="text-gray-500 dark:text-gray-500">{t('avgOrder')}: {formatNumber(e.avg_order_value)} {currency}</span>
-                  <span className="text-gray-900 dark:text-white font-medium">{formatNumber(e.total_sales)} {currency}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
         <div className="flex items-center gap-2 mb-4">
           <Receipt className="w-4 h-4 text-gray-400" />
           <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{t('taxSummary')}</h2>
@@ -208,10 +169,14 @@ export function ReportsPage() {
         {taxLoading ? (
           <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
         ) : (
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
-              <p className="text-xs text-gray-500">{t('subtotalBeforeTax')}</p>
+              <p className="text-xs text-gray-500">{t('subtotalGross')}</p>
               <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{formatNumber(tax?.summary.total_subtotal ?? 0)} {currency}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">{t('discountsLabel')}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{formatNumber(tax?.summary.total_discount ?? 0)} {currency}</p>
             </div>
             <div>
               <p className="text-xs text-gray-500">{t('taxCollected')} ({((tax?.tax_rate ?? 0) * 100).toFixed(0)}%)</p>
@@ -255,84 +220,7 @@ export function ReportsPage() {
         <p className="text-xs text-gray-400 mt-3">{t('vsPreviousPeriod')}</p>
       </div>
 
-      {/* Branch Comparison — only visible with reports.view.all */}
-      {!byBranchError && (
-        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
-          <div className="flex items-center gap-2 mb-4">
-            <Building2 className="w-4 h-4 text-gray-400" />
-            <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{t('branchComparison')}</h2>
-          </div>
-          {byBranchLoading ? (
-            <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
-          ) : (byBranch?.branches ?? []).length === 0 ? (
-            <p className="text-sm text-gray-500 dark:text-gray-400 py-4 text-center">{t('noBranches')}</p>
-          ) : (
-            <div className="space-y-2">
-              {(byBranch?.branches ?? []).map((b) => (
-                <div key={b.branch_id} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">{b.branch_name}</span>
-                  <div className="flex items-center gap-4 text-xs">
-                    <span className="text-gray-500 dark:text-gray-500">{b.order_count} {t('orders')}</span>
-                    <span className="text-gray-900 dark:text-white font-medium">{formatNumber(b.revenue)} {currency}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Customer Churn */}
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <UserMinus className="w-4 h-4 text-gray-400" />
-          <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{t('customerChurn')}</h2>
-        </div>
-        {churnLoading ? (
-          <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
-        ) : (
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <p className="text-xs text-gray-500">{t('previousCustomers')}</p>
-              <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{churn?.previous_period_customers ?? 0}</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-500">{t('churnedCustomers')}</p>
-              <p className="text-sm font-medium text-red-600 dark:text-red-400 mt-1">{churn?.churned_customers ?? 0}</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-500">{t('churnRate')}</p>
-              <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{churn?.churn_rate_pct ?? 0}%</p>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Top Customers */}
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <Users className="w-4 h-4 text-gray-400" />
-          <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{t('topCustomers')}</h2>
-        </div>
-        {customersLoading ? (
-          <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
-        ) : (customersReport?.customers ?? []).length === 0 ? (
-          <p className="text-sm text-gray-500 dark:text-gray-400 py-4 text-center">{t('noCustomers')}</p>
-        ) : (
-          <div className="space-y-2">
-            {(customersReport?.customers ?? []).slice(0, 10).map((c) => (
-              <div key={c.customer_id} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
-                <span className="text-sm text-gray-600 dark:text-gray-400">{c.name}</span>
-                <div className="flex items-center gap-4 text-xs">
-                  <span className="text-gray-500 dark:text-gray-500">{c.order_count} {t('orders')}</span>
-                  <span className="text-gray-500 dark:text-gray-500">{t('avgOrder')}: {formatNumber(c.avg_order_value)} {currency}</span>
-                  <span className="text-gray-900 dark:text-white font-medium">{formatNumber(c.total_spent)} {currency}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      <h2 className="pt-2 text-base font-bold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">{t('groups.cash')}</h2>
 
       {/* Daily Reconciliation */}
       <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
@@ -352,6 +240,11 @@ export function ReportsPage() {
                 <p className="text-xs text-gray-500">{t('salesTotal')}</p>
                 <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{formatNumber(reconciliation?.sales.total_revenue ?? 0)} {currency}</p>
                 <p className="text-xs text-gray-400 mt-0.5">{reconciliation?.sales.total_orders ?? 0} {t('orders')}</p>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  {t('cancelledInvoices')}: {reconciliation?.sales.cancelled_count ?? 0} ({formatNumber(reconciliation?.sales.cancelled_amount ?? 0)})
+                  {' · '}
+                  {t('returnedInvoices')}: {reconciliation?.sales.returned_count ?? 0} ({formatNumber(reconciliation?.sales.returned_amount ?? 0)})
+                </p>
               </div>
               <div>
                 <p className="text-xs text-gray-500">{t('expensesTotal')}</p>
@@ -366,6 +259,11 @@ export function ReportsPage() {
                 <p className="text-xs text-gray-500">{t('discrepancy')}</p>
                 <p className={`text-sm font-medium mt-1 ${(reconciliation?.cash_shifts.total_discrepancy ?? 0) === 0 ? 'text-gray-900 dark:text-white' : 'text-red-600 dark:text-red-400'}`}>
                   {formatNumber(reconciliation?.cash_shifts.total_discrepancy ?? 0)} {currency}
+                </p>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  {t('shortage')}: {formatNumber(reconciliation?.cash_shifts.shortage_total ?? 0)}
+                  {' · '}
+                  {t('overage')}: {formatNumber(reconciliation?.cash_shifts.overage_total ?? 0)}
                 </p>
               </div>
             </div>
@@ -404,6 +302,184 @@ export function ReportsPage() {
           </div>
         )}
       </div>
+
+      <h2 className="pt-2 text-base font-bold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">{t('groups.costs')}</h2>
+
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
+        <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">{t('expensesByCategory')} <span className="font-normal text-gray-400">({t('beforeTax')})</span></h2>
+        {expLoading ? (
+          <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
+        ) : (
+          <div className="space-y-2">
+            {byCategory.map((c) => (
+              <div key={c.category} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
+                <span className="text-sm text-gray-600 dark:text-gray-400">{c.category}</span>
+                <div className="flex items-center gap-4 text-xs">
+                  <span className="text-gray-500 dark:text-gray-500">{c.count} {t('items')}</span>
+                  <span className="text-gray-900 dark:text-white font-medium">{formatNumber(c.total ?? 0)} {currency}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* COGS (Cost of Goods Sold) */}
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <PieChart className="w-4 h-4 text-gray-400" />
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{t('cogs')}</h2>
+        </div>
+        {cogsLoading ? (
+          <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
+        ) : (
+          <>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+              <div>
+                <p className="text-xs text-gray-500">{t('cogsTotal')}</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{formatNumber(cogs?.summary.total_cogs ?? 0)} {currency}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">{t('netRevenue')}</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{formatNumber(cogs?.summary.total_revenue ?? 0)} {currency}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">{t('grossProfit')}</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{formatNumber(cogs?.summary.gross_profit ?? 0)} {currency}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">{t('grossMargin')}</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{cogs?.summary.gross_margin_pct ?? 0}%</p>
+              </div>
+            </div>
+            {(cogs?.top_by_cost ?? []).length > 0 && (
+              <div>
+                <p className="text-xs text-gray-500 mb-2">{t('cogsTopByCost')}</p>
+                <div className="space-y-2">
+                  {(cogs?.top_by_cost ?? []).map((item) => (
+                    <div key={item.item_id} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">{item.item_name}</span>
+                      <div className="flex items-center gap-4 text-xs">
+                        <span className="text-gray-500 dark:text-gray-500">{item.quantity_sold} {t('items')}</span>
+                        <span className="text-gray-900 dark:text-white font-medium">{formatNumber(item.total_cost)} {currency}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {cogs?.coverage_note && (
+              <p className="text-xs text-gray-400 mt-3">{cogs.coverage_note}</p>
+            )}
+          </>
+        )}
+      </div>
+
+      <h2 className="pt-2 text-base font-bold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">{t('groups.people')}</h2>
+
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <Users className="w-4 h-4 text-gray-400" />
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{t('employeePerformance')}</h2>
+        </div>
+        {employeesLoading ? (
+          <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
+        ) : (
+          <div className="space-y-2">
+            {(employees?.employees ?? []).map((e) => (
+              <div key={e.cashier_id ?? 'unassigned'} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
+                <span className="text-sm text-gray-600 dark:text-gray-400">{e.name ?? t('unassigned')}</span>
+                <div className="flex items-center gap-4 text-xs">
+                  <span className="text-gray-500 dark:text-gray-500">{e.order_count} {t('orders')}</span>
+                  <span className="text-gray-500 dark:text-gray-500">{t('avgOrder')}: {formatNumber(e.avg_order_value)} {currency}</span>
+                  <span className="text-gray-900 dark:text-white font-medium">{formatNumber(e.total_sales)} {currency}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Top Customers */}
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <Users className="w-4 h-4 text-gray-400" />
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{t('topCustomers')}</h2>
+        </div>
+        {customersLoading ? (
+          <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
+        ) : (customersReport?.customers ?? []).length === 0 ? (
+          <p className="text-sm text-gray-500 dark:text-gray-400 py-4 text-center">{t('noCustomers')}</p>
+        ) : (
+          <div className="space-y-2">
+            {(customersReport?.customers ?? []).slice(0, 10).map((c) => (
+              <div key={c.customer_id} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
+                <span className="text-sm text-gray-600 dark:text-gray-400">{c.name}</span>
+                <div className="flex items-center gap-4 text-xs">
+                  <span className="text-gray-500 dark:text-gray-500">{c.order_count} {t('orders')}</span>
+                  <span className="text-gray-500 dark:text-gray-500">{t('avgOrder')}: {formatNumber(c.avg_order_value)} {currency}</span>
+                  <span className="text-gray-900 dark:text-white font-medium">{formatNumber(c.total_spent)} {currency}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Customer Churn */}
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <UserMinus className="w-4 h-4 text-gray-400" />
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{t('customerChurn')}</h2>
+        </div>
+        {churnLoading ? (
+          <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
+        ) : (
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <p className="text-xs text-gray-500">{t('previousCustomers')}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{churn?.previous_period_customers ?? 0}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">{t('churnedCustomers')}</p>
+              <p className="text-sm font-medium text-red-600 dark:text-red-400 mt-1">{churn?.churned_customers ?? 0}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">{t('churnRate')}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{churn?.churn_rate_pct ?? 0}%</p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <h2 className="pt-2 text-base font-bold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">{t('groups.places')}</h2>
+
+      {/* Branch Comparison — only visible with reports.view.all */}
+      {!byBranchError && (
+        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <Building2 className="w-4 h-4 text-gray-400" />
+            <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{t('branchComparison')}</h2>
+          </div>
+          {byBranchLoading ? (
+            <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
+          ) : (byBranch?.branches ?? []).length === 0 ? (
+            <p className="text-sm text-gray-500 dark:text-gray-400 py-4 text-center">{t('noBranches')}</p>
+          ) : (
+            <div className="space-y-2">
+              {(byBranch?.branches ?? []).map((b) => (
+                <div key={b.branch_id ?? 'unassigned'} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">{b.branch_name ?? t('unassignedBranch')}</span>
+                  <div className="flex items-center gap-4 text-xs">
+                    <span className="text-gray-500 dark:text-gray-500">{b.order_count} {t('orders')}</span>
+                    <span className="text-gray-900 dark:text-white font-medium">{formatNumber(b.revenue)} {currency}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

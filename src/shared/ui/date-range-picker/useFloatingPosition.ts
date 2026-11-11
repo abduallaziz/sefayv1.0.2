@@ -20,12 +20,18 @@ export function useFloatingPosition(
   open: boolean,
 ): FloatingPosition | null {
   const [pos, setPos] = useState<FloatingPosition | null>(null);
+  // Closing needs no DOM measurement — clear synchronously during render
+  // (React's documented "adjusting state when a prop changes" pattern)
+  // rather than in the layout effect below, which is reserved for the part
+  // that genuinely requires post-layout measurement.
+  const [prevOpen, setPrevOpen] = useState(open);
+  if (open !== prevOpen) {
+    setPrevOpen(open);
+    if (!open) setPos(null);
+  }
 
   useLayoutEffect(() => {
-    if (!open) {
-      setPos(null);
-      return;
-    }
+    if (!open) return;
     const trigger = triggerRef.current;
     if (!trigger) return;
 

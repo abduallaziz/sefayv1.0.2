@@ -1,10 +1,12 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { X, Phone, Mail, Star, ShoppingBag, TrendingUp } from 'lucide-react';
 import { Customer } from '../types/customer.types';
 import { useCustomerHistory } from '../hooks/useCustomers';
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store';
+import { formatNumber, formatDate } from '@/lib/locale';
+import { CustomerRewardsPanel } from './CustomerRewardsPanel';
 
 interface Props {
   customer: Customer;
@@ -14,6 +16,8 @@ interface Props {
 
 export function CustomerDetailsModal({ customer, onClose, onEdit }: Props) {
   const t = useTranslations('customers');
+  const rawLocale = useLocale();
+  const locale: 'ar' | 'en' = rawLocale === 'ar' ? 'ar' : 'en';
   const currency = useCurrencyDisplay();
   const { data: orders, isLoading } = useCustomerHistory(customer.id);
 
@@ -37,7 +41,7 @@ export function CustomerDetailsModal({ customer, onClose, onEdit }: Props) {
                 {customer.full_name || '—'}
               </h2>
               <p className="text-sm text-gray-400">
-                {t('details.since')} {new Date(customer.created_at).toLocaleDateString('en-US')}
+                {t('details.since')} {formatDate(customer.created_at, { locale })}
               </p>
             </div>
           </div>
@@ -64,25 +68,27 @@ export function CustomerDetailsModal({ customer, onClose, onEdit }: Props) {
             <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3 text-center">
               <ShoppingBag className="w-5 h-5 text-[#0C447C] mx-auto mb-1" />
               <p className="text-lg font-bold text-gray-900 dark:text-white">
-                {customer.orders_count ?? 0}
+                {formatNumber(customer.orders_count ?? 0, { locale, decimals: 0 })}
               </p>
               <p className="text-xs text-gray-400">{t('details.orders')}</p>
             </div>
             <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3 text-center">
               <TrendingUp className="w-5 h-5 text-green-500 mx-auto mb-1" />
               <p className="text-lg font-bold text-gray-900 dark:text-white">
-                {(customer.total_spent ?? 0).toLocaleString('en-US')}
+                {formatNumber(customer.total_spent ?? 0, { locale, decimals: 2 })}
               </p>
               <p className="text-xs text-gray-400">{currency}</p>
             </div>
             <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3 text-center">
               <Star className="w-5 h-5 text-yellow-500 mx-auto mb-1 fill-yellow-500" />
               <p className="text-lg font-bold text-gray-900 dark:text-white">
-                {customer.loyalty_points.toLocaleString('en-US')}
+                {formatNumber(customer.loyalty_points, { locale, decimals: 0 })}
               </p>
               <p className="text-xs text-gray-400">{t('details.points')}</p>
             </div>
           </div>
+
+          <CustomerRewardsPanel customerId={customer.id} />
 
           <div>
             <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
@@ -98,10 +104,10 @@ export function CustomerDetailsModal({ customer, onClose, onEdit }: Props) {
                   <div key={order.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <div>
                       <p className="text-sm font-medium text-gray-900 dark:text-white">
-                        {order.total.toLocaleString('en-US')} {currency}
+                        {formatNumber(order.total, { locale, decimals: 2 })} {currency}
                       </p>
                       <p className="text-xs text-gray-400">
-                        {new Date(order.created_at).toLocaleDateString('en-US')} · {order.items_count} {t('details.items')}
+                        {formatDate(order.created_at, { locale })} · {formatNumber(order.items_count, { locale, decimals: 0 })} {t('details.items')}
                       </p>
                     </div>
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusColors[order.status]}`}>

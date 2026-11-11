@@ -36,5 +36,22 @@
   "avgLeadTime": "Avg. Lead Time",
   "days": "days",
   "lastPurchaseDate": "Last Purchase Date",
-  "never": "Never"
+  "never": "Never",
+  "priceTimelineTitle": "Price Timeline",
+  "priceTimelineSelectItem": "Select an item",
+  "priceTimelineNoItem": "Select an item to view its price timeline with this supplier.",
+  "priceTimelineLoading": "Loading price timeline…",
+  "priceTimelineError": "Failed to load price timeline. Please try again.",
+  "priceTimelineEmptyTitle": "No price history yet",
+  "priceTimelineEmptyDescription": "No quotes, purchase orders, or goods receipts recorded for this item with this supplier.",
+  "priceTimelineColumnDate": "Date",
+  "priceTimelineColumnStage": "Stage",
+  "priceTimelineColumnPrice": "Price",
+  "priceTimelineColumnDocument": "Document",
+  "priceTimelineColumnWarehouse": "Warehouse",
+  "priceTimelineStageQuote": "Quote",
+  "priceTimelineStagePurchaseOrder": "Purchase Order",
+  "priceTimelineStageGoodsReceipt": "Goods Receipt",
+  "priceTimelineCount": "{count} price point(s)",
+  "priceTimelineRowsPerPage": "Rows per page"
 }

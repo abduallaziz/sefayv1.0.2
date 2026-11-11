@@ -17,6 +17,13 @@ export interface RevenueReport {
     total_discount: number
     total_tax: number
     avg_order_value: number
+    cancelled_orders?: number
+    cancelled_total?: number
+    // revenue WITHOUT VAT (after discounts), and after returns
+    net_revenue?: number
+    net_revenue_after_returns?: number
+    returned_orders?: number
+    returned_total?: number
   }
   by_payment_method: Record<string, { count: number; total: number }>
   daily_breakdown: { date: string; total: number }[]
@@ -29,6 +36,9 @@ export interface ShiftsReport {
     closed_shifts: number
     open_shifts: number
     total_discrepancy: number
+    shortage_total?: number
+    overage_total?: number
+    net_discrepancy?: number
     avg_discrepancy: number
   }
   shifts: { id: string; opened_at: string; closed_at: string }[]
@@ -42,6 +52,7 @@ export interface ExpensesReport {
     rejected_count: number
     pending_count: number
     total_approved_amount: number
+    amount_basis?: 'before_tax'
   }
   by_category: { category: string; count: number; total: number }[]
   expenses: { id: string; amount: number; status: string }[]
@@ -83,8 +94,9 @@ export interface ComparisonReport {
 export interface BranchComparisonReport {
   period: { from: string; to: string }
   branches: {
-    branch_id: string
-    branch_name: string
+    branch_id: string | null
+    branch_name: string | null
+    unassigned?: boolean
     revenue: number
     order_count: number
     avg_order_value: number
@@ -104,8 +116,8 @@ export interface CustomerChurnReport {
 export interface EmployeesReport {
   period: { from: string; to: string }
   employees: {
-    cashier_id: string
-    name: string
+    cashier_id: string | null
+    name: string | null
     order_count: number
     total_sales: number
     avg_order_value: number
@@ -130,6 +142,8 @@ export interface TaxReport {
   summary: {
     total_orders: number
     total_subtotal: number
+    total_discount?: number
+    net_subtotal?: number
     total_tax_collected: number
     grand_total: number
   }
@@ -212,6 +226,10 @@ export interface PayrollReport {
 export interface DailyReconciliationReport {
   date: string
   sales: {
+    cancelled_count?: number
+    cancelled_amount?: number
+    returned_count?: number
+    returned_amount?: number
     total_orders: number
     total_revenue: number
     by_payment_method: Record<string, { count: number; total: number }>
@@ -226,7 +244,28 @@ export interface DailyReconciliationReport {
     total_closing_cash: number
     total_expected_cash: number
     total_discrepancy: number
+    shortage_total?: number
+    overage_total?: number
   }
+}
+
+export interface CogsReport {
+  period: { from: string; to: string }
+  summary: {
+    total_cogs: number
+    // net revenue: after discounts, before VAT, after returns
+    total_revenue: number
+    total_sales_incl_tax?: number
+    gross_profit: number
+    gross_margin_pct: number
+  }
+  top_by_cost: {
+    item_id: string
+    item_name: string
+    quantity_sold: number
+    total_cost: number
+  }[]
+  coverage_note: string
 }
 
 export const reportsApi = {
@@ -346,6 +385,16 @@ export const reportsApi = {
 
   getPayroll: (month: string): Promise<PayrollReport> =>
     apiClient.get(`/reports/payroll?month=${month}`),
+
+  getCogs: (query?: ReportQuery): Promise<CogsReport> => {
+    const params = new URLSearchParams()
+    if (query?.period) params.set('period', query.period)
+    if (query?.from) params.set('from', query.from)
+    if (query?.to) params.set('to', query.to)
+    if (query?.branch_id) params.set('branch_id', query.branch_id)
+    const qs = params.toString()
+    return apiClient.get(`/reports/cogs${qs ? `?${qs}` : ''}`)
+  },
 
   getDailyReconciliation: (date: string, branchId?: string): Promise<DailyReconciliationReport> => {
     const params = new URLSearchParams({ date })

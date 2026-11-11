@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import { useCreateCoupon, useUpdateCoupon } from '../hooks/useCoupons'
 import type { Coupon, CouponDiscountType } from '../api/coupons.api'
 import { SingleDatePicker } from '@/shared/ui/date-range-picker'
+import { ApiError } from '@/lib/api'
 
 interface Props {
   coupon?: Coupon | null
@@ -45,7 +46,7 @@ export function CouponFormModal({ coupon, onClose }: Props) {
 
     const onDone = {
       onSuccess: () => onClose(),
-      onError: (e: any) => setError(e?.message ?? t('error')),
+      onError: (e: unknown) => setError(e instanceof ApiError ? e.message : t('error')),
     }
 
     if (isEdit) {

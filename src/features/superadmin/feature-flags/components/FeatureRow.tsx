@@ -20,7 +20,7 @@ export function FeatureRow({ tenantId, feature }: Props) {
 
   const hasOverride = !!feature.tenant_override
   const isEnabled = feature.effective_enabled
-  const displayName = locale === 'ar' && (feature as any).name_ar ? (feature as any).name_ar : feature.name
+  const displayName = locale === 'ar' && feature.name_ar ? feature.name_ar : feature.name
 
   function handleToggle() {
     upsert({

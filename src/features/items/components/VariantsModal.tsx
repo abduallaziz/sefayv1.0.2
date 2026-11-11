@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { X, Plus, Trash2, Pencil, Check } from 'lucide-react'
-import { Item } from '../types/item.types'
+import { Item, ItemVariant } from '../types/item.types'
 import { useItemVariants } from '../hooks/useItems'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { Button } from '@/shared/ui/button'
@@ -46,7 +46,7 @@ export function VariantsModal({ open, onClose, item, onAddVariant, onUpdateVaria
     setForm({ name: '', price_adjustment: '', sku: '' })
   }
 
-  const startEdit = (v: any) => {
+  const startEdit = (v: ItemVariant) => {
     setEditingId(v.id)
     setEditForm({ name: v.name, price_adjustment: String(v.price_adjustment ?? 0), sku: v.sku ?? '' })
   }
@@ -82,7 +82,7 @@ export function VariantsModal({ open, onClose, item, onAddVariant, onUpdateVaria
           ) : variants.length === 0 ? (
             <p className="text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary text-center py-4">{t('noVariants')}</p>
           ) : (
-            variants.map((v: any) =>
+            variants.map((v) =>
               editingId === v.id ? (
                 <div key={v.id} className="p-3 rounded-lg border border-posCloud-primary bg-posCloud-background dark:bg-posCloudDark-background space-y-2">
                   <div className="grid grid-cols-3 gap-2">

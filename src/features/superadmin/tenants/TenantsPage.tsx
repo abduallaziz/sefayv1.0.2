@@ -9,7 +9,6 @@ import { Building2 } from 'lucide-react';
 
 export function TenantsPage() {
   const t = useTranslations('tenants');
-  const tCommon = useTranslations('common');
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
   const [page, setPage] = useState(1);

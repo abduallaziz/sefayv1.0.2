@@ -1,16 +1,23 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useProfile, useSubscription, useUsage, useUpdateProfile } from '../hooks/useSettings';
 import { useTenantStore } from '@/core/tenant/stores/tenant.store';
+import { ApiError } from '@/lib/api';
 import { useAuthStore } from '@/core/auth/stores/auth.store';
-import { Building2, CreditCard, BarChart3, Save, Coins, Users, Percent, Receipt, Printer, Bell, ShieldCheck, ChevronLeft, Award } from 'lucide-react';
+import { useCustomerFieldDefinitions } from '@/features/customers/hooks/useCustomers';
+import { AlertTriangle, Building2, CreditCard, BarChart3, Save, Coins, Users, Percent, Receipt, Printer, Bell, ShieldCheck, ChevronLeft, Award } from 'lucide-react';
 import { CustomFieldsManager } from '@/features/customers/components/CustomFieldsManager';
 import { LoyaltyTiersManager } from '@/features/loyalty-tiers/components/LoyaltyTiersManager';
 import { NumberInput } from '@/shared/ui/number-input';
 import type { NotificationPreferences } from '../api/settings.api';
+
+// T11 - every method the API knows (default of tenants.enabled_payment_methods)
+// and the ones the owner may switch on/off at the POS.
+const ALL_METHODS = ['cash', 'card', 'split', 'wallet', 'mada', 'visa', 'mastercard', 'stc_pay', 'apple_pay', 'tab'] as const;
+const SWITCHABLE_METHODS = ['mada', 'visa', 'mastercard', 'apple_pay', 'stc_pay', 'wallet', 'split'] as const;
 
 const NOTIFICATION_KEYS: (keyof NotificationPreferences)[] = [
   'subscription_expired',
@@ -34,9 +41,18 @@ const CURRENCIES = [
 
 export function SettingsPage() {
   const t = useTranslations('settings');
+  const tPrint = useTranslations('print.designer');
   const { data: profile, isLoading: profileLoading } = useProfile();
   const { data: subscriptionData, isLoading: subLoading } = useSubscription();
   const { data: usage, isLoading: usageLoading } = useUsage();
+  // Customer capture on, yet nothing for the cashier to fill (no active field and
+  // no name field): warn the owner, since checkout would have no way to pick a customer.
+  const { data: customerFieldDefs } = useCustomerFieldDefinitions();
+  const captureHasNoFields =
+    !!profile?.customer_capture_enabled &&
+    customerFieldDefs !== undefined &&
+    !customerFieldDefs.some((f) => f.is_active) &&
+    !profile?.name_field_enabled;
   // Separate mutation instances per section — sharing one meant clicking any single
   // save button flipped every button on the page to "saving..." at once, even though
   // only that section's request was actually sent.
@@ -49,6 +65,7 @@ export function SettingsPage() {
   const { mutate: saveNotification, isPending: savingNotification } = useUpdateProfile();
   const { mutate: saveLoyaltySettings, isPending: savingLoyaltySettings } = useUpdateProfile();
   const { mutate: saveLoyaltyEnabled, isPending: savingLoyaltyEnabled } = useUpdateProfile();
+  const { mutate: savePaymentMethods, isPending: savingPaymentMethods } = useUpdateProfile();
 
   const { currency_code, setCurrency } = useTenantStore();
   const [name, setName] = useState('');
@@ -68,21 +85,27 @@ export function SettingsPage() {
   // 429 from the rate limiter, or any network error) previously failed completely
   // silently: the toggle/field just stayed as it was, with no indication anything
   // went wrong, which read as "the toggle doesn't save."
-  function onSaveError(e: any) {
-    setSaveError(e?.message ?? t('saveError'));
+  function onSaveError(e: unknown) {
+    setSaveError(e instanceof ApiError ? e.message : t('saveError'));
   }
 
-  const sub = (subscriptionData as any)?.subscription;
+  const sub = subscriptionData?.subscription;
   const authUser = useAuthStore((s) => s.user);
   const canManageAccessControl = authUser?.role === 'owner' || authUser?.role === 'superadmin';
 
-  useEffect(() => {
+  // `profile` arrives asynchronously (starts undefined, settles once the
+  // query resolves) — these form fields need to populate from it the moment
+  // it does. React's documented "adjusting state when a prop/value changes"
+  // pattern: compare against the last-seen `profile` reference during render
+  // and setState synchronously if it changed, instead of in an effect.
+  // React re-renders immediately with the update applied before committing,
+  // so this is not an extra visible render, just not a `useEffect`.
+  const [prevProfile, setPrevProfile] = useState(profile);
+  if (profile !== prevProfile) {
+    setPrevProfile(profile);
     if (profile?.tax_rate !== undefined) {
       setTaxRatePercent(String(Math.round(profile.tax_rate * 100 * 100) / 100));
     }
-  }, [profile?.tax_rate]);
-
-  useEffect(() => {
     if (profile) {
       setLogoUrl(profile.logo_url ?? '');
       setTaxNumber(profile.tax_number ?? '');
@@ -92,7 +115,7 @@ export function SettingsPage() {
       setPointsPerCurrency(String(profile.loyalty_points_per_currency ?? 1));
       setRedemptionValue(String(profile.loyalty_redemption_value ?? 0.01));
     }
-  }, [profile]);
+  }
 
   function handleSaveName() {
     if (!name.trim()) return;
@@ -144,6 +167,15 @@ export function SettingsPage() {
   function handleSavePrinterSettings() {
     setSaveError(null);
     savePrinterSettings({ printer_settings: { paper_width: paperWidth, auto_print: autoPrint } }, { onError: onSaveError });
+  }
+
+  // T11 - methods the owner can switch off. 'card' and 'tab' are not offered at
+  // the POS today, so they are kept as they are; 'cash' can never be switched off.
+  function handleTogglePaymentMethod(method: string, enabled: boolean) {
+    const current = profile?.enabled_payment_methods ?? [...ALL_METHODS];
+    const next = enabled ? [...new Set([...current, method])] : current.filter((m) => m !== method);
+    setSaveError(null);
+    savePaymentMethods({ enabled_payment_methods: next }, { onError: onSaveError });
   }
 
   function handleToggleLoyaltyEnabled(enabled: boolean) {
@@ -318,16 +350,6 @@ export function SettingsPage() {
         ) : (
           <div className="space-y-3">
             <div>
-              <label className="text-xs text-slate-500 mb-1 block">{t('logoUrl')}</label>
-              <input
-                type="text"
-                value={logoUrl}
-                onChange={(e) => setLogoUrl(e.target.value)}
-                placeholder="https://..."
-                className="w-full bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-[#0C447C] dark:focus:border-[#0C447C]"
-              />
-            </div>
-            <div>
               <label className="text-xs text-slate-500 mb-1 block">{t('taxNumber')}</label>
               <input
                 type="text"
@@ -357,6 +379,26 @@ export function SettingsPage() {
           </div>
         )}
       </div>
+
+      {/* Print designers (logo upload, layout, live preview) */}
+      {(['invoice', 'kitchen'] as const).map((k) => (
+        <Link
+          key={k}
+          href={`/dashboard/settings/${k}-designer`}
+          className="flex items-center justify-between gap-3 bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-5 hover:border-[#0C447C]/50 transition-colors group"
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-[#E8F1FB] dark:bg-[#0C447C]/10">
+              <Receipt className="w-4 h-4 text-[#0C447C] dark:text-[#5B9BD5]" />
+            </div>
+            <div>
+              <h2 className="text-sm font-semibold text-slate-700 dark:text-white">{tPrint(k === 'invoice' ? 'openInvoice' : 'openKitchen')}</h2>
+              <p className="text-xs text-slate-500 mt-0.5">{tPrint(k === 'invoice' ? 'openInvoiceHint' : 'openKitchenHint')}</p>
+            </div>
+          </div>
+          <ChevronLeft className="w-4 h-4 text-slate-400 rtl:rotate-180 group-hover:text-[#0C447C] transition-colors" />
+        </Link>
+      ))}
 
       {/* Printer Settings */}
       <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-5 space-y-4">
@@ -485,6 +527,46 @@ export function SettingsPage() {
         )}
       </div>
 
+      {/* Payment methods (T11) */}
+      <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-5 space-y-4">
+        <div className="flex items-center gap-2 mb-2">
+          <CreditCard className="w-4 h-4 text-slate-400" />
+          <h2 className="text-sm font-semibold text-slate-700 dark:text-white">{t('paymentMethods.title')}</h2>
+        </div>
+        <p className="text-xs text-slate-500">{t('paymentMethods.hint')}</p>
+        {profileLoading ? (
+          <div className="h-10 bg-slate-100 dark:bg-gray-800 rounded-lg animate-pulse" />
+        ) : (
+          <div className="space-y-2">
+            {SWITCHABLE_METHODS.map((method) => {
+              const enabled = (profile?.enabled_payment_methods ?? [...ALL_METHODS]).includes(method);
+              return (
+                <div key={method} className="flex items-center justify-between">
+                  <span className="text-xs text-slate-600 dark:text-slate-300">{t(`paymentMethods.methods.${method}`)}</span>
+                  <button
+                    onClick={() => handleTogglePaymentMethod(method, !enabled)}
+                    disabled={savingPaymentMethods}
+                    className={`relative w-12 h-6 rounded-full transition-colors disabled:opacity-50 ${
+                      enabled ? 'bg-[#0C447C]' : 'bg-slate-200 dark:bg-gray-700'
+                    }`}
+                  >
+                    <span
+                      className={`absolute top-0.5 start-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
+                        enabled ? 'translate-x-6 rtl:-translate-x-6' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
+              );
+            })}
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-slate-600 dark:text-slate-300">{t('paymentMethods.methods.cash')}</span>
+              <span className="text-xs text-slate-400">{t('paymentMethods.cashAlways')}</span>
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Notification Preferences */}
       <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-5 space-y-4">
         <div className="flex items-center gap-2 mb-2">
@@ -549,6 +631,12 @@ export function SettingsPage() {
         <p className="text-xs text-slate-500">
           {t('customFieldsHint')}
         </p>
+        {captureHasNoFields && (
+          <div className="flex items-start gap-2 rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs text-amber-800 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>{t('customFieldsEmptyWarning')}</span>
+          </div>
+        )}
         <CustomFieldsManager />
       </div>
 

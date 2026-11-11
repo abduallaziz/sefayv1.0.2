@@ -5,8 +5,7 @@ import { useTranslations } from 'next-intl'
 import { useCreateExpense, useExpenseCategories } from '../hooks/useExpenses'
 import { useCurrentShift } from '@/features/shifts/hooks/useShifts'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
-import { useQuery } from '@tanstack/react-query'
-import { apiClient } from '@/lib/api'
+import { useBranches } from '@/shared/hooks/useBranches'
 
 interface Props {
   onClose: () => void
@@ -19,13 +18,9 @@ export function AddExpenseModal({ onClose }: Props) {
   const { data: currentShift } = useCurrentShift()
   const mutation = useCreateExpense()
 
-  const { data: branches } = useQuery({
-    queryKey: ['branches'],
-    queryFn: () => apiClient.get('/branches') as any,
-    enabled: !!user,
-  })
+  const { data: branches } = useBranches()
 
-  const branchId = user?.branchId ?? (branches as any)?.[0]?.id ?? ''
+  const branchId = user?.branchId ?? branches?.[0]?.id ?? ''
 
   const [form, setForm] = useState({ category_id: '', amount: '', description: '' })
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, CheckCircle, XCircle, Clock, AlertCircle, Ban, RotateCcw } from 'lucide-react'
+import { Plus, CheckCircle, XCircle, Clock, AlertCircle, Ban, RotateCcw, type LucideIcon } from 'lucide-react'
 import { useExpenses, useApproveExpense, useRejectExpense, useCancelExpense } from '../hooks/useExpenses'
 import { AddExpenseModal } from './AddExpenseModal'
 import { formatCurrency } from '@/lib/format'
@@ -31,7 +31,7 @@ function formatExpenseNote(
   return first;
 }
 
-const statusConfig: Record<ExpenseStatus, { labelKey: string; color: string; icon: any }> = {
+const statusConfig: Record<ExpenseStatus, { labelKey: string; color: string; icon: LucideIcon }> = {
   pending:   { labelKey: 'status.pending',   color: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',        icon: Clock },
   approved:  { labelKey: 'status.approved',  color: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20', icon: CheckCircle },
   rejected:  { labelKey: 'status.rejected',  color: 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20',                icon: XCircle },
@@ -100,7 +100,7 @@ export function ExpensesList() {
                 <div key={row.id} className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-3">
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-slate-800 dark:text-white font-medium truncate">
-                      {((row as any).category?.name) ?? (row.title || '—')}
+                      {row.category?.name ?? (row.title || '—')}
                     </span>
                     <span className="text-slate-800 dark:text-white font-semibold tabular-nums shrink-0">
                       {formatCurrency(row.amount, currency)}
@@ -110,7 +110,7 @@ export function ExpensesList() {
                     <span className="text-xs text-slate-500 truncate">{row.requester?.name ?? '—'}</span>
                     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-xs font-medium shrink-0 ${cfg.color}`}>
                       <Icon className="w-3 h-3" />
-                      {t(cfg.labelKey as any)}
+                      {t(cfg.labelKey as Parameters<typeof t>[0])}
                     </span>
                   </div>
                   {(row.status === 'pending' || row.status === 'approved') && (
@@ -157,7 +157,7 @@ export function ExpensesList() {
                     return (
                       <tr key={row.id} className="hover:bg-slate-50 dark:hover:bg-gray-800/30 transition-colors">
                         <td className="px-3 py-3 text-slate-800 dark:text-white font-medium max-w-[140px] truncate">
-                          {((row as any).category?.name) ?? (row.title || '—')}
+                          {row.category?.name ?? (row.title || '—')}
                         </td>
                         <td className="px-3 py-3 text-slate-800 dark:text-white font-semibold w-24 tabular-nums">
                           {formatCurrency(row.amount, currency)}
@@ -171,7 +171,7 @@ export function ExpensesList() {
                         <td className="px-3 py-3 w-24">
                           <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-xs font-medium ${cfg.color}`}>
                             <Icon className="w-3 h-3" />
-                            <span>{t(cfg.labelKey as any)}</span>
+                            <span>{t(cfg.labelKey as Parameters<typeof t>[0])}</span>
                           </span>
                         </td>
                         <td className="px-3 py-3 w-28">

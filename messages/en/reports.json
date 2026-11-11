@@ -22,6 +22,11 @@
   "taxSummary": "Tax Summary",
   "taxCollected": "Tax Collected",
   "subtotalBeforeTax": "Subtotal Before Tax",
+  "cogs": "Cost of Goods Sold",
+  "cogsTotal": "Total COGS",
+  "grossProfit": "Gross Profit",
+  "grossMargin": "Gross Margin",
+  "cogsTopByCost": "Top Items by Cost",
   "taxRate": "Tax Rate",
   "periodComparison": "Current vs Previous Period",
   "vsPreviousPeriod": "Change compared to a preceding period of the same length",
@@ -62,5 +67,22 @@
     "markExcused": "Mark excused",
     "excused": "Excused successfully",
     "saving": "Saving..."
-  }
+  },
+  "groups": {
+    "sales": "Sales",
+    "cash": "Cash and registers",
+    "costs": "Costs",
+    "people": "People",
+    "places": "Branches"
+  },
+  "unassigned": "Unassigned (no cashier)",
+  "unassignedBranch": "Other / deleted branch",
+  "beforeTax": "before VAT",
+  "netRevenue": "Net revenue (before VAT)",
+  "subtotalGross": "Subtotal (before discount and tax)",
+  "discountsLabel": "Discounts",
+  "shortage": "Shortage",
+  "overage": "Overage",
+  "cancelledInvoices": "Cancelled",
+  "returnedInvoices": "Returns"
 }

@@ -87,11 +87,42 @@ export interface UpdateCustomerDto {
 
 export interface CustomerFilters {
   search: string;
-  sortBy: 'full_name' | 'created_at' | 'loyalty_points';
+  sortBy: 'full_name' | 'created_at' | 'loyalty_points' | 'total_spent';
   sortOrder: 'asc' | 'desc';
 }
 
 export interface CustomerStats {
   total: number;
   new_this_month: number;
+  /** Only present when the request carried a from/to range. */
+  new_in_range?: number;
+  total_loyalty_points: number;
+}
+export interface CustomerVehicle {
+  id: string;
+  customer_id: string;
+  plate: string;
+  size: string | null;
+  model: string | null;
+  colour: string | null;
+}
+
+/** GET /customers/lookup — exact normalised match by plate or phone. */
+export interface CustomerLookupResult {
+  found: boolean;
+  matched_by: 'plate' | 'phone' | null;
+  customer: Customer | null;
+  vehicles: CustomerVehicle[];
+  /** The car matched by plate, or the only car of a phone match. */
+  vehicle: CustomerVehicle | null;
+  stats: { visit_count: number; last_visit_at: string | null; total_spent: number } | null;
+}
+
+/** Sent with the invoice; the server finds or creates the customer and car. */
+export interface CustomerCapture {
+  phone?: string;
+  plate?: string;
+  size?: string;
+  name?: string;
+  custom_fields?: Record<string, string | number | boolean | null>;
 }

@@ -4,7 +4,7 @@ import { routing } from './routing'
 export default getRequestConfig(async ({ requestLocale }) => {
   let locale = await requestLocale
 
-  if (!locale || !routing.locales.includes(locale as any)) {
+  if (!locale || !(routing.locales as readonly string[]).includes(locale)) {
     locale = routing.defaultLocale
   }
 
@@ -48,8 +48,13 @@ export default getRequestConfig(async ({ requestLocale }) => {
     employeeWizard,
     accessControl,
     coupons,
+    rewards,
     notePresets,
     accounting,
+    expensesV2,
+    branches,
+    queue,
+    print,
   ] = await Promise.all([
     loadFile(`${locale}.json`),
     loadFile(`${locale}/common.json`),
@@ -82,8 +87,13 @@ export default getRequestConfig(async ({ requestLocale }) => {
     loadFile(`${locale}/employee-wizard.json`),
     loadFile(`${locale}/access-control.json`),
     loadFile(`${locale}/coupons.json`),
+    loadFile(`${locale}/rewards.json`),
     loadFile(`${locale}/note-presets.json`),
     loadFile(`${locale}/accounting.json`),
+    loadFile(`${locale}/expenses-v2.json`),
+    loadFile(`${locale}/branches.json`),
+    loadFile(`${locale}/queue.json`),
+    loadFile(`${locale}/print.json`),
   ])
 
   return {
@@ -127,8 +137,13 @@ export default getRequestConfig(async ({ requestLocale }) => {
       employeeWizard,
       accessControl,
       coupons,
+      rewards,
       notePresets,
       accounting,
+      expensesV2,
+      branches,
+      print,
+      queue,
       stock: inventory?.stock,
       adjustments: inventory?.adjustments,
       inventoryDashboard: inventory?.dashboard,

@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/core/auth/stores/auth.store';
+import { ApiError } from '@/lib/api';
 import {
   usePurchaseOrder,
   useSubmitPurchaseOrder,
@@ -193,7 +194,7 @@ export function PurchaseOrderDetailPage({ id }: Props) {
           <button
             onClick={() =>
               submitOrder.mutate(order.id, {
-                onError: (error: any) => toast.error(error?.message ?? 'Failed to submit purchase order'),
+                onError: (error: unknown) => toast.error(error instanceof ApiError ? error.message : 'Failed to submit purchase order'),
               })
             }
             disabled={submitOrder.isPending}
@@ -206,7 +207,7 @@ export function PurchaseOrderDetailPage({ id }: Props) {
           <button
             onClick={() =>
               approveOrder.mutate(order.id, {
-                onError: (error: any) => toast.error(error?.message ?? 'Failed to approve purchase order'),
+                onError: (error: unknown) => toast.error(error instanceof ApiError ? error.message : 'Failed to approve purchase order'),
               })
             }
             disabled={approveOrder.isPending}

@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useShifts } from '../hooks/useShifts';
+import { useShiftReportStore } from '../stores/shift-report.store';
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store';
 import { formatCurrency, formatDateTime } from '@/lib/format';
 import type { Shift } from '../types';
@@ -58,6 +59,7 @@ export function ShiftsList({ onViewSummary }: Props) {
 function ShiftCard({ shift, onViewSummary }: { shift: Shift; onViewSummary: (id: string) => void }) {
   const t = useTranslations('shifts');
   const currency = useCurrencyDisplay();
+  const showReport = useShiftReportStore((st) => st.show);
 
   return (
     <div className="py-3 px-1">
@@ -82,6 +84,14 @@ function ShiftCard({ shift, onViewSummary }: { shift: Shift; onViewSummary: (id:
         >
           {t('summary')}
         </button>
+        {shift.status === 'closed' && (
+          <button
+            onClick={() => showReport(shift.id)}
+            className="text-xs text-[#0C447C] dark:text-[#5B9BD5] hover:underline font-medium"
+          >
+            {t('report')}
+          </button>
+        )}
       </div>
     </div>
   );
@@ -90,6 +100,7 @@ function ShiftCard({ shift, onViewSummary }: { shift: Shift; onViewSummary: (id:
 function ShiftRow({ shift, onViewSummary }: { shift: Shift; onViewSummary: (id: string) => void }) {
   const t = useTranslations('shifts');
   const currency = useCurrencyDisplay();
+  const showReport = useShiftReportStore((st) => st.show);
 
   return (
     <tr className="hover:bg-slate-50 dark:hover:bg-gray-800/30 transition-colors">
@@ -114,13 +125,21 @@ function ShiftRow({ shift, onViewSummary }: { shift: Shift; onViewSummary: (id: 
           {t(`status_${shift.status}`)}
         </span>
       </td>
-      <td className="py-3 px-3 text-end w-16">
+      <td className="py-3 px-3 text-end w-32 whitespace-nowrap">
         <button
           onClick={() => onViewSummary(shift.id)}
           className="text-xs text-[#0C447C] dark:text-[#5B9BD5] hover:underline font-medium"
         >
           {t('summary')}
         </button>
+        {shift.status === 'closed' && (
+          <button
+            onClick={() => showReport(shift.id)}
+            className="ms-3 text-xs text-[#0C447C] dark:text-[#5B9BD5] hover:underline font-medium"
+          >
+            {t('report')}
+          </button>
+        )}
       </td>
     </tr>
   );

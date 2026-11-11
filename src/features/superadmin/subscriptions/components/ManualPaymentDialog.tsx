@@ -29,7 +29,7 @@ interface Props {
 export function ManualPaymentDialog({ open, plans, tenants, onClose, onSubmit, isLoading }: Props) {
   const t = useTranslations('subscriptions')
   const { register, handleSubmit } = useForm<ManualPaymentDto>({
-    resolver: zodResolver(schema) as any,
+    resolver: zodResolver(schema),
     defaultValues: { billing_cycle: 'monthly' },
   })
 

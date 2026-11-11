@@ -8,6 +8,8 @@ import { useLogout } from '@/features/auth/hooks/use-auth'
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { usePathname, useRouter } from 'next/navigation'
+import { BranchSwitcher } from './BranchSwitcher'
+import { ActivityPreviewSwitcher } from './ActivityPreviewSwitcher'
 
 interface DashboardHeaderProps {
   onMenuClick?: () => void
@@ -63,9 +65,10 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
 
   // Matrix C1 (Checkpoint 2): full visual conversion to the posCloud/
   // posCloudDark design language, per explicit approval for 100% visual
-  // parity with pos-cloud's flat topbar style. Every existing behavior is
-  // preserved exactly: branch + search remain non-functional placeholders
-  // (B6 decision — do not wire them up, do not remove them), language
+  // parity with pos-cloud's flat topbar style. Search remains a non-
+  // functional placeholder (B6 decision — do not wire it up, do not remove
+  // it); branch WAS the same B6 placeholder but is now wired to the shared
+  // Branch Context (Branch System Step 3 — see BranchSwitcher.tsx). Language
   // switch/theme toggle/notifications/avatar-dropdown-with-logout remain
   // fully functional with identical logic, the ⌘K hint and user-email-in-
   // dropdown are kept since they're existing Sefay features pos-cloud's
@@ -144,27 +147,12 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
 
       <div className="hidden h-8 w-px shrink-0 bg-posCloud-border dark:bg-posCloudDark-border sm:block" />
 
-      {/* Branch — existing Sefay element, kept as a placeholder per B6 (no
-          store/backend exists yet for real branch switching); visual only */}
-      <button
-        className="flex shrink-0 items-center gap-1.5 rounded-lg border border-posCloud-border dark:border-posCloudDark-border px-3 py-2 text-sm font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary hover:bg-slate-100 dark:hover:bg-posCloudDark-border/40 lg:hidden"
-        aria-label={t('branch')}
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-          <polyline points="9 22 9 12 15 12 15 22" />
-        </svg>
-      </button>
-      <button className="hidden shrink-0 items-center gap-1.5 rounded-lg border border-posCloud-border dark:border-posCloudDark-border px-3 py-2 text-sm font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary hover:bg-slate-100 dark:hover:bg-posCloudDark-border/40 lg:flex">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-          <polyline points="9 22 9 12 15 12 15 22" />
-        </svg>
-        <span>{t('branch')}</span>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-55">
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
-      </button>
+      {/* Branch switcher — Branch System Step 3. Previously a B6 visual-only
+          placeholder (no store/backend existed yet); now wired to the shared
+          Branch Context. */}
+      <BranchSwitcher variant="icon" />
+      <BranchSwitcher variant="label" />
+      <ActivityPreviewSwitcher />
 
       {/* Search — existing Sefay element (incl. ⌘K hint, absent from
           pos-cloud), kept as a placeholder exactly as today; visual only */}

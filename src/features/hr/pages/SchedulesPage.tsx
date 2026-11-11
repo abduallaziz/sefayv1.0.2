@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Plus, Trash2, Pencil, Users as UsersIcon, CalendarClock, X } from 'lucide-react'
+import { ApiError } from '@/lib/api'
 import {
   useShiftPatterns,
   useCreateShiftPattern,
@@ -138,7 +139,7 @@ export function SchedulesPage() {
       shifts: patternShifts,
       day_overrides: patternDayOverrides,
     }
-    const onError = (e: any) => setPatternError(e?.message ?? t('error'))
+    const onError = (e: unknown) => setPatternError(e instanceof ApiError ? e.message : t('error'))
     if (editingPattern) {
       updatePattern({ id: editingPattern.id, dto }, { onSuccess: () => setShowPatternForm(false), onError })
     } else {
@@ -171,7 +172,7 @@ export function SchedulesPage() {
           setSelectedUserIds([])
           setScheduleStartDate('')
         },
-        onError: (e: any) => setAssignError(e?.message ?? t('error')),
+        onError: (e: unknown) => setAssignError(e instanceof ApiError ? e.message : t('error')),
       },
     )
   }
@@ -322,7 +323,7 @@ export function SchedulesPage() {
         <div>
           <label className="text-xs text-slate-500 mb-1 block">{t('employees')}</label>
           <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto border border-slate-200 dark:border-gray-700 rounded-lg p-2">
-            {(users as any[]).map((u) => (
+            {users.map((u) => (
               <button
                 key={u.id}
                 onClick={() => toggleUserId(u.id)}
@@ -422,7 +423,7 @@ export function SchedulesPage() {
           <h2 className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('currentAssignmentTitle')}</h2>
         </div>
         <div className="divide-y divide-slate-100 dark:divide-gray-800">
-          {(users as any[]).map((u) => {
+          {users.map((u) => {
             const hasCustom = !!u.custom_days_of_week?.length
             const patternName = u.shift_pattern_id ? patternNameById.get(u.shift_pattern_id) : null
             return (
@@ -433,7 +434,7 @@ export function SchedulesPage() {
                     <p className="text-sm text-slate-600 dark:text-slate-400">{patternName}</p>
                   ) : hasCustom ? (
                     <p className="text-sm text-slate-600 dark:text-slate-400">
-                      {formatDaysAndShifts(t, u.custom_days_of_week, u.custom_shifts ?? [])}
+                      {formatDaysAndShifts(t, u.custom_days_of_week ?? [], u.custom_shifts ?? [])}
                     </p>
                   ) : (
                     <p className="text-xs text-slate-400">{t('noAssignment')}</p>

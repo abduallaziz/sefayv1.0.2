@@ -22,6 +22,11 @@
   "taxSummary": "ملخص الضريبة",
   "taxCollected": "الضريبة المحصّلة",
   "subtotalBeforeTax": "الإجمالي قبل الضريبة",
+  "cogs": "تكلفة البضاعة المباعة",
+  "cogsTotal": "إجمالي تكلفة البضاعة",
+  "grossProfit": "الربح الإجمالي",
+  "grossMargin": "هامش الربح الإجمالي",
+  "cogsTopByCost": "أعلى العناصر تكلفةً",
   "taxRate": "نسبة الضريبة",
   "periodComparison": "مقارنة الفترة الحالية بالسابقة",
   "vsPreviousPeriod": "التغيّر مقارنةً بنفس طول الفترة السابقة",
@@ -62,5 +67,22 @@
     "markExcused": "تسجيل الإعفاء",
     "excused": "تم تسجيل الإعفاء",
     "saving": "جاري الحفظ..."
-  }
+  },
+  "groups": {
+    "sales": "المبيعات",
+    "cash": "النقد والصناديق",
+    "costs": "التكاليف",
+    "people": "الأشخاص",
+    "places": "الفروع"
+  },
+  "unassigned": "غير مسندة (بدون كاشير)",
+  "unassignedBranch": "أخرى / فرع محذوف",
+  "beforeTax": "قبل الضريبة",
+  "netRevenue": "صافي الإيراد (قبل الضريبة)",
+  "subtotalGross": "المجموع (قبل الخصم والضريبة)",
+  "discountsLabel": "الخصومات",
+  "shortage": "نقص",
+  "overage": "زيادة",
+  "cancelledInvoices": "الملغاة",
+  "returnedInvoices": "المرتجعات"
 }

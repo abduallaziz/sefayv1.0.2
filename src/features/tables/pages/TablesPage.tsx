@@ -2,16 +2,16 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { useQuery } from '@tanstack/react-query'
 import { Plus, CalendarCheck, Users as UsersIcon } from 'lucide-react'
-import { apiClient } from '@/lib/api'
+import { ApiError } from '@/lib/api'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
+import { useBranches } from '@/shared/hooks/useBranches'
 import { TableCard } from '../components/TableCard'
 import { CreateTableModal } from '../components/CreateTableModal'
 import { DineInModal } from '../components/DineInModal'
 import { useTablesList, useReservations, useWaitlist, useCreateWaitlistEntry, useSeatWaitlistEntry, useCancelWaitlistEntry, useCreateReservation } from '../hooks/useTables'
 import { SingleDatePicker } from '@/shared/ui/date-range-picker'
-import type { RestaurantTable } from '../api/tables.api'
+import type { RestaurantTable, Reservation, WaitlistEntry } from '../api/tables.api'
 
 export function TablesPage() {
   const t = useTranslations('tables')
@@ -20,12 +20,8 @@ export function TablesPage() {
   const [showCreate, setShowCreate] = useState(false)
   const [activeTable, setActiveTable] = useState<RestaurantTable | null>(null)
 
-  const { data: branches } = useQuery({
-    queryKey: ['branches'],
-    queryFn: () => apiClient.get('/branches') as any,
-    enabled: !!user,
-  })
-  const branchId = user?.branchId ?? (branches as any)?.[0]?.id ?? ''
+  const { data: branches } = useBranches()
+  const branchId = user?.branchId ?? branches?.[0]?.id ?? ''
 
   const { data: tables = [], isLoading: tablesLoading } = useTablesList(branchId)
   const { data: reservations = [], isLoading: reservationsLoading } = useReservations()
@@ -95,7 +91,7 @@ export function TablesPage() {
   )
 }
 
-function ReservationsTab({ reservations, isLoading, tables }: { reservations: any[]; isLoading: boolean; tables: RestaurantTable[] }) {
+function ReservationsTab({ reservations, isLoading, tables }: { reservations: Reservation[]; isLoading: boolean; tables: RestaurantTable[] }) {
   const t = useTranslations('tables')
   const [showAdd, setShowAdd] = useState(false)
   const [tableId, setTableId] = useState('')
@@ -118,7 +114,7 @@ function ReservationsTab({ reservations, isLoading, tables }: { reservations: an
       },
       {
         onSuccess: () => { setName(''); setTableId(''); setDate(''); setShowAdd(false) },
-        onError: (e: any) => setError(e?.message ?? t('error')),
+        onError: (e: unknown) => setError(e instanceof ApiError ? e.message : t('error')),
       },
     )
   }
@@ -202,7 +198,7 @@ function ReservationsTab({ reservations, isLoading, tables }: { reservations: an
   )
 }
 
-function WaitlistTab({ entries, isLoading, branchId, tables }: { entries: any[]; isLoading: boolean; branchId: string; tables: RestaurantTable[] }) {
+function WaitlistTab({ entries, isLoading, branchId, tables }: { entries: WaitlistEntry[]; isLoading: boolean; branchId: string; tables: RestaurantTable[] }) {
   const t = useTranslations('tables')
   const [showAdd, setShowAdd] = useState(false)
   const [name, setName] = useState('')

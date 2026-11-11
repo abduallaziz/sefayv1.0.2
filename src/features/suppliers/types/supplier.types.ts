@@ -38,3 +38,30 @@ export interface CreateSupplierDTO {
 }
 
 export type UpdateSupplierDTO = Partial<CreateSupplierDTO>;
+
+// #9.6 Supplier Price History & Procurement Price Timeline
+// (Owner-approved) — GET /purchasing/suppliers/:id/items/:itemId/price-timeline.
+// Bare rows from SuppliersRepository.findPriceTimeline: no fabricated
+// data — a supplier-scoped timeline can never include a goods receipt
+// with no purchase_order_id (goods_receipts has no direct supplier_id
+// column anywhere in the schema), so unlinked receipts are correctly
+// absent, not guessed.
+export interface SupplierPriceTimelineEntry {
+  stage: 'quote' | 'purchase_order' | 'goods_receipt';
+  supplier_id: string;
+  item_id: string;
+  variant_id: string | null;
+  price: number;
+  quantity: number | null;
+  document_id: string;
+  warehouse_id: string | null;
+  date: string;
+  source_reference: Record<string, unknown>;
+}
+
+export interface PagedSupplierPriceTimeline {
+  data: SupplierPriceTimelineEntry[];
+  total: number;
+  page: number;
+  perPage: number;
+}

@@ -71,8 +71,13 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
   }, [onClose])
 
   useEffect(() => {
+    // The `setTimeout` (deferring focus until after the open animation)
+    // can only run as a side effect, so this whole reset-on-open block has
+    // to stay an effect regardless — it isn't render-derivable state, it's
+    // a one-shot reset triggered by the `open` transition.
     if (open) {
       setTimeout(() => inputRef.current?.focus(), 50)
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setQuery('')
       setSelected(0)
     }
@@ -177,7 +182,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
 
               {filtered.length === 0 && (
                 <div className="py-12 text-center text-sm text-slate-400 dark:text-white/25">
-                  No commands found for "{query}"
+                  No commands found for &quot;{query}&quot;
                 </div>
               )}
             </div>

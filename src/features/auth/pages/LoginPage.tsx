@@ -6,7 +6,8 @@ import { z } from 'zod';
 import { useAuthStore, type UserRole, type BusinessType } from '@/core/auth/stores/auth.store';
 import { useRouter, usePathname } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { SESSION_EXPIRED_KEY } from '@/lib/api';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { authApi } from '@/features/auth/api/auth.api';
 
@@ -18,6 +19,19 @@ export function LoginPage() {
   const setAuth = useAuthStore((s) => s.setAuth);
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState('');
+  // Shown once when the user was sent here because their session ended
+  // (flag set by lib/api.ts when a session refresh is refused).
+  const [sessionExpired, setSessionExpired] = useState(false);
+  useEffect(() => {
+    try {
+      if (window.sessionStorage.getItem(SESSION_EXPIRED_KEY)) {
+        setSessionExpired(true);
+        window.sessionStorage.removeItem(SESSION_EXPIRED_KEY);
+      }
+    } catch {
+      /* storage blocked: just no note */
+    }
+  }, []);
 
   const loginSchema = z.object({
     email: z.string().email(t('auth.emailInvalid')),
@@ -41,6 +55,7 @@ export function LoginPage() {
           email: res.user.email,
           role: res.user.role as UserRole,
           tenantId: res.user.tenant_id,
+          branchId: res.user.branch_id ?? null,
           sessionId: res.user.session_id,
           permissions: res.user.permissions ?? [],
           features: res.user.features ?? [],
@@ -100,6 +115,12 @@ export function LoginPage() {
           <p style={{ fontSize: 14, color: '#8C9CB2', marginBottom: 28 }}>
             {t('auth.subtitle')}
           </p>
+
+          {sessionExpired && (
+            <div role="status" style={{ background: 'rgba(245,158,11,.10)', border: '1px solid rgba(245,158,11,.35)', borderRadius: 10, padding: '10px 14px', color: '#B45309', fontSize: 13, marginBottom: 16 }}>
+              {t('auth.sessionExpired')}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {/* Email */}

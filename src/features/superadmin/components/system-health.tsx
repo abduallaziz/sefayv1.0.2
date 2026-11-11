@@ -108,7 +108,7 @@ function ServiceChip({ label, status, metric, detail, icon }: ServiceChipProps) 
 
 export function SystemHealth() {
   const t = useTranslations('systemHealth')
-  const [time, setTime] = useState<Date | null>(null)
+  const [time, setTime] = useState<Date | null>(() => new Date())
 
   const { data, isError } = useQuery<HealthReport>({
     queryKey: ['superadmin', 'health'],
@@ -118,7 +118,6 @@ export function SystemHealth() {
   })
 
   useEffect(() => {
-    setTime(new Date())
     const interval = setInterval(() => setTime(new Date()), 1000)
     return () => clearInterval(interval)
   }, [])

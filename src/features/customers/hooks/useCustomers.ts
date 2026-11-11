@@ -44,8 +44,39 @@ export const useCustomerHistory = (id: string) =>
     enabled: !!id,
   });
 
+export const useCustomerVehicles = (id: string) =>
+  useQuery({
+    queryKey: ['customers', id, 'vehicles'],
+    queryFn: () => customersApi.listVehicles(id),
+    enabled: !!id,
+  });
+
+export const useVehicleMutations = (customerId: string) => {
+  const qc = useQueryClient();
+  // A plate change also alters what the POS lookup returns for this customer.
+  const done = () => {
+    qc.invalidateQueries({ queryKey: ['customers', customerId, 'vehicles'] });
+    qc.invalidateQueries({ queryKey: ['customers', 'lookup'] });
+  };
+  return {
+    add: useMutation({
+      mutationFn: (dto: { plate: string; size?: string }) => customersApi.addVehicle(customerId, dto),
+      onSuccess: done,
+    }),
+    update: useMutation({
+      mutationFn: ({ vehicleId, dto }: { vehicleId: string; dto: { plate?: string; size?: string } }) =>
+        customersApi.updateVehicle(customerId, vehicleId, dto),
+      onSuccess: done,
+    }),
+    remove: useMutation({
+      mutationFn: (vehicleId: string) => customersApi.removeVehicle(customerId, vehicleId),
+      onSuccess: done,
+    }),
+  };
+};
+
 export const useCustomerStats = () =>
-  useQuery({ queryKey: ['customers', 'stats'], queryFn: customersApi.getStats });
+  useQuery({ queryKey: ['customers', 'stats'], queryFn: () => customersApi.getStats() });
 
 export const useCreateCustomer = () => {
   const qc = useQueryClient();

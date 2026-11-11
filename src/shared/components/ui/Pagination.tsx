@@ -26,7 +26,7 @@ export function Pagination({ page, totalPages, onChange, label }: Props) {
           aria-label="Previous page"
           className="p-1.5 rounded-lg border border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0C447C]"
         >
-          <ChevronLeft className="w-4 h-4" />
+          <ChevronLeft className="w-4 h-4 rtl:rotate-180" />
         </button>
         <button
           type="button"
@@ -35,7 +35,7 @@ export function Pagination({ page, totalPages, onChange, label }: Props) {
           aria-label="Next page"
           className="p-1.5 rounded-lg border border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0C447C]"
         >
-          <ChevronRight className="w-4 h-4" />
+          <ChevronRight className="w-4 h-4 rtl:rotate-180" />
         </button>
       </div>
     </nav>

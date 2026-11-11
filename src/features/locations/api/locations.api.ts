@@ -18,7 +18,7 @@ const buildQuery = (params: Record<string, string | number | undefined>) => {
 export const locationsApi = {
   getAll: (
     warehouseId: string,
-    params: { search?: string; page?: number; limit?: number; isActive?: boolean } = {},
+    params: { search?: string; page?: number; limit?: number; isActive?: boolean; locationType?: string } = {},
   ) =>
     apiClient.get<LocationsResponse>(
       `/inventory/warehouses/${warehouseId}/locations${buildQuery({
@@ -26,6 +26,7 @@ export const locationsApi = {
         page: params.page,
         limit: params.limit,
         isActive: params.isActive === undefined ? undefined : String(params.isActive),
+        locationType: params.locationType,
       })}`
     ),
   getById: (warehouseId: string, id: string) =>

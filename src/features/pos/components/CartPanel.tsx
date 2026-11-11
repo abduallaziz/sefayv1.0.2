@@ -1,68 +1,37 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { User, X, ChevronDown, ChevronLeft, ImageOff, Tag, Sparkles, List, PenLine, PauseCircle } from 'lucide-react'
+import { User, X, ChevronDown, Tag, List, PenLine, ShoppingCart, Trash2, Minus, Plus, Wallet, Clock, ArrowRight } from 'lucide-react'
 import Image from 'next/image'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { couponsApi } from '@/features/coupons/api/coupons.api'
+import { ApiError } from '@/lib/api'
 import { Cart, CartItem } from '../types/pos.types'
 import type { Customer } from '@/features/customers/types/customer.types'
 import type { NotePreset } from '@/features/note-presets/api/note-presets.api'
 import { Button } from '@/shared/ui/button'
 
-// Shared collapsed/expanded row shape for coupon / loyalty points —
-// same icon+label+chevron shell, only the expanded body differs per section.
-function AccordionRow({
-  icon: Icon, label, sublabel, applied, expanded, onToggle, children,
-}: {
-  icon: React.ElementType
-  label: string
-  sublabel?: string
-  applied?: boolean
-  expanded: boolean
-  onToggle: () => void
-  children: React.ReactNode
-}) {
-  return (
-    <div className="border-t border-posCloud-border dark:border-posCloudDark-border py-2.5 first:border-t-0 first:pt-0">
-      <button onClick={onToggle} className="flex w-full items-center gap-2.5 text-start">
-        <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${applied ? 'bg-posCloud-success-light text-posCloud-success' : 'bg-posCloud-background text-posCloud-text-tertiary dark:bg-posCloudDark-background'}`}>
-          <Icon className="h-4 w-4" />
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block text-sm font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary">{label}</span>
-          {sublabel && <span className="block text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{sublabel}</span>}
-        </span>
-        <ChevronLeft className={`h-4 w-4 shrink-0 text-posCloud-text-tertiary transition-transform ${expanded ? '-rotate-90' : ''}`} />
-      </button>
-      {expanded && <div className="mt-2.5 ps-[42px]">{children}</div>}
-    </div>
-  )
-}
-
-// Same temporary stand-in-photo technique as ItemGrid (see PARKING_LOT.md B3) —
-// keyed by the line's real product name, locked to its cart-item id.
-function cartItemImageUrl(cartItem: CartItem) {
-  return `https://loremflickr.com/80/80/${encodeURIComponent(cartItem.name)}?lock=${cartItem.item_id}`
-}
-
+// The line's photo: the product's own image, or (no photo / failed to load)
+// the same calm tile with its first character that the product cards use.
+// (The old stand-in photos fetched from a third-party site are gone.)
 function CartLineImage({ cartItem }: { cartItem: CartItem }) {
   const [failed, setFailed] = useState(false)
-  if (failed) {
+  if (!cartItem.image_url || failed) {
+    const initial = Array.from(cartItem.name.trim())[0]?.toUpperCase()
     return (
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-posCloud-background dark:bg-posCloudDark-background">
-        <ImageOff className="h-4 w-4 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary" strokeWidth={1.5} />
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-posCloud-primary-light text-xs font-bold text-posCloud-primary dark:bg-posCloud-primary/15">
+        {initial}
       </div>
     )
   }
   return (
-    <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-posCloud-background dark:bg-posCloudDark-background">
+    <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-posCloud-background dark:bg-posCloudDark-background">
       <Image
-        src={cartItemImageUrl(cartItem)}
+        src={cartItem.image_url}
         alt={cartItem.name}
         fill
-        sizes="40px"
+        sizes="32px"
         className="object-cover"
         unoptimized
         onError={() => setFailed(true)}
@@ -78,10 +47,17 @@ function CartLineImage({ cartItem }: { cartItem: CartItem }) {
 // to the last real quantity if left empty or non-numeric.
 function QtyInput({ value, onChange }: { value: number; onChange: (n: number) => void }) {
   const [local, setLocal] = useState(String(value))
-
-  useEffect(() => {
+  // React's documented "adjusting state when a prop changes" pattern —
+  // setState during render (not in an effect) when the prop diverges from
+  // the last-seen value. React discards this render and re-renders
+  // immediately with the update applied before anything commits, so there's
+  // no extra commit/flicker, and it avoids `set-state-in-effect` for what is
+  // really a render-time correction, not a side effect.
+  const [prevValue, setPrevValue] = useState(value)
+  if (value !== prevValue) {
+    setPrevValue(value)
     setLocal(String(value))
-  }, [value])
+  }
 
   const commit = () => {
     const n = parseInt(local, 10)
@@ -110,13 +86,12 @@ function QtyInput({ value, onChange }: { value: number; onChange: (n: number) =>
   )
 }
 
-const VISIBLE_ROWS = 5
-const ROW_HEIGHT_PX = 52
-
 interface Props {
   cart: Cart
   onUpdateQty: (cartId: string, qty: number) => void
   onRemoveItem: (cartId: string) => void
+  workers?: { id: string; name: string }[]
+  onSetWorker?: (cartId: string, workerId?: string) => void
   onApplyCoupon: (coupon: string, discountAmount: number) => void
   onClearCoupon: () => void
   onCheckout: () => void
@@ -126,10 +101,6 @@ interface Props {
   customerCaptureEnabled?: boolean
   selectedCustomer?: Customer | null
   onClearCustomer?: () => void
-  loyaltyEnabled?: boolean
-  availablePoints: number
-  redeemPoints: string
-  onRedeemPointsChange: (v: string) => void
   notePresets: NotePreset[]
   noteTab: 'list' | 'custom'
   onNoteTabChange: (tab: 'list' | 'custom') => void
@@ -142,10 +113,9 @@ interface Props {
 const fmt = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 export function CartPanel({
-  cart, onUpdateQty, onRemoveItem, onApplyCoupon, onClearCoupon, onCheckout, onClear,
+  cart, onUpdateQty, onRemoveItem, workers = [], onSetWorker, onApplyCoupon, onClearCoupon, onCheckout, onClear,
   onHold, isHolding,
   customerCaptureEnabled, selectedCustomer, onClearCustomer,
-  loyaltyEnabled, availablePoints, redeemPoints, onRedeemPointsChange,
   notePresets, noteTab, onNoteTabChange, selectedPresetIds, onTogglePreset, customNote, onCustomNoteChange,
 }: Props) {
   const t = useTranslations('pos')
@@ -154,129 +124,267 @@ export function CartPanel({
   const [couponInput, setCouponInput] = useState('')
   const [couponError, setCouponError] = useState<string | null>(null)
   const [validatingCoupon, setValidatingCoupon] = useState(false)
-  const [showAllItems, setShowAllItems] = useState(false)
-  const [openSection, setOpenSection] = useState<'coupon' | 'loyalty' | 'notes' | null>(null)
-  const toggleSection = (key: 'coupon' | 'loyalty' | 'notes') =>
+  const [openSection, setOpenSection] = useState<'coupon' | 'notes' | null>(null)
+  const toggleSection = (key: 'coupon' | 'notes') =>
     setOpenSection((prev) => (prev === key ? null : key))
-
-  const hiddenCount = Math.max(0, cart.items.length - VISIBLE_ROWS)
-  const visibleItems = showAllItems ? cart.items : cart.items.slice(0, VISIBLE_ROWS)
 
   // يتحقق فعليًا من الكود عبر /coupons/validate قبل قبوله — لا يُعرَض كمطبَّق أبدًا
   // إلا بعد تأكيد صحته ومبلغ خصمه الحقيقي من السيرفر.
   const handleApplyCoupon = async () => {
     const coupon = couponInput.trim()
-    if (!coupon || cart.subtotal <= 0) return
+    if (!coupon || cart.rawSubtotal <= 0) return
     setValidatingCoupon(true)
     setCouponError(null)
     try {
-      const result = await couponsApi.validate(coupon, cart.subtotal)
+      // Must use rawSubtotal, not subtotal — the backend independently
+      // re-validates/re-computes the coupon's discount at checkout against
+      // this exact same raw (pre-discount, pre-tax-extraction) figure
+      // (InvoicesService.create(), manualBuilt.subtotal). Using `subtotal`
+      // here would match under exclusive mode (where they're equal) but
+      // silently diverge under inclusive mode, showing a preview discount
+      // that disagrees with what checkout actually applies.
+      const result = await couponsApi.validate(coupon, cart.rawSubtotal)
       onApplyCoupon(result.code, result.discount_amount)
       setCouponInput('')
-    } catch (e: any) {
-      setCouponError(e?.message ?? t('couponInvalid'))
+    } catch (e: unknown) {
+      setCouponError(e instanceof ApiError ? e.message : t('couponInvalid'))
     } finally {
       setValidatingCoupon(false)
     }
   }
 
-  return (
-    <div className="flex flex-col">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="font-bold text-[15px] text-posCloud-text-primary dark:text-posCloudDark-text-primary">{t('currentOrder')}</h2>
-        {cart.items.length > 0 && (
-          <button onClick={onClear} className="text-xs text-posCloud-danger hover:brightness-90">
-            {t('clearAll')}
-          </button>
-        )}
-      </div>
+  const totalUnits = cart.items.reduce((sum, i) => sum + i.quantity, 0)
+  const [totalOpen, setTotalOpen] = useState(false)
 
-      {cart.items.length === 0 ? (
-        <div className="flex flex-col items-center py-10 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-          <span className="text-4xl mb-2">🛒</span>
-          <p className="text-sm">{t('noItems')}</p>
-        </div>
-      ) : (
-        <div className="mb-3 flex flex-col">
-          <div
-            className="space-y-2 overflow-y-auto pe-1"
-            style={{ maxHeight: `${VISIBLE_ROWS * ROW_HEIGHT_PX + (VISIBLE_ROWS - 1) * 8}px` }}
-          >
-            {visibleItems.map((item) => (
-              <div key={item.id} className="flex items-center gap-2.5 rounded-xl bg-posCloud-background dark:bg-posCloudDark-background p-2">
-                <button onClick={() => onRemoveItem(item.id)} className="shrink-0 text-posCloud-danger hover:brightness-90">
-                  <X className="h-4 w-4" />
-                </button>
-                <div className="flex shrink-0 items-center gap-1">
-                  <button
-                    onClick={() => onUpdateQty(item.id, item.quantity + 1)}
-                    className="w-6 h-6 rounded-md border border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-secondary dark:text-posCloudDark-text-secondary text-sm flex items-center justify-center hover:bg-slate-100 dark:hover:bg-posCloudDark-border/40"
-                  >
-                    +
-                  </button>
-                  <QtyInput value={item.quantity} onChange={(n) => onUpdateQty(item.id, n)} />
-                  <button
-                    onClick={() => onUpdateQty(item.id, item.quantity - 1)}
-                    className="w-6 h-6 rounded-md border border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-secondary dark:text-posCloudDark-text-secondary text-sm flex items-center justify-center hover:bg-slate-100 dark:hover:bg-posCloudDark-border/40"
-                  >
-                    −
-                  </button>
-                </div>
-                <div className="min-w-0 flex-1 text-end">
-                  <p className="text-[13px] font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary truncate">{item.name}</p>
-                  {item.variant_name && (
-                    <p className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary truncate">{item.variant_name}</p>
-                  )}
-                  <p className="text-xs text-posCloud-primary font-medium">{fmt(item.unit_price)} {currency}</p>
-                </div>
-                <CartLineImage cartItem={item} />
-              </div>
-            ))}
+  // Coupon / loyalty / rewards / notes: compact buttons; the chosen one opens
+  // its body right below (same bodies and behaviour as before).
+  type SectionKey = 'coupon' | 'notes'
+  const sectionButtons: {
+    key: SectionKey
+    icon: React.ElementType
+    label: string // short name (icon-only buttons on phones use it as tooltip)
+    applied: boolean
+    desc: string // one-line explanation on the wide card
+    desc2?: string
+    action: string // the card's button
+  }[] = [
+    {
+      key: 'coupon',
+      icon: Tag,
+      label: cart.coupon_code ? cart.coupon_code : t('couponShort'),
+      applied: !!cart.coupon_code,
+      desc: cart.coupon_code
+        ? `${cart.coupon_code}${cart.coupon_discount_amount > 0 ? ` · −${fmt(cart.coupon_discount_amount)} ${currency}` : ''}`
+        : t('couponDesc'),
+      action: t('couponAction'),
+    },
+    {
+      key: 'notes',
+      icon: PenLine,
+      label: t('notesShort'),
+      applied: noteTab === 'custom' ? !!customNote.trim() : selectedPresetIds.length > 0,
+      desc: tNotes('notesLabel'),
+      action: t('notesAction'),
+    },
+  ]
+
+  const mutedText = 'text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary'
+  const bodyBox = 'mt-2 rounded-xl bg-posCloud-background p-3 dark:bg-posCloudDark-background'
+
+  return (
+    // Full-height panel on desktop: the order scrolls in the middle while the
+    // totals and the Checkout button stay pinned to the bottom of the panel.
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {/* Header: cart icon with the units badge, title, counts, clear all */}
+        <div className="mb-3 flex items-center gap-3 pt-2">
+          <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-posCloud-primary-light text-posCloud-primary dark:bg-posCloud-primary/15">
+            <ShoppingCart className="h-5 w-5" />
+            {totalUnits > 0 && (
+              <span className="absolute -top-1.5 -end-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-posCloud-primary px-1 text-[11px] font-bold text-white">
+                {totalUnits}
+              </span>
+            )}
           </div>
-          {hiddenCount > 0 && (
-            <button
-              onClick={() => setShowAllItems((v) => !v)}
-              className="mt-2 flex items-center justify-center gap-1.5 rounded-lg border border-posCloud-border dark:border-posCloudDark-border py-2 text-xs font-semibold text-posCloud-text-secondary dark:text-posCloudDark-text-secondary hover:bg-slate-50 dark:hover:bg-white/5"
-            >
-              <ChevronDown className={`h-3.5 w-3.5 transition-transform ${showAllItems ? 'rotate-180' : ''}`} />
-              {showAllItems ? t('showLess') : `${t('showMoreItems')} (${hiddenCount})`}
+          <div className="min-w-0 flex-1">
+            <h2 className="truncate text-[15px] font-bold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{t('currentOrder')}</h2>
+            {cart.items.length > 0 && (
+              <p className={`truncate text-xs ${mutedText}`}>
+                {t('cartLines', { count: cart.items.length })} · {t('cartUnits', { count: totalUnits })}
+              </p>
+            )}
+          </div>
+          {cart.items.length > 0 && (
+            <button onClick={onClear} className="shrink-0 text-xs text-posCloud-danger hover:brightness-90">
+              {t('clearAll')}
             </button>
           )}
         </div>
-      )}
 
-      {customerCaptureEnabled && selectedCustomer && (
-        <div className="border-t border-posCloud-border dark:border-posCloudDark-border pt-3 mb-3">
-          <div className="flex items-center justify-between gap-2 rounded-lg bg-posCloud-background dark:bg-posCloudDark-background p-2.5">
-            <div className="flex items-center gap-2 min-w-0">
-              <User className="w-4 h-4 text-posCloud-primary shrink-0" />
+        {cart.items.length === 0 ? (
+          <div className={`flex flex-col items-center py-4 ${mutedText}`}>
+            <span className="mb-1 text-2xl">🛒</span>
+            <p className="text-sm">{t('noItems')}</p>
+          </div>
+        ) : (
+          <div className="mb-3 space-y-2">
+            {cart.items.map((item) => (
+              <div key={item.id} className="rounded-xl border border-posCloud-border bg-posCloud-surface p-2.5 dark:border-posCloudDark-border dark:bg-posCloudDark-surface">
+                <div className="flex items-start gap-2.5">
+                  <div className="hidden min-[480px]:block">
+                    <CartLineImage cartItem={item} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="line-clamp-2 break-words text-[13px] font-semibold leading-snug text-posCloud-text-primary dark:text-posCloudDark-text-primary">{item.name}</p>
+                    {item.variant_name && <p className={`truncate text-xs ${mutedText}`}>{item.variant_name}</p>}
+                    {item.category_name && (
+                      <span className="mt-1 inline-block max-w-full truncate rounded-full bg-posCloud-primary-light px-2 py-0.5 text-[10px] font-medium text-posCloud-primary dark:bg-posCloud-primary/15">
+                        {item.category_name}
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => onRemoveItem(item.id)}
+                    aria-label={t('removeLine')}
+                    title={t('removeLine')}
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-posCloud-danger/10 text-posCloud-danger transition-colors hover:bg-posCloud-danger/20"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+
+                <div className="mt-2 flex flex-wrap items-center justify-between gap-x-2 gap-y-1.5">
+                  <div className="flex shrink-0 items-center rounded-full border border-posCloud-border bg-posCloud-background dark:border-posCloudDark-border dark:bg-posCloudDark-background">
+                    <button
+                      onClick={() => onUpdateQty(item.id, item.quantity - 1)}
+                      aria-label="−"
+                      className="flex h-8 w-8 items-center justify-center rounded-full text-posCloud-primary hover:bg-posCloud-primary-light"
+                    >
+                      <Minus className="h-4 w-4" />
+                    </button>
+                    <QtyInput value={item.quantity} onChange={(n) => onUpdateQty(item.id, n)} />
+                    <button
+                      onClick={() => onUpdateQty(item.id, item.quantity + 1)}
+                      aria-label="+"
+                      className="flex h-8 w-8 items-center justify-center rounded-full text-posCloud-primary hover:bg-posCloud-primary-light"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <div className="min-w-0 text-end max-[479px]:w-full max-[479px]:text-start">
+                    <p className="truncate text-sm font-bold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{fmt(item.total_price)} {currency}</p>
+                    <p className={`text-[11px] ${mutedText}`} dir="ltr">{fmt(item.unit_price)} × {item.quantity}</p>
+                  </div>
+                </div>
+
+                {workers.length > 0 && onSetWorker && (
+                  <select
+                    value={item.worker_id ?? ''}
+                    onChange={(e) => onSetWorker(item.id, e.target.value || undefined)}
+                    aria-label={t('worker.label')}
+                    className="mt-2 w-full rounded-lg border border-posCloud-border bg-white px-2 py-1 text-xs text-posCloud-text-secondary dark:border-posCloudDark-border dark:bg-posCloudDark-surface dark:text-posCloudDark-text-secondary"
+                  >
+                    <option value="">{t('worker.none')}</option>
+                    {workers.map((w) => (
+                      <option key={w.id} value={w.id}>{w.name}</option>
+                    ))}
+                  </select>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {customerCaptureEnabled && selectedCustomer && (
+          <div className="mb-3 flex items-center justify-between gap-2 rounded-xl bg-posCloud-background p-2.5 dark:bg-posCloudDark-background">
+            <div className="flex min-w-0 items-center gap-2">
+              <User className="h-4 w-4 shrink-0 text-posCloud-primary" />
               <div className="min-w-0">
-                <p className="text-sm font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary truncate">{selectedCustomer.full_name || '—'}</p>
-                {selectedCustomer.phone && <p className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary" dir="ltr">{selectedCustomer.phone}</p>}
+                <p className="truncate text-sm font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary">{selectedCustomer.full_name || '—'}</p>
+                {selectedCustomer.phone && <p className={`text-xs ${mutedText}`} dir="ltr">{selectedCustomer.phone}</p>}
               </div>
             </div>
-            <button onClick={onClearCustomer} className="text-posCloud-text-tertiary hover:text-posCloud-danger shrink-0">
-              <X className="w-4 h-4" />
+            <button onClick={onClearCustomer} className={`shrink-0 hover:text-posCloud-danger ${mutedText}`}>
+              <X className="h-4 w-4" />
             </button>
           </div>
-        </div>
-      )}
+        )}
 
+      </div>
+
+      <div className="shrink-0 pt-3">
       {/* الكود يُتحقَّق منه فعليًا عبر /coupons/validate وقت التطبيق —
           القيم الحقيقية (نسبة/مبلغ الخصم) تُجلَب من السيرفر، لا تُحدَّد يدويًا هنا أبدًا. */}
-      <div className="border-t border-posCloud-border dark:border-posCloudDark-border pt-1 mb-3">
-        <AccordionRow
-          icon={Tag}
-          label={cart.coupon_code ? `${t('couponCode')}: ${cart.coupon_code}` : t('addCoupon').replace('+ ', '')}
-          sublabel={cart.coupon_discount_amount > 0 ? `−${fmt(cart.coupon_discount_amount)} ${currency}` : undefined}
-          applied={!!cart.coupon_code}
-          expanded={openSection === 'coupon'}
-          onToggle={() => toggleSection('coupon')}
-        >
-          {cart.coupon_code ? (
-            <button onClick={onClearCoupon} className="text-xs text-posCloud-danger hover:brightness-90">
-              {t('removeCoupon')}
+      {/* Wide (>= 480px): three cards - icon, title, short text and an action
+          button each. Narrow: icon-only buttons in one row. Both open the same
+          body below. */}
+      <div className="hidden grid-flow-col auto-cols-fr items-stretch gap-1.5 min-[820px]:grid">
+        {sectionButtons.map(({ key, icon: Icon, applied, label, desc, desc2, action }) => (
+          <div
+            key={key}
+            className={`flex min-w-0 flex-col gap-1.5 rounded-xl border p-1.5 ${
+              applied
+                ? 'border-posCloud-success/40 bg-posCloud-success-light'
+                : 'border-posCloud-border bg-posCloud-surface dark:border-posCloudDark-border dark:bg-posCloudDark-surface'
+            }`}
+          >
+            <div className="flex items-center gap-1.5">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-posCloud-primary-light text-posCloud-primary dark:bg-posCloud-primary/15">
+                <Icon className="h-3 w-3" />
+              </span>
+              <span className="min-w-0 truncate text-[11px] font-bold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{label}</span>
+            </div>
+            <p className={`line-clamp-3 min-h-[2.25rem] text-[10px] leading-snug ${mutedText}`}>
+              {desc}
+              {desc2 && <><br />{desc2}</>}
+            </p>
+            <button
+              type="button"
+              onClick={() => toggleSection(key)}
+              className={`mt-auto flex w-full items-center justify-center gap-0.5 rounded-lg border px-0.5 py-1.5 text-[10px] font-semibold transition-colors ${
+                openSection === key
+                  ? 'border-posCloud-primary bg-posCloud-primary-light text-posCloud-primary dark:bg-posCloud-primary/15'
+                  : 'border-posCloud-primary/40 text-posCloud-primary hover:bg-posCloud-primary-light dark:hover:bg-posCloud-primary/15'
+              }`}
+            >
+              <span className="truncate">{action}</span>
             </button>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(38px,1fr))] gap-2 min-[820px]:hidden">
+        {sectionButtons.map(({ key, icon: Icon, label, applied }) => (
+          <button
+            key={key}
+            type="button"
+            aria-label={label}
+            title={label}
+            onClick={() => toggleSection(key)}
+            className={`flex min-w-0 items-center justify-center gap-1.5 rounded-xl border px-2 py-2 text-center text-[11px] font-medium transition-colors ${
+              applied
+                ? 'border-posCloud-success/40 bg-posCloud-success-light text-posCloud-success'
+                : openSection === key
+                  ? 'border-posCloud-primary/50 bg-posCloud-primary-light text-posCloud-primary dark:bg-posCloud-primary/15'
+                  : 'border-posCloud-border bg-posCloud-surface text-posCloud-text-secondary hover:bg-slate-50 dark:border-posCloudDark-border dark:bg-posCloudDark-surface dark:text-posCloudDark-text-secondary dark:hover:bg-white/5'
+            }`}
+          >
+            <Icon className="h-4 w-4" />
+          </button>
+        ))}
+      </div>
+
+      {openSection === 'coupon' && (
+        <div className={bodyBox}>
+          {cart.coupon_code ? (
+            <div className="flex items-center justify-between gap-2 text-xs">
+              <span className="font-medium text-posCloud-success">
+                {cart.coupon_discount_amount > 0 ? `−${fmt(cart.coupon_discount_amount)} ${currency}` : cart.coupon_code}
+              </span>
+              <button onClick={onClearCoupon} className="text-posCloud-danger hover:brightness-90">
+                {t('removeCoupon')}
+              </button>
+            </div>
           ) : (
             <div className="space-y-1.5">
               <div className="flex gap-2">
@@ -284,7 +392,7 @@ export function CartPanel({
                   placeholder={t('couponCode')}
                   value={couponInput}
                   onChange={(e) => { setCouponInput(e.target.value.toUpperCase()); setCouponError(null) }}
-                  className="flex-1 min-w-0 rounded-full border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-background dark:bg-posCloudDark-background px-3.5 py-2 text-xs uppercase text-posCloud-text-primary dark:text-posCloudDark-text-primary outline-none placeholder:normal-case placeholder:text-posCloud-text-tertiary dark:placeholder:text-posCloudDark-text-tertiary"
+                  className="flex-1 min-w-0 rounded-full border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-3.5 py-2 text-xs uppercase text-posCloud-text-primary dark:text-posCloudDark-text-primary outline-none placeholder:normal-case placeholder:text-posCloud-text-tertiary dark:placeholder:text-posCloudDark-text-tertiary"
                 />
                 <button
                   onClick={handleApplyCoupon}
@@ -297,54 +405,23 @@ export function CartPanel({
               {couponError && <p className="text-[11px] text-posCloud-danger">{couponError}</p>}
             </div>
           )}
-        </AccordionRow>
+        </div>
+      )}
 
-        {loyaltyEnabled && (
-          <AccordionRow
-            icon={Sparkles}
-            label={t('payment.redeemPoints')}
-            sublabel={t('payment.availablePoints', { points: availablePoints })}
-            applied={!!redeemPoints && parseInt(redeemPoints, 10) > 0}
-            expanded={openSection === 'loyalty'}
-            onToggle={() => toggleSection('loyalty')}
-          >
-            <label className={`flex items-center gap-2 text-xs text-posCloud-text-secondary dark:text-posCloudDark-text-secondary ${availablePoints > 0 ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'}`}>
-              <input
-                type="checkbox"
-                disabled={availablePoints === 0}
-                checked={!!redeemPoints && parseInt(redeemPoints, 10) > 0}
-                onChange={(e) => onRedeemPointsChange(e.target.checked ? String(availablePoints) : '')}
-                className="h-3.5 w-3.5 rounded border-posCloud-border dark:border-posCloudDark-border accent-posCloud-primary"
-              />
-              {t('payment.redeemPoints')} ({t('payment.availablePoints', { points: availablePoints })})
-            </label>
-          </AccordionRow>
-        )}
-
-        <AccordionRow
-          icon={PenLine}
-          label={tNotes('notesLabel')}
-          sublabel={
-            noteTab === 'custom'
-              ? (customNote.trim() || undefined)
-              : (selectedPresetIds.length > 0 ? `${selectedPresetIds.length}` : undefined)
-          }
-          applied={noteTab === 'custom' ? !!customNote.trim() : selectedPresetIds.length > 0}
-          expanded={openSection === 'notes'}
-          onToggle={() => toggleSection('notes')}
-        >
+      {openSection === 'notes' && (
+        <div className={bodyBox}>
           <div className="space-y-2">
-            <div className="flex gap-1 rounded-lg bg-posCloud-background p-1 dark:bg-posCloudDark-background">
+            <div className="flex gap-1 rounded-lg bg-posCloud-surface p-1 dark:bg-posCloudDark-surface">
               <button
                 onClick={() => onNoteTabChange('list')}
-                className={`flex flex-1 items-center justify-center gap-1.5 rounded-md py-1.5 text-xs font-medium transition-colors ${noteTab === 'list' ? 'bg-posCloud-surface text-posCloud-primary shadow-sm dark:bg-posCloudDark-surface' : 'text-posCloud-text-tertiary'}`}
+                className={`flex flex-1 items-center justify-center gap-1.5 rounded-md py-1.5 text-xs font-medium transition-colors ${noteTab === 'list' ? 'bg-posCloud-background text-posCloud-primary shadow-sm dark:bg-posCloudDark-background' : 'text-posCloud-text-tertiary'}`}
               >
                 <List className="h-3.5 w-3.5" />
                 {tNotes('chooseFromList')}
               </button>
               <button
                 onClick={() => onNoteTabChange('custom')}
-                className={`flex flex-1 items-center justify-center gap-1.5 rounded-md py-1.5 text-xs font-medium transition-colors ${noteTab === 'custom' ? 'bg-posCloud-surface text-posCloud-primary shadow-sm dark:bg-posCloudDark-surface' : 'text-posCloud-text-tertiary'}`}
+                className={`flex flex-1 items-center justify-center gap-1.5 rounded-md py-1.5 text-xs font-medium transition-colors ${noteTab === 'custom' ? 'bg-posCloud-background text-posCloud-primary shadow-sm dark:bg-posCloudDark-background' : 'text-posCloud-text-tertiary'}`}
               >
                 <PenLine className="h-3.5 w-3.5" />
                 {tNotes('writeNote')}
@@ -353,11 +430,11 @@ export function CartPanel({
 
             {noteTab === 'list' ? (
               notePresets.length === 0 ? (
-                <p className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{tNotes('noPresets')}</p>
+                <p className={`text-xs ${mutedText}`}>{tNotes('noPresets')}</p>
               ) : (
                 <div className="max-h-40 space-y-1 overflow-y-auto">
                   {notePresets.map((p) => (
-                    <label key={p.id} className="flex cursor-pointer items-center gap-2 rounded-lg px-1.5 py-1 text-xs text-posCloud-text-secondary hover:bg-posCloud-background dark:text-posCloudDark-text-secondary dark:hover:bg-posCloudDark-background">
+                    <label key={p.id} className="flex cursor-pointer items-center gap-2 rounded-lg px-1.5 py-1 text-xs text-posCloud-text-secondary hover:bg-posCloud-surface dark:text-posCloudDark-text-secondary dark:hover:bg-posCloudDark-surface">
                       <input
                         type="checkbox"
                         checked={selectedPresetIds.includes(p.id)}
@@ -375,53 +452,80 @@ export function CartPanel({
                 onChange={(e) => onCustomNoteChange(e.target.value)}
                 placeholder={tNotes('customPlaceholder')}
                 rows={3}
-                className="w-full resize-none rounded-lg border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-background dark:bg-posCloudDark-background px-3 py-2 text-xs text-posCloud-text-primary dark:text-posCloudDark-text-primary outline-none placeholder:text-posCloud-text-tertiary dark:placeholder:text-posCloudDark-text-tertiary"
+                className="w-full resize-none rounded-lg border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-3 py-2 text-xs text-posCloud-text-primary dark:text-posCloudDark-text-primary outline-none placeholder:text-posCloud-text-tertiary dark:placeholder:text-posCloudDark-text-tertiary"
               />
             )}
           </div>
-        </AccordionRow>
-      </div>
-
-      <div className="space-y-1.5 text-xs border-t border-posCloud-border dark:border-posCloudDark-border pt-3 mb-3">
-        <div className="flex justify-between text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-          <span>{t('subtotal')}</span>
-          <span>{fmt(cart.subtotal)} {currency}</span>
         </div>
-        {cart.coupon_discount_amount > 0 && (
-          <div className="flex justify-between text-posCloud-success">
-            <span>{t('discount')}</span>
-            <span>−{fmt(cart.coupon_discount_amount)} {currency}</span>
-          </div>
-        )}
-        <div className="flex justify-between text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-          <span>{t('tax')}</span>
-          <span>{fmt(cart.tax_amount)} {currency}</span>
-        </div>
-        <div className="flex justify-between border-t border-posCloud-border dark:border-posCloudDark-border pt-2 text-base font-extrabold text-posCloud-text-primary dark:text-posCloudDark-text-primary">
-          <span>{t('total')}</span>
-          <span>{fmt(cart.total)} {currency}</span>
-        </div>
-      </div>
-
-      {onHold && (
-        <button
-          onClick={onHold}
-          disabled={cart.items.length === 0 || isHolding}
-          className="w-full mb-2 flex items-center justify-center gap-1.5 rounded-lg border border-posCloud-border dark:border-posCloudDark-border py-2.5 text-sm font-semibold text-posCloud-text-secondary dark:text-posCloudDark-text-secondary hover:bg-slate-50 dark:hover:bg-white/5 transition-colors disabled:opacity-50"
-        >
-          <PauseCircle className="w-4 h-4" />
-          {t('heldOrders.holdButton')}
-        </button>
       )}
 
-      <Button
-        size="lg"
-        disabled={cart.items.length === 0}
-        onClick={onCheckout}
-        className="w-full"
-      >
-        {t('checkout')} — {fmt(cart.total)} {currency}
-      </Button>
+        {/* Final total: collapsible; the VAT line stays visible either way. */}
+        <div className="mt-2 rounded-xl border border-posCloud-border bg-posCloud-background p-2.5 dark:border-posCloudDark-border dark:bg-posCloudDark-background">
+          <button
+            type="button"
+            onClick={() => setTotalOpen((v) => !v)}
+            aria-expanded={totalOpen}
+            aria-label={t('totalFinal')}
+            className="flex w-full items-center gap-2 text-start"
+          >
+            <Wallet className="h-4 w-4 shrink-0 text-posCloud-primary" />
+            <span className="hidden min-w-0 flex-1 truncate text-[13px] min-[480px]:block font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary">
+              {t('totalFinal')}
+            </span>
+            <span className="shrink-0 text-lg font-extrabold leading-none text-posCloud-primary">
+              {fmt(cart.total)} <span className="text-xs font-bold">{currency}</span>
+            </span>
+            <ChevronDown className={`h-4 w-4 shrink-0 ${mutedText} transition-transform ${totalOpen ? 'rotate-180' : ''}`} />
+          </button>
+          {/* The VAT amount stays visible while the rest is folded. */}
+          <div className={`mt-1.5 flex items-center justify-between gap-2 text-[11px] ${mutedText}`}>
+            <span className="truncate">{t('tax')}</span>
+            <span className="shrink-0">{fmt(cart.tax_amount)} {currency}</span>
+          </div>
+          {totalOpen && (
+            <div className={`mt-2 space-y-1.5 border-t border-posCloud-border pt-2 text-xs dark:border-posCloudDark-border ${mutedText}`}>
+              <div className="flex justify-between gap-2">
+                <span>{t('subtotal')}</span>
+                <span className="shrink-0">{fmt(cart.subtotal)} {currency}</span>
+              </div>
+              <div className="flex justify-between gap-2">
+                <span>{t('tax')}</span>
+                <span>{cart.tax_inclusive ? t('taxMode.inclusive') : t('taxMode.exclusive')}</span>
+              </div>
+              {cart.coupon_discount_amount > 0 && (
+                <div className="flex justify-between text-posCloud-success">
+                  <span>{t('discount')}</span>
+                  <span>−{fmt(cart.coupon_discount_amount)} {currency}</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="mt-3 flex gap-2">
+          {onHold && (
+            <button
+              onClick={onHold}
+              aria-label={t('heldOrders.holdButton')}
+              title={t('heldOrders.holdButton')}
+              disabled={cart.items.length === 0 || isHolding}
+              className="flex shrink-0 min-[480px]:min-w-[88px] min-[480px]:flex-1 items-center justify-center gap-1.5 rounded-xl border border-posCloud-primary/40 px-2 py-3 text-xs font-semibold text-posCloud-text-secondary transition-colors hover:bg-slate-50 disabled:opacity-50 dark:text-posCloudDark-text-secondary dark:hover:bg-white/5"
+            >
+              <Clock className="h-4 w-4" />
+              <span className="hidden min-[480px]:inline">{t('heldOrders.holdButton')}</span>
+            </button>
+          )}
+          <Button
+            size="lg"
+            disabled={cart.items.length === 0}
+            onClick={onCheckout}
+            className="min-w-0 flex-[2] gap-2"
+          >
+            {t('checkout')}
+            <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+          </Button>
+        </div>
+      </div>
     </div>
   )
 }

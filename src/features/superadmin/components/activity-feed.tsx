@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  UserPlus, CreditCard, AlertTriangle, Shield,
+  UserPlus, CreditCard, Shield,
   Zap, TrendingUp, RefreshCw, XCircle, CheckCircle,
 } from 'lucide-react'
 
@@ -57,7 +57,7 @@ const newEventTemplates: ActivityEvent[] = [
 const FILTER_KEYS = ['all', 'critical', 'billing', 'security', 'system', 'ai'] as const
 type Filter = typeof FILTER_KEYS[number]
 
-function EventRow({ event, isNew, t }: { event: ActivityEvent; isNew?: boolean; t: any }) {
+function EventRow({ event, isNew, t }: { event: ActivityEvent; isNew?: boolean; t: ReturnType<typeof useTranslations> }) {
   const cfg = severityConfig[event.severity]
   const icon = categoryIcons[event.category]
 

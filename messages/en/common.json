@@ -33,7 +33,8 @@
     "passwordPlaceholder": "••••••••",
     "emailInvalid": "Invalid email address",
     "passwordShort": "Password is too short",
-    "invalidCredentials": "Invalid email or password"
+    "invalidCredentials": "Invalid email or password",
+    "sessionExpired": "Your session has expired. Please sign in again."
   },
   "noData": "No data"
 }

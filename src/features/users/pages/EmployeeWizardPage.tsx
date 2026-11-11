@@ -4,8 +4,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { CheckCircle2 } from 'lucide-react'
+import { ApiError } from '@/lib/api'
 import { useCreateEmployee, useCheckDuplicate } from '../hooks/useUsers'
 import { SingleDatePicker } from '@/shared/ui/date-range-picker'
+import { useBranches } from '@/shared/hooks/useBranches'
 import type { CreateEmployeeDto } from '../api/users.api'
 
 type Step = 1 | 2 | 3 | 4 | 5
@@ -25,6 +27,7 @@ interface WizardData {
   address: string
   gps_radius_meters: string
   enable_attendance: boolean
+  branch_id: string
 }
 
 const INITIAL_DATA: WizardData = {
@@ -42,6 +45,7 @@ const INITIAL_DATA: WizardData = {
   address: '',
   gps_radius_meters: '',
   enable_attendance: false,
+  branch_id: '',
 }
 
 function initials(name: string) {
@@ -136,14 +140,15 @@ export function EmployeeWizardPage() {
       address: data.address || undefined,
       gps_radius_meters: data.gps_radius_meters ? Number(data.gps_radius_meters) : undefined,
       enable_attendance: data.enable_attendance,
+      branch_id: data.branch_id || undefined,
     }
 
     createEmployee(dto, {
       onSuccess: (created) => {
         router.push(`/dashboard/users/${created.id}`)
       },
-      onError: (err: any) => {
-        setError(err?.message || t('createError'))
+      onError: (err: unknown) => {
+        setError(err instanceof ApiError ? err.message : t('createError'))
       },
     })
   }
@@ -309,6 +314,8 @@ function JobInfoStep({ t, data, set }: { t: ReturnType<typeof useTranslations>; 
 
 /* ── Step 3: Location ── */
 function LocationStep({ t, data, set }: { t: ReturnType<typeof useTranslations>; data: WizardData; set: <K extends keyof WizardData>(key: K, value: WizardData[K]) => void }) {
+  const { data: branches = [], isLoading: branchesLoading } = useBranches()
+
   return (
     <div>
       <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{t('locationInfoTitle')}</h2>
@@ -317,8 +324,16 @@ function LocationStep({ t, data, set }: { t: ReturnType<typeof useTranslations>;
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Field label={t('branch')}>
-          <select className={inputClass} disabled defaultValue="main">
-            <option value="main">{t('mainBranch')}</option>
+          <select
+            className={inputClass}
+            value={data.branch_id}
+            onChange={(e) => set('branch_id', e.target.value)}
+            disabled={branchesLoading}
+          >
+            <option value="">{t('centralNoBranch')}</option>
+            {branches.map((b) => (
+              <option key={b.id} value={b.id}>{b.name}</option>
+            ))}
           </select>
         </Field>
         <Field label={t('city')}>

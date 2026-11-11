@@ -1,8 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 import { useTranslations } from 'next-intl'
-import { Bell, MapPin, CheckCircle2, XCircle, LogIn, LogOut, RefreshCw, ShieldCheck, Clock, CalendarCheck, TrendingUp, Gift } from 'lucide-react'
+import { Bell, MapPin, CheckCircle2, XCircle, LogIn, LogOut, ShieldCheck, Clock, CalendarCheck, TrendingUp, Gift } from 'lucide-react'
 import { BottomNav } from '../components/BottomNav'
 
 const DEVICE_ID_KEY = 'sefay_attend_device_id'
@@ -90,7 +91,13 @@ export function AttendPage({ token }: { token: string }) {
   }, [token])
 
   useEffect(() => {
+    // Subscribing to an external system (the Geolocation API) — the
+    // `watchPosition` callbacks below are exactly the rule's own carve-out
+    // ("calling setState in a callback from an external system"); this one
+    // guard-clause setState is the pre-subscription fallback when the API
+    // isn't available at all, not derivable render output.
     if (!navigator.geolocation) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLocationState('error')
       return
     }
@@ -169,7 +176,7 @@ export function AttendPage({ token }: { token: string }) {
         {status?.tenant_name && (
           <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-gray-800">
             {status.tenant_logo_url ? (
-              <img src={status.tenant_logo_url} alt={status.tenant_name} className="w-6 h-6 rounded-md object-cover shrink-0" />
+              <Image src={status.tenant_logo_url} alt={status.tenant_name} width={24} height={24} unoptimized className="w-6 h-6 rounded-md object-cover shrink-0" />
             ) : (
               <div className="w-6 h-6 rounded-md bg-[#0C447C] flex items-center justify-center text-white text-[10px] font-semibold shrink-0">
                 {initials(status.tenant_name)}

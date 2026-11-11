@@ -12,7 +12,9 @@ export interface AuthUser {
   role: UserRole;
   tenantId: string | null;
   sessionId: string;
-  branchId?: string;
+  // NULL = Central user (unrestricted). A branch id = restricted to that
+  // single branch. See Branch System Step 2/3 — this mirrors users.branch_id.
+  branchId: string | null;
   permissions: string[];
   features: string[];
   business_type: BusinessType | null;

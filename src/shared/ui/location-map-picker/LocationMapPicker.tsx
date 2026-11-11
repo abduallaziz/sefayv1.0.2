@@ -7,8 +7,10 @@ import 'leaflet/dist/leaflet.css'
 
 // Default Leaflet marker icons reference image paths that don't survive a
 // webpack/Next.js bundle — without this override the marker renders as a
-// broken image icon.
-delete (L.Icon.Default.prototype as any)._getIconUrl
+// broken image icon. `_getIconUrl` is a real Leaflet-internal method not
+// declared in the public type defs, hence the narrow local interface
+// instead of `any`.
+delete (L.Icon.Default.prototype as L.Icon.Default & { _getIconUrl?: unknown })._getIconUrl
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',

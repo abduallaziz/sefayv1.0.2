@@ -23,6 +23,7 @@
   "currency": "Currency",
   "invoicesThisMonth": "Invoices This Month",
   "customFields": "Custom Customer Fields",
+  "customFieldsEmptyWarning": "Customer capture is on but no customer field is enabled. Cashiers will not be able to find or register customers at checkout. Enable at least one field (phone, plate…) below, or switch this off.",
   "customFieldsHint": "When enabled, the cashier can search for a customer or register a new one during a sale (POS).",
   "invoiceCustomization": "Invoice Customization",
   "logoUrl": "Logo URL",
@@ -51,5 +52,20 @@
     "tierMultiplier": "Points multiplier",
     "tierThreshold": "From {points} points",
     "cancel": "Cancel"
+  },
+  "paymentMethods": {
+    "title": "Payment methods",
+    "hint": "Switch off the methods you do not accept. The POS shows only the enabled ones. Past invoices are not affected.",
+    "cashAlways": "Always on",
+    "methods": {
+      "cash": "Cash",
+      "mada": "mada",
+      "visa": "Visa",
+      "mastercard": "Mastercard",
+      "apple_pay": "Apple Pay",
+      "stc_pay": "STC Pay",
+      "wallet": "E-Wallet",
+      "split": "Split (cash + card)"
+    }
   }
 }

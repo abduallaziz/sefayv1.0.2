@@ -14,12 +14,19 @@ import {
   CreateBarcodeDto,
   type ItemsQuery,
 } from '../api/items.api';
+import type {
+  CreateAttributeDTO,
+  CreateAttributeValueDTO,
+  AssignVariantAttributeDTO,
+  CreatePackagingLevelDTO,
+} from '../types/item.types';
 
-export function useItems() {
+export function useItems(enabled: boolean = true) {
   return useQuery({
     queryKey: ['items'],
     queryFn: () => itemsApi.getAll(),
     staleTime: 2 * 60 * 1000,
+    enabled,
   });
 }
 
@@ -62,7 +69,11 @@ export function useCatalogItems() {
       const loaded = lastPage.page * lastPage.perPage;
       return loaded < lastPage.total ? lastPage.page + 1 : undefined;
     },
-    staleTime: 2 * 60 * 1000,
+    // The whole catalog is many requests on a big tenant: don't re-pull it on
+    // every window focus / reconnect, and keep it fresh for longer.
+    staleTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 
   const { hasNextPage, isFetchingNextPage, fetchNextPage } = query;
@@ -209,5 +220,113 @@ export function useDeleteBarcode() {
     onSuccess: (_res, { itemId }) => {
       qc.invalidateQueries({ queryKey: ['items', itemId, 'barcodes'] });
     },
+  });
+}
+
+// -- Sub-phase 2b (Item #2): Attributes --------------------------------------
+
+export function useAttributes() {
+  return useQuery({
+    queryKey: ['item-attributes'],
+    queryFn: () => itemsApi.getAttributes(),
+  });
+}
+
+export function useCreateAttribute() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (dto: CreateAttributeDTO) => itemsApi.createAttribute(dto),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['item-attributes'] }),
+  });
+}
+
+export function useDeleteAttribute() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => itemsApi.deleteAttribute(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['item-attributes'] }),
+  });
+}
+
+export function useAttributeValues(attributeId: string | null) {
+  return useQuery({
+    queryKey: ['item-attributes', attributeId, 'values'],
+    queryFn: () => itemsApi.getAttributeValues(attributeId!),
+    enabled: !!attributeId,
+  });
+}
+
+export function useCreateAttributeValue() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (dto: CreateAttributeValueDTO) => itemsApi.createAttributeValue(dto),
+    onSuccess: (_res, { item_attribute_id }) =>
+      qc.invalidateQueries({ queryKey: ['item-attributes', item_attribute_id, 'values'] }),
+  });
+}
+
+export function useDeleteAttributeValue() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id }: { id: string; attributeId: string }) =>
+      itemsApi.deleteAttributeValue(id),
+    onSuccess: (_res, { attributeId }) =>
+      qc.invalidateQueries({ queryKey: ['item-attributes', attributeId, 'values'] }),
+  });
+}
+
+export function useVariantAttributeAssignments(variantId: string | null) {
+  return useQuery({
+    queryKey: ['items', 'variant-attributes', variantId],
+    queryFn: () => itemsApi.getVariantAttributeAssignments(variantId!),
+    enabled: !!variantId,
+  });
+}
+
+export function useAssignVariantAttribute() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (dto: AssignVariantAttributeDTO) => itemsApi.assignVariantAttribute(dto),
+    onSuccess: (_res, { item_variant_id }) =>
+      qc.invalidateQueries({ queryKey: ['items', 'variant-attributes', item_variant_id] }),
+  });
+}
+
+export function useRemoveVariantAttributeAssignment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id }: { id: string; variantId: string }) =>
+      itemsApi.removeVariantAttributeAssignment(id),
+    onSuccess: (_res, { variantId }) =>
+      qc.invalidateQueries({ queryKey: ['items', 'variant-attributes', variantId] }),
+  });
+}
+
+// -- Sub-phase 2b (Item #2): Packaging levels --------------------------------
+
+export function usePackagingLevels(itemId: string | null) {
+  return useQuery({
+    queryKey: ['items', itemId, 'packaging-levels'],
+    queryFn: () => itemsApi.getPackagingLevels(itemId!),
+    enabled: !!itemId,
+  });
+}
+
+export function useCreatePackagingLevel() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (dto: CreatePackagingLevelDTO) => itemsApi.createPackagingLevel(dto),
+    onSuccess: (_res, { item_id }) =>
+      qc.invalidateQueries({ queryKey: ['items', item_id, 'packaging-levels'] }),
+  });
+}
+
+export function useDeletePackagingLevel() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id }: { id: string; itemId: string }) =>
+      itemsApi.deletePackagingLevel(id),
+    onSuccess: (_res, { itemId }) =>
+      qc.invalidateQueries({ queryKey: ['items', itemId, 'packaging-levels'] }),
   });
 }

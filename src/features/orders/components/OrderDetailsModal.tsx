@@ -5,7 +5,10 @@ import { useTranslations } from 'next-intl';
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store';
 import { X, Receipt, User, UserCog, CreditCard, CircleCheck, ShoppingBasket, StickyNote, Calculator, FileText, Download, Send, Printer, Package } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
+import { toast } from 'sonner';
+import { usePrinting } from '@/lib/print/usePrinting';
 import { MethodMark } from '@/shared/ui/method-mark';
+import { InvoiceNoteEditor } from '@/features/pos/components/InvoiceNoteEditor';
 
 interface Props {
   order: Order | null;
@@ -22,10 +25,17 @@ const statusColors: Record<string, string> = {
 export function OrderDetailsModal({ order, onClose }: Props) {
   const t = useTranslations('orders');
   const currency = useCurrencyDisplay();
+  const tPrint = useTranslations('print.actions');
+  const { printInvoice, printKitchen } = usePrinting();
 
   if (!order) return null;
 
-  const handlePrint = () => window.print();
+  const handlePrint = () => {
+    printInvoice(order.id).catch(() => toast.error(tPrint('printFailed')));
+  };
+  const handlePrintKitchen = () => {
+    printKitchen(order.id, true).catch(() => toast.error(tPrint('kitchenFailed')));
+  };
 
   return (
     <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
@@ -87,6 +97,24 @@ export function OrderDetailsModal({ order, onClose }: Props) {
             </div>
           </div>
 
+          {order.status === 'cancelled' && (
+            <div className="rounded-lg border border-red-200 dark:border-red-500/30 bg-red-50 dark:bg-red-500/10 p-3 text-sm">
+              <div className="font-semibold text-red-700 dark:text-red-400 mb-1">{t('details.cancelledInfo')}</div>
+              <dl className="space-y-1 text-xs text-red-700/90 dark:text-red-300">
+                {order.cancelled_at && (
+                  <div className="flex justify-between gap-3">
+                    <dt>{t('details.cancelledAt')}</dt>
+                    <dd dir="ltr">{new Date(order.cancelled_at).toLocaleString('en-US')}</dd>
+                  </div>
+                )}
+                <div className="flex justify-between gap-3">
+                  <dt>{t('details.cancelReason')}</dt>
+                  <dd>{order.cancel_reason || t('details.noReason')}</dd>
+                </div>
+              </dl>
+            </div>
+          )}
+
           {/* Items */}
           <div>
             <h3 className="flex items-center gap-1.5 text-sm font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary mb-2">
@@ -144,9 +172,16 @@ export function OrderDetailsModal({ order, onClose }: Props) {
               <h4 className="flex items-center gap-1.5 text-xs font-semibold text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary mb-1.5">
                 <StickyNote size={13} /> {t('notes')}
               </h4>
-              <p className="text-sm text-posCloud-text-primary dark:text-posCloudDark-text-primary">
-                {order.notes || t('noNotes')}
-              </p>
+              {order.status === 'completed' ? (
+                <InvoiceNoteEditor key={order.id + (order.notes ?? '')} orderId={order.id} initialNote={order.notes} emptyText={t('noNotes')} />
+              ) : (
+                <p className="text-sm text-posCloud-text-primary dark:text-posCloudDark-text-primary">
+                  {order.notes || t('noNotes')}
+                </p>
+              )}
+              {order.plate_snapshot && (
+                <p className="mt-2 text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary" dir="ltr">{order.plate_snapshot}</p>
+              )}
             </div>
             <div className="rounded-lg border border-posCloud-border dark:border-posCloudDark-border p-3">
               <h4 className="flex items-center gap-1.5 text-xs font-semibold text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary mb-1.5">
@@ -199,6 +234,10 @@ export function OrderDetailsModal({ order, onClose }: Props) {
           <Button onClick={handlePrint} className="flex-1 min-w-[100px]">
             <Printer size={15} />
             {t('details.print')}
+          </Button>
+          <Button variant="outline" onClick={handlePrintKitchen} className="flex-1 min-w-[100px]">
+            <Printer size={15} />
+            {tPrint('kitchen')}
           </Button>
         </div>
       </div>

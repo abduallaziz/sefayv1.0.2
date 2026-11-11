@@ -17,7 +17,18 @@
     "closedSubtitle": "Open the register to start selling",
     "openButton": "Open Register",
     "openStatus": "Register Open",
-    "closeButton": "Close Register"
+    "closeButton": "Close Register",
+    "checkFailedTitle": "Couldn't check the register",
+    "checkFailedSubtitle": "The server is busy or unreachable. This does not mean the register is closed. Try again.",
+    "retryButton": "Try again"
+  },
+  "noActiveBranch": {
+    "title": "No active branch available",
+    "subtitle": "No active branch is currently available to complete the sale."
+  },
+  "taxConfig": {
+    "unavailableTitle": "Tax configuration unavailable",
+    "unavailableSubtitle": "The tenant's tax rate could not be loaded, so a sale preview cannot be shown safely. Please try again shortly or contact support."
   },
   "heldOrders": {
     "title": "Held Orders",
@@ -45,7 +56,26 @@
   "discount": "Discount",
   "tax": "VAT",
   "total": "Total",
+  "taxMode": {
+    "inclusive": "VAT Included",
+    "exclusive": "VAT Excluded"
+  },
   "checkout": "Checkout",
+  "viewCart": "View cart",
+  "cartUnits": "{count, plural, one {{count} item} other {{count} items}}",
+  "cartLines": "{count, plural, one {{count} product} other {{count} products}}",
+  "totalFinal": "Final total",
+  "couponShort": "Coupon",
+  "couponDesc": "Add or apply a discount",
+  "couponAction": "Apply coupon",
+  "loyaltyAction": "Redeem points",
+  "rewardsAction": "Choose reward",
+  "notesAction": "Add note",
+  "loyaltyShort": "Loyalty",
+  "notesShort": "Notes",
+  "removeLine": "Remove from order",
+  "outOfStock": "Out of stock",
+  "showMore": "Show more ({shown} of {total})",
   "addCoupon": "+ Add coupon",
   "couponCode": "Coupon code",
   "couponInvalid": "Invalid coupon code",
@@ -98,6 +128,16 @@
     "giftCardMethod": "Gift Card",
     "productsCount": "Products ({count})",
     "methodLabel": "Payment method",
+    "quickAmounts": "Quick amounts",
+    "exactAmount": "Exact",
+    "changeDue": "Change due",
+    "stillDue": "Still due",
+    "keypad": "Keypad",
+    "usePoints": "Use points",
+    "pointsUnit": "points",
+    "pointsDiscount": "Discount",
+    "afterDiscount": "Amount after discount",
+    "collectNote": "Collect {amount} with the selected method, then confirm",
     "redeemPoints": "Redeem Loyalty Points",
     "availablePoints": "{points} points available",
     "giftCard": "Gift Card",
@@ -108,7 +148,9 @@
     "giftCardInvalid": "Invalid gift card code",
     "failed": "Payment failed, please try again",
     "noActiveSession": "Cannot complete sale. Open the cash register first.",
-    "stockWarning": "Sale completed, but automatic stock deduction failed — please review inventory manually"
+    "stockWarning": "Sale completed, but automatic stock deduction failed — please review inventory manually",
+    "abnormalAmount": "This amount looks unusually large: change would be {change}. Please check it.",
+    "abnormalConfirm": "I confirm the amount is correct"
   },
   "receipt": {
     "success": "Payment Successful",
@@ -119,6 +161,7 @@
     "print": "Print",
     "printButton": "Print 🖨️",
     "newOrder": "New Order",
+    "freeItemsTitle": "Free item(s) to give the customer:",
     "taxLabel": "Tax {percent}",
     "currency": "SAR",
     "methodSplit": "Cash + Card"
@@ -140,6 +183,52 @@
     "no": "No",
     "cancel": "Cancel",
     "save": "Save & Select",
-    "saving": "..."
+    "saving": "...",
+    "smartPlaceholder": "Plate number or phone number",
+    "smartHint": "Type the plate or the phone: a registered customer is found instantly",
+    "keepTyping": "Keep typing...",
+    "notFound": "No registered customer with this plate or phone",
+    "smartPlaceholderPhone": "Phone number",
+    "smartPlaceholderPlate": "Plate number",
+    "smartHintPhone": "Type the phone: a registered customer is found instantly",
+    "smartHintPlate": "Type the plate: a registered customer is found instantly",
+    "notFoundPhone": "No registered customer with this phone",
+    "notFoundPlate": "No registered customer with this plate",
+    "phone": "Phone",
+    "plate": "Plate number",
+    "size": "Car size",
+    "sizes": {
+      "small": "Small",
+      "medium": "Medium",
+      "large": "Large",
+      "xlarge": "Extra large"
+    },
+    "visits": "{count} visits",
+    "lastVisit": "Last visit",
+    "totalSpent": "Total spent",
+    "pickCar": "This customer has several cars - pick one",
+    "useCustomer": "Use this customer",
+    "lookupFailed": "Could not check the customer, try again",
+    "conflictTitle": "Data conflict",
+    "conflictBody": "This phone and this plate belong to two different customers. A customer cannot be duplicated or merged here.",
+    "conflictPhoneOf": "Phone belongs to",
+    "conflictPlateOf": "Plate belongs to",
+    "backToCorrect": "Back to correct",
+    "useRegistered": "Use the registered customer",
+    "noFieldsTitle": "Customer registration has nothing to fill",
+    "noFieldsBody": "Customer capture is on, but no customer field is enabled, so no customer can be found or registered. Ask the owner to enable a field (phone, plate…) or switch customer capture off in Settings."
+  },
+  "worker": {
+    "label": "Worker",
+    "none": "No worker"
+  },
+  "invoiceNote": {
+    "add": "Add invoice note",
+    "edit": "Edit note",
+    "placeholder": "Note (does not change the invoice amounts)",
+    "save": "Save note",
+    "saving": "...",
+    "cancel": "Cancel",
+    "failed": "Could not save the note"
   }
 }

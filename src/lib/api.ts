@@ -19,15 +19,34 @@ type RequestOptions = {
 // concurrent call).
 let refreshPromise: Promise<{ access_token: string; realtime_token?: string | null } | null> | null = null;
 
+// Why the last refresh failed: 'invalid' = the server answered and the session
+// is really gone (401/403 etc.); 'transient' = network down, rate limit or a
+// server error — the session may still be fine, so the user must NOT be logged out.
+let lastRefreshFailure: 'invalid' | 'transient' | null = null;
+
+/** True when the last refresh failed for a passing reason (network, 429, 5xx)
+ *  rather than because the session is really gone. */
+export function wasLastRefreshTransient(): boolean {
+  return lastRefreshFailure === 'transient';
+}
+
+// Set when an active session ends because it expired, so the login page can say so.
+export const SESSION_EXPIRED_KEY = 'sefay.sessionExpired';
+
 async function doRefresh(): Promise<{ access_token: string; realtime_token?: string | null } | null> {
+  lastRefreshFailure = null;
   try {
     const res = await fetch(`${API_BASE}/auth/refresh`, {
       method: 'POST',
       credentials: 'include',
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      lastRefreshFailure = res.status === 429 || res.status >= 500 ? 'transient' : 'invalid';
+      return null;
+    }
     return await res.json();
   } catch {
+    lastRefreshFailure = 'transient';
     return null;
   }
 }
@@ -61,6 +80,18 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   if (res.status === 401) {
     const refreshed = await refreshSession();
     if (!refreshed) {
+      if (lastRefreshFailure === 'transient') {
+        // Could not reach the server to renew the session: keep the user signed
+        // in and let the caller's retry try again, instead of logging them out.
+        throw new ApiError(503, 'Service temporarily unavailable');
+      }
+      // The session really ended: remember why, then sign out (the app then
+      // redirects to the login page, which shows the "session expired" note).
+      try {
+        window.sessionStorage.setItem(SESSION_EXPIRED_KEY, '1');
+      } catch {
+        /* storage blocked: the redirect still happens, just without the note */
+      }
       useAuthStore.getState().clearAuth();
       throw new ApiError(401, 'Unauthorized');
     }

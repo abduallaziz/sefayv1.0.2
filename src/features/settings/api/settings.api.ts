@@ -31,6 +31,7 @@ export interface TenantProfile {
   loyalty_points_per_currency: number
   loyalty_redemption_value: number
   loyalty_enabled: boolean
+  enabled_payment_methods?: string[]
 }
 
 export interface TenantSubscription {
@@ -64,6 +65,7 @@ export interface UpdateProfileDto {
   loyalty_points_per_currency?: number
   loyalty_redemption_value?: number
   loyalty_enabled?: boolean
+  enabled_payment_methods?: string[]
 }
 
 export const settingsApi = {

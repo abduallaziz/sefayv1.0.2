@@ -9,7 +9,7 @@ export interface User {
   role: string
   is_active: boolean
   created_at: string
-  branch_id?: string
+  branch_id?: string | null
   base_salary?: number | null
   grace_period_minutes?: number
   late_deduction_mode?: LateDeductionMode | null
@@ -46,6 +46,7 @@ export interface CreateUserDto {
 
 export interface CreateEmployeeDto {
   name: string
+  branch_id?: string
   employee_number?: string
   phone?: string
   email?: string
@@ -64,7 +65,7 @@ export interface CreateEmployeeDto {
 export interface UpdateUserDto {
   name?: string
   is_active?: boolean
-  branch_id?: string
+  branch_id?: string | null
   base_salary?: number | null
   grace_period_minutes?: number
   late_deduction_mode?: LateDeductionMode | null
@@ -87,6 +88,7 @@ export interface UpdateUserDto {
 
 export interface UpdateEmployeeDto {
   name?: string
+  branch_id?: string | null
   avatar_url?: string | null
   employee_number?: string | null
   phone?: string | null

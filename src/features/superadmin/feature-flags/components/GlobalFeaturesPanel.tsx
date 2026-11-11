@@ -34,7 +34,7 @@ export function GlobalFeaturesPanel() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
                   <span className="text-sm font-medium text-slate-800 dark:text-white">
-                    {locale === 'ar' && (feature as any).name_ar ? (feature as any).name_ar : feature.name}
+                    {locale === 'ar' && feature.name_ar ? feature.name_ar : feature.name}
                   </span>
                   <FeatureCategoryBadge category={feature.category} />
                 </div>

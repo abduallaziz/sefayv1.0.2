@@ -1,0 +1,88 @@
+{
+  "title": "المكافآت",
+  "subtitle": "تعريفات مكافآت تلقائية يفتحها العملاء ويستبدلونها عند الدفع",
+  "newReward": "مكافأة جديدة",
+  "editReward": "تعديل المكافأة",
+  "name": "الاسم",
+  "namePlaceholder": "مثال: قهوة مجانية بعد 5 مشتريات",
+  "triggerType": "نوع المُحفِّز",
+  "trigger": {
+    "purchase_count": "عدد المشتريات",
+    "spend_threshold": "حد الإنفاق",
+    "product_category": "فئة المنتج",
+    "birthday": "عيد الميلاد",
+    "campaign": "حملة",
+    "loyalty_points": "نقاط الولاء"
+  },
+  "triggerConfig": {
+    "count": "عدد المشتريات",
+    "threshold": "قيمة حد الإنفاق",
+    "categoryId": "معرّف الفئة",
+    "categoryIdPlaceholder": "معرّف فئة المنتج",
+    "points": "نقاط العمر المطلوبة"
+  },
+  "rewardType": "نوع المكافأة",
+  "rewardTypeOptions": {
+    "free_item": "عنصر مجاني",
+    "percentage_discount": "خصم بالنسبة المئوية",
+    "fixed_discount": "خصم بمبلغ ثابت",
+    "coupon_reference": "كوبون مرتبط"
+  },
+  "rewardConfig": {
+    "itemId": "معرّف العنصر المجاني",
+    "itemIdPlaceholder": "معرّف العنصر الذي سيُمنح مجانًا",
+    "percentageValue": "نسبة الخصم",
+    "fixedValue": "قيمة الخصم",
+    "couponId": "معرّف الكوبون",
+    "couponIdPlaceholder": "معرّف الكوبون المرتبط"
+  },
+  "usageConditions": {
+    "minOrderAmount": "الحد الأدنى لقيمة الطلب",
+    "minOrderAmountPlaceholder": "بلا حد أدنى"
+  },
+  "triggerConfigNote": {
+    "birthday": "يُفتح تلقائيًا في عيد ميلاد العميل، لا حاجة لإعدادات إضافية",
+    "campaign": "يُفتح يدويًا لكل حملة، لا حاجة لإعدادات إضافية"
+  },
+  "branchScope": "نطاق الفرع",
+  "branchScopeOptions": {
+    "all": "جميع الفروع",
+    "specific": "فرع محدد"
+  },
+  "branch": "الفرع",
+  "selectBranch": "اختر فرعًا",
+  "expirationDays": "تنتهي بعد (أيام)",
+  "noExpiryPlaceholder": "بلا انتهاء",
+  "noExpiry": "بلا انتهاء",
+  "active": "مفعّلة",
+  "inactive": "معطّلة",
+  "status": "الحالة",
+  "noRewards": "لا توجد مكافآت بعد",
+  "noRewardsHint": "أنشئ تعريف مكافأة لمنح عملائك مكافآت قابلة للفتح",
+  "deleteReward": "حذف المكافأة",
+  "deleteConfirm": "هل أنت متأكد من حذف المكافأة {name}؟",
+  "cancel": "إلغاء",
+  "delete": "حذف",
+  "save": "حفظ",
+  "saving": "جاري الحفظ...",
+  "error": "حدث خطأ، حاول مجددًا",
+  "customer": {
+    "title": "المكافآت",
+    "loading": "جاري تحميل المكافآت...",
+    "empty": "لا توجد مكافآت بعد",
+    "status": {
+      "locked": "مغلقة",
+      "unlocked": "متاحة",
+      "redeemed": "مُستبدَلة",
+      "expired": "منتهية"
+    },
+    "expiresOn": "تنتهي في {date}",
+    "redeemedOn": "استُبدلت في {date}"
+  },
+  "pos": {
+    "sectionLabel": "المكافآت",
+    "availableCount": "{count} متاحة",
+    "noneAvailable": "لا توجد مكافآت متاحة",
+    "selectRewards": "اختر المكافآت المراد استبدالها"
+  }
+}

@@ -33,7 +33,8 @@
     "passwordPlaceholder": "••••••••",
     "emailInvalid": "بريد إلكتروني غير صالح",
     "passwordShort": "كلمة المرور قصيرة جداً",
-    "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة"
+    "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+    "sessionExpired": "انتهت جلستك. يرجى تسجيل الدخول مجدداً."
   },
   "noData": "لا توجد بيانات"
 }

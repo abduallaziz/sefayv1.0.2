@@ -26,6 +26,7 @@ export type NavKey =
   | 'reports'
   | 'users'
   | 'settings'
+  | 'branches'
   | 'suppliers'
   | 'warehouses'
   | 'locations'
@@ -44,12 +45,14 @@ export type NavKey =
   | 'wms'
   | 'tables'
   | 'kitchen'
+  | 'washQueue'
   | 'attendance'
   | 'schedules'
   | 'payroll'
   | 'leaves'
   | 'employees'
   | 'coupons'
+  | 'rewards'
   | 'notePresets'
   | 'accounting';
 
@@ -61,13 +64,16 @@ export interface BusinessTypeConfig {
 // selling point, never hide it. (A §28 note from June 23, 2026 had proposed hiding
 // POS for pure-service activities; the user explicitly overruled that on June 26,
 // 2026 — POS stays in the sidebar for all 37 activities.)
-const FULL_SIDEBAR: NavKey[] = ['dashboard', 'pos', 'orders', 'items', 'customers', 'expenses', 'accounting', 'shifts', 'reports', 'users', 'settings', 'suppliers', 'warehouses', 'locations', 'purchaseOrders', 'goodsReceipts', 'stock', 'adjustments', 'inventoryDashboard', 'movements', 'inventoryReports', 'transfers', 'stockCounts', 'planning', 'inventoryAnalytics', 'quality', 'wms', 'attendance', 'schedules', 'payroll', 'leaves', 'employees', 'coupons', 'notePresets'];
+const FULL_SIDEBAR: NavKey[] = ['dashboard', 'pos', 'orders', 'items', 'customers', 'expenses', 'accounting', 'shifts', 'reports', 'users', 'settings', 'branches', 'suppliers', 'warehouses', 'locations', 'purchaseOrders', 'goodsReceipts', 'stock', 'adjustments', 'inventoryDashboard', 'movements', 'inventoryReports', 'transfers', 'stockCounts', 'planning', 'inventoryAnalytics', 'quality', 'wms', 'attendance', 'schedules', 'payroll', 'leaves', 'employees', 'coupons', 'rewards', 'notePresets'];
 
 // Food-service activities get the Tables/Dine-in + Kitchen Display sidebar entries
 // on top of the full base sidebar. This is the first real sidebar differentiation
 // by activity (Phase 10F was explicitly flagged as the trigger for it — see TASKS.md
 // "Dynamic platform" entry and STATUS.md §46).
 const FOOD_SERVICE_SIDEBAR: NavKey[] = [...FULL_SIDEBAR, 'tables', 'kitchen'];
+
+// Car-wash activity additionally gets the wash queue board (G5).
+const CAR_WASH_SIDEBAR: NavKey[] = [...FULL_SIDEBAR, 'washQueue'];
 
 const FOOD_SERVICE_ACTIVITIES: ActivityKey[] = ['restaurant', 'cafe', 'fastFood', 'bakery', 'juice', 'foodTruck'];
 
@@ -83,7 +89,7 @@ export const ACTIVITY_CONFIG: Record<ActivityKey, BusinessTypeConfig> = Object.f
     'furniture', 'homeware', 'flowers', 'pets',
   ] as ActivityKey[]).map((key) => [
     key,
-    { sidebar: FOOD_SERVICE_ACTIVITIES.includes(key) ? FOOD_SERVICE_SIDEBAR : FULL_SIDEBAR },
+    { sidebar: FOOD_SERVICE_ACTIVITIES.includes(key) ? FOOD_SERVICE_SIDEBAR : key === 'carWash' ? CAR_WASH_SIDEBAR : FULL_SIDEBAR },
   ]),
 ) as Record<ActivityKey, BusinessTypeConfig>;
 
@@ -93,7 +99,7 @@ export const DEFAULT_ACTIVITY: ActivityKey = 'grocery';
 // sidebar (every nav entry, including food-service-only ones) regardless of
 // activity, so QA accounts can exercise every feature without per-activity
 // gating getting in the way.
-export const ALL_ACTIVITIES_SIDEBAR: BusinessTypeConfig = { sidebar: FOOD_SERVICE_SIDEBAR };
+export const ALL_ACTIVITIES_SIDEBAR: BusinessTypeConfig = { sidebar: [...FOOD_SERVICE_SIDEBAR, "washQueue"] };
 
 // Fallback for tenants registered before the `activity` column existed —
 // derives a representative activity from the legacy broad business_type.

@@ -17,7 +17,7 @@ export function OpenShiftModal({ branchId, onClose }: Props) {
     defaultValues: { opening_cash: '', branch_id: branchId },
   });
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: { opening_cash: string; branch_id: string }) => {
     await mutation.mutateAsync({ ...data, opening_cash: Number(data.opening_cash) || 0 });
     onClose();
   };

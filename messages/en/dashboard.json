@@ -50,10 +50,23 @@
     "branchesOverview": "Branches Overview",
     "soonNeedsBranches": "Soon — needs a real branch system",
     "last7Days": "Last 7 days",
-    "thisMonth": "This month"
+    "thisMonth": "This month",
+    "loadErrorSections": "Couldn't load: {sections}. Check your connection or try logging in again.",
+    "errSections": {
+      "revenue": "sales figures",
+      "revenue7d": "7-day sales chart",
+      "expenses": "expenses",
+      "cogs": "cost of goods (net profit)",
+      "shift": "cash register status",
+      "customers": "customers",
+      "sparklines": "trend indicators",
+      "topItems": "top-selling items",
+      "recentActivity": "recent activity"
+    }
   },
   "payMethodLabels": {
     "cash": "Cash",
+    "card": "Card",
     "mada": "mada",
     "visa": "Visa",
     "mastercard": "Mastercard",

@@ -1,21 +1,18 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/core/auth/stores/auth.store';
+import { useHasHydrated } from '@/shared/hooks/useHasHydrated';
 
 export function useTenantAuth() {
   const router = useRouter();
   const pathname = usePathname();
   const { user, isAuthenticated, isLoading: authLoading } = useAuthStore();
-  const [hydrated, setHydrated] = useState(false);
+  const hydrated = useHasHydrated();
 
   const locale = pathname.split('/')[1] || 'ar';
   const isLoading = !hydrated || authLoading;
-
-  useEffect(() => {
-    setHydrated(true);
-  }, []);
 
   useEffect(() => {
     if (isLoading) return;

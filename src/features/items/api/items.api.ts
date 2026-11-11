@@ -1,4 +1,14 @@
 import { apiClient } from '@/lib/api';
+import type {
+  ItemAttribute,
+  ItemAttributeValue,
+  CreateAttributeDTO,
+  CreateAttributeValueDTO,
+  VariantAttributeAssignment,
+  AssignVariantAttributeDTO,
+  ItemPackagingLevel,
+  CreatePackagingLevelDTO,
+} from '../types/item.types';
 
 export type ItemType =
   | 'product' | 'service' | 'custom'
@@ -81,6 +91,7 @@ export interface ItemBarcode {
   barcode: string;
   barcode_type: BarcodeType;
   is_primary: boolean;
+  packaging_level_id?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -91,6 +102,9 @@ export interface CreateBarcodeDto {
   barcode: string;
   barcode_type?: BarcodeType;
   is_primary?: boolean;
+  // Sub-phase 2b (Item #2) — set when this barcode represents a packaging
+  // level (Box/Carton/Pallet) rather than a single sellable unit.
+  packaging_level_id?: string;
 }
 
 export interface BarcodeLookupResult {
@@ -205,4 +219,48 @@ export const itemsApi = {
   deleteBarcode: (id: string) => apiClient.delete<void>(`/item-barcodes/${id}`),
   lookupBarcode: (barcode: string) =>
     apiClient.get<BarcodeLookupResult>(`/item-barcodes/lookup/${encodeURIComponent(barcode)}`),
+
+  // -- Sub-phase 2b (Item #2): Attributes ------------------------------------
+  getAttributes: () => apiClient.get<ItemAttribute[]>('/item-attributes'),
+  createAttribute: (dto: CreateAttributeDTO) =>
+    apiClient.post<ItemAttribute>('/item-attributes', dto),
+  deleteAttribute: (id: string) =>
+    apiClient.delete<void>(`/item-attributes/${id}`),
+
+  getAttributeValues: (attributeId: string) =>
+    apiClient.get<ItemAttributeValue[]>(`/item-attributes/${attributeId}/values`),
+  createAttributeValue: (dto: CreateAttributeValueDTO) =>
+    apiClient.post<ItemAttributeValue>('/item-attributes/values', dto),
+  deleteAttributeValue: (id: string) =>
+    apiClient.delete<void>(`/item-attributes/values/${id}`),
+
+  getVariantAttributeAssignments: (variantId: string) =>
+    apiClient.get<VariantAttributeAssignment[]>(
+      `/item-attributes/variant-assignments/${variantId}`,
+    ),
+  assignVariantAttribute: (dto: AssignVariantAttributeDTO) =>
+    apiClient.post<VariantAttributeAssignment>(
+      '/item-attributes/variant-assignments',
+      dto,
+    ),
+  removeVariantAttributeAssignment: (id: string) =>
+    apiClient.delete<void>(`/item-attributes/variant-assignments/${id}`),
+
+  // -- Sub-phase 2b (Item #2): Packaging levels -------------------------------
+  getPackagingLevels: (itemId: string) =>
+    apiClient.get<ItemPackagingLevel[]>(
+      `/item-packaging-levels?item_id=${itemId}`,
+    ),
+  createPackagingLevel: (dto: CreatePackagingLevelDTO) =>
+    apiClient.post<ItemPackagingLevel>('/item-packaging-levels', dto),
+  deletePackagingLevel: (id: string) =>
+    apiClient.delete<void>(`/item-packaging-levels/${id}`),
+  resolvePackagingQuantity: (
+    levelId: string,
+    itemId: string,
+    quantity: number,
+  ) =>
+    apiClient.get<{ storage_quantity: number }>(
+      `/item-packaging-levels/${levelId}/resolve?item_id=${itemId}&quantity=${quantity}`,
+    ),
 };

@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils';
 import { ReactNode } from 'react';
+import Link from 'next/link';
 
 interface PageHeaderProps {
   title: string;
@@ -51,9 +52,18 @@ export function PageHeader({
       {breadcrumb.map((item, i) => (
         <span key={i} className="flex items-center gap-1.5">
           {i > 0 && <span className={cn('text-xs', mutedColor)}>/</span>}
-          <span className={cn('text-xs font-medium', i === breadcrumb.length - 1 ? mutedColor : 'text-posCloud-primary cursor-pointer hover:underline')}>
-            {item.label}
-          </span>
+          {item.href ? (
+            <Link
+              href={item.href}
+              className={cn('text-xs font-medium', i === breadcrumb.length - 1 ? mutedColor : 'text-posCloud-primary hover:underline')}
+            >
+              {item.label}
+            </Link>
+          ) : (
+            <span className={cn('text-xs font-medium', i === breadcrumb.length - 1 ? mutedColor : 'text-posCloud-primary')}>
+              {item.label}
+            </span>
+          )}
         </span>
       ))}
     </nav>

@@ -1,0 +1,36 @@
+{
+  "title": "Wash Queue",
+  "subtitle": "Cars waiting, being washed and ready for pickup",
+  "empty": "No cars",
+  "elapsed": "{minutes} min",
+  "worker": "Assigned worker",
+  "unassigned": "Unassigned",
+  "unknownWorker": "Unknown worker",
+  "rewash": "Send back to washing",
+  "cancel": "Cancel",
+  "status": {
+    "waiting": "Waiting",
+    "washing": "Washing",
+    "ready": "Ready"
+  },
+  "advanceTo": {
+    "washing": "Start washing",
+    "ready": "Mark ready",
+    "delivered": "Deliver"
+  },
+  "form": {
+    "plate": "Plate number",
+    "size": "Vehicle size",
+    "add": "Add car"
+  },
+  "size": {
+    "none": "Not set",
+    "small": "Small",
+    "medium": "Medium",
+    "large": "Large",
+    "suv": "SUV"
+  },
+  "errors": {
+    "action": "Could not update the queue"
+  }
+}

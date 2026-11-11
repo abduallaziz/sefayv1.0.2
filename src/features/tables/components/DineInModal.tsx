@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { X, Plus, ShoppingCart, Trash2 } from 'lucide-react'
+import { ApiError } from '@/lib/api'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { ItemGrid } from '@/features/pos/components/ItemGrid'
 import type { POSItem, POSVariant } from '@/features/pos/types/pos.types'
@@ -33,7 +34,7 @@ export function DineInModal({ table, onClose }: Props) {
 
   const handleOpen = () => {
     setError(null)
-    openTable(table.id, { onError: (e: any) => setError(e?.message ?? t('error')) })
+    openTable(table.id, { onError: (e: unknown) => setError(e instanceof ApiError ? e.message : t('error')) })
   }
 
   const handleAddToPending = (item: POSItem, variant?: POSVariant) => {
@@ -68,7 +69,7 @@ export function DineInModal({ table, onClose }: Props) {
           setPendingItems([])
           setView('order')
         },
-        onError: (e: any) => setError(e?.message ?? t('error')),
+        onError: (e: unknown) => setError(e instanceof ApiError ? e.message : t('error')),
       },
     )
   }
@@ -82,7 +83,7 @@ export function DineInModal({ table, onClose }: Props) {
       },
       {
         onSuccess: () => onClose(),
-        onError: (e: any) => setError(e?.message ?? t('error')),
+        onError: (e: unknown) => setError(e instanceof ApiError ? e.message : t('error')),
       },
     )
   }
@@ -131,7 +132,7 @@ export function DineInModal({ table, onClose }: Props) {
                         <span className="text-sm font-medium text-gray-900 dark:text-white">{fmt(i.total_price)} {currency}</span>
                         {view === 'order' && (
                           <button
-                            onClick={() => { setError(null); removeItem(i.id, { onError: (e: any) => setError(e?.message ?? t('error')) }) }}
+                            onClick={() => { setError(null); removeItem(i.id, { onError: (e: unknown) => setError(e instanceof ApiError ? e.message : t('error')) }) }}
                             disabled={removingItem}
                             className="text-gray-400 hover:text-red-500 disabled:opacity-50 shrink-0"
                           >

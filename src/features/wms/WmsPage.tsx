@@ -1,21 +1,24 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import {
-  LayoutDashboard, PackagePlus, ListTodo, ScanLine, PackageCheck, Truck,
+  LayoutDashboard, PackagePlus, ListTodo, ScanLine, PackageCheck, Truck, Waves,
 } from 'lucide-react';
 import { TableSkeleton } from '@/shared/components/ui/Skeleton';
 import { usePermission } from '@/core/permissions/hooks/usePermission';
 import { useWarehouses } from '../warehouses/hooks/useWarehouses';
 import { useItems } from '../items/hooks/useItems';
 import {
-  useShipments, usePickLists, usePutawayRules, useReplenishmentRules, useWarehouseTasks,
-  useConfirmPack, useShipShipment, useConfirmPick, useRunReplenishmentCheck,
-  useAssignWarehouseTask, useConfirmWarehouseTask, useCancelWarehouseTask,
+  useShipments, usePutawayRules, useReplenishmentRules,
+  useConfirmPack, useShipShipment, useRunReplenishmentCheck,
 } from './hooks/useWms';
+import { WmsOverviewDashboard } from './components/WmsOverviewDashboard';
+import { PickListsList } from './components/PickListsList';
+import { WavesList } from './components/WavesList';
+import { WarehouseTasksList } from './components/WarehouseTasksList';
 
-type Tab = 'dashboard' | 'putaway' | 'tasks' | 'picking' | 'packing' | 'shipping';
+type Tab = 'dashboard' | 'putaway' | 'tasks' | 'waves' | 'picking' | 'packing' | 'shipping';
 
 function StatusBadge({ status }: { status: string }) {
   const colors: Record<string, string> = {
@@ -27,25 +30,10 @@ function StatusBadge({ status }: { status: string }) {
   return <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${colors[status] ?? 'bg-slate-100 text-slate-600'}`}>{status}</span>;
 }
 
-function KpiCard({ label, value, icon: Icon }: { label: string; value: string; icon: React.ElementType }) {
-  return (
-    <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-4 flex items-center gap-3">
-      <div className="p-2.5 rounded-xl bg-[#E8F1FB] dark:bg-[#0C447C]/10 text-[#0C447C] dark:text-[#5B9BD5]">
-        <Icon size={20} />
-      </div>
-      <div>
-        <p className="text-xs text-slate-500">{label}</p>
-        <p className="text-lg font-bold text-slate-800 dark:text-white">{value}</p>
-      </div>
-    </div>
-  );
-}
-
 export function WmsPage() {
   const t = useTranslations('wms');
   const [tab, setTab] = useState<Tab>('dashboard');
   const canManage = usePermission('warehouse.manage');
-  const canApprove = usePermission('warehouse.approve');
   const canFulfill = usePermission('inventory.fulfill');
 
   const { data: warehouses = [] } = useWarehouses();
@@ -54,29 +42,18 @@ export function WmsPage() {
   const [warehouseId, setWarehouseId] = useState('');
 
   const shipments = useShipments();
-  const pickLists = usePickLists();
   const putawayRules = usePutawayRules();
   const replenishmentRules = useReplenishmentRules();
-  const putawayTasks = useWarehouseTasks('putaway');
-  const replenishmentTasks = useWarehouseTasks('replenishment');
 
   const confirmPack = useConfirmPack();
   const shipShipment = useShipShipment();
-  const confirmPick = useConfirmPick();
   const runReplenishment = useRunReplenishmentCheck();
-  const assignTask = useAssignWarehouseTask();
-  const confirmTask = useConfirmWarehouseTask();
-  const cancelTask = useCancelWarehouseTask();
-
-  const pendingPutaway = useMemo(() => (putawayTasks.data ?? []).filter((t) => t.status !== 'completed' && t.status !== 'cancelled').length, [putawayTasks.data]);
-  const pendingReplenishment = useMemo(() => (replenishmentTasks.data ?? []).filter((t) => t.status !== 'completed' && t.status !== 'cancelled').length, [replenishmentTasks.data]);
-  const activePickLists = useMemo(() => (pickLists.data ?? []).filter((p) => p.status === 'open' || p.status === 'in_progress').length, [pickLists.data]);
-  const readyToShip = useMemo(() => (shipments.data ?? []).filter((s) => s.status === 'packed').length, [shipments.data]);
 
   const tabs: { key: Tab; label: string; icon: React.ElementType }[] = [
     { key: 'dashboard', label: t('tabs.dashboard'), icon: LayoutDashboard },
     { key: 'putaway', label: t('tabs.putaway'), icon: PackagePlus },
     { key: 'tasks', label: t('tabs.tasks'), icon: ListTodo },
+    { key: 'waves', label: t('tabs.waves'), icon: Waves },
     { key: 'picking', label: t('tabs.picking'), icon: ScanLine },
     { key: 'packing', label: t('tabs.packing'), icon: PackageCheck },
     { key: 'shipping', label: t('tabs.shipping'), icon: Truck },
@@ -104,14 +81,7 @@ export function WmsPage() {
         ))}
       </div>
 
-      {tab === 'dashboard' && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <KpiCard label={t('kpi.pendingPutaway')} value={String(pendingPutaway)} icon={PackagePlus} />
-          <KpiCard label={t('kpi.pendingReplenishment')} value={String(pendingReplenishment)} icon={ListTodo} />
-          <KpiCard label={t('kpi.activePickLists')} value={String(activePickLists)} icon={ScanLine} />
-          <KpiCard label={t('kpi.readyToShip')} value={String(readyToShip)} icon={Truck} />
-        </div>
-      )}
+      {tab === 'dashboard' && <WmsOverviewDashboard />}
 
       {tab === 'putaway' && (
         <div className="space-y-4">
@@ -180,95 +150,24 @@ export function WmsPage() {
         </div>
       )}
 
-      {tab === 'tasks' && (
-        (putawayTasks.isLoading || replenishmentTasks.isLoading) ? <TableSkeleton /> : (
-          <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-50 dark:bg-gray-800 text-slate-500">
-                <tr>
-                  <th className="text-start px-4 py-3">{t('columns.type')}</th>
-                  <th className="text-start px-4 py-3">{t('columns.item')}</th>
-                  <th className="text-start px-4 py-3">{t('columns.quantity')}</th>
-                  <th className="text-start px-4 py-3">{t('columns.status')}</th>
-                  {(canManage || canApprove) && <th className="text-start px-4 py-3">{t('columns.actions')}</th>}
-                </tr>
-              </thead>
-              <tbody>
-                {[...(putawayTasks.data ?? []), ...(replenishmentTasks.data ?? [])].map((task) => (
-                  <tr key={task.id} className="border-t border-slate-100 dark:border-gray-800">
-                    <td className="px-4 py-3 text-slate-800 dark:text-white capitalize">{task.task_type}</td>
-                    <td className="px-4 py-3">{task.items?.name ?? itemName(task.item_id)}</td>
-                    <td className="px-4 py-3">{task.quantity_completed}/{task.quantity}</td>
-                    <td className="px-4 py-3"><StatusBadge status={task.status} /></td>
-                    {(canManage || canApprove) && (
-                      <td className="px-4 py-3 flex gap-2">
-                        {task.status === 'pending' && canManage && (
-                          <button onClick={() => assignTask.mutate({ id: task.id, assignedTo: '' })} className="text-xs px-2 py-1 rounded bg-blue-50 text-blue-700 hover:bg-blue-100">{t('actions.assign')}</button>
-                        )}
-                        {(task.status === 'assigned' || task.status === 'in_progress') && canApprove && task.confirmed_location_id && (
-                          <button
-                            onClick={() => confirmTask.mutate({ id: task.id, quantity: task.quantity - task.quantity_completed, locationId: task.suggested_location_id ?? task.confirmed_location_id! })}
-                            className="text-xs px-2 py-1 rounded bg-green-50 text-green-700 hover:bg-green-100"
-                          >
-                            {t('actions.confirm')}
-                          </button>
-                        )}
-                        {task.status !== 'completed' && task.status !== 'cancelled' && canManage && (
-                          <button onClick={() => cancelTask.mutate(task.id)} className="text-xs px-2 py-1 rounded bg-red-50 text-red-700 hover:bg-red-100">{t('actions.cancel')}</button>
-                        )}
-                      </td>
-                    )}
-                  </tr>
-                ))}
-                {(putawayTasks.data ?? []).length === 0 && (replenishmentTasks.data ?? []).length === 0 && (
-                  <tr><td colSpan={5} className="px-4 py-8 text-center text-slate-400">{t('noData')}</td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        )
-      )}
+      {/* Inventory #7 / F11 (Owner-approved) — Warehouse Task Management UI.
+          Supersedes the previous ad-hoc, unbounded, two-call tab above —
+          which also had a broken assign button (called mutate with
+          assignedTo: '', an empty UUID fn_assign_warehouse_task would
+          reject) and a confirm button gated on confirmed_location_id, a
+          field never set before a task's first confirm, making it
+          unreachable. See WarehouseTaskDetailDrawer for the real fix. */}
+      {tab === 'tasks' && <WarehouseTasksList />}
 
-      {tab === 'picking' && (
-        pickLists.isLoading ? <TableSkeleton /> : (
-          <div className="space-y-3">
-            {(pickLists.data ?? []).map((pl) => (
-              <div key={pl.id} className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-slate-800 dark:text-white capitalize">{pl.strategy} {t('tabs.picking')}</span>
-                    <StatusBadge status={pl.status} />
-                  </div>
-                </div>
-                <table className="w-full text-sm">
-                  <thead className="text-slate-500">
-                    <tr><th className="text-start py-1">{t('columns.item')}</th><th className="text-start py-1">{t('columns.quantity')}</th>{canFulfill && <th className="text-start py-1">{t('columns.actions')}</th>}</tr>
-                  </thead>
-                  <tbody>
-                    {(pl.lines ?? []).map((line) => (
-                      <tr key={line.id} className="border-t border-slate-100 dark:border-gray-800">
-                        <td className="py-2 text-slate-800 dark:text-white">{line.items?.name ?? itemName(line.item_id)}</td>
-                        <td className="py-2">{line.quantity_picked}/{line.quantity_to_pick}</td>
-                        {canFulfill && line.quantity_picked < line.quantity_to_pick && (
-                          <td className="py-2">
-                            <button
-                              onClick={() => confirmPick.mutate({ lineId: line.id, quantity: line.quantity_to_pick - line.quantity_picked })}
-                              className="text-xs px-2 py-1 rounded bg-green-50 text-green-700 hover:bg-green-100"
-                            >
-                              {t('actions.confirmPick')}
-                            </button>
-                          </td>
-                        )}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ))}
-            {(pickLists.data ?? []).length === 0 && <p className="text-center text-slate-400 py-8">{t('noData')}</p>}
-          </div>
-        )
-      )}
+      {/* Inventory #7 / F2 (Owner-approved) — Pick Lists List + Filters.
+          Supersedes the previous ad-hoc card list, which fetched every pick
+          list unbounded and embedded a line-level "Confirm Pick" action —
+          that inline fulfillment affordance belonged to Pick List Detail
+          (a later item, explicitly out of F2 scope), not a list view, so it
+          is not carried forward here. */}
+      {tab === 'waves' && <WavesList />}
+
+      {tab === 'picking' && <PickListsList />}
 
       {tab === 'packing' && (
         shipments.isLoading ? <TableSkeleton /> : (

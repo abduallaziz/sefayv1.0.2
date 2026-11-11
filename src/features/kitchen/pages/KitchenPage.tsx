@@ -1,10 +1,9 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import { useQuery } from '@tanstack/react-query'
 import { ChefHat, ArrowRight } from 'lucide-react'
-import { apiClient } from '@/lib/api'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
+import { useBranches } from '@/shared/hooks/useBranches'
 import { useKitchenOrders, useUpdateKitchenItemStatus } from '../hooks/useKitchen'
 import type { KitchenItem } from '../api/kitchen.api'
 
@@ -21,12 +20,8 @@ export function KitchenPage() {
   const t = useTranslations('kitchen')
   const { user } = useAuthStore()
 
-  const { data: branches } = useQuery({
-    queryKey: ['branches'],
-    queryFn: () => apiClient.get('/branches') as any,
-    enabled: !!user,
-  })
-  const branchId = user?.branchId ?? (branches as any)?.[0]?.id ?? ''
+  const { data: branches } = useBranches()
+  const branchId = user?.branchId ?? branches?.[0]?.id ?? ''
 
   const { data: orders = [], isLoading } = useKitchenOrders(branchId)
   const { mutate: updateStatus } = useUpdateKitchenItemStatus()

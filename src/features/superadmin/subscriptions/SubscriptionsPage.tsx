@@ -13,7 +13,7 @@ import {
   useSubscriptions, usePlans, useCreatePlan, useUpdatePlan,
   useTogglePlan, useCancelSubscription, useManualPayment,
 } from './hooks/useSubscriptions'
-import type { Plan, CreatePlanDto, ManualPaymentDto } from './types/subscription.types'
+import type { Plan, CreatePlanDto } from './types/subscription.types'
 
 export function SubscriptionsPage() {
   const t = useTranslations('subscriptions')

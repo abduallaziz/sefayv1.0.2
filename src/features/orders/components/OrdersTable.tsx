@@ -2,7 +2,7 @@
 
 import { Order } from '../types/order.types';
 import { useTranslations } from 'next-intl';
-import { Eye, Pencil, Ban, MoreVertical, Printer, Store } from 'lucide-react';
+import { Eye, Pencil, Ban, MoreVertical, Printer, Store, Undo2 } from 'lucide-react';
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store';
 import { MethodMark } from '@/shared/ui/method-mark';
 import { useBranches } from '@/shared/hooks/useBranches';
@@ -18,6 +18,7 @@ interface Props {
   onViewOrder: (order: Order) => void;
   onPrintOrder: (order: Order) => void;
   onCancelOrder: (order: Order) => void;
+  onReturnOrder: (order: Order) => void;
 }
 
 const statusColors: Record<string, string> = {
@@ -52,7 +53,7 @@ function formatOrderDateTime(iso: string) {
   return { dateStr, timeStr: `${period} ${hours12}:${mm}:${ss}` };
 }
 
-export function OrdersTable({ orders, onViewOrder, onPrintOrder, onCancelOrder }: Props) {
+export function OrdersTable({ orders, onViewOrder, onPrintOrder, onCancelOrder, onReturnOrder }: Props) {
   const t = useTranslations('orders');
   const currency = useCurrencyDisplay();
   const { data: branches = [] } = useBranches();
@@ -109,6 +110,12 @@ export function OrdersTable({ orders, onViewOrder, onPrintOrder, onCancelOrder }
                           <Pencil size={14} />
                           {t('edit.action')}
                         </DropdownMenuItem>
+                        {order.status === 'completed' && (
+                          <DropdownMenuItem onClick={() => onReturnOrder(order)}>
+                            <Undo2 size={14} />
+                            {t('returns.action')}
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuItem
                           onClick={() => onCancelOrder(order)}
                           className="text-posCloud-danger hover:bg-posCloud-danger-light dark:hover:bg-posCloud-danger/10"
@@ -220,6 +227,12 @@ export function OrdersTable({ orders, onViewOrder, onPrintOrder, onCancelOrder }
                                 <Pencil size={14} />
                                 {t('edit.action')}
                               </DropdownMenuItem>
+                              {order.status === 'completed' && (
+                                <DropdownMenuItem onClick={() => onReturnOrder(order)}>
+                                  <Undo2 size={14} />
+                                  {t('returns.action')}
+                                </DropdownMenuItem>
+                              )}
                               <DropdownMenuItem
                                 onClick={() => onCancelOrder(order)}
                                 className="text-posCloud-danger hover:bg-posCloud-danger-light dark:hover:bg-posCloud-danger/10"

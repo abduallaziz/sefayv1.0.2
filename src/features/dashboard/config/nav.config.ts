@@ -8,6 +8,7 @@ import {
   BarChart3,
   BarChart2,
   UserCircle,
+  Car,
   Settings,
   type LucideIcon,
 } from 'lucide-react';
@@ -58,6 +59,13 @@ export const NAV_CONFIG: NavSection[] = [
         labelKey: 'invoices',
         permission: 'invoice.view',
       },
+      {
+        key: 'washQueue',
+        href: '/dashboard/queue',
+        icon: Car,
+        labelKey: 'washQueue',
+        permission: 'invoice.view',
+      },
     ],
   },
   {
@@ -89,7 +97,7 @@ export const NAV_CONFIG: NavSection[] = [
     items: [
       {
         key: 'expenses',
-        href: '/dashboard/expenses',
+        href: '/dashboard/expenses-v2/expenses',
         icon: TrendingDown,
         labelKey: 'expenses',
         permission: 'expenses.view',

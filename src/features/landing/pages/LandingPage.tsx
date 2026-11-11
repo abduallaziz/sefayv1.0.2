@@ -572,13 +572,13 @@ export function LandingPage() {
                   onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 6px rgba(10,22,40,.03),0 8px 24px rgba(10,22,40,.07)' }}
                   onMouseLeave={e => { e.currentTarget.style.boxShadow = '' }}
                 >
-                  <div className="absolute -top-[14px] end-4 text-[88px] font-black leading-none pointer-events-none select-none" style={{ color: '#E4EAF2', fontFamily: 'Georgia,serif' }}>"</div>
+                  <div className="absolute -top-[14px] end-4 text-[88px] font-black leading-none pointer-events-none select-none" style={{ color: '#E4EAF2', fontFamily: 'Georgia,serif' }}>&quot;</div>
                   <div className="flex gap-[3px] mb-4">
                     {Array(5).fill(0).map((_, j) => (
                       <svg key={j} viewBox="0 0 24 24" style={{ width: 16, height: 16, fill: '#F59E0B', stroke: 'none' }}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
                     ))}
                   </div>
-                  <p style={{ fontSize: 15, color: '#0A1628', lineHeight: 1.7, marginBottom: 20 }}>"{ts.q}"</p>
+                  <p style={{ fontSize: 15, color: '#0A1628', lineHeight: 1.7, marginBottom: 20 }}>&quot;{ts.q}&quot;</p>
                   <div className="flex items-center gap-3">
                     <div className="w-[44px] h-[44px] rounded-full flex items-center justify-center text-white text-[15px] font-bold flex-shrink-0" style={{ background: ts.grad }}>{ts.init}</div>
                     <div>

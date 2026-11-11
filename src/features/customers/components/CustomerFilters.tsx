@@ -31,7 +31,7 @@ export function CustomerFiltersBar({ filters, onChange }: Props) {
         className="px-3 py-2 bg-posCloud-background dark:bg-posCloudDark-background border border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-primary dark:text-posCloudDark-text-primary rounded-lg text-sm focus:outline-none focus:border-posCloud-primary"
       >
         <option value="created_at">{t('sort.newest')}</option>
-        <option value="name">{t('sort.name')}</option>
+        <option value="full_name">{t('sort.name')}</option>
         <option value="loyalty_points">{t('sort.points')}</option>
         <option value="total_spent">{t('sort.spent')}</option>
       </select>

@@ -17,5 +17,11 @@ export type Messages = {
 }
 
 declare global {
+  // next-intl's documented global-augmentation contract requires an `interface`
+  // here (declaration merging into its own global `IntlMessages` lookup, which
+  // every `useTranslations()` call site relies on for key type-checking) — a
+  // `type` alias cannot merge the same way, so this can't be rewritten without
+  // breaking message-key typing app-wide. Empty body is inherent to the pattern.
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface IntlMessages extends Messages {}
 }

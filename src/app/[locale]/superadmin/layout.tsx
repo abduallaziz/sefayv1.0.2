@@ -1,19 +1,18 @@
 'use client';
 
 import { SuperAdminLayout } from '@/features/superadmin/components/SuperAdminLayout';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/core/auth/stores/auth.store';
+import { useHasHydrated } from '@/shared/hooks/useHasHydrated';
 
 export default function SuperAdminLayoutPage({ children }: { children: React.ReactNode }) {
   const { user, isAuthenticated, isLoading: authLoading } = useAuthStore();
   const router = useRouter();
   const pathname = usePathname();
   const locale = pathname.split('/')[1] || 'ar';
-  const [hydrated, setHydrated] = useState(false);
+  const hydrated = useHasHydrated();
   const isLoading = !hydrated || authLoading;
-
-  useEffect(() => setHydrated(true), []);
 
   useEffect(() => {
     if (isLoading) return;

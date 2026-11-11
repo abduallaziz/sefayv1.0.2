@@ -1,6 +1,6 @@
 'use client'
 
-import { useTranslations, useLocale } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import { Bell, Search, Sun, Moon, Menu } from 'lucide-react'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { useThemeStore } from '@/core/theme/stores/theme.store'
@@ -11,7 +11,6 @@ interface HeaderProps {
 
 export function Header({ onMenuClick }: HeaderProps) {
   const t = useTranslations('header')
-  const locale = useLocale()
   const { user, clearAuth } = useAuthStore()
   const { theme, toggle } = useThemeStore()
 

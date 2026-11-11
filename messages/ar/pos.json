@@ -17,7 +17,18 @@
     "closedSubtitle": "افتح الصندوق لبدء البيع",
     "openButton": "فتح الصندوق",
     "openStatus": "الصندوق مفتوح",
-    "closeButton": "إغلاق الصندوق"
+    "closeButton": "إغلاق الصندوق",
+    "checkFailedTitle": "تعذّر التحقق من الصندوق",
+    "checkFailedSubtitle": "السيرفر مشغول أو لا يمكن الوصول إليه. هذا لا يعني أن الصندوق مغلق. حاول مرة أخرى.",
+    "retryButton": "إعادة المحاولة"
+  },
+  "noActiveBranch": {
+    "title": "لا يوجد فرع نشط",
+    "subtitle": "لا يوجد فرع نشط متاح حاليًا لإتمام عملية البيع."
+  },
+  "taxConfig": {
+    "unavailableTitle": "إعدادات الضريبة غير متاحة",
+    "unavailableSubtitle": "تعذّر تحميل نسبة الضريبة الخاصة بالمنشأة، لذا لا يمكن عرض معاينة بيع آمنة. حاول مجددًا بعد قليل أو تواصل مع الدعم."
   },
   "heldOrders": {
     "title": "الطلبات المعلقة",
@@ -45,7 +56,26 @@
   "discount": "الخصم",
   "tax": "ضريبة القيمة المضافة",
   "total": "الإجمالي",
+  "taxMode": {
+    "inclusive": "شامل ضريبة القيمة المضافة",
+    "exclusive": "غير شامل ضريبة القيمة المضافة"
+  },
   "checkout": "إتمام الدفع",
+  "viewCart": "عرض السلة",
+  "cartUnits": "{count, plural, =1 {عنصر واحد} =2 {عنصران} other {{count} عناصر}}",
+  "cartLines": "{count, plural, =1 {منتج واحد} =2 {منتجان} other {{count} منتجات}}",
+  "totalFinal": "الإجمالي النهائي",
+  "couponShort": "كوبون",
+  "couponDesc": "إضافة أو تطبيق خصم",
+  "couponAction": "تطبيق كوبون",
+  "loyaltyAction": "استرداد النقاط",
+  "rewardsAction": "اختيار مكافأة",
+  "notesAction": "إضافة ملاحظة",
+  "loyaltyShort": "الولاء",
+  "notesShort": "ملاحظات",
+  "removeLine": "حذف من الطلب",
+  "outOfStock": "نفد المخزون",
+  "showMore": "عرض المزيد ({shown} من {total})",
   "addCoupon": "+ إضافة كوبون",
   "couponCode": "كود الكوبون",
   "couponInvalid": "كود الكوبون غير صالح",
@@ -98,6 +128,16 @@
     "giftCardMethod": "بطاقة هدايا",
     "productsCount": "المنتجات ({count})",
     "methodLabel": "طريقة الدفع",
+    "quickAmounts": "مبالغ سريعة",
+    "exactAmount": "مطابق",
+    "changeDue": "الباقي للعميل",
+    "stillDue": "المتبقي",
+    "keypad": "لوحة الأرقام",
+    "usePoints": "استخدام النقاط",
+    "pointsUnit": "نقطة",
+    "pointsDiscount": "خصم",
+    "afterDiscount": "المبلغ بعد الخصم",
+    "collectNote": "حصّل {amount} بالطريقة المحددة ثم أكّد الدفع",
     "redeemPoints": "استرداد نقاط الولاء",
     "availablePoints": "{points} نقطة متاحة",
     "giftCard": "بطاقة هدايا",
@@ -108,7 +148,9 @@
     "giftCardInvalid": "كود بطاقة الهدايا غير صالح",
     "failed": "تعذّر إتمام الدفع، حاول مرة أخرى",
     "noActiveSession": "لا يمكن إتمام البيع. يجب فتح الصندوق أولاً",
-    "stockWarning": "تم البيع بنجاح، لكن تعذّر خصم الكمية من المخزون تلقائياً — يرجى مراجعة المخزون يدوياً"
+    "stockWarning": "تم البيع بنجاح، لكن تعذّر خصم الكمية من المخزون تلقائياً — يرجى مراجعة المخزون يدوياً",
+    "abnormalAmount": "المبلغ يبدو كبيراً بشكل غير معتاد: الباقي سيكون {change}. يرجى التأكد منه.",
+    "abnormalConfirm": "أؤكد أن المبلغ صحيح"
   },
   "receipt": {
     "success": "تم الدفع بنجاح",
@@ -119,6 +161,7 @@
     "print": "طباعة",
     "printButton": "طباعة 🖨️",
     "newOrder": "طلب جديد",
+    "freeItemsTitle": "عنصر مجاني يجب تسليمه للعميل:",
     "taxLabel": "الضريبة {percent}",
     "currency": "ر.س",
     "methodSplit": "نقد + بطاقة"
@@ -140,6 +183,52 @@
     "no": "لا",
     "cancel": "إلغاء",
     "save": "حفظ وتحديد",
-    "saving": "..."
+    "saving": "...",
+    "smartPlaceholder": "رقم اللوحة أو رقم الجوال",
+    "smartHint": "اكتب اللوحة أو الجوال ويظهر العميل المسجّل فورًا",
+    "keepTyping": "أكمل الكتابة...",
+    "notFound": "لا يوجد عميل مسجّل بهذه اللوحة أو الجوال",
+    "smartPlaceholderPhone": "رقم الجوال",
+    "smartPlaceholderPlate": "رقم اللوحة",
+    "smartHintPhone": "اكتب رقم الجوال ويظهر العميل المسجّل فورًا",
+    "smartHintPlate": "اكتب رقم اللوحة ويظهر العميل المسجّل فورًا",
+    "notFoundPhone": "لا يوجد عميل مسجّل بهذا الجوال",
+    "notFoundPlate": "لا يوجد عميل مسجّل بهذه اللوحة",
+    "phone": "الجوال",
+    "plate": "رقم اللوحة",
+    "size": "حجم السيارة",
+    "sizes": {
+      "small": "صغيرة",
+      "medium": "متوسطة",
+      "large": "كبيرة",
+      "xlarge": "كبيرة جدًا"
+    },
+    "visits": "{count} زيارة",
+    "lastVisit": "آخر زيارة",
+    "totalSpent": "إجمالي المصروف",
+    "pickCar": "لهذا العميل أكثر من سيارة - اختر واحدة",
+    "useCustomer": "استخدام هذا العميل",
+    "lookupFailed": "تعذّر التحقق من العميل، حاول مرة أخرى",
+    "conflictTitle": "تعارض في البيانات",
+    "conflictBody": "هذا الجوال وهذه اللوحة يخصّان عميلين مختلفين. لا يمكن تكرار العميل أو دمجه من هنا.",
+    "conflictPhoneOf": "الجوال يخص",
+    "conflictPlateOf": "اللوحة تخص",
+    "backToCorrect": "رجوع للتصحيح",
+    "useRegistered": "استخدام العميل المسجّل",
+    "noFieldsTitle": "تسجيل العميل بلا حقول",
+    "noFieldsBody": "تسجيل العميل مفعّل لكن لا يوجد أي حقل مفعّل للعميل، فلا يمكن البحث عن عميل أو تسجيله. اطلب من المالك تفعيل حقل (جوال، لوحة…) أو إيقاف تسجيل العميل من الإعدادات."
+  },
+  "worker": {
+    "label": "العامل",
+    "none": "بدون عامل"
+  },
+  "invoiceNote": {
+    "add": "إضافة ملاحظة للفاتورة",
+    "edit": "تعديل الملاحظة",
+    "placeholder": "ملاحظة (لا تغيّر مبالغ الفاتورة)",
+    "save": "حفظ الملاحظة",
+    "saving": "...",
+    "cancel": "إلغاء",
+    "failed": "تعذّر حفظ الملاحظة"
   }
 }
