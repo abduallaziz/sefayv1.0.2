@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl'
 import { useCreateExpense, useExpenseCategories } from '../hooks/useExpenses'
 import { useCurrentShift } from '@/features/shifts/hooks/useShifts'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
-import { useBranches } from '@/shared/hooks/useBranches'
+import { useBranchContext } from '@/core/branch/useBranchContext'
 
 interface Props {
   onClose: () => void
@@ -18,9 +18,11 @@ export function AddExpenseModal({ onClose }: Props) {
   const { data: currentShift } = useCurrentShift()
   const mutation = useCreateExpense()
 
-  const { data: branches } = useBranches()
 
-  const branchId = user?.branchId ?? branches?.[0]?.id ?? ''
+  // The branch the user actually selected (shared branch context), not just
+  // the newest branch in the list.
+  const { currentBranchId } = useBranchContext()
+  const branchId = currentBranchId ?? ''
 
   const [form, setForm] = useState({ category_id: '', amount: '', description: '' })
 

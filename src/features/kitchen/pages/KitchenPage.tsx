@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl'
 import { ChefHat, ArrowRight } from 'lucide-react'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
-import { useBranches } from '@/shared/hooks/useBranches'
+import { useBranchContext } from '@/core/branch/useBranchContext'
 import { useKitchenOrders, useUpdateKitchenItemStatus } from '../hooks/useKitchen'
 import type { KitchenItem } from '../api/kitchen.api'
 
@@ -20,8 +20,10 @@ export function KitchenPage() {
   const t = useTranslations('kitchen')
   const { user } = useAuthStore()
 
-  const { data: branches } = useBranches()
-  const branchId = user?.branchId ?? branches?.[0]?.id ?? ''
+  // The branch the user actually selected (shared branch context), not just
+  // the newest branch in the list.
+  const { currentBranchId } = useBranchContext()
+  const branchId = currentBranchId ?? ''
 
   const { data: orders = [], isLoading } = useKitchenOrders(branchId)
   const { mutate: updateStatus } = useUpdateKitchenItemStatus()
