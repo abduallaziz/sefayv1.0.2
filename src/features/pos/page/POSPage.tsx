@@ -14,8 +14,7 @@ import { PaymentData } from '../types/pos.types'
 import { createOrder, fetchHeldOrder, type HeldOrder } from '@/features/orders/api/orders.api'
 import { useActiveNotePresets } from '@/features/note-presets/hooks/useNotePresets'
 import { useCustomerRewards } from '@/features/rewards/hooks/useRewards'
-import { useItems } from '@/features/items/hooks/useItems'
-import type { FreeItemGrant, ReceiptLineItem } from '@/features/orders/types/order.types'
+import type { ReceiptLineItem } from '@/features/orders/types/order.types'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { useBranches } from '@/shared/hooks/useBranches'
 import { useCurrentShift } from '@/features/shifts/hooks/useShifts'
@@ -34,7 +33,6 @@ export function POSPage() {
   const [showPayment, setShowPayment] = useState(false)
   const [receipt, setReceipt] = useState<{
     payment: PaymentData; invoiceNumber: string; orderId: string; taxRate: number; total: number
-    freeItemGrants: FreeItemGrant[]
     // Authoritative breakdown from the order response — the receipt must
     // never fall back to the live `cart` preview for these, since it can
     // diverge from what was actually charged (see invoices.service.ts
@@ -130,17 +128,6 @@ export function POSPage() {
   const availablePoints = loyaltyEnabled ? (selectedCustomer?.loyalty_points ?? 0) : 0
 
   const { data: availableRewards = [] } = useCustomerRewards(selectedCustomer?.id || undefined, 'unlocked')
-  // Reused purely as an item_id -> item lookup for the free_item_grants
-  // banner below (FE-6) — already cached client-side by ItemGrid via
-  // useCatalogItems, but that hook is paginated/infinite and may not have
-  // the granted item's page loaded; useItems() fetches the full catalog
-  // once. Gated to only fire once a receipt actually carries a free-item
-  // grant (a rare, post-checkout-only case) — every POS page load was
-  // previously firing a second full-catalog request purely on the chance
-  // this banner might be needed, duplicating ItemGrid's own catalog fetch.
-  const needsFreeItemNames = !!receipt?.freeItemGrants.length
-  const { data: allItems = [] } = useItems(needsFreeItemNames)
-
   const resetLoyalty = () => {
     setRedeemPoints('')
   }
@@ -200,7 +187,6 @@ export function POSPage() {
         // يُعرَض بالإيصال، احتياطًا لأي فارق نادر بين لحظة معاينة الكوبون/الحساب وقت
         // الدفع الفعلي (مثلًا كوبون استُنفد بواسطة كاشير آخر بين المعاينة والتأكيد).
         total: order.total,
-        freeItemGrants: order.free_item_grants ?? [],
         // Same reasoning as `total` above, extended to the full breakdown —
         // the receipt must reconcile against what the server actually
         // charged, not the client's last cart preview.
@@ -562,9 +548,6 @@ export function POSPage() {
           orderId={receipt.orderId}
           taxRate={receipt.taxRate}
           total={receipt.total}
-          freeItemNames={receipt.freeItemGrants.map(
-            (g) => allItems.find((i) => i.id === g.item_id)?.name ?? g.item_id,
-          )}
           onNewOrder={handleNewOrder}
         />
       )}

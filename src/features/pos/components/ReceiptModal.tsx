@@ -28,16 +28,12 @@ interface Props {
   orderId?: string
   taxRate: number
   total: number
-  /** Item names granted by a redeemed `free_item` reward (FE-6) — purely
-   *  informational, never affects totals/lines. See order.types.ts
-   *  FreeItemGrant and reward-redemption.service.ts for the backend contract. */
-  freeItemNames?: string[]
   onNewOrder: () => void
 }
 
 export function ReceiptModal({
   items, subtotal, discountAmount, taxAmount, couponCode, taxInclusive,
-  payment, invoiceNumber, orderId, taxRate, total, freeItemNames = [], onNewOrder,
+  payment, invoiceNumber, orderId, taxRate, total, onNewOrder,
 }: Props) {
   const t = useTranslations('pos')
   const now = new Date().toLocaleString('en-US')
@@ -143,14 +139,6 @@ export function ReceiptModal({
         </div>
 
         <div className="min-h-0 overflow-y-auto px-5 pb-3">
-          {freeItemNames.length > 0 && (
-            <div className="mb-3 rounded-lg border border-posCloud-success/30 bg-posCloud-success-light dark:bg-posCloud-success/15 p-3 text-sm">
-              <p className="font-medium text-posCloud-success">{t('receipt.freeItemsTitle')}</p>
-              <p className="mt-0.5 text-posCloud-text-primary dark:text-posCloudDark-text-primary">
-                {freeItemNames.join('، ')}
-              </p>
-            </div>
-          )}
           <div className="border-t border-dashed border-posCloud-border dark:border-posCloudDark-border py-3 space-y-1.5 text-sm">
             <div className="flex justify-end">
               <span className="rounded-full bg-posCloud-background dark:bg-posCloudDark-background px-2 py-0.5 text-[10px] font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
