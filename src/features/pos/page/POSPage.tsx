@@ -176,6 +176,7 @@ export function POSPage() {
         card_amount: data.method === 'split' ? data.split_card : undefined,
         redeem_points: data.redeem_points,
         redeem_reward_instance_ids: data.redeem_reward_instance_ids,
+        free_item_choices: data.free_item_choices,
         coupon_code: cart.coupon_code,
         notes: finalNotes || undefined,
         items: cart.items.map(item => ({

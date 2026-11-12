@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import { X, ShoppingCart, Check, CreditCard, Calculator, Delete, Gift, Coins, Minus, Plus, User } from 'lucide-react'
 import Image from 'next/image'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
+import { useCatalogItems } from '@/features/items/hooks/useItems'
 import { Cart, CartItem, PaymentData, PaymentMethod } from '../types/pos.types'
 import { calcCart } from '../hooks/useCart'
 import type { Customer } from '@/features/customers/types/customer.types'
@@ -132,6 +133,15 @@ export function PaymentModal({
   const redeemPointsNum = Math.min(parseInt(redeemPoints || '0', 10) || 0, availablePoints)
   const selectedRewards = availableRewards.filter((r) => selectedRewardIds.includes(r.id))
 
+  // Free-item rewards set to "one of several" need the cashier to pick which product.
+  const { items: catalogItems } = useCatalogItems()
+  const [freeChoices, setFreeChoices] = useState<Record<string, string>>({})
+  const choiceRewards = selectedRewards.filter((r) => {
+    const cfg = r.reward_definitions?.reward_config as { grant_mode?: string; item_ids?: string[] } | undefined
+    return r.reward_definitions?.reward_type === 'free_item' && cfg?.grant_mode === 'one' && (cfg.item_ids?.length ?? 0) > 1
+  })
+  const missingChoice = choiceRewards.some((r) => !freeChoices[r.id])
+
   // Points are taken off BEFORE tax by the server, so the amount due is
   // recomputed with the same arithmetic (calcCart mirrors pos.engine) instead
   // of simply subtracting from the total.
@@ -171,6 +181,7 @@ export function PaymentModal({
 
   const canConfirm = () => {
     if (isSubmitting) return false
+    if (missingChoice) return false
     if (method === 'cash') return tenderedNum >= due && (!abnormalCash || abnormalConfirmed)
     if (method === 'split') return !isNaN(splitCashNum) && splitCashNum > 0 && splitCashNum < due
     return true
@@ -185,6 +196,9 @@ export function PaymentModal({
       split_card: method === 'split' ? splitCard : undefined,
       redeem_points: redeemPointsNum > 0 ? redeemPointsNum : undefined,
       redeem_reward_instance_ids: selectedRewards.length > 0 ? selectedRewards.map((r) => r.id) : undefined,
+      free_item_choices: choiceRewards.length > 0
+        ? choiceRewards.map((r) => ({ reward_instance_id: r.id, item_id: freeChoices[r.id] }))
+        : undefined,
     }
     onConfirm(data)
   }
@@ -369,6 +383,24 @@ export function PaymentModal({
                       })()}
                     </label>
                   ))}
+                  {choiceRewards.map((r) => {
+                    const ids = (r.reward_definitions?.reward_config as { item_ids?: string[] }).item_ids ?? []
+                    return (
+                      <div key={`choice-${r.id}`} className="rounded-lg border border-dashed border-posCloud-border p-2 dark:border-posCloudDark-border">
+                        <p className={`mb-1 text-[11px] font-medium ${muted}`}>{tRewards('pos.chooseFreeItem', { name: r.reward_definitions?.name ?? '' })}</p>
+                        <select
+                          value={freeChoices[r.id] ?? ''}
+                          onChange={(e) => setFreeChoices((prev) => ({ ...prev, [r.id]: e.target.value }))}
+                          className="w-full rounded-md border border-posCloud-border bg-posCloud-background px-2 py-1.5 text-xs dark:border-posCloudDark-border dark:bg-posCloudDark-background"
+                        >
+                          <option value="">{tRewards('pos.pickOne')}</option>
+                          {ids.map((id) => (
+                            <option key={id} value={id}>{catalogItems.find((i) => i.id === id)?.name ?? id.slice(0, 8)}</option>
+                          ))}
+                        </select>
+                      </div>
+                    )
+                  })}
                 </div>
               )}
             </div>

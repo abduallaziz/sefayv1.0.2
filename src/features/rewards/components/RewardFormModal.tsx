@@ -65,6 +65,9 @@ export function RewardFormModal({ reward, onClose }: Props) {
     ),
   )
   // free_item: one or several products (item_ids); item_id keeps the first for older readers
+  const [grantMode, setGrantMode] = useState<'all' | 'one'>(
+    reward?.reward_config?.grant_mode === 'one' ? 'one' : 'all',
+  )
   const [freeItemIds, setFreeItemIds] = useState<string[]>(() => {
     const ids = reward?.reward_config?.item_ids
     if (Array.isArray(ids)) return ids.map(String)
@@ -101,7 +104,11 @@ export function RewardFormModal({ reward, onClose }: Props) {
 
   const buildRewardConfig = (): Record<string, unknown> => {
     if (rewardType === 'free_item') {
-      return { item_id: freeItemIds[0] ?? '', item_ids: freeItemIds }
+      return {
+        item_id: freeItemIds[0] ?? '',
+        item_ids: freeItemIds,
+        grant_mode: freeItemIds.length > 1 ? grantMode : 'all',
+      }
     }
     if (rewardType === 'percentage_discount') {
       return { percent: parseFloat(discountValue) || 0 }
@@ -257,6 +264,19 @@ export function RewardFormModal({ reward, onClose }: Props) {
             <div>
               <label className="text-xs text-gray-500 mb-1 block">{t('rewardConfig.freeItems')}</label>
               <ItemMultiPicker selectedIds={freeItemIds} onChange={setFreeItemIds} />
+              {freeItemIds.length > 1 && (
+                <div className="mt-3">
+                  <label className="text-xs text-gray-500 mb-1 block">{t('rewardConfig.grantMode')}</label>
+                  <select
+                    value={grantMode}
+                    onChange={(e) => setGrantMode(e.target.value as 'all' | 'one')}
+                    className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white"
+                  >
+                    <option value="all">{t('rewardConfig.grantAll')}</option>
+                    <option value="one">{t('rewardConfig.grantOne')}</option>
+                  </select>
+                </div>
+              )}
             </div>
           ) : rewardType === 'coupon_reference' ? (
             <div>

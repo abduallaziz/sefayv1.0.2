@@ -83,4 +83,6 @@ export interface PaymentData {
   // CreateInvoiceDto.redeem_reward_instance_ids exactly. Coexists with
   // redeem_points on the same invoice per invoices.service.ts.
   redeem_reward_instance_ids?: string[]
+  // Free-item rewards set to "one of several": the product picked for each.
+  free_item_choices?: Array<{ reward_instance_id: string; item_id: string }>
 }

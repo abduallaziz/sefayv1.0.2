@@ -34,6 +34,9 @@
     "percentageValue": "Discount Percentage",
     "fixedValue": "Discount Amount",
     "freeItems": "Free products (pick one or more)",
+    "grantMode": "How products are granted",
+    "grantAll": "All of them together",
+    "grantOne": "Only one (the cashier picks it at the sale)",
     "searchItems": "Search products...",
     "noItems": "No matching products",
     "removeItem": "Remove product",
@@ -96,6 +99,8 @@
     "withVat": "incl. VAT",
     "withoutVat": "excl. VAT",
     "remainingOf": "of {total}",
-    "freeItem": "Free item"
+    "freeItem": "Free item",
+    "chooseFreeItem": "Choose the free product for \"{name}\"",
+    "pickOne": "Choose a product..."
   }
 }
