@@ -185,7 +185,7 @@ export function POSPage() {
       setShowPayment(false)
       setReceipt({
         payment: data,
-        invoiceNumber: order.id.slice(-6).toUpperCase(),
+        invoiceNumber: order.invoice_no ?? order.id.slice(-6).toUpperCase(),
         orderId: order.id,
         taxRate: order.tax_rate ?? taxRate,
         // الإجمالي الحقيقي المُحصَّل فعليًا من السيرفر — وليس تقدير الواجهة (cart.total) —

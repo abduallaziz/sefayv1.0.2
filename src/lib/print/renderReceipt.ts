@@ -164,7 +164,8 @@ function renderInvoiceOne(p: InvoicePrintPayload, L: PrintLabels, opts: RenderOp
 
   // ---- title + number + date
   if (tpl.title) out.push(`<div class="c title">${esc(tpl.title)}</div>`)
-  out.push(line(L.receipt.invoice, ltr(`#${p.order_number}`)))
+  // the sequential legal number as is; older orders keep the short id with a #
+  out.push(line(L.receipt.invoice, ltr(p.invoice_no ?? `#${p.order_number}`)))
   out.push(line(L.receipt.date, formatDateTime(p.created_at, tpl.date_format ?? 'mdy', tpl.time_format ?? '12h')))
   if (p.status === 'cancelled') out.push(`<div class="c"><span class="badge">${esc(L.receipt.cancelled)}</span></div>`)
 
