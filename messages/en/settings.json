@@ -32,6 +32,7 @@
   "printerSettings": "Printer Settings",
   "paperWidth": "Paper Width",
   "autoPrint": "Auto-print after every invoice",
+  "kitchenAutoPrint": "Auto-print the kitchen ticket after every sale",
   "notificationPreferences": "Notification Preferences",
   "notificationPreferencesHint": "Choose which notifications you want to receive by email. Security notifications (login and sessions) always stay on.",
   "notifications": {

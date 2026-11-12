@@ -3,6 +3,8 @@ import { apiClient } from '@/lib/api'
 export interface PrinterSettings {
   paper_width?: '58mm' | '80mm'
   auto_print?: boolean
+  // print the kitchen ticket automatically after every sale
+  kitchen_auto_print?: boolean
   printer_name?: string
 }
 
