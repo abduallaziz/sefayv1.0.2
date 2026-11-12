@@ -1,6 +1,7 @@
 import qrcode from 'qrcode-generator'
 import type {
   InvoicePrintPayload,
+  InvoiceTemplate,
   KitchenPrintPayload,
   PaperWidth,
   PrintLabels,
@@ -28,6 +29,50 @@ const money = (n: number) =>
   Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 const ltr = (s: string) => `<bdi dir="ltr">${esc(s)}</bdi>`
 const dateTime = (iso: string) => ltr(new Date(iso).toLocaleString('en-US'))
+
+// Always English digits. Default (mdy + 12h) is exactly toLocaleString('en-US').
+function formatDateTime(iso: string, df: 'mdy' | 'dmy' | 'ymd', tf: '12h' | '24h'): string {
+  const d = new Date(iso)
+  const p = (n: number) => String(n).padStart(2, '0')
+  const date =
+    df === 'dmy'
+      ? `${p(d.getDate())}/${p(d.getMonth() + 1)}/${d.getFullYear()}`
+      : df === 'ymd'
+        ? `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`
+        : `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`
+  const time = d.toLocaleTimeString('en-US', { hour12: tf === '12h', hour: tf === '12h' ? 'numeric' : '2-digit', minute: '2-digit', second: '2-digit' })
+  return ltr(`${date}, ${time}`)
+}
+
+const ACCENT: Record<string, string> = {
+  black: '#000', blue: '#0C447C', green: '#157347', red: '#b02a37', purple: '#6f42c1', gray: '#555',
+}
+
+/** Words for this receipt: the language chosen in the template + the owner's renamed headings. */
+function wordsFor(p: InvoicePrintPayload, L: PrintLabels, o: RenderOptions): { L: PrintLabels; dir: 'rtl' | 'ltr' } {
+  const lang = p.template.language ?? 'auto'
+  let base = L
+  let dir = o.dir
+  if (o.labelSets && lang !== 'auto') {
+    if (lang === 'ar') { base = o.labelSets.ar; dir = 'rtl' }
+    else if (lang === 'en') { base = o.labelSets.en; dir = 'ltr' }
+    else {
+      // bilingual: "عربي / English" for every heading
+      const join = (a: Record<string, string>, b: Record<string, string>) =>
+        Object.fromEntries(Object.keys(a).map((k) => [k, a[k] === b[k] || !b[k] ? a[k] : `${a[k]} / ${b[k]}`]))
+      const ar = o.labelSets.ar
+      const en = o.labelSets.en
+      base = {
+        receipt: join(ar.receipt, en.receipt) as PrintLabels['receipt'],
+        payment: join(ar.payment, en.payment),
+        kitchen: join(ar.kitchen, en.kitchen) as PrintLabels['kitchen'],
+      }
+      dir = 'rtl'
+    }
+  }
+  const renamed = p.template.labels ?? {}
+  return { L: { ...base, receipt: { ...base.receipt, ...renamed } as PrintLabels['receipt'] }, dir }
+}
 
 function only(url: string | null): string | null {
   // Only http(s)/data image URLs may reach an <img src>.
@@ -73,7 +118,7 @@ hr{border:0;border-top:1px dashed #000;margin:2mm 0}
 .note{white-space:pre-wrap;overflow-wrap:anywhere}
 `
 
-function documentHtml(body: string, paper: PaperWidth, opts: RenderOptions, extraCss = ''): string {
+export function documentHtml(body: string, paper: PaperWidth, opts: RenderOptions, extraCss = ''): string {
   const p = PAGE[paper] ?? PAGE['80mm']
   return `<!doctype html><html lang="${esc(opts.lang)}" dir="${opts.dir}"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -88,30 +133,43 @@ function line(label: string, value: string): string {
   return `<div class="row"><span>${esc(label)}</span><span>${value}</span></div>`
 }
 
-function renderInvoiceOne(p: InvoicePrintPayload, L: PrintLabels): string {
+function renderInvoiceOne(p: InvoicePrintPayload, L: PrintLabels, opts: RenderOptions): string {
+  const tpl = p.template
+  const st = tpl.style
   const b = p.business
   const logo = only(b.logo_url)
   const cur = esc(p.currency_symbol)
   const out: string[] = []
+  const hr = st.separators === 'none' ? '<div style="height:1.5mm"></div>' : '<hr>'
+  const alignCls = st.align === 'start' ? 'a-start' : 'c'
 
-  out.push('<div class="rc"><div class="c">')
-  if (logo) out.push(`<img class="logo" src="${esc(logo)}" alt="${esc(L.receipt.logoAlt)}">`)
-  out.push(`<div class="name">${esc(b.name)}</div>`)
-  if (b.address) out.push(`<div class="muted">${esc(b.address)}</div>`)
-  if (b.phone) out.push(`<div class="muted">${ltr(b.phone)}</div>`)
+  // ---- header
+  const headText: string[] = []
+  headText.push(`<div class="name">${esc(b.name)}</div>`)
+  if (b.address) headText.push(`<div class="muted">${esc(b.address)}</div>`)
+  if (b.phone) headText.push(`<div class="muted">${ltr(b.phone)}</div>`)
   // Tax number and commercial register are OPTIONAL: printed only when filled.
-  if (b.tax_number) out.push(`<div class="muted">${esc(L.receipt.taxNumber)}: ${ltr(b.tax_number)}</div>`)
+  if (b.tax_number) headText.push(`<div class="muted">${esc(L.receipt.taxNumber)}: ${ltr(b.tax_number)}</div>`)
   if (b.commercial_register)
-    out.push(`<div class="muted">${esc(L.receipt.commercialRegister)}: ${ltr(b.commercial_register)}</div>`)
-  out.push('</div><hr>')
+    headText.push(`<div class="muted">${esc(L.receipt.commercialRegister)}: ${ltr(b.commercial_register)}</div>`)
+  if (tpl.header_text) headText.push(`<div class="muted note">${esc(tpl.header_text)}</div>`)
+  const logoImg = logo && st.header_layout !== 'text_only'
+    ? `<img class="logo ${st.header_layout === 'logo_side' ? 'logo-side' : ''}" src="${esc(logo)}" alt="${esc(L.receipt.logoAlt)}">`
+    : ''
+  if (st.header_layout === 'logo_side' && logoImg) {
+    out.push(`<div class="rc"><div class="hdr-side">${logoImg}<div class="${alignCls}">${headText.join('')}</div></div>${hr}`)
+  } else {
+    out.push(`<div class="rc"><div class="${alignCls}">${logoImg}${headText.join('')}</div>${hr}`)
+  }
 
+  // ---- title + number + date
+  if (tpl.title) out.push(`<div class="c title">${esc(tpl.title)}</div>`)
   out.push(line(L.receipt.invoice, ltr(`#${p.order_number}`)))
-  out.push(line(L.receipt.date, dateTime(p.created_at)))
+  out.push(line(L.receipt.date, formatDateTime(p.created_at, tpl.date_format ?? 'mdy', tpl.time_format ?? '12h')))
   if (p.status === 'cancelled') out.push(`<div class="c"><span class="badge">${esc(L.receipt.cancelled)}</span></div>`)
 
-  const visible = (key: string) => p.template.blocks.find((x) => x.key === key)?.visible !== false
-  const orderOf = (keys: string[]) =>
-    p.template.blocks.map((x) => x.key).filter((k) => keys.includes(k))
+  const visible = (key: string) => tpl.blocks.find((x) => x.key === key)?.visible !== false
+  const orderOf = (keys: string[]) => tpl.blocks.map((x) => x.key).filter((k) => keys.includes(k))
 
   // Info zone: before the items, in the order chosen in the designer.
   const info: Record<string, string> = {}
@@ -127,28 +185,34 @@ function renderInvoiceOne(p: InvoicePrintPayload, L: PrintLabels): string {
   const infoHtml = orderOf(['customer', 'vehicle', 'cashier', 'worker'])
     .filter((k) => visible(k) && info[k])
     .map((k) => info[k])
-  if (infoHtml.length) out.push('<hr>' + infoHtml.join(''))
+  for (const f of tpl.custom_fields ?? []) infoHtml.push(line(f.label, esc(f.value)))
+  if (infoHtml.length) out.push(hr + infoHtml.join(''))
 
-  out.push('<hr>')
+  // ---- items (name and line total are always shown)
+  out.push(hr)
+  const cols = tpl.item_columns ?? { variant: true, qty: true, unit_price: true }
   for (const it of p.items) {
-    const name = it.variant_name ? `${it.name} (${it.variant_name})` : it.name
+    const name = it.variant_name && cols.variant ? `${it.name} (${it.variant_name})` : it.name
+    let detail = ''
+    if (cols.qty && cols.unit_price) detail = `${it.quantity} × ${money(it.unit_price)}`
+    else if (cols.qty) detail = `${it.quantity} ×`
+    else if (cols.unit_price) detail = money(it.unit_price)
     out.push(
-      `<div class="item"><div>${esc(name)}</div><div class="row sub"><span>${ltr(
-        `${it.quantity} × ${money(it.unit_price)}`,
-      )}</span><span>${ltr(money(it.total))}</span></div></div>`,
+      `<div class="item"><div>${esc(name)}</div><div class="row sub"><span>${detail ? ltr(detail) : ''}</span><span>${ltr(money(it.total))}</span></div></div>`,
     )
   }
-  out.push('<hr>')
+  out.push(hr)
 
+  // ---- totals (VAT and total are always shown)
   const t = p.totals
-  out.push(line(L.receipt.subtotal, ltr(money(t.subtotal))))
-  if (t.discount > 0) out.push(line(L.receipt.discount, ltr(`-${money(t.discount)}`)))
+  const lines = tpl.totals_lines ?? { subtotal: true, discount: true }
+  if (lines.subtotal) out.push(line(L.receipt.subtotal, ltr(money(t.subtotal))))
+  if (lines.discount && t.discount > 0) out.push(line(L.receipt.discount, ltr(`-${money(t.discount)}`)))
   const pct = (t.tax_rate * 100).toLocaleString('en-US', { maximumFractionDigits: 2 })
   out.push(line(L.receipt.vat.replace('{percent}', `${pct}%`), ltr(money(t.tax))))
   out.push(
     `<div class="row tot"><span>${esc(L.receipt.total)}</span><span>${ltr(money(t.total))} ${cur}</span></div>`,
   )
-  out.push(`<div class="muted c">${esc(t.tax_inclusive ? L.receipt.taxInclusive : L.receipt.taxExclusive)}</div>`)
 
   // Foot zone: payments then notes (order from the designer).
   const foot: Record<string, string> = {}
@@ -165,18 +229,40 @@ function renderInvoiceOne(p: InvoicePrintPayload, L: PrintLabels): string {
   const footHtml = orderOf(['payments', 'notes'])
     .filter((k) => visible(k) && foot[k])
     .map((k) => foot[k])
-  if (footHtml.length) out.push('<hr>' + footHtml.join('<div style="height:1.5mm"></div>'))
+  if (footHtml.length) out.push(hr + footHtml.join('<div style="height:1.5mm"></div>'))
 
-  if (b.footer) out.push(`<hr><div class="c note">${esc(b.footer)}</div>`)
+  if (tpl.terms_text) out.push(`${hr}<div class="muted note ${alignCls}">${esc(tpl.terms_text)}</div>`)
+  if (b.footer) out.push(`${hr}<div class="${alignCls} note">${esc(b.footer)}</div>`)
   if (p.qr_base64) out.push(`<img class="qr" src="${qrSvgDataUrl(p.qr_base64)}" alt="${esc(L.receipt.qrAlt)}">`)
   out.push('</div>')
   return out.join('')
 }
 
+/** CSS that turns the template's style choices into the print look (defaults = no change). */
+function styleCss(tpl: InvoiceTemplate): string {
+  const st = tpl.style
+  if (!st) return ''
+  const size = st.font_size === 'sm' ? '0.88' : st.font_size === 'lg' ? '1.15' : '1'
+  const gap = st.line_spacing === 'compact' ? '1.15' : st.line_spacing === 'relaxed' ? '1.6' : '1.35'
+  const sep = st.separators === 'solid' ? 'solid' : 'dashed'
+  const accent = ACCENT[st.accent] ?? '#000'
+  return `
+.rc{font-size:${size}em;line-height:${gap};color:#000}
+hr{border-top:1px ${sep} ${accent}}
+.name,.title{color:${accent}}
+.title{font-weight:700;font-size:1.1em;margin:1mm 0}
+.tot{${st.font_weight === 'bold_totals' ? 'font-size:1.35em;' : ''}border-top-color:${accent}}
+${st.font_weight === 'bold_totals' ? '.row.tot span{font-weight:800}' : ''}
+.a-start{text-align:start}
+.hdr-side{display:flex;align-items:center;gap:3mm}
+.logo-side{margin:0;max-width:28%}`
+}
+
 export function renderInvoiceHtml(p: InvoicePrintPayload, L: PrintLabels, o: RenderOptions): string {
-  const one = renderInvoiceOne(p, L)
+  const w = wordsFor(p, L, o)
+  const one = renderInvoiceOne(p, w.L, o)
   const copies = Math.min(Math.max(p.template.copies || 1, 1), 5)
-  return documentHtml(one.repeat(copies), p.template.paper_width, o)
+  return documentHtml(one.repeat(copies), p.template.paper_width, { ...o, dir: w.dir }, styleCss(p.template))
 }
 
 function renderKitchenOne(p: KitchenPrintPayload, L: PrintLabels): string {

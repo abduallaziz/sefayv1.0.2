@@ -131,6 +131,108 @@
     "saved": "Saved",
     "saveFailed": "Could not save the template",
     "loadFailed": "Could not load the template",
-    "testPrint": "Test print"
+    "testPrint": "Test print",
+    "v2": {
+      "lookTitle": "Look & formatting",
+      "language": "Receipt language",
+      "lang": {
+        "auto": "Follow the app language",
+        "ar": "Arabic",
+        "en": "English",
+        "bilingual": "Bilingual"
+      },
+      "fontSize": "Font size",
+      "size": {
+        "sm": "Small",
+        "md": "Medium",
+        "lg": "Large"
+      },
+      "fontWeight": "Font weight",
+      "weight": {
+        "normal": "Normal",
+        "bold_totals": "Emphasised total"
+      },
+      "align": "Header & footer alignment",
+      "alignOpt": {
+        "center": "Center",
+        "start": "Start"
+      },
+      "lineSpacing": "Line spacing",
+      "spacing": {
+        "compact": "Compact",
+        "normal": "Normal",
+        "relaxed": "Relaxed"
+      },
+      "separators": "Separators",
+      "sep": {
+        "dashed": "Dashed",
+        "solid": "Solid",
+        "none": "None"
+      },
+      "headerLayout": "Header layout",
+      "layout": {
+        "logo_top": "Logo on top",
+        "logo_side": "Logo beside the text",
+        "text_only": "Text only"
+      },
+      "accent": "Accent colour",
+      "contentTitle": "Content",
+      "requiredNote": "Business name, tax number, invoice number, date, VAT, total and the QR code are required and cannot be hidden — only renamed.",
+      "col": {
+        "variant": "Show variant (size/type)",
+        "qty": "Show quantity",
+        "unitPrice": "Show unit price"
+      },
+      "line": {
+        "subtotal": "Subtotal line",
+        "discount": "Discount line"
+      },
+      "textsTitle": "Texts & fields",
+      "invoiceTitleField": "Invoice title",
+      "invoiceTitlePh": "e.g. Simplified Tax Invoice",
+      "headerText": "Text under the header",
+      "termsText": "Terms & conditions",
+      "termsPh": "e.g. No returns after 7 days",
+      "customFields": "Custom fields (up to 5)",
+      "fieldLabel": "Label",
+      "fieldValue": "Value",
+      "addField": "Add field",
+      "removeField": "Remove field",
+      "formatsTitle": "Dates & invoice numbering",
+      "dateFormat": "Date format",
+      "date": {
+        "mdy": "MM/DD/YYYY",
+        "dmy": "DD/MM/YYYY",
+        "ymd": "YYYY-MM-DD"
+      },
+      "timeFormat": "Time format",
+      "time": {
+        "12h": "12-hour",
+        "24h": "24-hour"
+      },
+      "numberPrefix": "Invoice number prefix",
+      "numberPadding": "Number digits",
+      "numberHint": "Number example: {example}. Digits are always English.",
+      "labelsTitle": "Rename headings",
+      "labelsHint": "Leave empty for the default wording (max 40 characters).",
+      "labelNames": {
+        "invoice": "Invoice number",
+        "date": "Date",
+        "customer": "Customer",
+        "vehicle": "Vehicle",
+        "cashier": "Cashier",
+        "worker": "Worker",
+        "subtotal": "Subtotal",
+        "discount": "Discount",
+        "vat": "VAT",
+        "total": "Total",
+        "payments": "Payments",
+        "cashTendered": "Cash tendered",
+        "change": "Change",
+        "notes": "Notes",
+        "taxNumber": "Tax number",
+        "commercialRegister": "Commercial register"
+      }
+    }
   }
 }
