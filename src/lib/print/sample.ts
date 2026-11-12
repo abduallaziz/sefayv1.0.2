@@ -64,6 +64,8 @@ export function sampleInvoicePayload(
     kind: 'invoice',
     order_id: 'sample',
     order_number: 'A1B2C3',
+    // shows the number format chosen in the designer
+    invoice_no: `${template.invoice_number?.prefix ?? 'INV-'}${'1'.padStart(template.invoice_number?.padding ?? 6, '0')}`,
     created_at: new Date().toISOString(),
     currency_symbol: currencySymbol,
     auto_print: false,

@@ -29,6 +29,8 @@ export interface OrderItem {
 
 export interface Order {
   id: string;
+  /** Sequential legal invoice number (null for orders created before numbering). */
+  invoice_no?: string | null;
   tenant_id?: string;
   branch_id: string;
   cashier_id: string;

@@ -61,6 +61,8 @@ export interface KitchenTemplate {
 
 export interface InvoicePrintPayload {
   kind: 'invoice'
+  /** Sequential legal invoice number (null for orders created before numbering). */
+  invoice_no: string | null
   order_id: string
   order_number: string
   created_at: string
