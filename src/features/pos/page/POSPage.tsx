@@ -164,6 +164,7 @@ export function POSPage() {
         redeem_points: data.redeem_points,
         redeem_reward_instance_ids: data.redeem_reward_instance_ids,
         free_item_choices: data.free_item_choices,
+        free_item_variants: data.free_item_variants,
         coupon_code: cart.coupon_code,
         notes: finalNotes || undefined,
         items: cart.items.map(item => ({

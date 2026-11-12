@@ -85,4 +85,6 @@ export interface PaymentData {
   redeem_reward_instance_ids?: string[]
   // Free-item rewards set to "one of several": the product picked for each.
   free_item_choices?: Array<{ reward_instance_id: string; item_id: string }>
+  // Variant (size/colour) of each free item that has variants.
+  free_item_variants?: Array<{ reward_instance_id: string; item_id: string; variant_id: string }>
 }
