@@ -20,6 +20,9 @@ export const useCreateBranch = () => {
       // list — keep it in sync too so a newly created branch shows up
       // everywhere immediately, without touching that hook's own contract.
       qc.invalidateQueries({ queryKey: ['branches'] })
+      // A new branch is created together with its default warehouse (API),
+      // so refresh the warehouses list or the card shows "not set" until reload.
+      qc.invalidateQueries({ queryKey: ['warehouses'] })
     },
   })
 }
