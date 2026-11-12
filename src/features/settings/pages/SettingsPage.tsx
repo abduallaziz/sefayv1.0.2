@@ -78,6 +78,7 @@ export function SettingsPage() {
   const [invoiceFooter, setInvoiceFooter] = useState('');
   const [paperWidth, setPaperWidth] = useState<'58mm' | '80mm'>('80mm');
   const [autoPrint, setAutoPrint] = useState(false);
+  const [kitchenAutoPrint, setKitchenAutoPrint] = useState(false);
   const [pointsPerCurrency, setPointsPerCurrency] = useState('1');
   const [redemptionValue, setRedemptionValue] = useState('0.01');
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -118,6 +119,7 @@ export function SettingsPage() {
       setInvoiceFooter(profile.invoice_footer ?? '');
       setPaperWidth(profile.printer_settings?.paper_width ?? '80mm');
       setAutoPrint(profile.printer_settings?.auto_print ?? false);
+      setKitchenAutoPrint(profile.printer_settings?.kitchen_auto_print ?? false);
       setPointsPerCurrency(String(profile.loyalty_points_per_currency ?? 1));
       setRedemptionValue(String(profile.loyalty_redemption_value ?? 0.01));
     }
@@ -172,7 +174,10 @@ export function SettingsPage() {
 
   function handleSavePrinterSettings() {
     setSaveError(null);
-    savePrinterSettings({ printer_settings: { paper_width: paperWidth, auto_print: autoPrint } }, { onError: onSaveError });
+    savePrinterSettings(
+      { printer_settings: { paper_width: paperWidth, auto_print: autoPrint, kitchen_auto_print: kitchenAutoPrint } },
+      { onError: onSaveError },
+    );
   }
 
   // T11 - methods the owner can switch off. 'card' and 'tab' are not offered at
@@ -464,6 +469,21 @@ export function SettingsPage() {
                 <span
                   className={`absolute top-0.5 start-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
                     autoPrint ? 'translate-x-6 rtl:-translate-x-6' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-slate-500">{t('kitchenAutoPrint')}</span>
+              <button
+                onClick={() => setKitchenAutoPrint(!kitchenAutoPrint)}
+                className={`relative w-12 h-6 rounded-full transition-colors ${
+                  kitchenAutoPrint ? 'bg-[#0C447C]' : 'bg-slate-200 dark:bg-gray-700'
+                }`}
+              >
+                <span
+                  className={`absolute top-0.5 start-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
+                    kitchenAutoPrint ? 'translate-x-6 rtl:-translate-x-6' : 'translate-x-0'
                   }`}
                 />
               </button>

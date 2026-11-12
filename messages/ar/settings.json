@@ -32,6 +32,7 @@
   "printerSettings": "إعدادات الطابعة",
   "paperWidth": "عرض الورق",
   "autoPrint": "طباعة تلقائية بعد كل فاتورة",
+  "kitchenAutoPrint": "طباعة تذكرة المطبخ تلقائيًا بعد كل فاتورة",
   "notificationPreferences": "إعدادات التنبيهات",
   "notificationPreferencesHint": "اختر أي التنبيهات تريد استلامها عبر البريد الإلكتروني. تبقى تنبيهات الأمان (تسجيل الدخول والجلسات) مفعّلة دائمًا.",
   "notifications": {

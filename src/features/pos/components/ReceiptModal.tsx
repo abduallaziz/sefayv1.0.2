@@ -86,8 +86,23 @@ export function ReceiptModal({
     if (autoPrintStarted.current || !orderId) return
     autoPrintStarted.current = true
     let cancelled = false
-    printApi
-      .invoicePayload(orderId, tendered)
+    // Kitchen ticket first (only when the owner switched kitchen auto-print on and
+    // there is something for the kitchen); a failure here never blocks the invoice.
+    const kitchenFirst = printApi
+      .kitchenPayload(orderId)
+      .then(async (k) => {
+        if (cancelled || !k.auto_print || k.items.length === 0) return
+        try {
+          await print(k)
+        } catch {
+          if (!cancelled) toast.error(tPrint('kitchenFailed'))
+        }
+      })
+      // fetching the kitchen payload failing (e.g. no kitchen access) stays silent:
+      // auto-print is off for most businesses and must not nag on every sale
+      .catch(() => {})
+    kitchenFirst
+      .then(() => printApi.invoicePayload(orderId, tendered))
       .then(async (payload) => {
         if (cancelled || !payload.auto_print) return
         setPrinting(true)
