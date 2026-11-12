@@ -6,6 +6,7 @@ import { useCreateRewardDefinition, useUpdateRewardDefinition } from '../hooks/u
 import type { RewardDefinition, RewardTriggerType, RewardType, RewardBranchScope } from '../api/rewards.api'
 import { ApiError } from '@/lib/api'
 import { useBranches } from '@/shared/hooks/useBranches'
+import { ItemMultiPicker } from './ItemMultiPicker'
 
 interface Props {
   reward?: RewardDefinition | null
@@ -63,9 +64,13 @@ export function RewardFormModal({ reward, onClose }: Props) {
         : (reward?.reward_config?.amount as number | undefined)) ?? '',
     ),
   )
-  const [freeItemId, setFreeItemId] = useState(
-    String((reward?.reward_config?.item_id as string | undefined) ?? ''),
-  )
+  // free_item: one or several products (item_ids); item_id keeps the first for older readers
+  const [freeItemIds, setFreeItemIds] = useState<string[]>(() => {
+    const ids = reward?.reward_config?.item_ids
+    if (Array.isArray(ids)) return ids.map(String)
+    const single = reward?.reward_config?.item_id as string | undefined
+    return single ? [single] : []
+  })
   const [couponId, setCouponId] = useState(
     String((reward?.reward_config?.coupon_id as string | undefined) ?? ''),
   )
@@ -96,7 +101,7 @@ export function RewardFormModal({ reward, onClose }: Props) {
 
   const buildRewardConfig = (): Record<string, unknown> => {
     if (rewardType === 'free_item') {
-      return { item_id: freeItemId }
+      return { item_id: freeItemIds[0] ?? '', item_ids: freeItemIds }
     }
     if (rewardType === 'percentage_discount') {
       return { percent: parseFloat(discountValue) || 0 }
@@ -114,6 +119,10 @@ export function RewardFormModal({ reward, onClose }: Props) {
 
   const handleSubmit = () => {
     if (!name.trim()) return
+    if (rewardType === 'free_item' && freeItemIds.length === 0) {
+      setError(t('rewardConfig.pickAtLeastOne'))
+      return
+    }
     setError(null)
 
     const payload = {
@@ -246,14 +255,8 @@ export function RewardFormModal({ reward, onClose }: Props) {
 
           {rewardType === 'free_item' ? (
             <div>
-              <label className="text-xs text-gray-500 mb-1 block">{t('rewardConfig.itemId')}</label>
-              <input
-                type="text"
-                value={freeItemId}
-                onChange={(e) => setFreeItemId(e.target.value)}
-                placeholder={t('rewardConfig.itemIdPlaceholder')}
-                className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white"
-              />
+              <label className="text-xs text-gray-500 mb-1 block">{t('rewardConfig.freeItems')}</label>
+              <ItemMultiPicker selectedIds={freeItemIds} onChange={setFreeItemIds} />
             </div>
           ) : rewardType === 'coupon_reference' ? (
             <div>
