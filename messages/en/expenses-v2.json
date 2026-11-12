@@ -242,7 +242,14 @@
       "empty": "No Quick Expense buttons configured",
       "variableAmountPrompt": "Enter amount",
       "confirm": "Add"
-    }
+    },
+    "addCategory": "Add category",
+    "newCategory": "New category",
+    "categoryName": "Category name",
+    "categoryNamePh": "e.g. Electricity",
+    "categorySaved": "Category added",
+    "save": "Save",
+    "cancel": "Cancel"
   },
   "quickDefinitionsAdmin": {
     "title": "Quick Expense Buttons",
@@ -300,7 +307,9 @@
     "quickSectionTitle": "Quick Expenses",
     "quickSectionDescription": "Record small Expenses quickly, in seconds",
     "recentQuick": "Recent Quick Expenses",
-    "recentQuickEmpty": "No Quick Expenses yet"
+    "recentQuickEmpty": "No Quick Expenses yet",
+    "deleteRecurring": "Delete recurring expense",
+    "deleteRecurringConfirm": "This recurring expense will be deleted and will stop repeating. Continue?"
   },
   "registerLabel": "Paid from register",
   "registerNone": "Not from a register (safe / petty cash)",
