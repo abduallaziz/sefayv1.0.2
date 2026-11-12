@@ -8,6 +8,19 @@ export interface TemplateBlock {
   visible: boolean
 }
 
+export type StyleFontSize = 'sm' | 'md' | 'lg'
+export type StyleAccent = 'black' | 'blue' | 'green' | 'red' | 'purple' | 'gray'
+export interface InvoiceStyle {
+  font_size: StyleFontSize
+  font_weight: 'normal' | 'bold_totals'
+  align: 'start' | 'center'
+  line_spacing: 'compact' | 'normal' | 'relaxed'
+  separators: 'dashed' | 'solid' | 'none'
+  accent: StyleAccent
+  header_layout: 'logo_top' | 'logo_side' | 'text_only'
+}
+export type ReceiptLanguage = 'auto' | 'ar' | 'en' | 'bilingual'
+
 export interface InvoiceTemplate {
   logo_path: string | null
   logo_url: string | null
@@ -22,6 +35,19 @@ export interface InvoiceTemplate {
   blocks: TemplateBlock[]
   qr_enabled: boolean
   copies: number
+  // Designer v2 (the server owns and validates these; defaults = the old look)
+  style: InvoiceStyle
+  language: ReceiptLanguage
+  item_columns: { variant: boolean; qty: boolean; unit_price: boolean }
+  totals_lines: { subtotal: boolean; discount: boolean }
+  labels: Record<string, string>
+  title: string | null
+  header_text: string | null
+  terms_text: string | null
+  custom_fields: { label: string; value: string }[]
+  date_format: 'mdy' | 'dmy' | 'ymd'
+  time_format: '12h' | '24h'
+  invoice_number: { prefix: string; padding: number }
 }
 
 export interface KitchenTemplate {
@@ -106,6 +132,8 @@ export interface PrintLabels {
 }
 
 export interface RenderOptions {
+  /** Both languages' words, for the receipt-language choice (ar / en / bilingual). */
+  labelSets?: { ar: PrintLabels; en: PrintLabels }
   /** 'rtl' for Arabic. */
   dir: 'rtl' | 'ltr'
   lang: string

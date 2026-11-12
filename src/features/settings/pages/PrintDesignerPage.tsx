@@ -9,6 +9,7 @@ import { ArrowDown, ArrowUp, ChevronLeft, Printer, Save, Trash2, Upload } from '
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import { Switch } from '@/shared/ui/switch'
+import { InvoiceStyleSections } from '../components/InvoiceStyleSections'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { printApi, type TemplateResponse } from '@/lib/print/print.api'
@@ -348,6 +349,8 @@ function DesignerForm({
             ))}
           </ul>
         </div>
+
+        {inv && <InvoiceStyleSections draft={inv} patch={patch} />}
 
         <div className="flex flex-wrap gap-3">
           <Button onClick={() => save.mutate()} disabled={save.isPending}>

@@ -5,6 +5,13 @@ import { useLocale, useTranslations } from 'next-intl'
 import { printApi } from './print.api'
 import { printReceipt } from './printReceipt'
 import type { PrintLabels, PrintPayload, RenderOptions } from './types'
+import arPrint from '../../../messages/ar/print.json'
+import enPrint from '../../../messages/en/print.json'
+
+// Both languages' words, for the receipt-language choice in the designer (ar / en / bilingual).
+const pickLabels = (m: { receipt: unknown; payment: unknown; kitchen: unknown }) =>
+  ({ receipt: m.receipt, payment: m.payment, kitchen: m.kitchen }) as unknown as PrintLabels
+const LABEL_SETS = { ar: pickLabels(arPrint), en: pickLabels(enPrint) }
 
 /** Translated words for the ticket renderer (namespace `print`). */
 export function usePrintLabels(): PrintLabels {
@@ -22,7 +29,7 @@ export function usePrintLabels(): PrintLabels {
 export function useRenderOptions(): RenderOptions {
   const locale = useLocale()
   return useMemo<RenderOptions>(
-    () => ({ lang: locale, dir: locale === 'ar' ? 'rtl' : 'ltr' }),
+    () => ({ lang: locale, dir: locale === 'ar' ? 'rtl' : 'ltr', labelSets: LABEL_SETS }),
     [locale],
   )
 }
