@@ -54,7 +54,6 @@ export function ReceiptModal({
   }[payment.method]
 
   const tPrint = useTranslations('print.actions')
-  const tPrice = useTranslations('print')
   const { print, printKitchen } = usePrinting()
   const [printing, setPrinting] = useState(false)
   const autoPrintStarted = useRef(false)
@@ -157,10 +156,6 @@ export function ReceiptModal({
               <span className="text-posCloud-text-primary dark:text-posCloudDark-text-primary">{t('total')}</span>
               <span className="text-posCloud-primary">{fmt(total)} {t('receipt.currency')}</span>
             </div>
-            {/* same wording and place as the printed receipt (print.taxExclusive / taxInclusive) */}
-            <p className="text-center text-[11px] text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-              {taxInclusive ? tPrice('taxInclusive') : tPrice('taxExclusive')}
-            </p>
           </div>
 
           <div className="bg-posCloud-background dark:bg-posCloudDark-background rounded-lg p-3 text-sm space-y-1">

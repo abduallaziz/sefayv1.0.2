@@ -148,7 +148,6 @@ function renderInvoiceOne(p: InvoicePrintPayload, L: PrintLabels): string {
   out.push(
     `<div class="row tot"><span>${esc(L.receipt.total)}</span><span>${ltr(money(t.total))} ${cur}</span></div>`,
   )
-  out.push(`<div class="muted c">${esc(t.tax_inclusive ? L.receipt.taxInclusive : L.receipt.taxExclusive)}</div>`)
 
   // Foot zone: payments then notes (order from the designer).
   const foot: Record<string, string> = {}
