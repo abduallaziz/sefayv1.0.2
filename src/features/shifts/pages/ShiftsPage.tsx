@@ -10,7 +10,7 @@ import { OpenShiftModal } from '../components/OpenShiftModal';
 import { CloseShiftModal } from '../components/CloseShiftModal';
 import { ShiftSummaryModal } from '../components/ShiftSummaryModal';
 import { useAuthStore } from '@/core/auth/stores/auth.store';
-import { useBranches } from '@/shared/hooks/useBranches';
+import { useBranchContext } from '@/core/branch/useBranchContext';
 
 export function ShiftsPage() {
   const t = useTranslations('shifts');
@@ -22,9 +22,11 @@ export function ShiftsPage() {
   const [showClose, setShowClose] = useState(false);
   const [summaryShiftId, setSummaryShiftId] = useState<string | null>(null);
 
-  const { data: branches } = useBranches();
 
-  const branchId = user?.branchId ?? branches?.[0]?.id ?? '';
+  // The branch the user actually selected (shared branch context), not just
+  // the newest branch in the list.
+  const { currentBranchId } = useBranchContext()
+  const branchId = currentBranchId ?? '';
 
   const handleCloseShift = () => {
     setShowClose(false);

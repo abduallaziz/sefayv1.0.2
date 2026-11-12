@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
 import { Car, ArrowRight, RotateCcw, X, Plus } from 'lucide-react'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
-import { useBranches } from '@/shared/hooks/useBranches'
+import { useBranchContext } from '@/core/branch/useBranchContext'
 import { useUsers } from '@/features/users/hooks/useUsers'
 import { ApiError } from '@/lib/api'
 import {
@@ -43,8 +43,10 @@ function elapsedMinutes(job: WashJob, now: number): number {
 export function QueuePage() {
   const t = useTranslations('queue')
   const { user } = useAuthStore()
-  const { data: branches } = useBranches()
-  const branchId = user?.branchId ?? branches?.[0]?.id ?? ''
+  // The branch the user actually selected (shared branch context), not just
+  // the newest branch in the list.
+  const { currentBranchId } = useBranchContext()
+  const branchId = currentBranchId ?? ''
   const canRewash = REWASH_ROLES.includes(user?.role ?? '')
 
   const { data: board, isLoading } = useWashBoard(branchId)

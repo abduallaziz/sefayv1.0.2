@@ -17,6 +17,7 @@ import { useCustomerRewards } from '@/features/rewards/hooks/useRewards'
 import type { ReceiptLineItem } from '@/features/orders/types/order.types'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { useBranches } from '@/shared/hooks/useBranches'
+import { useBranchContext } from '@/core/branch/useBranchContext'
 import { useCurrentShift } from '@/features/shifts/hooks/useShifts'
 import { apiClient, ApiError } from '@/lib/api'
 import { useTranslations } from 'next-intl'
@@ -119,7 +120,10 @@ export function POSPage() {
   const { data: usersList } = useUsers()
   const workers = (usersList ?? []).filter((u) => u.is_active).map((u) => ({ id: u.id, name: u.name }))
 
-  const branchId = user?.branchId ?? branches?.[0]?.id ?? ''
+  // The branch the user actually selected (shared branch context), not just
+  // the newest branch in the list.
+  const { currentBranchId } = useBranchContext()
+  const branchId = currentBranchId ?? ''
 
   const { data: heldOrders = [] } = useHeldOrders(branchId)
   const holdOrderMutation = useHoldOrder(branchId)

@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl'
 import { Plus, CalendarCheck, Users as UsersIcon } from 'lucide-react'
 import { ApiError } from '@/lib/api'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
-import { useBranches } from '@/shared/hooks/useBranches'
+import { useBranchContext } from '@/core/branch/useBranchContext'
 import { TableCard } from '../components/TableCard'
 import { CreateTableModal } from '../components/CreateTableModal'
 import { DineInModal } from '../components/DineInModal'
@@ -20,8 +20,10 @@ export function TablesPage() {
   const [showCreate, setShowCreate] = useState(false)
   const [activeTable, setActiveTable] = useState<RestaurantTable | null>(null)
 
-  const { data: branches } = useBranches()
-  const branchId = user?.branchId ?? branches?.[0]?.id ?? ''
+  // The branch the user actually selected (shared branch context), not just
+  // the newest branch in the list.
+  const { currentBranchId } = useBranchContext()
+  const branchId = currentBranchId ?? ''
 
   const { data: tables = [], isLoading: tablesLoading } = useTablesList(branchId)
   const { data: reservations = [], isLoading: reservationsLoading } = useReservations()
