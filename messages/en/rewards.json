@@ -87,6 +87,10 @@
     "sectionLabel": "Rewards",
     "availableCount": "{count} available",
     "noneAvailable": "No rewards available",
-    "selectRewards": "Select rewards to redeem"
+    "selectRewards": "Select rewards to redeem",
+    "withVat": "incl. VAT",
+    "withoutVat": "excl. VAT",
+    "remainingOf": "of {total}",
+    "freeItem": "Free item"
   }
 }

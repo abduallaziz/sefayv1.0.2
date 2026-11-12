@@ -87,6 +87,10 @@
     "sectionLabel": "المكافآت",
     "availableCount": "{count} متاحة",
     "noneAvailable": "لا توجد مكافآت متاحة",
-    "selectRewards": "اختر المكافآت المراد استبدالها"
+    "selectRewards": "اختر المكافآت المراد استبدالها",
+    "withVat": "شامل الضريبة",
+    "withoutVat": "قبل الضريبة",
+    "remainingOf": "من أصل {total}",
+    "freeItem": "صنف مجاني"
   }
 }

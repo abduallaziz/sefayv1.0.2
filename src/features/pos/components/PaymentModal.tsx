@@ -101,6 +101,34 @@ export function PaymentModal({
 
   const fmt = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
+  // What a reward is worth, shown next to it at the till so the cashier sees the
+  // value before redeeming (fixed: current balance + VAT treatment; percent: %).
+  const rewardValue = (instance: CustomerRewardInstance) => {
+    const def = instance.reward_definitions
+    if (!def) return null
+    if (def.reward_type === 'fixed_discount') {
+      const amount = Number(def.reward_config?.amount ?? 0)
+      const remaining =
+        instance.remaining_amount !== null && instance.remaining_amount !== undefined
+          ? Number(instance.remaining_amount)
+          : amount
+      return {
+        main: `${fmt(remaining)} ${currency}`,
+        note:
+          (def.reward_config?.tax_mode === 'including'
+            ? tRewards('pos.withVat')
+            : tRewards('pos.withoutVat')) +
+          (remaining < amount ? ` · ${tRewards('pos.remainingOf', { total: fmt(amount) })}` : ''),
+      }
+    }
+    if (def.reward_type === 'percentage_discount') {
+      const pct = Number(def.reward_config?.percent ?? 0)
+      return { main: `${pct.toLocaleString('en-US', { maximumFractionDigits: 2 })}%`, note: '' }
+    }
+    if (def.reward_type === 'free_item') return { main: tRewards('pos.freeItem'), note: '' }
+    return null
+  }
+
   const redeemPointsNum = Math.min(parseInt(redeemPoints || '0', 10) || 0, availablePoints)
   const selectedRewards = availableRewards.filter((r) => selectedRewardIds.includes(r.id))
 
@@ -329,7 +357,16 @@ export function PaymentModal({
                         onChange={() => onToggleReward?.(instance.id)}
                         className="h-3.5 w-3.5 rounded border-posCloud-border accent-posCloud-primary dark:border-posCloudDark-border"
                       />
-                      {instance.reward_definitions?.name ?? '—'}
+                      <span className="min-w-0 flex-1 truncate">{instance.reward_definitions?.name ?? '—'}</span>
+                      {(() => {
+                        const v = rewardValue(instance)
+                        return v ? (
+                          <span className="shrink-0 text-end">
+                            <span className="block font-bold text-posCloud-success">{v.main}</span>
+                            {v.note && <span className={`block text-[10px] ${muted}`}>{v.note}</span>}
+                          </span>
+                        ) : null
+                      })()}
                     </label>
                   ))}
                 </div>

@@ -73,6 +73,8 @@ export interface CustomerRewardInstance {
   redeemed_at: string | null
   expires_at: string | null
   order_id: string | null
+  /** fixed-amount rewards: unused balance; null/absent = the full definition amount */
+  remaining_amount?: number | string | null
   reward_definitions: RewardDefinition | null
 }
 
