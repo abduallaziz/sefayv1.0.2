@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
 import { UploadCloud, Paperclip, X, Repeat, ClipboardList, Wallet, Save } from 'lucide-react'
@@ -12,7 +12,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/shared/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
 import { Switch } from '@/shared/ui/switch'
 import { ApiError } from '@/lib/api'
-import { useExpenseDepartments } from '../hooks/useExpenseDepartments'
+import { useCreateExpenseDepartment, useExpenseDepartments } from '../hooks/useExpenseDepartments'
 import { useExpenseCategoriesV2 } from '../hooks/useExpenseCategories'
 import { useCreateExpense, useUpdateExpense, useExpenseAttachments, useUploadAttachment } from '../hooks/useExpensesCore'
 import { useProfile } from '@/features/settings/hooks/useSettings'
@@ -115,6 +115,7 @@ function ExpenseFormBody({
   const tPayment = useTranslations('expensesV2.expensesCore.payment')
 
   const departments = useExpenseDepartments()
+  const createDepartment = useCreateExpenseDepartment()
   const categories = useExpenseCategoriesV2()
   const profile = useProfile()
   const taxRate = profile.data?.tax_rate ?? 0
@@ -133,6 +134,17 @@ function ExpenseFormBody({
   const today = new Date().toLocaleDateString('en-CA')
   const [expenseDate, setExpenseDate] = useState<string | undefined>(editing?.expense_date ?? today)
   const [departmentId, setDepartmentId] = useState(editing?.department_id ?? '')
+  // The business only needs categories. The API still files every expense under a department,
+  // so the first one (or a default "General") is used silently — there is no picker.
+  useEffect(() => {
+    if (departmentId || !departments.data) return
+    if (departments.data.length > 0) {
+      setDepartmentId(departments.data[0].id)
+    } else if (!createDepartment.isPending && !createDepartment.isSuccess && !createDepartment.isError) {
+      createDepartment.mutate({ name: 'General' }, { onSuccess: (d) => setDepartmentId(d.id) })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [departments.data, departmentId])
   const [categoryId, setCategoryId] = useState(editing?.category_id ?? '')
   const [title, setTitle] = useState(editing?.title ?? '')
   const [description, setDescription] = useState(editing?.description ?? '')
@@ -332,21 +344,6 @@ function ExpenseFormBody({
                     {categories.data?.map((c) => (
                       <SelectItem key={c.id} value={c.id}>
                         {c.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className={fieldLabel}>{t('department')}</label>
-                <Select value={departmentId} onValueChange={setDepartmentId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder={t('selectDepartment')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {departments.data?.map((d) => (
-                      <SelectItem key={d.id} value={d.id}>
-                        {d.name}
                       </SelectItem>
                     ))}
                   </SelectContent>

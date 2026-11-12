@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
-import { AlertTriangle, Ban, Pencil, Wallet, CalendarClock, PauseCircle, PlayCircle, TrendingUp } from 'lucide-react'
+import { AlertTriangle, Trash2, Pencil, Wallet, CalendarClock, PauseCircle, PlayCircle, TrendingUp } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/shared/ui/page-header'
 import { Button } from '@/shared/ui/button'
@@ -14,9 +14,8 @@ import { DataTable, type Column } from '@/shared/ui/data-table'
 import { useBranchContext } from '@/core/branch/useBranchContext'
 import { usePermission } from '@/core/permissions/hooks/usePermission'
 import { ApiError } from '@/lib/api'
-import { useExpenseDepartments } from '../hooks/useExpenseDepartments'
 import { useExpenseCategoriesV2 } from '../hooks/useExpenseCategories'
-import { useExpenses, useStopRecurring } from '../hooks/useExpensesCore'
+import { useExpenses, useCancelExpense } from '../hooks/useExpensesCore'
 import { ExpenseFormSheet } from '../components/ExpenseFormSheet'
 import { ExpensesSectionNav } from '../components/ExpensesSectionNav'
 import { ExpenseRecord, RecurringFrequency } from '../api/expenses-v2.api'
@@ -45,19 +44,14 @@ export function RecurringExpensesPage() {
   const { availableBranches, currentBranchId, setCurrentBranch, isCentral } = useBranchContext()
   const activeBranchId = currentBranchId ?? undefined
 
-  const departments = useExpenseDepartments()
   const categories = useExpenseCategoriesV2()
   const expenses = useExpenses(activeBranchId, { is_recurring: true })
   const allRecurring = useExpenses(activeBranchId, {})
-  const stopRecurring = useStopRecurring(activeBranchId)
+  const cancelExpense = useCancelExpense(activeBranchId)
 
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<ExpenseRecord | null>(null)
 
-  const departmentMap = useMemo(
-    () => new Map(departments.data?.map((d) => [d.id, d.name])),
-    [departments.data],
-  )
   const categoryMap = useMemo(
     () => new Map(categories.data?.map((c) => [c.id, c.name])),
     [categories.data],
@@ -110,11 +104,6 @@ export function RecurringExpensesPage() {
           {row.title}
         </span>
       ),
-    },
-    {
-      key: 'department',
-      header: tForm('table.department'),
-      render: (row) => departmentMap.get(row.department_id) ?? '—',
     },
     {
       key: 'category',
@@ -172,20 +161,20 @@ export function RecurringExpensesPage() {
           >
             <Pencil className="h-4 w-4" />
           </Button>
-          {canManage && row.is_recurring && (
+          {canManage && !row.cancelled_at && (
             <Button
               variant="ghost"
               size="icon"
               className="h-8 w-8 text-posCloud-danger hover:text-posCloud-danger"
-              title={t('stopRecurring')}
+              title={t('deleteRecurring')}
               onClick={() => {
-                if (!window.confirm(t('stopRecurringConfirm'))) return
-                stopRecurring.mutate(row.id, {
+                if (!window.confirm(t('deleteRecurringConfirm'))) return
+                cancelExpense.mutate(row.id, {
                   onError: (err) => toast.error(err instanceof ApiError ? err.message : 'Failed'),
                 })
               }}
             >
-              <Ban className="h-4 w-4" />
+              <Trash2 className="h-4 w-4" />
             </Button>
           )}
         </div>

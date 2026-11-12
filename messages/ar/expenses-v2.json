@@ -242,7 +242,14 @@
       "empty": "لا توجد أزرار مصروف سريع مُعدّة",
       "variableAmountPrompt": "أدخل المبلغ",
       "confirm": "إضافة"
-    }
+    },
+    "addCategory": "إضافة فئة",
+    "newCategory": "فئة جديدة",
+    "categoryName": "اسم الفئة",
+    "categoryNamePh": "مثال: كهرباء",
+    "categorySaved": "تمت إضافة الفئة",
+    "save": "حفظ",
+    "cancel": "إلغاء"
   },
   "quickDefinitionsAdmin": {
     "title": "أزرار المصروف السريع",
@@ -300,7 +307,9 @@
     "quickSectionTitle": "المصروفات السريعة",
     "quickSectionDescription": "تسجيل المصروفات الصغيرة بسرعة وفي ثوانٍ",
     "recentQuick": "آخر المصروفات السريعة",
-    "recentQuickEmpty": "لا توجد مصروفات سريعة بعد"
+    "recentQuickEmpty": "لا توجد مصروفات سريعة بعد",
+    "deleteRecurring": "حذف المصروف المتكرر",
+    "deleteRecurringConfirm": "سيتم حذف هذا المصروف المتكرر وإيقاف تكراره. متابعة؟"
   },
   "registerLabel": "مدفوع من الصندوق",
   "registerNone": "ليس من صندوق (خزنة / عهدة)",

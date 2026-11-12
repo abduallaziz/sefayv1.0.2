@@ -33,13 +33,12 @@ import { useBranchContext } from '@/core/branch/useBranchContext'
 import { usePermission } from '@/core/permissions/hooks/usePermission'
 import { useUsers } from '@/features/users/hooks/useUsers'
 import { ApiError } from '@/lib/api'
-import { useExpenseDepartments } from '../hooks/useExpenseDepartments'
 import { useExpenseCategoriesV2 } from '../hooks/useExpenseCategories'
 import { useExpenses, useCancelExpense, useConfirmPayment, useStopRecurring } from '../hooks/useExpensesCore'
 import { ExpenseFormSheet } from '../components/ExpenseFormSheet'
 import { ExpenseActivitySheet } from '../components/ExpenseActivitySheet'
 import { ExpenseAttachmentsSheet } from '../components/ExpenseAttachmentsSheet'
-import { QuickExpenseButtons } from '../components/QuickExpenseButtons'
+import { AddCategoryDialog } from '../components/AddCategoryDialog'
 import { ExpensesSectionNav } from '../components/ExpensesSectionNav'
 import { ExpenseRecord, ExpenseFilters } from '../api/expenses-v2.api'
 
@@ -58,7 +57,6 @@ export function ExpensesPage() {
 
   const [filters, setFilters] = useState<ExpenseFilters>({})
   const [paymentMethodFilter, setPaymentMethodFilter] = useState(ALL)
-  const departments = useExpenseDepartments()
   const categories = useExpenseCategoriesV2()
   const users = useUsers()
   const userNameById = useMemo(() => {
@@ -77,10 +75,6 @@ export function ExpensesPage() {
   const [activityExpenseId, setActivityExpenseId] = useState<string | null>(null)
   const [attachmentsExpenseId, setAttachmentsExpenseId] = useState<string | null>(null)
 
-  const departmentMap = useMemo(
-    () => new Map(departments.data?.map((d) => [d.id, d.name])),
-    [departments.data],
-  )
   const categoryMap = useMemo(
     () => new Map(categories.data?.map((c) => [c.id, c.name])),
     [categories.data],
@@ -158,11 +152,6 @@ export function ExpensesPage() {
           {row.cancelled_at && <StatusBadge label={t('status.cancelled')} tone="danger" />}
         </div>
       ),
-    },
-    {
-      key: 'department',
-      header: t('table.department'),
-      render: (row) => departmentMap.get(row.department_id) ?? '—',
     },
     {
       key: 'category',
@@ -298,15 +287,18 @@ export function ExpensesPage() {
         breadcrumb={[{ label: tBreadcrumb('home'), href: `/${locale}/dashboard` }, { label: t('title') }]}
         actions={
           canCreate && (
-            <Button
-              onClick={() => {
-                setEditing(null)
-                setFormOpen(true)
-              }}
-            >
-              <Plus className="h-4 w-4" />
-              {t('addExpense')}
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <AddCategoryDialog />
+              <Button
+                onClick={() => {
+                  setEditing(null)
+                  setFormOpen(true)
+                }}
+              >
+                <Plus className="h-4 w-4" />
+                {t('addExpense')}
+              </Button>
+            </div>
           )
         }
       />
@@ -363,34 +355,10 @@ export function ExpensesPage() {
             <StatCard title={t('kpi.expenseCount')} value={stats.count} icon={ListChecks} variant="default" />
           </div>
 
-          <QuickExpenseButtons branchId={activeBranchId} />
-
           {/* Filters */}
               <Card>
                 <CardContent className="p-4">
                   <div className="flex flex-wrap items-end gap-3">
-                    <div className="w-48">
-                      <label className="block text-xs font-medium mb-1.5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-                        {t('filters.department')}
-                      </label>
-                      <Select
-                        value={filters.department_id ?? ALL}
-                        onValueChange={(v) => setFilters((f) => ({ ...f, department_id: v === ALL ? undefined : v }))}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value={ALL}>{t('filters.allDepartments')}</SelectItem>
-                          {departments.data?.map((d) => (
-                            <SelectItem key={d.id} value={d.id}>
-                              {d.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
                     <div className="w-48">
                       <label className="block text-xs font-medium mb-1.5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
                         {t('filters.category')}
