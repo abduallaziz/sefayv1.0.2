@@ -42,6 +42,7 @@ const CURRENCIES = [
 export function SettingsPage() {
   const t = useTranslations('settings');
   const tPrint = useTranslations('print.designer');
+  const tz = useTranslations('zatca');
   const { data: profile, isLoading: profileLoading } = useProfile();
   const { data: subscriptionData, isLoading: subLoading } = useSubscription();
   const { data: usage, isLoading: usageLoading } = useUsage();
@@ -274,6 +275,25 @@ export function SettingsPage() {
             <div>
               <h2 className="text-sm font-semibold text-slate-700 dark:text-white">{t('accessControl')}</h2>
               <p className="text-xs text-slate-500 mt-0.5">{t('accessControlHint')}</p>
+            </div>
+          </div>
+          <ChevronLeft className="w-4 h-4 text-slate-400 rtl:rotate-180 group-hover:text-[#0C447C] transition-colors" />
+        </Link>
+      )}
+
+      {/* ZATCA e-invoicing */}
+      {canManageAccessControl && (
+        <Link
+          href="/dashboard/settings/zatca"
+          className="flex items-center justify-between gap-3 bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-5 hover:border-[#0C447C]/50 transition-colors group"
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-[#E8F1FB] dark:bg-[#0C447C]/10">
+              <Receipt className="w-4 h-4 text-[#0C447C] dark:text-[#5B9BD5]" />
+            </div>
+            <div>
+              <h2 className="text-sm font-semibold text-slate-700 dark:text-white">{tz('link')}</h2>
+              <p className="text-xs text-slate-500 mt-0.5">{tz('linkHint')}</p>
             </div>
           </div>
           <ChevronLeft className="w-4 h-4 text-slate-400 rtl:rotate-180 group-hover:text-[#0C447C] transition-colors" />
