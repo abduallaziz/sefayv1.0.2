@@ -140,15 +140,8 @@ export function ReceiptModal({
 
         <div className="min-h-0 overflow-y-auto px-5 pb-3">
           <div className="border-t border-dashed border-posCloud-border dark:border-posCloudDark-border py-3 space-y-1.5 text-sm">
-            <div className="flex items-center justify-between text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-              <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                {t('subtotal')}
-                {/* how the subtotal is read: before / including VAT */}
-                <span className="rounded-full bg-posCloud-background dark:bg-posCloudDark-background px-2 py-0.5 text-[10px] font-medium">
-                  {taxInclusive ? t('taxMode.inclusive') : t('taxMode.exclusive')}
-                </span>
-              </span>
-              <span>{fmt(subtotal)}</span>
+            <div className="flex justify-between text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+              <span>{t('subtotal')}</span><span>{fmt(subtotal)}</span>
             </div>
             {discountAmount > 0 && (
               <div className="flex justify-between text-posCloud-success">
