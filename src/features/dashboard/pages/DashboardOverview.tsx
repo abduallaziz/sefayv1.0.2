@@ -16,6 +16,7 @@ import {
   Boxes, PackageOpen, Layers3, Receipt,
 } from 'lucide-react'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
+import { useBranchContext } from '@/core/branch/useBranchContext'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { formatNumber } from '@/lib/locale'
 import { KpiCardSkeleton, TableSkeleton, CardListSkeleton, Skeleton } from '@/shared/components/ui/Skeleton'
@@ -176,7 +177,12 @@ export function DashboardOverview() {
     if (!user) router.replace(`/${locale}/login`)
   }, [user, router, locale])
 
-  const rangeQuery = { period: 'custom' as const, from: range.from, to: range.to }
+  // Every figure follows the branch picked in the header (not the whole business).
+  const { currentBranchId, availableBranches, setCurrentBranch } = useBranchContext()
+  const branchId = currentBranchId ?? undefined
+  const rangeQuery = { period: 'custom' as const, from: range.from, to: range.to, branch_id: branchId }
+  // the cross-branch comparison is deliberately business-wide
+  const allBranchesQuery = { period: 'custom' as const, from: range.from, to: range.to }
   // Fixed last-7-days window for the sales chart specifically — independent
   // of the top date-range picker, matching pos-cloud's static "last 7 days"
   // framing. Reuses the same existing getRevenue endpoint, just a second
@@ -186,14 +192,14 @@ export function DashboardOverview() {
   const last7 = { from: toYMD(sevenDaysAgo), to: toYMD(new Date()) }
 
   const { data: revenue, error: revenueError, isLoading: revenueLoading } = useQuery({
-    queryKey: ['dashboard', 'revenue', range.from, range.to],
+    queryKey: ['dashboard', 'revenue', range.from, range.to, branchId],
     queryFn: () => reportsApi.getRevenue(rangeQuery),
     enabled: !!user && !!range.from && !!range.to, refetchInterval: 120000, staleTime: 60000,
   })
 
   const { data: revenue7d, error: revenue7dError, isLoading: revenue7dLoading } = useQuery({
-    queryKey: ['dashboard', 'revenue-7d', last7.from, last7.to],
-    queryFn: () => reportsApi.getRevenue({ period: 'custom', from: last7.from, to: last7.to }),
+    queryKey: ['dashboard', 'revenue-7d', last7.from, last7.to, branchId],
+    queryFn: () => reportsApi.getRevenue({ period: 'custom', from: last7.from, to: last7.to, branch_id: branchId }),
     enabled: !!user, refetchInterval: 120000, staleTime: 60000,
   })
 
@@ -205,7 +211,7 @@ export function DashboardOverview() {
   })
 
   const { data: expenses, error: expensesError, isLoading: expensesLoading } = useQuery({
-    queryKey: ['dashboard', 'expenses', range.from, range.to],
+    queryKey: ['dashboard', 'expenses', range.from, range.to, branchId],
     queryFn: () => reportsApi.getExpenses(rangeQuery),
     enabled: !!user && !!range.from && !!range.to, refetchInterval: 120000, staleTime: 60000,
   })
@@ -225,8 +231,8 @@ export function DashboardOverview() {
   // Orders page) for a real "Recent Invoices" list — real customer_name,
   // total, status (completed/pending/cancelled mapped to paid/due badges).
   const { data: recentOrders, isLoading: recentOrdersLoading } = useQuery({
-    queryKey: ['dashboard', 'recent-orders'],
-    queryFn: () => fetchOrders({}),
+    queryKey: ['dashboard', 'recent-orders', branchId],
+    queryFn: () => fetchOrders({ branch_id: branchId }),
     enabled: !!user, staleTime: 60000,
   })
 
@@ -253,20 +259,29 @@ export function DashboardOverview() {
   })
 
   const { data: sparklines, error: sparklinesError } = useQuery({
-    queryKey: ['dashboard', 'sparklines'],
-    queryFn: () => reportsApi.getSparklines(),
+    queryKey: ['dashboard', 'sparklines', branchId],
+    queryFn: () => reportsApi.getSparklines({ branch_id: branchId }),
     enabled: !!user, staleTime: 60000,
   })
 
   const { data: topItems, error: topItemsError, isLoading: topItemsLoading } = useQuery({
-    queryKey: ['dashboard', 'top-items', range.from, range.to],
+    queryKey: ['dashboard', 'top-items', range.from, range.to, branchId],
     queryFn: () => reportsApi.getTopItems(rangeQuery),
     enabled: !!user && !!range.from && !!range.to, staleTime: 60000,
   })
 
+  const { data: branchCmp, isLoading: branchCmpLoading } = useQuery({
+    queryKey: ['dashboard', 'by-branch', range.from, range.to],
+    queryFn: () => reportsApi.getByBranch(allBranchesQuery),
+    enabled: !!user && !!range.from && !!range.to, staleTime: 60000,
+    retry: false,
+  })
+  const branchRows = [...(branchCmp?.branches ?? [])].sort((a, b) => b.revenue - a.revenue)
+  const maxBranchRevenue = branchRows.reduce((m, b) => Math.max(m, b.revenue), 0)
+
   const { data: recentActivity, error: recentActivityError, isLoading: recentActivityLoading } = useQuery({
-    queryKey: ['dashboard', 'recent-activity'],
-    queryFn: () => reportsApi.getRecentActivity(),
+    queryKey: ['dashboard', 'recent-activity', branchId],
+    queryFn: () => reportsApi.getRecentActivity({ branch_id: branchId }),
     enabled: !!user, refetchInterval: 120000, staleTime: 60000,
   })
 
@@ -617,10 +632,31 @@ export function DashboardOverview() {
             title={t('ov.salesByBranch')}
             action={<span className="rounded-lg border border-posCloud-border dark:border-posCloudDark-border px-3 py-1.5 text-xs font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{t('ov.thisMonth')}</span>}
           />
-          <div className="flex h-[220px] flex-col items-center justify-center gap-2 text-center">
-            <BarChart3 className="h-8 w-8 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary" />
-            <p className="text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('ov.soonNeedsBranches')}</p>
-          </div>
+          {branchCmpLoading ? (
+            <CardListSkeleton rows={4} />
+          ) : branchRows.length === 0 ? (
+            <div className="flex h-[220px] flex-col items-center justify-center gap-2 text-center">
+              <BarChart3 className="h-8 w-8 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary" />
+              <p className="text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('noDataLabel')}</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {branchRows.map((b, i) => {
+                const pct = maxBranchRevenue > 0 ? Math.max(3, Math.round((b.revenue / maxBranchRevenue) * 100)) : 0
+                return (
+                  <div key={b.branch_id ?? `unassigned-${i}`}>
+                    <div className="mb-1.5 flex items-center justify-between text-sm">
+                      <span className="truncate font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary">{b.branch_name ?? '—'}</span>
+                      <span className="shrink-0 font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{formatNumber(b.revenue, { locale, decimals: 2 })} {currency}</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-slate-100 dark:bg-white/5">
+                      <div className="h-2 rounded-full bg-posCloud-primary" style={{ width: `${pct}%` }} />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </SectionCard>
 
         <SectionCard>
@@ -669,10 +705,41 @@ export function DashboardOverview() {
             title={t('ov.branchesOverview')}
             action={<span className="text-xs font-semibold text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('ov.viewAll')}</span>}
           />
-          <div className="flex h-[180px] flex-col items-center justify-center gap-2 text-center">
-            <Landmark className="h-8 w-8 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary" />
-            <p className="text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('ov.soonNeedsBranches')}</p>
-          </div>
+          {branchCmpLoading ? (
+            <CardListSkeleton rows={3} />
+          ) : branchRows.length === 0 ? (
+            <div className="flex h-[180px] flex-col items-center justify-center gap-2 text-center">
+              <Landmark className="h-8 w-8 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary" />
+              <p className="text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('noDataLabel')}</p>
+            </div>
+          ) : (
+            <div>
+              {branchRows.map((b, i, arr) => {
+                const isCurrent = !!b.branch_id && b.branch_id === currentBranchId
+                const canSwitch = !!b.branch_id && availableBranches.some((x) => x.id === b.branch_id)
+                return (
+                  <button
+                    key={b.branch_id ?? `unassigned-${i}`}
+                    type="button"
+                    disabled={!canSwitch}
+                    onClick={() => b.branch_id && setCurrentBranch(b.branch_id)}
+                    className={cn('flex w-full items-center gap-3 py-3 text-start', i < arr.length - 1 && 'border-b border-posCloud-border dark:border-posCloudDark-border')}
+                  >
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-posCloud-text-secondary dark:bg-white/5 dark:text-posCloudDark-text-secondary">
+                      <Landmark className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary">{b.branch_name ?? '—'}</p>
+                      <p className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('ov.branchOrders', { count: b.order_count })}</p>
+                    </div>
+                    {isCurrent && (
+                      <span className="rounded-full bg-posCloud-primary/10 px-2 py-0.5 text-[10px] font-medium text-posCloud-primary">{t('ov.currentBranch')}</span>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          )}
         </SectionCard>
 
         <SectionCard>
