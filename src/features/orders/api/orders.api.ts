@@ -61,6 +61,7 @@ export interface CreateOrderPayload {
   coupon_code?: string;
   redeem_reward_instance_ids?: string[];
   free_item_choices?: Array<{ reward_instance_id: string; item_id: string }>;
+  free_item_variants?: Array<{ reward_instance_id: string; item_id: string; variant_id: string }>;
 }
 
 // G6 - edits ONLY the non-financial note of an already-sold invoice.

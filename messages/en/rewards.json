@@ -101,6 +101,7 @@
     "remainingOf": "of {total}",
     "freeItem": "Free item",
     "chooseFreeItem": "Choose the free product for \"{name}\"",
-    "pickOne": "Choose a product..."
+    "pickOne": "Choose a product...",
+    "chooseVariant": "Choose the size/variant of the free item \"{name}\""
   }
 }

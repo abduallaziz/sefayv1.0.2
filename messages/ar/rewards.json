@@ -101,6 +101,7 @@
     "remainingOf": "من أصل {total}",
     "freeItem": "صنف مجاني",
     "chooseFreeItem": "اختر المنتج المجاني لمكافأة «{name}»",
-    "pickOne": "اختر منتجًا..."
+    "pickOne": "اختر منتجًا...",
+    "chooseVariant": "اختر المقاس/النوع للمنتج المجاني «{name}»"
   }
 }

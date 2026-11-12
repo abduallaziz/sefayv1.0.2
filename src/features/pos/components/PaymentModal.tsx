@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl'
 import { X, ShoppingCart, Check, CreditCard, Calculator, Delete, Gift, Coins, Minus, Plus, User } from 'lucide-react'
 import Image from 'next/image'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
-import { useCatalogItems } from '@/features/items/hooks/useItems'
+import { useCatalogItems, useItemVariants } from '@/features/items/hooks/useItems'
 import { Cart, CartItem, PaymentData, PaymentMethod } from '../types/pos.types'
 import { calcCart } from '../hooks/useCart'
 import type { Customer } from '@/features/customers/types/customer.types'
@@ -15,6 +15,33 @@ import { MethodMark } from '@/shared/ui/method-mark'
 
 // The line's own photo, or the same calm first-letter tile the product cards
 // use. (The old stand-in photos fetched from a third-party site are gone.)
+/** Variant (size/colour) picker for a free-item reward's product. */
+function FreeVariantSelect({
+  itemId, itemName, value, onChange, label, placeholder, muted,
+}: {
+  itemId: string; itemName: string; value: string; onChange: (v: string) => void
+  label: string; placeholder: string; muted: string
+}) {
+  const { data: variants = [], isLoading } = useItemVariants(itemId)
+  return (
+    <div className="rounded-lg border border-dashed border-posCloud-border p-2 dark:border-posCloudDark-border">
+      <p className={`mb-1 text-[11px] font-medium ${muted}`}>{label}</p>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={isLoading}
+        aria-label={itemName}
+        className="w-full rounded-md border border-posCloud-border bg-posCloud-background px-2 py-1.5 text-xs dark:border-posCloudDark-border dark:bg-posCloudDark-background"
+      >
+        <option value="">{placeholder}</option>
+        {variants.filter((v) => v.is_active !== false).map((v) => (
+          <option key={v.id} value={v.id}>{v.name}</option>
+        ))}
+      </select>
+    </div>
+  )
+}
+
 function LineImage({ cartItem }: { cartItem: CartItem }) {
   const [failed, setFailed] = useState(false)
   if (!cartItem.image_url || failed) {
@@ -142,6 +169,20 @@ export function PaymentModal({
   })
   const missingChoice = choiceRewards.some((r) => !freeChoices[r.id])
 
+  // Free items that have variants (size/colour) also need the variant picked,
+  // so the right stock row is deducted. One entry per (reward instance, item).
+  const [freeVariants, setFreeVariants] = useState<Record<string, string>>({})
+  const variantTargets = selectedRewards.flatMap((r) => {
+    if (r.reward_definitions?.reward_type !== 'free_item') return []
+    const cfg = r.reward_definitions?.reward_config as { item_id?: string; item_ids?: string[]; grant_mode?: string } | undefined
+    const ids = cfg?.item_ids?.length ? cfg.item_ids : cfg?.item_id ? [cfg.item_id] : []
+    const granted = cfg?.grant_mode === 'one' && ids.length > 1 ? (freeChoices[r.id] ? [freeChoices[r.id]] : []) : ids
+    return granted
+      .filter((id) => catalogItems.find((i) => i.id === id)?.has_variants)
+      .map((id) => ({ rewardId: r.id, rewardName: r.reward_definitions?.name ?? '', itemId: id }))
+  })
+  const missingVariant = variantTargets.some((t) => !freeVariants[`${t.rewardId}:${t.itemId}`])
+
   // Points are taken off BEFORE tax by the server, so the amount due is
   // recomputed with the same arithmetic (calcCart mirrors pos.engine) instead
   // of simply subtracting from the total.
@@ -181,7 +222,7 @@ export function PaymentModal({
 
   const canConfirm = () => {
     if (isSubmitting) return false
-    if (missingChoice) return false
+    if (missingChoice || missingVariant) return false
     if (method === 'cash') return tenderedNum >= due && (!abnormalCash || abnormalConfirmed)
     if (method === 'split') return !isNaN(splitCashNum) && splitCashNum > 0 && splitCashNum < due
     return true
@@ -198,6 +239,13 @@ export function PaymentModal({
       redeem_reward_instance_ids: selectedRewards.length > 0 ? selectedRewards.map((r) => r.id) : undefined,
       free_item_choices: choiceRewards.length > 0
         ? choiceRewards.map((r) => ({ reward_instance_id: r.id, item_id: freeChoices[r.id] }))
+        : undefined,
+      free_item_variants: variantTargets.length > 0
+        ? variantTargets.map((t) => ({
+            reward_instance_id: t.rewardId,
+            item_id: t.itemId,
+            variant_id: freeVariants[`${t.rewardId}:${t.itemId}`],
+          }))
         : undefined,
     }
     onConfirm(data)
@@ -401,6 +449,18 @@ export function PaymentModal({
                       </div>
                     )
                   })}
+                  {variantTargets.map((t) => (
+                    <FreeVariantSelect
+                      key={`variant-${t.rewardId}-${t.itemId}`}
+                      itemId={t.itemId}
+                      itemName={catalogItems.find((i) => i.id === t.itemId)?.name ?? ''}
+                      value={freeVariants[`${t.rewardId}:${t.itemId}`] ?? ''}
+                      onChange={(v) => setFreeVariants((prev) => ({ ...prev, [`${t.rewardId}:${t.itemId}`]: v }))}
+                      label={tRewards('pos.chooseVariant', { name: catalogItems.find((i) => i.id === t.itemId)?.name ?? '' })}
+                      placeholder={tRewards('pos.pickOne')}
+                      muted={muted}
+                    />
+                  ))}
                 </div>
               )}
             </div>
