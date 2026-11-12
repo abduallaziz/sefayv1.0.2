@@ -43,6 +43,10 @@ export function useCustomerRewards(customerId: string | undefined, status: strin
     queryKey: ['customer-rewards', customerId, status],
     queryFn: () => customerRewardsApi.getForCustomer(customerId as string, status),
     enabled: !!customerId,
+    // A reward is earned by the sale that just finished, so the list must never be
+    // served from cache: fetch it fresh every time a customer is picked.
+    staleTime: 0,
+    gcTime: 0,
   })
 }
 
