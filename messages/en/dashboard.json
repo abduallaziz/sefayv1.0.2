@@ -49,6 +49,8 @@
     "salesByBranch": "Sales by Branch",
     "branchesOverview": "Branches Overview",
     "soonNeedsBranches": "Soon — needs a real branch system",
+    "branchOrders": "{count} orders",
+    "currentBranch": "Current",
     "last7Days": "Last 7 days",
     "thisMonth": "This month",
     "loadErrorSections": "Couldn't load: {sections}. Check your connection or try logging in again.",

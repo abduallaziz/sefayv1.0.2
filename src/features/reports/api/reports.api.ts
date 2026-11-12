@@ -274,6 +274,7 @@ export const reportsApi = {
     if (query?.period) params.set('period', query.period)
     if (query?.from) params.set('from', query.from)
     if (query?.to) params.set('to', query.to)
+    if (query?.branch_id) params.set('branch_id', query.branch_id)
     const qs = params.toString()
     return apiClient.get(`/reports/revenue${qs ? `?${qs}` : ''}`)
   },
@@ -292,6 +293,7 @@ export const reportsApi = {
     if (query?.period) params.set('period', query.period)
     if (query?.from) params.set('from', query.from)
     if (query?.to) params.set('to', query.to)
+    if (query?.branch_id) params.set('branch_id', query.branch_id)
     const qs = params.toString()
     return apiClient.get(`/reports/expenses${qs ? `?${qs}` : ''}`)
   },
@@ -310,15 +312,16 @@ export const reportsApi = {
     if (query?.period) params.set('period', query.period)
     if (query?.from) params.set('from', query.from)
     if (query?.to) params.set('to', query.to)
+    if (query?.branch_id) params.set('branch_id', query.branch_id)
     const qs = params.toString()
     return apiClient.get(`/reports/top-items${qs ? `?${qs}` : ''}`)
   },
 
-  getRecentActivity: (): Promise<RecentActivityReport> =>
-    apiClient.get('/reports/recent-activity'),
+  getRecentActivity: (query?: ReportQuery): Promise<RecentActivityReport> =>
+    apiClient.get(`/reports/recent-activity${query?.branch_id ? `?branch_id=${query.branch_id}` : ''}`),
 
-  getSparklines: (): Promise<SparklinesReport> =>
-    apiClient.get('/reports/sparklines'),
+  getSparklines: (query?: ReportQuery): Promise<SparklinesReport> =>
+    apiClient.get(`/reports/sparklines${query?.branch_id ? `?branch_id=${query.branch_id}` : ''}`),
 
   getHrSummary: (): Promise<HrSummary> =>
     apiClient.get('/reports/hr-summary'),

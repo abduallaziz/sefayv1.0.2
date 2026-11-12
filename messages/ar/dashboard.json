@@ -49,6 +49,8 @@
     "salesByBranch": "المبيعات حسب الفروع",
     "branchesOverview": "ملخص الفروع",
     "soonNeedsBranches": "قريبًا — يحتاج نظام فروع حقيقي",
+    "branchOrders": "{count} طلب",
+    "currentBranch": "الفرع الحالي",
     "last7Days": "آخر 7 أيام",
     "thisMonth": "هذا الشهر",
     "loadErrorSections": "تعذّر تحميل: {sections}. تحقّق من الاتصال أو حاول تسجيل الدخول مجدداً.",
