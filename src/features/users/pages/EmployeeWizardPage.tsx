@@ -172,7 +172,8 @@ export function EmployeeWizardPage() {
           disabled={isPending}
           className="px-5 py-3 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 rounded-xl text-sm font-semibold text-white transition-colors shrink-0"
         >
-          {step === 5 ? primaryFooterAction.label : t('save')}
+          {/* steps 1-4 only move forward: "Save" made it look like the employee was already created */}
+          {primaryFooterAction.label}
         </button>
       </div>
 
