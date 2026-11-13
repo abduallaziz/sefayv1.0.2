@@ -282,7 +282,7 @@ export function TemplateEditorPage({ id }: { id: string }) {
     }
 
     return (
-      <div className="flex h-[calc(100vh-4rem)] min-h-[32rem] flex-col bg-[#F5F7FA] dark:bg-gray-950">
+      <div className="flex h-[calc(100vh-6.5rem)] min-h-[32rem] flex-col bg-[#F5F7FA] dark:bg-gray-950">
         <QuoteTopBar
           name={state.name}
           docTypeLabel={t(`type.${detail.doc_type}` as never)}
