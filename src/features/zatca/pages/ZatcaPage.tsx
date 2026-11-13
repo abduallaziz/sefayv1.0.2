@@ -54,8 +54,10 @@ function DeviceCard({ d, branchName }: { d: ZatcaDevice; branchName: string }) {
     onError: fail,
   })
   const activateM = useMutation({ mutationFn: () => zatcaApi.activate(d.id), onSuccess: () => { toast.success(t('activated')); refresh() }, onError: fail })
+  const deleteM = useMutation({ mutationFn: () => zatcaApi.deleteDevice(d.id), onSuccess: () => { toast.success(t('deviceDeleted')); refresh() }, onError: fail })
 
   const stage = d.status === 'active' ? 'active' : d.csid_kind === 'compliance' ? 'compliance' : d.has_csr ? 'csr' : 'new'
+  const isSandbox = d.env === 'sandbox'
 
   return (
     <div className={card}>
@@ -66,7 +68,17 @@ function DeviceCard({ d, branchName }: { d: ZatcaDevice; branchName: string }) {
             {d.seller.legal_name} · {d.seller.vat_number} · {t(`env.${d.env}`)}
           </p>
         </div>
-        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium dark:bg-gray-800">{t(`stage.${stage}`)}</span>
+        <div className="flex items-center gap-2">
+          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium dark:bg-gray-800">{t(`stage.${stage}`)}</span>
+          <button
+            type="button"
+            onClick={() => { if (confirm(t('deleteConfirm'))) deleteM.mutate() }}
+            disabled={deleteM.isPending}
+            className="text-xs text-red-500 hover:underline disabled:opacity-50"
+          >
+            {t('delete')}
+          </button>
+        </div>
       </div>
 
       {stage === 'new' && (
@@ -86,7 +98,8 @@ function DeviceCard({ d, branchName }: { d: ZatcaDevice; branchName: string }) {
       {stage === 'compliance' && (
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={() => checksM.mutate()} disabled={checksM.isPending}>{t('runChecks')}</Button>
-          <Button onClick={() => activateM.mutate()} disabled={activateM.isPending}>{t('activate')}</Button>
+          {/* Sandbox devices go live on the compliance CSID right after the checks — no production step. */}
+          {!isSandbox && <Button onClick={() => activateM.mutate()} disabled={activateM.isPending}>{t('activate')}</Button>}
         </div>
       )}
     </div>

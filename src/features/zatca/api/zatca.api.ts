@@ -55,6 +55,7 @@ export const zatcaApi = {
       {},
     ),
   activate: (id: string) => apiClient.post<ZatcaDevice>(`/zatca/devices/${id}/activate`, {}),
+  deleteDevice: (id: string) => apiClient.delete<{ deleted: boolean }>(`/zatca/devices/${id}`),
   invoices: () => apiClient.get<ZatcaInvoiceRow[]>('/zatca/invoices'),
   flush: () => apiClient.post<{ gateway: string; sent: number; waiting: number }>('/zatca/flush', {}),
 }
