@@ -415,6 +415,34 @@ export function POSPage() {
     )
   }
 
+  // The open register belongs to ANOTHER branch than the one selected now: the server refuses every
+  // sale in that state, so say it plainly (and offer to close it) instead of showing "register open".
+  if (currentShift && branchId && currentShift.branch_id !== branchId) {
+    const shiftBranch = branches?.find((b) => b.id === currentShift.branch_id)?.name
+    return (
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 p-6 text-center">
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-50 dark:bg-amber-900/20">
+          <Lock className="h-8 w-8 text-amber-500" />
+        </div>
+        <div>
+          <h2 className="text-lg font-bold text-slate-800 dark:text-white">{t('cashRegister.otherBranchTitle')}</h2>
+          <p className="mt-1 max-w-md text-sm text-slate-500 dark:text-slate-400">
+            {t('cashRegister.otherBranchSubtitle', { branch: shiftBranch ?? '' })}
+          </p>
+        </div>
+        <button
+          onClick={() => setShowCloseRegister(true)}
+          className="mt-2 rounded-lg bg-[#0C447C] px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#0a3a6b]"
+        >
+          {t('cashRegister.closeButton')}
+        </button>
+        {showCloseRegister && (
+          <CloseShiftModal shift={currentShift} onClose={() => setShowCloseRegister(false)} />
+        )}
+      </div>
+    )
+  }
+
   // Same guard pattern as the branch/register checks above: block the whole
   // sale screen rather than ever computing a cart preview from an assumed
   // tax rate. Checked after those two guards (a closed register or missing

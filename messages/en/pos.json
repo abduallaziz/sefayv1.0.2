@@ -20,7 +20,9 @@
     "closeButton": "Close Register",
     "checkFailedTitle": "Couldn't check the register",
     "checkFailedSubtitle": "The server is busy or unreachable. This does not mean the register is closed. Try again.",
-    "retryButton": "Try again"
+    "retryButton": "Try again",
+    "otherBranchTitle": "The open register belongs to another branch",
+    "otherBranchSubtitle": "The register that is open belongs to “{branch}”, not the branch selected now. Switch branch at the top of the page, or close this register and open one for the current branch."
   },
   "noActiveBranch": {
     "title": "No active branch available",
