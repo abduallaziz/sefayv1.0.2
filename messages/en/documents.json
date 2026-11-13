@@ -335,6 +335,9 @@
     "accentValue": "Final total value color",
     "termsTitle": "Terms title",
     "titleBg": "Title bar color",
-    "bulletColor": "Bullet color"
+    "bulletColor": "Bullet color",
+    "free": "Free position (drag it)",
+    "widthMm": "Width (mm)",
+    "scalePct": "Size (%)"
   }
 }

@@ -137,6 +137,29 @@ export function StyleSection({ element, onElement, canJoin }: Props) {
             <input
               type="checkbox"
               className="h-4 w-4 accent-[#0C447C]"
+              checked={!!layout.free}
+              onChange={(e) =>
+                onElement({
+                  layout: e.target.checked
+                    ? { ...layout, sideBySide: false, free: { x: 10, y: 60, width: 190 } }
+                    : { ...layout, free: undefined },
+                })
+              }
+            />
+            {t('free')}
+          </label>
+          {layout.free && (
+            <div className="grid grid-cols-2 gap-2">
+              <NumField label="X (mm)" value={layout.free.x} min={-100} max={1000} onChange={(x) => layout.free && setLayout({ free: { ...layout.free, x: x ?? 0 } })} />
+              <NumField label="Y (mm)" value={layout.free.y} min={-100} max={3000} onChange={(y) => layout.free && setLayout({ free: { ...layout.free, y: y ?? 0 } })} />
+              <NumField label={t('widthMm')} value={layout.free.width} min={5} max={1000} onChange={(width) => layout.free && setLayout({ free: { ...layout.free, width: width ?? 100 } })} />
+              <NumField label={t('scalePct')} value={Math.round((layout.free.scale ?? 1) * 100)} min={20} max={500} onChange={(p) => layout.free && setLayout({ free: { ...layout.free, scale: (p ?? 100) / 100 } })} />
+            </div>
+          )}
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              className="h-4 w-4 accent-[#0C447C]"
               checked={layout.sideBySide === true}
               disabled={!canJoin}
               onChange={(e) => setLayout({ sideBySide: e.target.checked })}

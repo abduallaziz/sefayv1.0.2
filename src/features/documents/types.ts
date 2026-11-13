@@ -117,6 +117,8 @@ export interface ElementLayout {
   place?: 'start' | 'center' | 'end'
   /** A vertical line before this column of the row. */
   divider?: boolean
+  /** Free spot in page millimetres: the block leaves the flow and can be dragged anywhere. */
+  free?: { x: number; y: number; width: number; scale?: number }
 }
 
 export interface TemplateElement {

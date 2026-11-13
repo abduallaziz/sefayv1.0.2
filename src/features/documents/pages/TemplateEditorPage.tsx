@@ -98,7 +98,7 @@ export function TemplateEditorPage({ id }: { id: string }) {
       } catch {
         /* keep the last good render */
       }
-    }, 350)
+    }, 150)
     return () => {
       cancelled = true
       clearTimeout(h)
@@ -154,6 +154,36 @@ export function TemplateEditorPage({ id }: { id: string }) {
       edit((s) => ({ ...s, body: updateElement(s.body, id, patch) }), false),
     [edit],
   )
+
+  /** A block was dragged: it becomes (or stays) a free block at this spot. */
+  const moveFree = useCallback(
+    (id: string, spot: { x: number; y: number; width: number }) =>
+      edit(
+        (s) => ({
+          ...s,
+          body: {
+            ...s.body,
+            elements: s.body.elements.map((e) =>
+              e.id === id ? { ...e, layout: { ...e.layout, sideBySide: false, free: { ...e.layout?.free, ...spot } } } : e,
+            ),
+          },
+        }),
+        false,
+      ),
+    [edit],
+  )
+
+  const labels = useMemo(() => {
+    const m: Record<string, string> = {}
+    for (const e of state?.body.elements ?? []) m[e.id] = t(`editor.block.${e.type}` as never)
+    return m
+  }, [state?.body.elements, t])
+
+  const frees = useMemo(() => {
+    const m: Record<string, { x: number; y: number; width: number; scale?: number }> = {}
+    for (const e of state?.body.elements ?? []) if (e.layout?.free) m[e.id] = e.layout.free
+    return m
+  }, [state?.body.elements])
 
   const remove = useCallback(() => {
     if (!selectedId) return
@@ -353,7 +383,18 @@ export function TemplateEditorPage({ id }: { id: string }) {
               onPaper={(paper) => edit((s) => ({ ...s, paper }))}
               onGrid={setShowGrid}
             >
-              <EditorCanvas html={html} widthMm={size.w} heightMm={size.h} zoom={zoom} selectedId={selectedId} onSelect={setSelected}>
+              <EditorCanvas
+                html={html}
+                widthMm={size.w}
+                heightMm={size.h}
+                zoom={zoom}
+                selectedId={selectedId}
+                onSelect={setSelected}
+                onFreeMove={moveFree}
+                frees={frees}
+                labels={labels}
+                onGestureStart={checkpoint}
+              >
                 <OverlayLayer
                   elements={state.body.elements.filter(isOverlay)}
                   urls={urls}
@@ -475,6 +516,10 @@ export function TemplateEditorPage({ id }: { id: string }) {
               zoom={zoom}
               selectedId={selectedId}
               onSelect={setSelected}
+              onFreeMove={moveFree}
+              frees={frees}
+              labels={labels}
+              onGestureStart={checkpoint}
             >
               <OverlayLayer
                 elements={state.body.elements.filter(isOverlay)}
