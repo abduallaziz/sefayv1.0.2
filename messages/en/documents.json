@@ -270,5 +270,25 @@
     "publishFirst": "Publish the template first, then approve it.",
     "done": "Decision recorded",
     "noPermission": "You do not have permission to approve."
+  },
+  "quote": {
+    "tabElements": "Elements",
+    "tabFields": "Fields",
+    "tabAssets": "Assets",
+    "searchElements": "Search elements...",
+    "noResults": "No matching elements",
+    "groupBasic": "Basic elements",
+    "groupReady": "Ready-made data",
+    "groupApproval": "Approval elements",
+    "insertHint": "Click a field to insert it into the selected text.",
+    "selectTextFirst": "Select a text block on the page (heading, text or terms), then pick a field.",
+    "uploadAsset": "Upload new asset",
+    "assets": { "stamps": "Stamps", "signatures": "Signatures", "images": "Logos and images" },
+    "duplicate": "Duplicate element",
+    "preview": "Preview",
+    "trialPrint": "Trial print",
+    "publishTemplate": "Publish template",
+    "paperSize": "Paper size",
+    "showGrid": "Show grid"
   }
 }

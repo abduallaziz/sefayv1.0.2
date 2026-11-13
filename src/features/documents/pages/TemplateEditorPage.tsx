@@ -13,6 +13,10 @@ import { ElementsPanel } from '../components/ElementsPanel'
 import { Inspector } from '../components/Inspector'
 import { ApprovalDialog } from '../components/ApprovalDialog'
 import { OverlayLayer } from '../components/OverlayLayer'
+import { QuoteSidebar } from '../components/quote/QuoteSidebar'
+import { QuoteLeftPanel } from '../components/quote/QuoteLeftPanel'
+import { QuoteTopBar, type AlignKind } from '../components/quote/QuoteTopBar'
+import { QuoteCanvasArea } from '../components/quote/QuoteCanvasArea'
 import {
   duplicateElement,
   newQrElement,
@@ -56,6 +60,7 @@ export function TemplateEditorPage({ id }: { id: string }) {
   const [busy, setBusy] = useState(false)
   const [approvalOpen, setApprovalOpen] = useState(false)
   const [warnings, setWarnings] = useState<string[]>([])
+  const [showGrid, setShowGrid] = useState(false)
   const bindingsQ = useQuery({ queryKey: ['documents', 'bindings'], queryFn: documentsApi.bindings, staleTime: 10 * 60_000 })
 
   const selected: TemplateElement | null = useMemo(
@@ -234,6 +239,163 @@ export function TemplateEditorPage({ id }: { id: string }) {
     } finally {
       setBusy(false)
     }
+  }
+
+  // ---- quotation editor: the redesigned layout (quotation templates only) ----
+  if (detail.doc_type === 'quotation') {
+    const sel = selected
+    const overlaySel = !!sel && isOverlay(sel)
+    const round = (n: number) => Math.round(n * 10) / 10
+    const align = (k: AlignKind) => {
+      if (!sel || !isOverlay(sel) || !sel.position || !sel.size || !selectedId) return
+      const p = sel.position
+      const next =
+        k === 'left' ? { x: 0, y: p.y }
+        : k === 'center' ? { x: round((size.w - sel.size.width) / 2), y: p.y }
+        : k === 'right' ? { x: round(size.w - sel.size.width), y: p.y }
+        : k === 'top' ? { x: p.x, y: 0 }
+        : k === 'middle' ? { x: p.x, y: round((size.h - sel.size.height) / 2) }
+        : { x: p.x, y: round(size.h - sel.size.height) }
+      edit((s) => ({ ...s, body: updateElement(s.body, selectedId, { position: next }) }))
+    }
+    const canInsertField = !!sel && ['heading', 'text', 'terms', 'footer'].includes(sel.type)
+    const insertField = (path: string) => {
+      if (!sel || !selectedId || !canInsertField) return
+      const cur = sel.config?.text ?? ''
+      edit((s) => ({
+        ...s,
+        body: updateElement(s.body, selectedId, { config: { ...sel.config, text: `${cur}${cur && !cur.endsWith(' ') ? ' ' : ''}{{${path}}}` } }),
+      }))
+    }
+    const doPreview = async () => {
+      setBusy(true)
+      try {
+        const r = await documentsApi.previewHtml(id, { body: state.body, paper: state.paper, orientation: state.orientation, lang })
+        const url = URL.createObjectURL(new Blob([r.html], { type: 'text/html' }))
+        window.open(url, '_blank', 'noopener')
+        setTimeout(() => URL.revokeObjectURL(url), 60_000)
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : t('failed'))
+      } finally {
+        setBusy(false)
+      }
+    }
+
+    return (
+      <div className="flex h-[calc(100vh-4rem)] min-h-[32rem] flex-col bg-[#F5F7FA] dark:bg-gray-950">
+        <QuoteTopBar
+          name={state.name}
+          docTypeLabel={t(`type.${detail.doc_type}` as never)}
+          templateStatus={detail.status}
+          saveStatus={draft.status}
+          lang={lang}
+          canUndo={draft.canUndo}
+          canRedo={draft.canRedo}
+          busy={busy}
+          overlaySelected={overlaySel}
+          anySelected={!!sel}
+          locked={sel?.locked === true}
+          onName={(name) => edit((s) => ({ ...s, name }))}
+          onLang={setLang}
+          onUndo={undo}
+          onRedo={redo}
+          onAlign={align}
+          onDelete={remove}
+          onDuplicate={duplicate}
+          onToggleLock={() => selectedId && edit((s) => ({ ...s, body: updateElement(s.body, selectedId, { locked: !(sel?.locked === true) }) }))}
+          onSave={() => void save()}
+          onPreview={() => void doPreview()}
+          onPdf={() => void doPdf()}
+          onPublish={() => void doPublish()}
+          onApproval={() => setApprovalOpen(true)}
+        />
+        <ApprovalDialog open={approvalOpen} onClose={() => setApprovalOpen(false)} templateId={id} templateStatus={detail.status} />
+        {warnings.length > 0 && (
+          <div role="alert" className="border-b border-posCloud-warning/30 bg-posCloud-warning-light px-4 py-2 text-xs text-posCloud-warning">
+            <strong>{t('editor.qr.warnings')}:</strong> {warnings.join(' · ')}
+          </div>
+        )}
+        <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
+          <aside className="max-h-72 shrink-0 border-b border-slate-200 bg-white dark:border-gray-800 dark:bg-gray-900 lg:max-h-none lg:w-72 lg:border-b-0 lg:border-e">
+            <QuoteSidebar
+              assets={assetsQ.data ?? []}
+              canInsertField={canInsertField}
+              onAdd={(type: FlowType) => {
+                const el = newFlowElement(type)
+                edit((s) => ({ ...s, body: { ...s.body, elements: [...s.body.elements, el] } }))
+                setSelectedId(el.id)
+              }}
+              onAddAsset={addAsset}
+              onAddQr={addQr}
+              onInsertField={insertField}
+            />
+          </aside>
+
+          <main className="min-h-0 flex-1">
+            <QuoteCanvasArea
+              widthMm={size.w}
+              heightMm={size.h}
+              zoom={zoom}
+              paper={state.paper}
+              showGrid={showGrid}
+              dir={lang === 'en' ? 'ltr' : 'rtl'}
+              onZoom={setZoom}
+              onPaper={(paper) => edit((s) => ({ ...s, paper }))}
+              onGrid={setShowGrid}
+            >
+              <EditorCanvas html={html} widthMm={size.w} heightMm={size.h} zoom={zoom} selectedId={selectedId} onSelect={setSelected}>
+                <OverlayLayer
+                  elements={state.body.elements.filter(isOverlay)}
+                  urls={urls}
+                  zoom={zoom}
+                  pageWidthMm={size.w}
+                  pageHeightMm={size.h}
+                  selectedId={selectedId}
+                  onSelect={setSelected}
+                  onChange={changeOverlay}
+                  onGestureStart={checkpoint}
+                />
+              </EditorCanvas>
+            </QuoteCanvasArea>
+          </main>
+
+          <aside className="max-h-96 shrink-0 border-t border-slate-200 bg-white dark:border-gray-800 dark:bg-gray-900 lg:max-h-none lg:w-72 lg:border-s lg:border-t-0">
+            <QuoteLeftPanel
+              elements={state.body.elements}
+              selectedId={selectedId}
+              onSelect={setSelected}
+              onMove={(elId, dir) => edit((s) => ({ ...s, body: moveFlow(s.body, elId, dir) }))}
+              onToggleVisible={(elId) =>
+                edit((s) => {
+                  const el = s.body.elements.find((e) => e.id === elId)
+                  return { ...s, body: updateElement(s.body, elId, { visible: el?.visible === false }) }
+                })
+              }
+            >
+              <Inspector
+                draft={state}
+                element={selected}
+                onMeta={(patch) => edit((s) => ({ ...s, ...patch }))}
+                onBody={(patch) => edit((s) => ({ ...s, body: { ...s.body, ...patch } }))}
+                onMargin={(mm) =>
+                  edit((s) => ({
+                    ...s,
+                    body: {
+                      ...s.body,
+                      pages: s.body.pages.map((p, i) => (i === 0 ? { ...p, marginsMm: { top: mm, right: mm, bottom: mm, left: mm } } : p)),
+                    },
+                  }))
+                }
+                onElement={(patch) => selectedId && edit((s) => ({ ...s, body: updateElement(s.body, selectedId, patch) }))}
+                onRemove={remove}
+                onDuplicate={duplicate}
+                pageSizeMm={size}
+              />
+            </QuoteLeftPanel>
+          </aside>
+        </div>
+      </div>
+    )
   }
 
   return (

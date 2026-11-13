@@ -270,5 +270,25 @@
     "publishFirst": "انشر القالب أولًا ثم وافق عليه.",
     "done": "تم تسجيل القرار",
     "noPermission": "ليست لديك صلاحية الموافقة."
+  },
+  "quote": {
+    "tabElements": "العناصر",
+    "tabFields": "الحقول",
+    "tabAssets": "الأصول",
+    "searchElements": "ابحث عن عنصر...",
+    "noResults": "لا توجد عناصر مطابقة",
+    "groupBasic": "العناصر الأساسية",
+    "groupReady": "بيانات جاهزة",
+    "groupApproval": "عناصر الاعتماد",
+    "insertHint": "اضغط على حقل لإدراجه في النص المحدد.",
+    "selectTextFirst": "حدّد نصًا في الصفحة (عنوان أو نص أو شروط) ثم اختر الحقل.",
+    "uploadAsset": "رفع أصل جديد",
+    "assets": { "stamps": "الأختام", "signatures": "التواقيع", "images": "الشعارات والصور" },
+    "duplicate": "تكرار العنصر",
+    "preview": "معاينة",
+    "trialPrint": "طباعة تجريبية",
+    "publishTemplate": "نشر القالب",
+    "paperSize": "حجم الورق",
+    "showGrid": "إظهار الشبكة"
   }
 }
