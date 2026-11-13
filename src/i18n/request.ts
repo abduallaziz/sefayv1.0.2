@@ -56,6 +56,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
     queue,
     print,
     zatca,
+    documents,
   ] = await Promise.all([
     loadFile(`${locale}.json`),
     loadFile(`${locale}/common.json`),
@@ -96,6 +97,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
     loadFile(`${locale}/queue.json`),
     loadFile(`${locale}/print.json`),
     loadFile(`${locale}/zatca.json`),
+    loadFile(`${locale}/documents.json`),
   ])
 
   return {
@@ -146,6 +148,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
       branches,
       print,
       zatca,
+      documents,
       queue,
       stock: inventory?.stock,
       adjustments: inventory?.adjustments,

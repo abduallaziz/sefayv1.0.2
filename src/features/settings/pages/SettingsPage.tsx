@@ -8,7 +8,9 @@ import { useTenantStore } from '@/core/tenant/stores/tenant.store';
 import { ApiError } from '@/lib/api';
 import { useAuthStore } from '@/core/auth/stores/auth.store';
 import { useCustomerFieldDefinitions } from '@/features/customers/hooks/useCustomers';
-import { AlertTriangle, Building2, CreditCard, BarChart3, Save, Coins, Users, Percent, Receipt, Printer, Bell, ShieldCheck, ChevronLeft, Award } from 'lucide-react';
+import { AlertTriangle, Building2, CreditCard, BarChart3, Save, Coins, Users, Percent, Receipt, Printer, Bell, ShieldCheck, ChevronLeft, Award, FileText } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { documentsApi } from '@/features/documents/api/documents.api';
 import { CustomFieldsManager } from '@/features/customers/components/CustomFieldsManager';
 import { LoyaltyTiersManager } from '@/features/loyalty-tiers/components/LoyaltyTiersManager';
 import { NumberInput } from '@/shared/ui/number-input';
@@ -43,6 +45,8 @@ export function SettingsPage() {
   const t = useTranslations('settings');
   const tPrint = useTranslations('print.designer');
   const tz = useTranslations('zatca');
+  const td = useTranslations('documents');
+  const { data: documentsEnabled } = useQuery({ queryKey: ['documents', 'enabled'], queryFn: documentsApi.enabled });
   const { data: profile, isLoading: profileLoading } = useProfile();
   const { data: subscriptionData, isLoading: subLoading } = useSubscription();
   const { data: usage, isLoading: usageLoading } = useUsage();
@@ -299,6 +303,25 @@ export function SettingsPage() {
             <div>
               <h2 className="text-sm font-semibold text-slate-700 dark:text-white">{tz('link')}</h2>
               <p className="text-xs text-slate-500 mt-0.5">{tz('linkHint')}</p>
+            </div>
+          </div>
+          <ChevronLeft className="w-4 h-4 text-slate-400 rtl:rotate-180 group-hover:text-[#0C447C] transition-colors" />
+        </Link>
+      )}
+
+      {/* Document templates (only when the backend flag is on) */}
+      {canManageAccessControl && documentsEnabled?.enabled && (
+        <Link
+          href="/dashboard/settings/documents"
+          className="flex items-center justify-between gap-3 bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-5 hover:border-[#0C447C]/50 transition-colors group"
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-[#E8F1FB] dark:bg-[#0C447C]/10">
+              <FileText className="w-4 h-4 text-[#0C447C] dark:text-[#5B9BD5]" />
+            </div>
+            <div>
+              <h2 className="text-sm font-semibold text-slate-700 dark:text-white">{td('link')}</h2>
+              <p className="text-xs text-slate-500 mt-0.5">{td('linkHint')}</p>
             </div>
           </div>
           <ChevronLeft className="w-4 h-4 text-slate-400 rtl:rotate-180 group-hover:text-[#0C447C] transition-colors" />
