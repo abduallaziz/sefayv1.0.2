@@ -44,6 +44,16 @@ export function newOverlayElement(
   }
 }
 
+/** A free text box: dragged and resized by hand like an image. */
+export function newTextBox(zIndex: number): TemplateElement {
+  return {
+    ...newOverlayElement('text_box', undefined, { width: 60, height: 10 }, zIndex),
+    maintainAspect: false,
+    config: { text: '' },
+    style: { fontSize: 11 },
+  }
+}
+
 export const isOverlay = (e: TemplateElement) => e.region === 'overlay'
 
 export function updateElement(body: TemplateBody, id: string, patch: Partial<TemplateElement>): TemplateBody {

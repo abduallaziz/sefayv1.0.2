@@ -2,6 +2,7 @@
 
 import { useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { MM_TO_PX } from '../lib/elements'
+import type { CSSProperties } from 'react'
 import type { TemplateElement } from '../types'
 
 type Mode = 'move' | 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw' | 'rotate'
@@ -17,6 +18,21 @@ interface Props {
   onChange: (id: string, patch: Partial<TemplateElement>) => void
   /** Called once when a drag/resize/rotate starts, so the whole gesture is ONE undo step. */
   onGestureStart: () => void
+}
+
+/** Live look of a text box (same options the renderer turns into CSS). */
+function textBoxCss(e: TemplateElement): CSSProperties {
+  const s = e.style ?? {}
+  return {
+    color: s.color,
+    background: s.bg,
+    border: s.border ? `${(s.borderWidth ?? 0.3) * MM_TO_PX}px solid ${s.border}` : undefined,
+    borderRadius: s.radius !== undefined ? s.radius * MM_TO_PX : undefined,
+    padding: s.padding !== undefined ? s.padding * MM_TO_PX : undefined,
+    fontSize: s.fontSize !== undefined ? (s.fontSize * 96) / 72 : 14,
+    textAlign: s.align === 'start' ? 'start' : s.align === 'end' ? 'end' : s.align === 'center' ? 'center' : undefined,
+    fontWeight: s.weight === 'bold' ? 700 : undefined,
+  }
 }
 
 const SNAP_MM = 1.5
@@ -180,7 +196,11 @@ export function OverlayLayer({
                 touchAction: 'none',
               }}
             >
-              {src ? (
+              {e.type === 'text_box' ? (
+                <div className="h-full w-full overflow-hidden whitespace-pre-wrap break-words leading-snug" style={textBoxCss(e)}>
+                  {e.config?.text || <span className="opacity-40">…</span>}
+                </div>
+              ) : src ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={src} alt="" draggable={false} className="pointer-events-none h-full w-full object-contain" />
               ) : (

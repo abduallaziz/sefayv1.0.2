@@ -20,6 +20,7 @@ import {
   Search,
   SeparatorHorizontal,
   Stamp,
+  TextCursorInput,
   Table2,
   Type,
   User,
@@ -37,6 +38,7 @@ interface Props {
   onAdd: (type: FlowType) => void
   onAddAsset: (asset: DocumentAsset) => void
   onAddQr: (type: 'qr' | 'signature_qr', kind: QrKind) => void
+  onAddTextBox: () => void
   onInsertField: (path: string) => void
 }
 
@@ -53,7 +55,7 @@ const CATEGORY_GROUPS: { key: string; categories: string[] }[] = [
   { key: 'images', categories: ['logo', 'image'] },
 ]
 
-export function QuoteSidebar({ assets, canInsertField, onAdd, onAddAsset, onAddQr, onInsertField }: Props) {
+export function QuoteSidebar({ assets, canInsertField, onAdd, onAddAsset, onAddQr, onAddTextBox, onInsertField }: Props) {
   const t = useTranslations('documents.editor')
   const tq = useTranslations('documents.quote')
   const [tab, setTab] = useState<Tab>('elements')
@@ -82,6 +84,7 @@ export function QuoteSidebar({ assets, canInsertField, onAdd, onAddAsset, onAddQ
           tiles: [
             { key: 'logo', label: t('block.logo'), icon: ImageIcon, run: () => setTab('assets') },
             { key: 'image', label: t('block.image'), icon: ImagePlus, run: () => setTab('assets') },
+            { key: 'text_box', label: t('block.text_box'), icon: TextCursorInput, run: onAddTextBox },
             flow('heading', Heading),
             flow('text', Type),
             flow('divider', Minus),
@@ -116,7 +119,7 @@ export function QuoteSidebar({ assets, canInsertField, onAdd, onAddAsset, onAddQ
         },
       ] as { key: string; title: string; tiles: Tile[] }[],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [t, tq, onAdd, onAddQr],
+    [t, tq, onAdd, onAddQr, onAddTextBox],
   )
 
   const needle = q.trim().toLowerCase()

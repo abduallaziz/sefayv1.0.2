@@ -10,6 +10,7 @@ import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import { OverlaySection } from './OverlaySection'
 import { QrSection } from './QrSection'
+import { StyleSection } from './StyleSection'
 import { PAPERS, type Orientation, type Paper, type TableColumn, type TemplateBody, type TemplateElement } from '../types'
 import type { DraftState } from '../hooks/useTemplateDraft'
 
@@ -23,6 +24,8 @@ interface Props {
   onRemove: () => void
   onDuplicate: () => void
   pageSizeMm: { w: number; h: number }
+  /** A flow block exists before the selected one (so it can sit beside it). */
+  canJoin?: boolean
 }
 
 const label = 'text-xs font-medium text-slate-600 dark:text-gray-400'
@@ -48,6 +51,7 @@ export function Inspector({
   onRemove,
   onDuplicate,
   pageSizeMm,
+  canJoin = false,
 }: Props) {
   const t = useTranslations('documents')
   const te = useTranslations('documents.editor')
@@ -107,7 +111,8 @@ export function Inspector({
     )
   }
 
-  const hasText = ['heading', 'text', 'terms', 'footer'].includes(element.type)
+  const hasText = ['heading', 'text', 'terms', 'footer', 'text_box'].includes(element.type)
+const styleable = element.region === 'flow' ? !['divider', 'page_break'].includes(element.type) : element.type === 'text_box'
   const cols: TableColumn[] = element.config?.columns ?? []
   const used = [...(element.config?.text ?? '').matchAll(/\{\{\s*([^{}]*?)\s*\}\}/g)].map((m) => m[1])
   const unknown = known.size > 0 ? used.filter((u) => !known.has(u)) : []
@@ -167,6 +172,8 @@ export function Inspector({
           />
         </Field>
       )}
+
+      {styleable && <StyleSection element={element} onElement={onElement} canJoin={canJoin} />}
 
       {element.type === 'items_table' && (
         <section className="space-y-2">

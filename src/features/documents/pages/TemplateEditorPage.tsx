@@ -26,6 +26,7 @@ import {
   moveFlow,
   newFlowElement,
   newOverlayElement,
+  newTextBox,
   removeElement,
   updateElement,
 } from '../lib/elements'
@@ -138,6 +139,14 @@ export function TemplateEditorPage({ id }: { id: string }) {
     },
     [edit, bindingsQ.data],
   )
+
+  const addTextBox = useCallback(() => {
+    edit((s) => {
+      const el = newTextBox(maxZ(s.body) + 1)
+      setSelectedId(el.id)
+      return { ...s, body: { ...s.body, elements: [...s.body.elements, el] } }
+    })
+  }, [edit])
 
   // overlay geometry changes during a drag are not individual undo steps (checkpoint() groups them)
   const changeOverlay = useCallback(
@@ -327,6 +336,7 @@ export function TemplateEditorPage({ id }: { id: string }) {
               }}
               onAddAsset={addAsset}
               onAddQr={addQr}
+              onAddTextBox={addTextBox}
               onInsertField={insertField}
             />
           </aside>
@@ -390,6 +400,7 @@ export function TemplateEditorPage({ id }: { id: string }) {
                 onRemove={remove}
                 onDuplicate={duplicate}
                 pageSizeMm={size}
+                canJoin={state.body.elements.filter((x) => !isOverlay(x)).findIndex((x) => x.id === selectedId) > 0}
               />
             </QuoteLeftPanel>
           </aside>

@@ -83,7 +83,7 @@ export const FLOW_TYPES: FlowType[] = [
   'page_break',
 ]
 
-export type OverlayType = 'stamp' | 'signature' | 'logo' | 'image' | 'qr' | 'signature_qr'
+export type OverlayType = 'stamp' | 'signature' | 'logo' | 'image' | 'qr' | 'signature_qr' | 'text_box'
 
 export interface TableColumn {
   key: string
@@ -91,6 +91,29 @@ export interface TableColumn {
   align?: 'start' | 'center'
   /** Column width in percent (5-100); empty = automatic. */
   width?: number
+}
+
+/** Box / typography options of a block (colours are #RRGGBB; sizes in mm, font size in pt). */
+export interface ElementStyle {
+  bg?: string
+  color?: string
+  border?: string
+  borderWidth?: number
+  radius?: number
+  padding?: number
+  fontSize?: number
+  /** Space above the block in mm. */
+  spaceBefore?: number
+  align?: 'start' | 'center' | 'end'
+  weight?: 'normal' | 'bold'
+}
+
+/** Side-by-side placement of flow blocks: a block with sideBySide joins the row of the previous one. */
+export interface ElementLayout {
+  sideBySide?: boolean
+  /** Share of the row width in percent (5-100). */
+  width?: number
+  place?: 'start' | 'center' | 'end'
 }
 
 export interface TemplateElement {
@@ -109,6 +132,8 @@ export interface TemplateElement {
   locked?: boolean
   visible?: boolean
   maintainAspect?: boolean
+  style?: ElementStyle
+  layout?: ElementLayout
   /** 'first' = page 1 only (default); 'every' = repeated on every printed page. */
   anchor?: 'first' | 'every'
 }
