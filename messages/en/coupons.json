@@ -31,5 +31,8 @@
   "delete": "Delete",
   "save": "Save",
   "saving": "Saving...",
-  "error": "Something went wrong, try again"
+  "error": "Something went wrong, try again",
+  "invalidValue": "The discount value must be greater than zero",
+  "invalidPercent": "A percentage discount cannot be more than 100%",
+  "invalidDates": "The end date must be after the start date"
 }

@@ -32,6 +32,11 @@ export function CouponFormModal({ coupon, onClose }: Props) {
   const handleSubmit = () => {
     if (!code.trim() || !discountValue) return
     setError(null)
+    // check here instead of waiting for the server's English validation message
+    const value = parseFloat(discountValue)
+    if (!(value > 0)) return setError(t('invalidValue'))
+    if (discountType === 'percentage' && value > 100) return setError(t('invalidPercent'))
+    if (validFrom && validTo && validTo < validFrom) return setError(t('invalidDates'))
 
     const payload = {
       code: code.trim(),
