@@ -79,7 +79,7 @@ export function OrdersTable({ orders, onViewOrder, onPrintOrder, onCancelOrder, 
             className="w-full text-start bg-posCloud-surface dark:bg-posCloudDark-surface border border-posCloud-border dark:border-posCloudDark-border rounded-xl p-3 hover:border-posCloud-primary/40 transition-colors cursor-pointer"
           >
             <div className="flex items-center justify-between gap-2">
-              <span className="font-mono text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">#{order.id.slice(-6).toUpperCase()}</span>
+              <span className="font-mono text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{order.invoice_no ?? `#${order.id.slice(-6).toUpperCase()}`}</span>
               <div className="flex items-center gap-1.5">
                 <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[order.status]}`}>
                   {t(`status.${order.status}`)}
@@ -172,7 +172,7 @@ export function OrdersTable({ orders, onViewOrder, onPrintOrder, onCancelOrder, 
                       onClick={() => onViewOrder(order)}
                       className="font-mono text-xs font-semibold text-posCloud-primary hover:underline"
                     >
-                      #{order.id.slice(-6).toUpperCase()}
+                      {order.invoice_no ?? `#${order.id.slice(-6).toUpperCase()}`}
                     </button>
                   </td>
                   <td className="px-3 py-3 w-36 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary text-xs whitespace-nowrap text-start">

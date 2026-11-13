@@ -67,6 +67,7 @@ export function OrdersPage() {
         const q = filters.search.toLowerCase();
         if (
           !order.id.toLowerCase().includes(q) &&
+          !(order.invoice_no?.toLowerCase().includes(q)) &&
           !order.cashier_name?.toLowerCase().includes(q) &&
           !(order.customer_name?.toLowerCase().includes(q))
         ) return false;

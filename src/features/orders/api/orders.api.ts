@@ -14,7 +14,18 @@ export async function fetchOrders(filters: OrderFilters = {}): Promise<Order[]> 
     ? '?' + new URLSearchParams(params).toString()
     : '';
 
-  return apiClient.get<Order[]>(`/invoices${qs}`);
+  // The API returns one page (max 100, 50 by default). Reading only the first page silently hid every older
+  // invoice and made the totals / pagination / search work on a window of the latest 50: read all pages.
+  const PER_PAGE = 100;
+  const MAX_PAGES = 20;
+  const all: Order[] = [];
+  for (let page = 1; page <= MAX_PAGES; page++) {
+    const sep = qs ? `${qs}&` : '?';
+    const rows = await apiClient.get<Order[]>(`/invoices${sep}page=${page}&per_page=${PER_PAGE}`);
+    all.push(...rows);
+    if (rows.length < PER_PAGE) break;
+  }
+  return all;
 }
 
 export async function fetchOrderById(id: string): Promise<Order> {

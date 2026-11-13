@@ -48,7 +48,7 @@ export function OrderDetailsModal({ order, onClose }: Props) {
             </div>
             <div>
               <h2 className="text-base font-bold text-posCloud-text-primary dark:text-posCloudDark-text-primary">
-                {t('details.title')} <span dir="ltr">#{order.id.slice(-6).toUpperCase()}</span>
+                {t('details.title')} <span dir="ltr">{order.invoice_no ?? `#${order.id.slice(-6).toUpperCase()}`}</span>
               </h2>
               <p className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
                 {new Date(order.created_at).toLocaleString('en-US')}
