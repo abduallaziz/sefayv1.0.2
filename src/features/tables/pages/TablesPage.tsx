@@ -18,7 +18,9 @@ export function TablesPage() {
   const { user } = useAuthStore()
   const [tab, setTab] = useState<'tables' | 'reservations' | 'waitlist'>('tables')
   const [showCreate, setShowCreate] = useState(false)
-  const [activeTable, setActiveTable] = useState<RestaurantTable | null>(null)
+  // keep only the id: the dialog must follow the live table (opening a table changes its status),
+  // a stored copy kept showing "table available" after it had been opened
+  const [activeTableId, setActiveTableId] = useState<string | null>(null)
 
   // The branch the user actually selected (shared branch context), not just
   // the newest branch in the list.
@@ -26,6 +28,7 @@ export function TablesPage() {
   const branchId = currentBranchId ?? ''
 
   const { data: tables = [], isLoading: tablesLoading } = useTablesList(branchId)
+  const activeTable = tables.find((x) => x.id === activeTableId) ?? null
   const { data: reservations = [], isLoading: reservationsLoading } = useReservations()
   const { data: waitlist = [], isLoading: waitlistLoading } = useWaitlist(branchId, 'waiting')
 
@@ -73,7 +76,7 @@ export function TablesPage() {
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
             {tables.map((table) => (
-              <TableCard key={table.id} table={table} onClick={() => setActiveTable(table)} />
+              <TableCard key={table.id} table={table} onClick={() => setActiveTableId(table.id)} />
             ))}
           </div>
         )
@@ -88,7 +91,7 @@ export function TablesPage() {
       )}
 
       {showCreate && <CreateTableModal branchId={branchId} onClose={() => setShowCreate(false)} />}
-      {activeTable && <DineInModal table={activeTable} onClose={() => setActiveTable(null)} />}
+      {activeTable && <DineInModal table={activeTable} onClose={() => setActiveTableId(null)} />}
     </div>
   )
 }
