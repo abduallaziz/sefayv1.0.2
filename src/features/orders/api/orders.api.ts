@@ -2,7 +2,10 @@ import { apiClient } from '@/lib/api';
 import { Order, OrderFilters, CancelOrderPayload } from '../types/order.types';
 import type { CustomerCapture } from '@/features/customers/types/customer.types';
 
-export async function fetchOrders(filters: OrderFilters = {}): Promise<Order[]> {
+export async function fetchOrders(
+  filters: OrderFilters = {},
+  opts: { maxPages?: number } = {},
+): Promise<Order[]> {
   const params: Record<string, string> = {};
   if (filters.status) params.status = filters.status;
   if (filters.payment_method) params.payment_method = filters.payment_method;
@@ -17,7 +20,7 @@ export async function fetchOrders(filters: OrderFilters = {}): Promise<Order[]> 
   // The API returns one page (max 100, 50 by default). Reading only the first page silently hid every older
   // invoice and made the totals / pagination / search work on a window of the latest 50: read all pages.
   const PER_PAGE = 100;
-  const MAX_PAGES = 20;
+  const MAX_PAGES = opts.maxPages ?? 20;
   const all: Order[] = [];
   for (let page = 1; page <= MAX_PAGES; page++) {
     const sep = qs ? `${qs}&` : '?';

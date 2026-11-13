@@ -232,7 +232,8 @@ export function DashboardOverview() {
   // total, status (completed/pending/cancelled mapped to paid/due badges).
   const { data: recentOrders, isLoading: recentOrdersLoading } = useQuery({
     queryKey: ['dashboard', 'recent-orders', branchId],
-    queryFn: () => fetchOrders({ branch_id: branchId }),
+    // only the latest invoices are shown here: one page is enough
+    queryFn: () => fetchOrders({ branch_id: branchId }, { maxPages: 1 }),
     enabled: !!user, staleTime: 60000,
   })
 
@@ -606,7 +607,7 @@ export function DashboardOverview() {
                 <tbody>
                   {invoiceRows.map((o) => (
                     <tr key={o.id} className="border-t border-posCloud-border dark:border-posCloudDark-border">
-                      <td className="py-3 font-semibold text-posCloud-primary">#{o.id.slice(-6).toUpperCase()}</td>
+                      <td className="py-3 font-semibold text-posCloud-primary">{o.invoice_no ?? `#${o.id.slice(-6).toUpperCase()}`}</td>
                       <td className="py-3 text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{o.customer_name || '—'}</td>
                       <td className="py-3 font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{formatNumber(o.total, { locale, decimals: 2 })} {currency}</td>
                       <td className="py-3">
