@@ -53,5 +53,6 @@
   "priceTimelineStagePurchaseOrder": "Purchase Order",
   "priceTimelineStageGoodsReceipt": "Goods Receipt",
   "priceTimelineCount": "{count} price point(s)",
-  "priceTimelineRowsPerPage": "Rows per page"
+  "priceTimelineRowsPerPage": "Rows per page",
+  "invalidEmail": "Invalid email address"
 }

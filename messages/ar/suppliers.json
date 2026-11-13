@@ -53,5 +53,6 @@
   "priceTimelineStagePurchaseOrder": "أمر شراء",
   "priceTimelineStageGoodsReceipt": "إيصال استلام",
   "priceTimelineCount": "{count} نقطة سعر",
-  "priceTimelineRowsPerPage": "الصفوف لكل صفحة"
+  "priceTimelineRowsPerPage": "الصفوف لكل صفحة",
+  "invalidEmail": "البريد الإلكتروني غير صالح"
 }

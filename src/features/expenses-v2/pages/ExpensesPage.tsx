@@ -47,6 +47,12 @@ const ALL = '__all__'
 export function ExpensesPage() {
   const t = useTranslations('expensesV2.expensesCore')
   const tBreadcrumb = useTranslations('expensesV2.breadcrumb')
+  const tForm = useTranslations('expensesV2.expensesCore.form')
+  // payment methods are stored as codes (cash, card ...): show the translated name, keep unknown codes as they are
+  const methodLabel = (code: string) => {
+    const keys: Record<string, string> = { cash: 'paymentMethodCash', card: 'paymentMethodCard', bank_transfer: 'paymentMethodBankTransfer', cheque: 'paymentMethodCheque', other: 'paymentMethodOther' }
+    return keys[code] ? tForm(keys[code] as never) : code
+  }
   const locale = useLocale()
   const canView = usePermission('expenses.view')
   const canCreate = usePermission('expenses.create')
@@ -170,7 +176,7 @@ export function ExpensesPage() {
     {
       key: 'paymentMethod',
       header: t('table.paymentMethod'),
-      render: (row) => row.payment_method || '—',
+      render: (row) => (row.payment_method ? methodLabel(row.payment_method) : '—'),
     },
     {
       key: 'status',
@@ -393,7 +399,7 @@ export function ExpensesPage() {
                           <SelectItem value={ALL}>{t('filters.allPaymentMethods')}</SelectItem>
                           {paymentMethods.map((pm) => (
                             <SelectItem key={pm} value={pm}>
-                              {pm}
+                              {methodLabel(pm)}
                             </SelectItem>
                           ))}
                         </SelectContent>

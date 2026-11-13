@@ -216,7 +216,10 @@
       "cancel": "إلغاء",
       "selectDepartment": "اختر قسمًا",
       "selectCategory": "اختر فئة",
-      "selectPaymentStatus": "اختر حالة الدفع"
+      "selectPaymentStatus": "اختر حالة الدفع",
+      "registerLabel": "مدفوع من الصندوق",
+      "registerNone": "ليس من صندوق (خزنة / عهدة)",
+      "registerHint": "المصروف النقدي المأخوذ من صندوق مفتوح يُخصم من المتوقع نقداً عند إغلاق ذلك الصندوق."
     },
     "activityDrawer": {
       "title": "سجل النشاط",
@@ -310,8 +313,5 @@
     "recentQuickEmpty": "لا توجد مصروفات سريعة بعد",
     "deleteRecurring": "حذف المصروف المتكرر",
     "deleteRecurringConfirm": "سيتم حذف هذا المصروف المتكرر وإيقاف تكراره. متابعة؟"
-  },
-  "registerLabel": "مدفوع من الصندوق",
-  "registerNone": "ليس من صندوق (خزنة / عهدة)",
-  "registerHint": "المصروف النقدي المأخوذ من صندوق مفتوح يُخصم من المتوقع نقداً عند إغلاق ذلك الصندوق."
+  }
 }

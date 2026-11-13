@@ -587,8 +587,14 @@
     "pickListDetail": {
       "title": "Pick List {id}",
       "description": "Operational detail for this pick list.",
-      "notFound": { "title": "Pick list not found", "description": "This pick list doesn't exist or you don't have access to it." },
-      "error": { "title": "Failed to load", "description": "Please try again." },
+      "notFound": {
+        "title": "Pick list not found",
+        "description": "This pick list doesn't exist or you don't have access to it."
+      },
+      "error": {
+        "title": "Failed to load",
+        "description": "Please try again."
+      },
       "header": {
         "warehouse": "Warehouse",
         "assignedTo": "Assigned To",
@@ -947,6 +953,9 @@
         },
         "history": {
           "title": "History"
+        },
+        "actions": {
+          "cancel": "Cancel Task"
         }
       },
       "create": {

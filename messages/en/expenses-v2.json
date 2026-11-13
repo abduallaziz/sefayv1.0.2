@@ -216,7 +216,10 @@
       "cancel": "Cancel",
       "selectDepartment": "Select a Department",
       "selectCategory": "Select a Category",
-      "selectPaymentStatus": "Select payment status"
+      "selectPaymentStatus": "Select payment status",
+      "registerLabel": "Paid from register",
+      "registerNone": "Not from a register (safe / petty cash)",
+      "registerHint": "A cash expense taken from an open register lowers that register's expected cash at close."
     },
     "activityDrawer": {
       "title": "Activity History",
@@ -310,8 +313,5 @@
     "recentQuickEmpty": "No Quick Expenses yet",
     "deleteRecurring": "Delete recurring expense",
     "deleteRecurringConfirm": "This recurring expense will be deleted and will stop repeating. Continue?"
-  },
-  "registerLabel": "Paid from register",
-  "registerNone": "Not from a register (safe / petty cash)",
-  "registerHint": "A cash expense taken from an open register lowers that register's expected cash at close."
+  }
 }

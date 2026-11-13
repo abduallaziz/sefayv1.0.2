@@ -37,6 +37,11 @@ export function RecurringExpensesPage() {
   const t = useTranslations('expensesV2.recurringExpenses')
   const tBreadcrumb = useTranslations('expensesV2.breadcrumb')
   const tForm = useTranslations('expensesV2.expensesCore')
+  const tMethod = useTranslations('expensesV2.expensesCore.form')
+  const methodLabel = (code: string) => {
+    const keys: Record<string, string> = { cash: 'paymentMethodCash', card: 'paymentMethodCard', bank_transfer: 'paymentMethodBankTransfer', cheque: 'paymentMethodCheque', other: 'paymentMethodOther' }
+    return keys[code] ? tMethod(keys[code] as never) : code
+  }
   const locale = useLocale()
   const canView = usePermission('expenses.view')
   const canManage = usePermission('expenses.manage')
@@ -122,7 +127,7 @@ export function RecurringExpensesPage() {
     {
       key: 'paymentMethod',
       header: tForm('table.paymentMethod'),
-      render: (row) => row.payment_method || '—',
+      render: (row) => (row.payment_method ? methodLabel(row.payment_method) : '—'),
     },
     {
       key: 'frequency',
