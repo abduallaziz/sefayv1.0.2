@@ -146,7 +146,8 @@
     "table": {
       "repeatHeader": "Repeat header on every page",
       "zebra": "Striped rows",
-      "width": "Width %"
+      "width": "Width %",
+      "bold": "Bold column"
     },
     "anchor": {
       "title": "Appears on",
@@ -326,6 +327,14 @@
     "headerBg": "Table header color",
     "showCurrency": "Show currency (SAR)",
     "accent": "Total row color",
-    "spaceBefore": "Space above (mm)"
+    "spaceBefore": "Space above (mm)",
+    "divider": "Line before column",
+    "rowBg": "Data row background",
+    "grid": "Lines between columns",
+    "labelBg": "Totals label background",
+    "accentValue": "Final total value color",
+    "termsTitle": "Terms title",
+    "titleBg": "Title bar color",
+    "bulletColor": "Bullet color"
   }
 }

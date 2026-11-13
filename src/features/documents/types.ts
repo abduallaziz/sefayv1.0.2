@@ -91,6 +91,7 @@ export interface TableColumn {
   align?: 'start' | 'center'
   /** Column width in percent (5-100); empty = automatic. */
   width?: number
+  bold?: boolean
 }
 
 /** Box / typography options of a block (colours are #RRGGBB; sizes in mm, font size in pt). */
@@ -114,6 +115,8 @@ export interface ElementLayout {
   /** Share of the row width in percent (5-100). */
   width?: number
   place?: 'start' | 'center' | 'end'
+  /** A vertical line before this column of the row. */
+  divider?: boolean
 }
 
 export interface TemplateElement {

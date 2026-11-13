@@ -36,7 +36,7 @@ function textBoxCss(e: TemplateElement): CSSProperties {
 }
 
 const SNAP_MM = 1.5
-const MIN_MM = 3
+const MIN_MM = 0.5
 const r1 = (n: number) => Math.round(n * 10) / 10
 
 const HANDLES: { mode: Mode; cls: string; cursor: string }[] = [

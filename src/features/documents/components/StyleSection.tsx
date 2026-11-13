@@ -143,6 +143,16 @@ export function StyleSection({ element, onElement, canJoin }: Props) {
             />
             {t('sideBySide')}
           </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              className="h-4 w-4 accent-[#0C447C]"
+              checked={layout.divider === true}
+              disabled={!canJoin}
+              onChange={(e) => setLayout({ divider: e.target.checked })}
+            />
+            {t('divider')}
+          </label>
           <div className="grid grid-cols-2 gap-2">
             <NumField
               label={t('widthPct')}
@@ -240,6 +250,7 @@ export function StyleSection({ element, onElement, canJoin }: Props) {
               <option value="none">{t('labelNone')}</option>
             </select>
           </label>
+          <ColorField label={t('rowBg')} value={cfg.rowBg as string | undefined} onChange={(v) => setCfg({ rowBg: v })} />
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
@@ -259,6 +270,15 @@ export function StyleSection({ element, onElement, canJoin }: Props) {
             <input
               type="checkbox"
               className="h-4 w-4 accent-[#0C447C]"
+              checked={cfg.grid === true}
+              onChange={(e) => setCfg({ grid: e.target.checked })}
+            />
+            {t('grid')}
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              className="h-4 w-4 accent-[#0C447C]"
               checked={cfg.showCurrency === true}
               onChange={(e) => setCfg({ showCurrency: e.target.checked })}
             />
@@ -267,9 +287,27 @@ export function StyleSection({ element, onElement, canJoin }: Props) {
         </section>
       )}
 
+      {element.type === 'terms' && (
+        <section className="space-y-2 rounded-lg border border-slate-200 p-2.5 dark:border-gray-800">
+          <label className="space-y-1">
+            <span className={labelCls}>{t('termsTitle')}</span>
+            <input
+              className={numCls}
+              maxLength={120}
+              value={(cfg.title as string | undefined) ?? ''}
+              onChange={(e) => setCfg({ title: e.target.value || undefined })}
+            />
+          </label>
+          <ColorField label={t('titleBg')} value={cfg.titleBg as string | undefined} onChange={(v) => setCfg({ titleBg: v })} />
+          <ColorField label={t('bulletColor')} value={cfg.bulletColor as string | undefined} onChange={(v) => setCfg({ bulletColor: v })} />
+        </section>
+      )}
+
       {element.type === 'totals' && (
         <section className="space-y-2 rounded-lg border border-slate-200 p-2.5 dark:border-gray-800">
+          <ColorField label={t('labelBg')} value={cfg.labelBg as string | undefined} onChange={(v) => setCfg({ labelBg: v })} />
           <ColorField label={t('accent')} value={cfg.accent as string | undefined} onChange={(v) => setCfg({ accent: v })} />
+          <ColorField label={t('accentValue')} value={cfg.accentValue as string | undefined} onChange={(v) => setCfg({ accentValue: v })} />
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"

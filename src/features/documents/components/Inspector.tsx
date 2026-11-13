@@ -229,6 +229,15 @@ const styleable = element.region === 'flow' ? !['divider', 'page_break'].include
                   <option value="center">{te('alignCenter')}</option>
                 </select>
               </div>
+              <label className="flex items-center gap-2 text-xs">
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 accent-[#0C447C]"
+                  checked={c.bold === true}
+                  onChange={(e) => setCols(cols.map((x, j) => (j === i ? { ...x, bold: e.target.checked } : x)))}
+                />
+                {te('table.bold')}
+              </label>
               <div className="flex items-center gap-2">
                 <label className={label}>{te('table.width')}</label>
                 <Input
