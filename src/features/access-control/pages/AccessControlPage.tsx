@@ -162,7 +162,7 @@ export function AccessControlPage({ initialRoleId }: { initialRoleId?: string } 
         onConfirm={handleDeleteConfirm}
         variant="danger"
         title={t('deleteConfirm.title')}
-        message={roleToDelete ? t.rich('deleteConfirm.message', { name: <span dir="auto" className="[unicode-bidi:isolate] font-semibold">{roleToDelete.name}</span> }) : ''}
+        message={roleToDelete ? t('deleteConfirm.message', { name: `⁨${roleToDelete.name}⁩` }) : ''}
         confirmLabel={t('actionsMenu.delete')}
         cancelLabel={t('cancel')}
         loadingLabel={t('deleteConfirm.loadingLabel')}
