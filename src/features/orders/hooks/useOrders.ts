@@ -27,6 +27,8 @@ export function useCancelOrder() {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       // a cancelled sale leaves the register / reports totals
       queryClient.invalidateQueries({ queryKey: ['shifts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['reports'] });
     },
   });
 }
