@@ -143,6 +143,9 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onBarcodes, on
                   />
                 </td>
                 <td className="px-3 py-3 font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary max-w-[160px] truncate">
+                  {item.image_url && (
+                  <img src={item.image_url} alt="" loading="lazy" className="inline-block w-7 h-7 rounded object-cover me-2 align-middle" />
+                )}
                   {item.name}
                 </td>
                 <td className="px-3 py-3">

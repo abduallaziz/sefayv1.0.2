@@ -37,7 +37,10 @@ export function VariantsModal({ open, onClose, item, onAddVariant, onUpdateVaria
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editForm, setEditForm] = useState({ name: '', price_adjustment: '', sku: '' })
 
-  const [error, setError] = useState<string | null>(null)
+  const [error, setErrorRaw] = useState<string | null>(null)
+  // Row the error belongs to (a variant id being edited), null = the add form.
+  const [errorRow, setErrorRow] = useState<string | null>(null)
+  const setError = (msg: string | null, row: string | null = null) => { setErrorRaw(msg); setErrorRow(row) }
   const [busy, setBusy] = useState(false)
   const [deleteId, setDeleteId] = useState<string | null>(null)
 
@@ -56,14 +59,14 @@ export function VariantsModal({ open, onClose, item, onAddVariant, onUpdateVaria
     return Math.round(n * 100) / 100
   }
 
-  const run = async (fn: () => Promise<void>): Promise<boolean> => {
+  const run = async (fn: () => Promise<void>, row: string | null = null): Promise<boolean> => {
     setBusy(true)
     setError(null)
     try {
       await fn()
       return true
     } catch (err) {
-      setError(err instanceof Error && err.message ? err.message : t('variantError'))
+      setError(err instanceof Error && err.message ? err.message : t('variantError'), row)
       return false
     } finally {
       setBusy(false)
@@ -86,10 +89,10 @@ export function VariantsModal({ open, onClose, item, onAddVariant, onUpdateVaria
   const cancelEdit = () => setEditingId(null)
 
   const saveEdit = async (variantId: string) => {
-    if (!editForm.name.trim()) { setError(t('variantNameRequired')); return }
+    if (!editForm.name.trim()) { setError(t('variantNameRequired'), variantId); return }
     const adj = parseAdjustment(editForm.price_adjustment)
-    if (adj === null) { setError(t('priceAdjustmentInvalid')); return }
-    const ok = await run(() => onUpdateVariant(item.id, variantId, { name: editForm.name.trim(), price_adjustment: adj, sku: editForm.sku.trim() }))
+    if (adj === null) { setError(t('priceAdjustmentInvalid'), variantId); return }
+    const ok = await run(() => onUpdateVariant(item.id, variantId, { name: editForm.name.trim(), price_adjustment: adj, sku: editForm.sku.trim() }), variantId)
     if (ok) setEditingId(null)
   }
 
@@ -143,6 +146,7 @@ export function VariantsModal({ open, onClose, item, onAddVariant, onUpdateVaria
                       className={fieldClass}
                     />
                   </div>
+                  {error && errorRow === v.id && <p role="alert" className="text-sm text-posCloud-danger">{error}</p>}
                   <div className="flex justify-end gap-2">
                     <button
                       onClick={cancelEdit}
@@ -221,7 +225,7 @@ export function VariantsModal({ open, onClose, item, onAddVariant, onUpdateVaria
               className={fieldClass}
             />
           </div>
-          {error && <p role="alert" className="mt-2 text-sm text-posCloud-danger">{error}</p>}
+          {error && errorRow === null && <p role="alert" className="mt-2 text-sm text-posCloud-danger">{error}</p>}
           <Button onClick={handleAdd} disabled={busy} className="mt-3 w-full">
             <Plus className="w-4 h-4" />
             {t('addVariant')}
