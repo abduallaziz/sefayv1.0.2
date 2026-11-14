@@ -7,6 +7,11 @@ import { Item, ItemVariant } from '../types/item.types'
 import { useItemVariants } from '../hooks/useItems'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { Button } from '@/shared/ui/button'
+import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
+import { useEscapeClose } from '@/shared/hooks/useEscapeClose'
+import { parseStrictNumber } from '@/lib/number-input'
+
+const MAX_ADJUSTMENT = 99_999_999
 
 interface VariantFields {
   name: string
@@ -18,9 +23,9 @@ interface Props {
   open: boolean
   onClose: () => void
   item: Item | null
-  onAddVariant: (itemId: string, data: VariantFields) => void
-  onUpdateVariant: (itemId: string, variantId: string, data: VariantFields) => void
-  onDeleteVariant: (itemId: string, variantId: string) => void
+  onAddVariant: (itemId: string, data: VariantFields) => Promise<void>
+  onUpdateVariant: (itemId: string, variantId: string, data: VariantFields) => Promise<void>
+  onDeleteVariant: (itemId: string, variantId: string) => Promise<void>
 }
 
 const fieldClass = "px-3 py-2 text-sm bg-posCloud-background dark:bg-posCloudDark-background border border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-primary dark:text-posCloudDark-text-primary rounded-lg focus:outline-none focus:border-posCloud-primary placeholder:text-posCloud-text-tertiary dark:placeholder:text-posCloudDark-text-tertiary"
@@ -32,18 +37,45 @@ export function VariantsModal({ open, onClose, item, onAddVariant, onUpdateVaria
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editForm, setEditForm] = useState({ name: '', price_adjustment: '', sku: '' })
 
+  const [error, setError] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+  const [deleteId, setDeleteId] = useState<string | null>(null)
+
   const { data: variants = [], isLoading } = useItemVariants(item?.id ?? null)
+
+  useEscapeClose(open && !!item, onClose, deleteId === null)
 
   if (!open || !item) return null
 
-  const handleAdd = () => {
-    if (!form.name.trim()) return
-    onAddVariant(item.id, {
-      name: form.name,
-      price_adjustment: parseFloat(form.price_adjustment) || 0,
-      sku: form.sku,
-    })
-    setForm({ name: '', price_adjustment: '', sku: '' })
+  // Strict adjustment: empty = 0, anything non-numeric / out of range is rejected
+  // (never silently saved as 0). Arabic-Indic digits are normalized.
+  const parseAdjustment = (raw: string): number | null => {
+    if (raw.trim() === '') return 0
+    const n = parseStrictNumber(raw)
+    if (n === null || Math.abs(n) > MAX_ADJUSTMENT) return null
+    return Math.round(n * 100) / 100
+  }
+
+  const run = async (fn: () => Promise<void>): Promise<boolean> => {
+    setBusy(true)
+    setError(null)
+    try {
+      await fn()
+      return true
+    } catch (err) {
+      setError(err instanceof Error && err.message ? err.message : t('variantError'))
+      return false
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const handleAdd = async () => {
+    if (!form.name.trim()) { setError(t('variantNameRequired')); return }
+    const adj = parseAdjustment(form.price_adjustment)
+    if (adj === null) { setError(t('priceAdjustmentInvalid')); return }
+    const ok = await run(() => onAddVariant(item.id, { name: form.name.trim(), price_adjustment: adj, sku: form.sku.trim() }))
+    if (ok) setForm({ name: '', price_adjustment: '', sku: '' })
   }
 
   const startEdit = (v: ItemVariant) => {
@@ -53,14 +85,18 @@ export function VariantsModal({ open, onClose, item, onAddVariant, onUpdateVaria
 
   const cancelEdit = () => setEditingId(null)
 
-  const saveEdit = (variantId: string) => {
-    if (!editForm.name.trim()) return
-    onUpdateVariant(item.id, variantId, {
-      name: editForm.name,
-      price_adjustment: parseFloat(editForm.price_adjustment) || 0,
-      sku: editForm.sku,
-    })
-    setEditingId(null)
+  const saveEdit = async (variantId: string) => {
+    if (!editForm.name.trim()) { setError(t('variantNameRequired')); return }
+    const adj = parseAdjustment(editForm.price_adjustment)
+    if (adj === null) { setError(t('priceAdjustmentInvalid')); return }
+    const ok = await run(() => onUpdateVariant(item.id, variantId, { name: editForm.name.trim(), price_adjustment: adj, sku: editForm.sku.trim() }))
+    if (ok) setEditingId(null)
+  }
+
+  const confirmDelete = async () => {
+    const id = deleteId
+    setDeleteId(null)
+    if (id) await run(() => onDeleteVariant(item.id, id))
   }
 
   return (
@@ -71,7 +107,7 @@ export function VariantsModal({ open, onClose, item, onAddVariant, onUpdateVaria
             <h2 className="text-lg font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{t('variants')}</h2>
             <p className="text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{item.name}</p>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary transition-colors">
+          <button type="button" onClick={onClose} aria-label={t('close')} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -115,6 +151,8 @@ export function VariantsModal({ open, onClose, item, onAddVariant, onUpdateVaria
                       {t('cancel')}
                     </button>
                     <button
+                      type="button"
+                      disabled={busy}
                       onClick={() => saveEdit(v.id)}
                       className="flex items-center gap-1 px-3 py-1.5 text-xs rounded-lg bg-posCloud-primary text-white hover:opacity-90"
                     >
@@ -135,13 +173,19 @@ export function VariantsModal({ open, onClose, item, onAddVariant, onUpdateVaria
                   </div>
                   <div className="flex items-center gap-1">
                     <button
+                      type="button"
+                      aria-label={t('editVariant')}
+                      title={t('editVariant')}
                       onClick={() => startEdit(v)}
                       className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary transition-colors"
                     >
                       <Pencil className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => onDeleteVariant(item.id, v.id)}
+                      type="button"
+                      aria-label={t('deleteVariant')}
+                      title={t('deleteVariant')}
+                      onClick={() => setDeleteId(v.id)}
                       className="p-1.5 rounded-lg hover:bg-posCloud-danger-light dark:hover:bg-posCloud-danger/15 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-danger transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -177,12 +221,23 @@ export function VariantsModal({ open, onClose, item, onAddVariant, onUpdateVaria
               className={fieldClass}
             />
           </div>
-          <Button onClick={handleAdd} className="mt-3 w-full">
+          {error && <p role="alert" className="mt-2 text-sm text-posCloud-danger">{error}</p>}
+          <Button onClick={handleAdd} disabled={busy} className="mt-3 w-full">
             <Plus className="w-4 h-4" />
             {t('addVariant')}
           </Button>
         </div>
       </div>
+      <ConfirmDialog
+        open={deleteId !== null}
+        onClose={() => setDeleteId(null)}
+        onConfirm={confirmDelete}
+        variant="danger"
+        title={t('deleteVariant')}
+        message={t('deleteVariantConfirm')}
+        confirmLabel={t('delete')}
+        cancelLabel={t('cancel')}
+      />
     </div>
   )
 }

@@ -191,3 +191,37 @@ RULES.push(
   [/^(\w+) must be a whole number$/, (m) => `الحقل ${f(m[1])} يجب أن يكون عددًا صحيحًا`],
   [/^(\w+) must not be greater than (.+)$/, (m) => `قيمة الحقل ${f(m[1])} أكبر من المسموح (${m[2]})`],
 );
+
+// ---- Tables / reservations / wash queue / note presets (appended) ----
+Object.assign(EXACT, {
+  'A table with this name already exists at this branch': 'توجد طاولة بنفس الاسم في هذا الفرع',
+  'Cannot delete a table with an open order': 'لا يمكن حذف طاولة عليها طلب مفتوح',
+  'Reservation time cannot be in the past': 'لا يمكن الحجز في وقت مضى',
+  'reservation_time must be a valid date': 'وقت الحجز غير صحيح',
+  'This table is already reserved around that time': 'الطاولة محجوزة في وقت قريب من هذا الموعد',
+  'Only a confirmed reservation can be edited': 'يمكن تعديل الحجز المؤكد فقط',
+  'A seated reservation cannot be deleted': 'لا يمكن حذف حجز تم الجلوس عليه',
+  'This vehicle is already in the wash queue': 'هذه السيارة موجودة بالفعل في طابور الغسيل',
+  'Cannot bill a cancelled job': 'لا يمكن محاسبة مهمة ملغاة',
+  'This job is already billed': 'تمت محاسبة هذه المهمة مسبقًا',
+  'A note preset with this text already exists': 'توجد ملاحظة جاهزة بنفس النص',
+  'text must not be empty': 'أدخل نص الملاحظة',
+});
+Object.assign(FIELDS, {
+  quoted_wait_minutes: 'مدة الانتظار', text: 'النص', order_id: 'الطلب', unit_price: 'سعر الوحدة',
+  cash_tendered: 'المبلغ المدفوع نقدًا', cash_amount: 'مبلغ النقد', card_amount: 'مبلغ البطاقة', vehicle_size: 'حجم السيارة',
+});
+RULES.push(
+  [/^Party size exceeds the table capacity \((\d+)\)$/, (m) => `عدد الأشخاص أكبر من سعة الطاولة (${m[1]})`],
+  [/^Cannot change a (\w+) reservation to (\w+)$/, () => 'لا يمكن تغيير حالة الحجز إلى هذه الحالة'],
+  [/^Cannot cancel an entry with status: .+$/, () => 'لا يمكن إلغاء هذا السجل في حالته الحالية'],
+);
+
+// ---- Items / coupons / rewards round 2 (appended) ----
+Object.assign(EXACT, {
+  'Parent packaging level not found for this item': 'مستوى التعبئة الأب غير موجود لهذا الصنف',
+  'Packaging level not found for this item': 'مستوى التعبئة غير موجود لهذا الصنف',
+  'Variant not found for this item': 'النوع غير موجود لهذا الصنف',
+  'Item not found for this barcode': 'لا يوجد صنف لهذا الباركود',
+  'Coupon deleted': 'تم حذف الكوبون',
+});

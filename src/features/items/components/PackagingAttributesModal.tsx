@@ -23,6 +23,9 @@ import {
   useCreateBarcode,
 } from '../hooks/useItems'
 import { Button } from '@/shared/ui/button'
+import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
+import { useEscapeClose } from '@/shared/hooks/useEscapeClose'
+import { parseStrictNumber } from '@/lib/number-input'
 
 interface Props {
   open: boolean
@@ -67,6 +70,11 @@ export function PackagingAttributesModal({ open, onClose, item }: Props) {
   const createLevel = useCreatePackagingLevel()
   const deleteLevel = useDeletePackagingLevel()
   const createBarcode = useCreateBarcode()
+
+  const [pkgError, setPkgError] = useState<string | null>(null)
+  const [deleteLevelId, setDeleteLevelId] = useState<string | null>(null)
+
+  useEscapeClose(open && !!item, onClose, deleteLevelId === null)
 
   if (!open || !item) return null
 
@@ -120,13 +128,20 @@ export function PackagingAttributesModal({ open, onClose, item }: Props) {
   }
 
   const handleAddLevel = () => {
-    if (!newLevelName.trim()) return
+    if (!newLevelName.trim()) { setPkgError(t('levelNameRequired')); return }
+    let qty: number | undefined
+    if (newLevelParentId) {
+      const n = parseStrictNumber(newLevelQty)
+      if (n === null || n <= 0 || n > 1_000_000) { setPkgError(t('quantityInParentInvalid')); return }
+      qty = n
+    }
+    setPkgError(null)
     createLevel.mutate(
       {
         item_id: item.id,
         level_name: newLevelName.trim(),
         parent_level_id: newLevelParentId || undefined,
-        quantity_in_parent: newLevelParentId ? Number(newLevelQty) || undefined : undefined,
+        quantity_in_parent: qty,
       },
       {
         onSuccess: () => {
@@ -134,7 +149,7 @@ export function PackagingAttributesModal({ open, onClose, item }: Props) {
           setNewLevelParentId('')
           setNewLevelQty('')
         },
-        onError: (err) => toast.error(errMsg(err, t('packagingLevelError'))),
+        onError: (err) => setPkgError(errMsg(err, t('packagingLevelError'))),
       },
     )
   }
@@ -169,7 +184,9 @@ export function PackagingAttributesModal({ open, onClose, item }: Props) {
             <p className="text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{item.name}</p>
           </div>
           <button
+            type="button"
             onClick={onClose}
+            aria-label={t('close')}
             className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary transition-colors"
           >
             <X className="w-4 h-4" />
@@ -228,6 +245,9 @@ export function PackagingAttributesModal({ open, onClose, item }: Props) {
                             {attr.name}
                           </button>
                           <button
+                            type="button"
+                            aria-label={t('deleteAttribute')}
+                            title={t('deleteAttribute')}
                             onClick={() => deleteAttribute.mutate(attr.id, { onError: (err) => toast.error(errMsg(err, t('attributeDeleteError'))) })}
                             className="p-1 rounded hover:bg-posCloud-danger-light dark:hover:bg-posCloud-danger/15 text-posCloud-text-tertiary hover:text-posCloud-danger transition-colors"
                           >
@@ -243,7 +263,7 @@ export function PackagingAttributesModal({ open, onClose, item }: Props) {
                                   className="flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-posCloud-primary-light dark:bg-posCloud-primary/15 text-posCloud-primary"
                                 >
                                   {v.value}
-                                  <button onClick={() => deleteValue.mutate({ id: v.id, attributeId: attr.id }, { onError: (err) => toast.error(errMsg(err, t('attributeValueDeleteError'))) })}>
+                                  <button type="button" aria-label={t('deleteAttributeValue')} onClick={() => deleteValue.mutate({ id: v.id, attributeId: attr.id }, { onError: (err) => toast.error(errMsg(err, t('attributeValueDeleteError'))) })}>
                                     <X className="w-3 h-3" />
                                   </button>
                                   {selectedVariantId && (
@@ -315,7 +335,7 @@ export function PackagingAttributesModal({ open, onClose, item }: Props) {
                             className="flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-posCloud-success-light dark:bg-posCloud-success/15 text-posCloud-success"
                           >
                             {a.item_attributes?.name}: {a.item_attribute_values?.value}
-                            <button onClick={() => removeAssignment.mutate({ id: a.id, variantId: selectedVariantId })}>
+                            <button type="button" aria-label={t('removeAssignment')} onClick={() => removeAssignment.mutate({ id: a.id, variantId: selectedVariantId })}>
                               <X className="w-3 h-3" />
                             </button>
                           </span>
@@ -357,7 +377,10 @@ export function PackagingAttributesModal({ open, onClose, item }: Props) {
                           </p>
                         </div>
                         <button
-                          onClick={() => handleDeleteLevel(level.id)}
+                          type="button"
+                          aria-label={t('deletePackagingLevel')}
+                          title={t('deletePackagingLevel')}
+                          onClick={() => setDeleteLevelId(level.id)}
                           className="p-1.5 rounded-lg hover:bg-posCloud-danger-light dark:hover:bg-posCloud-danger/15 text-posCloud-text-tertiary hover:text-posCloud-danger transition-colors"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -401,8 +424,8 @@ export function PackagingAttributesModal({ open, onClose, item }: Props) {
                     ))}
                   </select>
                   <input
-                    type="number"
-                    min={1}
+                    type="text"
+                    inputMode="decimal"
                     value={newLevelQty}
                     onChange={(e) => setNewLevelQty(e.target.value)}
                     placeholder={t('quantityInParentPlaceholder')}
@@ -410,6 +433,7 @@ export function PackagingAttributesModal({ open, onClose, item }: Props) {
                     className={`${inputClass} disabled:opacity-50`}
                   />
                 </div>
+                {pkgError && <p role="alert" className="mt-2 text-sm text-posCloud-danger">{pkgError}</p>}
                 <Button onClick={handleAddLevel} disabled={createLevel.isPending} className="mt-3 w-full">
                   <Plus className="w-4 h-4" />
                   {t('addPackagingLevel')}
@@ -419,6 +443,20 @@ export function PackagingAttributesModal({ open, onClose, item }: Props) {
           )}
         </div>
       </div>
+      <ConfirmDialog
+        open={deleteLevelId !== null}
+        onClose={() => setDeleteLevelId(null)}
+        onConfirm={() => {
+          const id = deleteLevelId
+          setDeleteLevelId(null)
+          if (id) handleDeleteLevel(id)
+        }}
+        variant="danger"
+        title={t('deletePackagingLevel')}
+        message={t('deletePackagingLevelConfirm')}
+        confirmLabel={t('delete')}
+        cancelLabel={t('cancel')}
+      />
     </div>
   )
 }

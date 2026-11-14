@@ -2,11 +2,12 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { toast } from 'sonner'
 import { X, Plus, Trash2, Star } from 'lucide-react'
 import { Item, BarcodeType } from '../types/item.types'
 import { useItemBarcodes, useCreateBarcode, useDeleteBarcode } from '../hooks/useItems'
 import { Button } from '@/shared/ui/button'
+import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
+import { useEscapeClose } from '@/shared/hooks/useEscapeClose'
 
 const BARCODE_TYPES: BarcodeType[] = ['UPC', 'EAN', 'GS1', 'QR']
 
@@ -26,16 +27,23 @@ export function BarcodesModal({ open, onClose, item }: Props) {
   const createBarcode = useCreateBarcode()
   const deleteBarcode = useDeleteBarcode()
 
+  const [error, setError] = useState<string | null>(null)
+  const [deleteId, setDeleteId] = useState<string | null>(null)
+
+  useEscapeClose(open && !!item, onClose, deleteId === null)
+
   if (!open || !item) return null
 
   const handleAdd = () => {
-    if (!form.barcode.trim()) return
+    const code = form.barcode.trim()
+    if (!code) { setError(t('barcodeRequired')); return }
+    setError(null)
     createBarcode.mutate(
-      { item_id: item.id, barcode: form.barcode.trim(), barcode_type: form.barcode_type, is_primary: form.is_primary },
+      { item_id: item.id, barcode: code, barcode_type: form.barcode_type, is_primary: form.is_primary },
       {
         onSuccess: () => setForm({ barcode: '', barcode_type: 'UPC', is_primary: false }),
         onError: (err: unknown) =>
-          toast.error(err instanceof Error ? err.message : t('barcodeError')),
+          setError(err instanceof Error && err.message ? err.message : t('barcodeError')),
       },
     )
   }
@@ -48,7 +56,7 @@ export function BarcodesModal({ open, onClose, item }: Props) {
             <h2 className="text-lg font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{t('barcodes')}</h2>
             <p className="text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{item.name}</p>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary transition-colors">
+          <button type="button" onClick={onClose} aria-label={t('close')} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -71,7 +79,10 @@ export function BarcodesModal({ open, onClose, item }: Props) {
                   </div>
                 </div>
                 <button
-                  onClick={() => deleteBarcode.mutate({ id: b.id, itemId: item.id })}
+                  type="button"
+                  aria-label={t('deleteBarcode')}
+                  title={t('deleteBarcode')}
+                  onClick={() => setDeleteId(b.id)}
                   className="p-1.5 rounded-lg hover:bg-posCloud-danger-light dark:hover:bg-posCloud-danger/15 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-danger transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -109,12 +120,27 @@ export function BarcodesModal({ open, onClose, item }: Props) {
               {t('setPrimary')}
             </label>
           </div>
+          {error && <p role="alert" className="mt-2 text-sm text-posCloud-danger">{error}</p>}
           <Button onClick={handleAdd} disabled={createBarcode.isPending} className="mt-3 w-full">
             <Plus className="w-4 h-4" />
             {t('addBarcode')}
           </Button>
         </div>
       </div>
+      <ConfirmDialog
+        open={deleteId !== null}
+        onClose={() => setDeleteId(null)}
+        onConfirm={() => {
+          const id = deleteId
+          setDeleteId(null)
+          if (id) deleteBarcode.mutate({ id, itemId: item.id })
+        }}
+        variant="danger"
+        title={t('deleteBarcode')}
+        message={t('deleteBarcodeConfirm')}
+        confirmLabel={t('delete')}
+        cancelLabel={t('cancel')}
+      />
     </div>
   )
 }

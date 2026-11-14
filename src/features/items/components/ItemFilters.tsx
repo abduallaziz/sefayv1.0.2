@@ -20,6 +20,10 @@ export function ItemFiltersBar({ filters, onChange, categories, onBarcodeFound, 
   const t = useTranslations('items');
   const [barcodeQuery, setBarcodeQuery] = useState('');
   const [isScanning, setIsScanning] = useState(false);
+  // The same category name can exist more than once; show it once in the filter.
+  const uniqueCategories = categories.filter(
+    (c, i, all) => all.findIndex((o) => o.name.trim().toLowerCase() === c.name.trim().toLowerCase()) === i,
+  );
 
   const handleBarcodeSearch = async () => {
     const code = barcodeQuery.trim();
@@ -58,6 +62,7 @@ export function ItemFiltersBar({ filters, onChange, categories, onBarcodeFound, 
           type="text"
           placeholder={t('scanBarcodePlaceholder')}
           value={barcodeQuery}
+          aria-label={t('scanBarcodePlaceholder')}
           onChange={(e) => setBarcodeQuery(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleBarcodeSearch(); } }}
           disabled={isScanning}
@@ -67,6 +72,7 @@ export function ItemFiltersBar({ filters, onChange, categories, onBarcodeFound, 
 
       <select
         value={filters.type}
+        aria-label={t('type')}
         onChange={(e) => onChange({ ...filters, type: e.target.value as ItemType | 'all' })}
         className="px-3 py-2 text-sm bg-posCloud-surface dark:bg-posCloudDark-surface border border-posCloud-border dark:border-posCloudDark-border rounded-lg focus:outline-none focus:border-posCloud-primary text-posCloud-text-primary dark:text-posCloudDark-text-primary"
       >
@@ -83,17 +89,19 @@ export function ItemFiltersBar({ filters, onChange, categories, onBarcodeFound, 
 
       <select
         value={filters.category_id}
+        aria-label={t('category')}
         onChange={(e) => onChange({ ...filters, category_id: e.target.value })}
         className="px-3 py-2 text-sm bg-posCloud-surface dark:bg-posCloudDark-surface border border-posCloud-border dark:border-posCloudDark-border rounded-lg focus:outline-none focus:border-posCloud-primary text-posCloud-text-primary dark:text-posCloudDark-text-primary"
       >
         <option value="all">{t('allCategories')}</option>
-        {categories.map((c) => (
+        {uniqueCategories.map((c) => (
           <option key={c.id} value={c.id}>{c.name}</option>
         ))}
       </select>
 
       <select
         value={String(filters.is_active)}
+        aria-label={t('status')}
         onChange={(e) => {
           const val = e.target.value;
           onChange({ ...filters, is_active: val === 'all' ? 'all' : val === 'true' });

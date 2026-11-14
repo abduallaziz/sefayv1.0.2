@@ -29,7 +29,7 @@ import { Pagination } from '@/shared/components/ui/Pagination';
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
 import type { ItemsQuery } from './api/items.api';
 import { useItemStats, usePagedItems } from './hooks/useItems';
-import { useCategories, useCreateItem, useUpdateItem, useDeleteItem } from './hooks/useItems';
+import { useCategories, useCreateItem, useUpdateItem, useDeleteItem, useCreateVariant, useUpdateVariant, useDeleteVariant } from './hooks/useItems';
 import { itemsApi } from './api/items.api';
 import { ItemFiltersBar } from './components/ItemFilters';
 import { ItemsTable } from './components/ItemsTable';
@@ -143,6 +143,9 @@ export function ItemsPage() {
   const createItem = useCreateItem();
   const updateItem = useUpdateItem();
   const deleteItem = useDeleteItem();
+  const createVariant = useCreateVariant();
+  const updateVariant = useUpdateVariant();
+  const deleteVariant = useDeleteVariant();
 
   const [formOpen, setFormOpen] = useState(false);
   const [variantsOpen, setVariantsOpen] = useState(false);
@@ -152,6 +155,16 @@ export function ItemsPage() {
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   // Type chosen from the "New Item" dropdown, pre-selected in the create form.
   const [newItemType, setNewItemType] = useState<ItemType>('product');
+
+  // Only one dialog may be open at a time (they used to stack on top of each other).
+  const openOnly = (modal: 'form' | 'variants' | 'barcodes' | 'packaging' | 'delete', item: Item | null) => {
+    setFormOpen(modal === 'form');
+    setVariantsOpen(modal === 'variants');
+    setBarcodesOpen(modal === 'barcodes');
+    setPackagingOpen(modal === 'packaging');
+    setDeleteOpen(modal === 'delete');
+    setSelectedItem(item);
+  };
 
   // Row selection for bulk actions. Cleared whenever the visible list changes.
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -243,14 +256,11 @@ export function ItemsPage() {
     } else {
       createItem.mutate(data, {
         onSuccess: (newItem: Item) => {
-          setFormOpen(false);
           // Variants are managed exclusively from VariantsModal (single
           // source of truth) — jump straight there when the item was created
           // with "has variants" checked instead of building variants inline.
-          if (data.has_variants) {
-            setSelectedItem(newItem);
-            setVariantsOpen(true);
-          }
+          if (data.has_variants) openOnly('variants', newItem);
+          else setFormOpen(false);
         }
       });
     }
@@ -408,7 +418,7 @@ export function ItemsPage() {
         filters={filters}
         onChange={setFilters}
         categories={categories}
-        onBarcodeFound={(item) => { setSelectedItem(item); setFormOpen(true); }}
+        onBarcodeFound={(item) => openOnly('form', item)}
         sortKey={sortKey}
         onSortChange={setSortKey}
       />
@@ -422,11 +432,11 @@ export function ItemsPage() {
           onToggleSelected={toggleSelected}
           allSelected={allOnPageSelected}
           onToggleAll={toggleAllOnPage}
-          onEdit={(item) => { setSelectedItem(item); setFormOpen(true); }}
-          onDelete={(item) => { setSelectedItem(item); setDeleteOpen(true); }}
-          onVariants={(item) => { setSelectedItem(item); setVariantsOpen(true); }}
-          onBarcodes={(item) => { setSelectedItem(item); setBarcodesOpen(true); }}
-          onPackaging={(item) => { setSelectedItem(item); setPackagingOpen(true); }}
+          onEdit={(item) => { createItem.reset(); updateItem.reset(); openOnly('form', item); }}
+          onDelete={(item) => openOnly('delete', item)}
+          onVariants={(item) => openOnly('variants', item)}
+          onBarcodes={(item) => openOnly('barcodes', item)}
+          onPackaging={(item) => openOnly('packaging', item)}
           onToggleActive={handleToggleActive}
         />
       )}
@@ -466,6 +476,9 @@ export function ItemsPage() {
         open={variantsOpen}
         onClose={() => { setVariantsOpen(false); setSelectedItem(null); }}
         item={selectedItem}
+        onAddVariant={(itemId, data) => createVariant.mutateAsync({ itemId, data }).then(() => undefined)}
+        onUpdateVariant={(itemId, variantId, data) => updateVariant.mutateAsync({ itemId, variantId, data }).then(() => undefined)}
+        onDeleteVariant={(itemId, variantId) => deleteVariant.mutateAsync({ itemId, variantId }).then(() => undefined)}
       />
       <BarcodesModal
         open={barcodesOpen}
