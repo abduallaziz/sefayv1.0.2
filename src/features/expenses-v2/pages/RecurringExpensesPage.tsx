@@ -66,8 +66,9 @@ export function RecurringExpensesPage() {
   const stats = useMemo(() => {
     const all = allRecurring.data ?? []
     const everRecurring = all.filter((r) => r.frequency !== null)
-    const active = everRecurring.filter((r) => r.is_recurring)
-    const paused = everRecurring.filter((r) => !r.is_recurring)
+    // A cancelled expense is never active, even if an old row still carries is_recurring.
+    const active = everRecurring.filter((r) => r.is_recurring && !r.cancelled_at)
+    const paused = everRecurring.filter((r) => !r.is_recurring || !!r.cancelled_at)
 
     const monthlyTotal = active.reduce((sum, r) => {
       const mult = r.frequency ? MONTHLY_MULTIPLIER[r.frequency] : 0
@@ -262,7 +263,7 @@ export function RecurringExpensesPage() {
 
           <DataTable
             columns={columns}
-            data={expenses.data ?? []}
+            data={(expenses.data ?? []).filter((r) => !r.cancelled_at)}
             keyExtractor={(row) => row.id}
             loading={expenses.isLoading}
             theme="dashboard"

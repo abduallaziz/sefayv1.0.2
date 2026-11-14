@@ -50,7 +50,7 @@ export function SettingsPage() {
   const tPrint = useTranslations('print.designer');
   const tz = useTranslations('zatca');
   const td = useTranslations('documents');
-  const { data: documentsEnabled } = useQuery({ queryKey: ['documents', 'enabled'], queryFn: documentsApi.enabled });
+  const { data: documentsEnabled } = useQuery({ queryKey: ['documents', 'enabled'], queryFn: documentsApi.enabled, staleTime: 5 * 60_000, retry: false });
   const { data: profile, isLoading: profileLoading } = useProfile();
   const { data: zatcaDevices } = useQuery({ queryKey: ['zatca', 'devices'], queryFn: zatcaApi.devices, retry: false });
   const zatcaEnabled = (zatcaDevices ?? []).length > 0;

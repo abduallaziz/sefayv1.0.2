@@ -42,7 +42,7 @@ export function TemplatesListPage() {
   const [toArchive, setToArchive] = useState<TemplateSummary | null>(null)
   const [toDefault, setToDefault] = useState<TemplateSummary | null>(null)
 
-  const enabled = useQuery({ queryKey: ['documents', 'enabled'], queryFn: documentsApi.enabled })
+  const enabled = useQuery({ queryKey: ['documents', 'enabled'], queryFn: documentsApi.enabled, staleTime: 5 * 60_000, retry: false })
   const list = useQuery({
     queryKey: ['documents', 'templates', docType, status],
     queryFn: () => documentsApi.list({ docType: docType || undefined, status: status || undefined }),

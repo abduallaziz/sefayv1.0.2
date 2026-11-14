@@ -31,7 +31,7 @@ export function AssetsPage() {
   const replaceInput = useRef<HTMLInputElement>(null)
   const [replaceId, setReplaceId] = useState<string | null>(null)
 
-  const enabled = useQuery({ queryKey: ['documents', 'enabled'], queryFn: documentsApi.enabled })
+  const enabled = useQuery({ queryKey: ['documents', 'enabled'], queryFn: documentsApi.enabled, staleTime: 5 * 60_000, retry: false })
   const list = useQuery({
     queryKey: ['documents', 'assets', 'all', category],
     queryFn: () => documentsApi.assets({ category: category || undefined }),

@@ -24,7 +24,7 @@ export function TableCard({ table, onClick }: Props) {
       onClick={onClick}
       className={`flex flex-col items-center justify-center gap-2 p-5 rounded-2xl border-2 transition-all hover:scale-[1.02] active:scale-95 ${STATUS_STYLES[table.status] ?? STATUS_STYLES.available}`}
     >
-      <span className="text-lg font-bold">{table.name}</span>
+      <span className="max-w-full break-words text-center text-lg font-bold">{table.name}</span>
       <div className="flex items-center gap-1 text-xs opacity-80">
         <Users className="w-3 h-3" />
         {table.capacity}

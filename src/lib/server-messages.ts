@@ -105,6 +105,7 @@ const FIELDS: Record<string, string> = {
 const f = (field: string) => FIELDS[field] ?? field;
 
 const RULES: Array<[RegExp, (m: RegExpMatchArray) => string]> = [
+  [/^PDF engine failed to start on this server: (.+)$/, (m) => `تعذّر تشغيل محرك PDF (${m[1]})`],
   [
     /^(.+?) not found$/i,
     (m) => {

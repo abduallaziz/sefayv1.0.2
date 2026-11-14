@@ -37,7 +37,7 @@ export function GeneratedDocumentsPage() {
   const [toVoid, setToVoid] = useState<GeneratedDocument | null>(null)
   const [voidReason, setVoidReason] = useState('')
 
-  const enabled = useQuery({ queryKey: ['documents', 'enabled'], queryFn: documentsApi.enabled })
+  const enabled = useQuery({ queryKey: ['documents', 'enabled'], queryFn: documentsApi.enabled, staleTime: 5 * 60_000, retry: false })
   const list = useQuery({
     queryKey: ['documents', 'generated'],
     queryFn: () => documentsApi.generated(),
