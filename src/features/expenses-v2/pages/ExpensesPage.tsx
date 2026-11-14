@@ -17,8 +17,8 @@ import {
   MoreVertical,
   FolderOpen,
   Repeat,
+  Download,
 } from 'lucide-react'
-import { toast } from 'sonner'
 import { PageHeader } from '@/shared/ui/page-header'
 import { Card, CardContent } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
@@ -32,7 +32,10 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { useBranchContext } from '@/core/branch/useBranchContext'
 import { usePermission } from '@/core/permissions/hooks/usePermission'
 import { useUsers } from '@/features/users/hooks/useUsers'
-import { ApiError } from '@/lib/api'
+import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
+import { DateRangePicker } from '@/shared/ui/date-range-picker'
+import type { DateRange } from '@/shared/ui/date-range-picker'
+import { usePaymentMethodLabel, normalizePaymentMethod } from '../lib/payment-method'
 import { useExpenseCategoriesV2 } from '../hooks/useExpenseCategories'
 import { useExpenses, useCancelExpense, useConfirmPayment, useStopRecurring } from '../hooks/useExpensesCore'
 import { ExpenseFormSheet } from '../components/ExpenseFormSheet'
@@ -47,12 +50,8 @@ const ALL = '__all__'
 export function ExpensesPage() {
   const t = useTranslations('expensesV2.expensesCore')
   const tBreadcrumb = useTranslations('expensesV2.breadcrumb')
-  const tForm = useTranslations('expensesV2.expensesCore.form')
-  // payment methods are stored as codes (cash, card ...): show the translated name, keep unknown codes as they are
-  const methodLabel = (code: string) => {
-    const keys: Record<string, string> = { cash: 'paymentMethodCash', card: 'paymentMethodCard', bank_transfer: 'paymentMethodBankTransfer', cheque: 'paymentMethodCheque', other: 'paymentMethodOther' }
-    return keys[code] ? tForm(keys[code] as never) : code
-  }
+  // payment methods are stored as free codes ("Cash", "transfer"...): always show the translated name
+  const methodLabel = usePaymentMethodLabel()
   const locale = useLocale()
   const canView = usePermission('expenses.view')
   const canCreate = usePermission('expenses.create')
@@ -63,6 +62,13 @@ export function ExpensesPage() {
 
   const [filters, setFilters] = useState<ExpenseFilters>({})
   const [paymentMethodFilter, setPaymentMethodFilter] = useState(ALL)
+  const [statusFilter, setStatusFilter] = useState(ALL)
+  const [dateRange, setDateRange] = useState<DateRange>({ from: undefined, to: undefined })
+  const [sort, setSort] = useState('date_desc')
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(20)
+  const [cancelTarget, setCancelTarget] = useState<ExpenseRecord | null>(null)
+  const [cancelReason, setCancelReason] = useState('')
   const categories = useExpenseCategoriesV2()
   const users = useUsers()
   const userNameById = useMemo(() => {
@@ -71,7 +77,18 @@ export function ExpensesPage() {
     return map
   }, [users.data])
 
-  const expenses = useExpenses(activeBranchId, filters)
+  const apiFilters = useMemo<ExpenseFilters>(() => {
+    const [sortField, dir] = sort.split('_') as [string, 'asc' | 'desc']
+    return {
+      ...filters,
+      payment_status: statusFilter === 'paid' || statusFilter === 'unpaid' ? statusFilter : undefined,
+      date_from: dateRange.from,
+      date_to: dateRange.to,
+      sort_by: sortField === 'amount' ? 'total_amount' : 'expense_date',
+      sort_dir: dir,
+    }
+  }, [filters, statusFilter, dateRange, sort])
+  const expenses = useExpenses(activeBranchId, apiFilters)
   const cancelExpense = useCancelExpense(activeBranchId)
   const confirmPayment = useConfirmPayment(activeBranchId)
   const stopRecurring = useStopRecurring(activeBranchId)
@@ -86,17 +103,46 @@ export function ExpensesPage() {
     [categories.data],
   )
 
-  const paymentMethods = useMemo(() => {
-    const set = new Set<string>()
-    for (const e of expenses.data ?? []) if (e.payment_method) set.add(e.payment_method)
-    return Array.from(set)
-  }, [expenses.data])
+  // One option per canonical method; legacy spellings ("Cash", "transfer") are folded into them.
+  const paymentMethods = ['cash', 'card', 'bank_transfer', 'cheque', 'other']
 
-  const rows = useMemo(() => {
+  const filteredRows = useMemo(() => {
     let list = expenses.data ?? []
-    if (paymentMethodFilter !== ALL) list = list.filter((e) => e.payment_method === paymentMethodFilter)
+    if (paymentMethodFilter !== ALL) {
+      list = list.filter((e) => (normalizePaymentMethod(e.payment_method) ?? 'other') === paymentMethodFilter)
+    }
+    if (statusFilter === 'cancelled') list = list.filter((e) => !!e.cancelled_at)
     return list
-  }, [expenses.data, paymentMethodFilter])
+  }, [expenses.data, paymentMethodFilter, statusFilter])
+
+  const pageCount = Math.max(1, Math.ceil(filteredRows.length / pageSize))
+  const currentPage = Math.min(page, pageCount)
+  const rows = useMemo(
+    () => filteredRows.slice((currentPage - 1) * pageSize, currentPage * pageSize),
+    [filteredRows, currentPage, pageSize],
+  )
+
+  const exportCsv = () => {
+    const esc = (v: string | number) => `"${String(v).replace(/"/g, '""')}"`
+    const head = [t('table.title'), t('table.category'), t('table.total'), t('table.paymentMethod'), t('table.status'), t('table.dateTime')]
+    const lines = filteredRows.map((r) =>
+      [
+        r.title,
+        categoryMap.get(r.category_id) ?? '',
+        r.total_amount.toFixed(2),
+        r.payment_method ? methodLabel(r.payment_method) : '',
+        r.cancelled_at ? t('status.cancelled') : r.payment_status === 'paid' ? t('payment.paid') : t('payment.unpaid'),
+        r.expense_date,
+      ].map(esc).join(','),
+    )
+    const blob = new Blob(['\uFEFF' + [head.map(esc).join(','), ...lines].join('\r\n')], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'expenses.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
 
   // KPI figures — Total/Paid/Unpaid/Count all computed from the already-
   // fetched branch expense list (no new backend aggregate endpoints).
@@ -136,7 +182,11 @@ export function ExpensesPage() {
   }, [expenses.data])
 
   const hasActiveFilters =
-    Object.values(filters).some((v) => v !== undefined && v !== '') || paymentMethodFilter !== ALL
+    Object.values(filters).some((v) => v !== undefined && v !== '') ||
+    paymentMethodFilter !== ALL ||
+    statusFilter !== ALL ||
+    !!dateRange.from ||
+    !!dateRange.to
 
   if (!canView) {
     return (
@@ -233,13 +283,7 @@ export function ExpensesPage() {
             {canManage && !row.cancelled_at && (
               <>
                 {row.payment_status === 'unpaid' && (
-                  <DropdownMenuItem
-                    onClick={() =>
-                      confirmPayment.mutate(row.id, {
-                        onError: (err) => toast.error(err instanceof ApiError ? err.message : 'Failed'),
-                      })
-                    }
-                  >
+                  <DropdownMenuItem onClick={() => confirmPayment.mutate(row.id)}>
                     <CircleCheckBig className="h-4 w-4" />
                     {t('payment.confirmPayment')}
                   </DropdownMenuItem>
@@ -254,24 +298,17 @@ export function ExpensesPage() {
                   {t('actions.edit')}
                 </DropdownMenuItem>
                 {row.is_recurring ? (
-                  <DropdownMenuItem
-                    onClick={() =>
-                      stopRecurring.mutate(row.id, {
-                        onError: (err) => toast.error(err instanceof ApiError ? err.message : 'Failed'),
-                      })
-                    }
-                  >
+                  <DropdownMenuItem onClick={() => stopRecurring.mutate(row.id)}>
                     <Repeat className="h-4 w-4" />
                     {t('actions.stopRecurring')}
                   </DropdownMenuItem>
                 ) : (
                   <DropdownMenuItem
                     className="text-posCloud-danger"
-                    onClick={() =>
-                      cancelExpense.mutate(row.id, {
-                        onError: (err) => toast.error(err instanceof ApiError ? err.message : 'Failed'),
-                      })
-                    }
+                    onClick={() => {
+                      setCancelReason('')
+                      setCancelTarget(row)
+                    }}
                   >
                     <XCircle className="h-4 w-4" />
                     {t('actions.cancel')}
@@ -392,7 +429,7 @@ export function ExpensesPage() {
                       <label className="block text-xs font-medium mb-1.5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
                         {t('filters.paymentMethod')}
                       </label>
-                      <Select value={paymentMethodFilter} onValueChange={setPaymentMethodFilter}>
+                      <Select value={paymentMethodFilter} onValueChange={(v) => { setPaymentMethodFilter(v); setPage(1) }}>
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
@@ -411,12 +448,7 @@ export function ExpensesPage() {
                       <label className="block text-xs font-medium mb-1.5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
                         {t('filters.status')}
                       </label>
-                      <Select
-                        value={filters.payment_status ?? ALL}
-                        onValueChange={(v) =>
-                          setFilters((f) => ({ ...f, payment_status: v === ALL ? undefined : (v as 'paid' | 'unpaid') }))
-                        }
-                      >
+                      <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1) }}>
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
@@ -424,6 +456,31 @@ export function ExpensesPage() {
                           <SelectItem value={ALL}>{t('filters.allStatuses')}</SelectItem>
                           <SelectItem value="paid">{t('payment.paid')}</SelectItem>
                           <SelectItem value="unpaid">{t('payment.unpaid')}</SelectItem>
+                          <SelectItem value="cancelled">{t('status.cancelled')}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="w-64">
+                      <label className="block text-xs font-medium mb-1.5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+                        {t('filters.dateRange')}
+                      </label>
+                      <DateRangePicker value={dateRange} onChange={(r) => { setDateRange(r); setPage(1) }} />
+                    </div>
+
+                    <div className="w-48">
+                      <label className="block text-xs font-medium mb-1.5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+                        {t('filters.sort')}
+                      </label>
+                      <Select value={sort} onValueChange={setSort}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="date_desc">{t('filters.sortDateDesc')}</SelectItem>
+                          <SelectItem value="date_asc">{t('filters.sortDateAsc')}</SelectItem>
+                          <SelectItem value="amount_desc">{t('filters.sortAmountDesc')}</SelectItem>
+                          <SelectItem value="amount_asc">{t('filters.sortAmountAsc')}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -434,7 +491,7 @@ export function ExpensesPage() {
                       </label>
                       <Input
                         value={filters.search ?? ''}
-                        onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value || undefined }))}
+                        onChange={(e) => { setFilters((f) => ({ ...f, search: e.target.value || undefined })); setPage(1) }}
                         placeholder={t('filters.searchPlaceholder')}
                       />
                     </div>
@@ -446,6 +503,9 @@ export function ExpensesPage() {
                         onClick={() => {
                           setFilters({})
                           setPaymentMethodFilter(ALL)
+                          setStatusFilter(ALL)
+                          setDateRange({ from: undefined, to: undefined })
+                          setPage(1)
                         }}
                       >
                         <X className="h-4 w-4" />
@@ -466,8 +526,66 @@ export function ExpensesPage() {
                 emptyState={<EmptyState icon={FolderOpen} title={t('empty')} theme="dashboard" size="sm" />}
               />
 
+              <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
+                <Button variant="ghost" onClick={exportCsv} disabled={filteredRows.length === 0}>
+                  <Download className="h-4 w-4" />
+                  {t('exportCsv')}
+                </Button>
+                <div className="flex items-center gap-3">
+                  <span className="tabular-nums text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+                    {t('pagination.summary', { page: currentPage, pages: pageCount, total: filteredRows.length })}
+                  </span>
+                  <select
+                    aria-label={t('pagination.pageSize')}
+                    value={pageSize}
+                    onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1) }}
+                    className="rounded-lg border border-slate-200 dark:border-gray-700 bg-transparent px-2 py-1"
+                  >
+                    {[20, 50, 100].map((n) => (
+                      <option key={n} value={n}>{n}</option>
+                    ))}
+                  </select>
+                  <Button variant="ghost" disabled={currentPage <= 1} onClick={() => setPage(currentPage - 1)}>
+                    {t('pagination.prev')}
+                  </Button>
+                  <Button variant="ghost" disabled={currentPage >= pageCount} onClick={() => setPage(currentPage + 1)}>
+                    {t('pagination.next')}
+                  </Button>
+                </div>
+              </div>
+
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!cancelTarget}
+        onClose={() => setCancelTarget(null)}
+        onConfirm={() => {
+          if (!cancelTarget) return
+          cancelExpense.mutate(
+            { id: cancelTarget.id, reason: cancelReason.trim() || undefined },
+            { onSuccess: () => setCancelTarget(null) },
+          )
+        }}
+        title={t('cancelDialog.title')}
+        message={
+          <div className="space-y-3">
+            <p>{t('cancelDialog.message', { name: cancelTarget?.title ?? '' })}</p>
+            <textarea
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              maxLength={300}
+              rows={2}
+              aria-label={t('cancelDialog.reason')}
+              placeholder={t('cancelDialog.reason')}
+              className="w-full rounded-lg border border-slate-200 dark:border-gray-700 bg-transparent px-3 py-2 text-sm"
+            />
+          </div>
+        }
+        confirmLabel={t('cancelDialog.confirm')}
+        cancelLabel={t('cancelDialog.back')}
+        isLoading={cancelExpense.isPending}
+      />
 
       {activeBranchId && (
         <ExpenseFormSheet open={formOpen} onOpenChange={setFormOpen} branchId={activeBranchId} editing={editing} />

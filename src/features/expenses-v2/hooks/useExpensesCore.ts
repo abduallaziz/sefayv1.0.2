@@ -37,7 +37,7 @@ export const useUpdateExpense = (branchId: string | undefined) => {
 export const useCancelExpense = (branchId: string | undefined) => {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (id: string) => expensesApi.cancel(branchId!, id),
+    mutationFn: ({ id, reason }: { id: string; reason?: string }) => expensesApi.cancel(branchId!, id, reason),
     onSuccess: () => qc.invalidateQueries({ queryKey: KEY }),
   })
 }

@@ -141,6 +141,8 @@ export interface ExpenseFilters {
   amount_max?: number
   exclude_cancelled?: boolean
   is_recurring?: boolean
+  sort_by?: 'expense_date' | 'total_amount' | 'created_at' | 'title'
+  sort_dir?: 'asc' | 'desc'
 }
 
 function toQueryString(filters: ExpenseFilters): string {
@@ -161,8 +163,8 @@ export const expensesApi = {
     branchScopedApi.post<ExpenseRecord>('/expenses-v2/expenses', branchId, dto),
   update: (branchId: string, id: string, dto: UpdateExpenseDto) =>
     branchScopedApi.patch<ExpenseRecord>(`/expenses-v2/expenses/${id}`, branchId, dto),
-  cancel: (branchId: string, id: string) =>
-    branchScopedApi.patch<ExpenseRecord>(`/expenses-v2/expenses/${id}/cancel`, branchId),
+  cancel: (branchId: string, id: string, reason?: string) =>
+    branchScopedApi.patch<ExpenseRecord>(`/expenses-v2/expenses/${id}/cancel`, branchId, reason ? { reason } : undefined),
   confirmPayment: (branchId: string, id: string) =>
     branchScopedApi.patch<ExpenseRecord>(`/expenses-v2/expenses/${id}/confirm-payment`, branchId),
   createFromQuick: (branchId: string, definitionId: string, dto: { amount?: number; department_id?: string; category_id?: string }) =>
