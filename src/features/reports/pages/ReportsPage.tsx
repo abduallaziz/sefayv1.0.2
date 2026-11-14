@@ -1,5 +1,6 @@
 'use client'
 
+import { useBranchIsolation } from '@/features/branches/hooks/useBranchesAdmin'
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
@@ -59,7 +60,11 @@ export function ReportsPage() {
   const [range, setRange] = useState<DateRange>(defaultRange)
   const [branchId, setBranchId] = useState('')
   const { data: branches } = useBranches()
-  const query = { period: 'custom' as const, from: range.from, to: range.to, branch_id: branchId || undefined }
+  // Branch isolation: reports always follow the working branch (the server resolves it), so the
+  // branch filter is hidden and no explicit branch_id is sent.
+  const { data: isolation } = useBranchIsolation()
+  const isolated = isolation?.enabled === true
+  const query = { period: 'custom' as const, from: range.from, to: range.to, branch_id: (!isolated && branchId) || undefined }
   const [peopleSort, setPeopleSort] = useState<'sales' | 'orders'>('sales')
   const [reconciliationDate, setReconciliationDate] = useState<string>(toYMD(new Date()))
 
@@ -72,7 +77,7 @@ export function ReportsPage() {
   const { data: byBranch, isLoading: byBranchLoading, error: byBranchError } = useBranchComparisonReport(query)
   const { data: churn, isLoading: churnLoading } = useCustomerChurnReport(query)
   const { data: customersReport, isLoading: customersLoading } = useCustomersReport(query)
-  const { data: reconciliation, isLoading: reconciliationLoading } = useDailyReconciliation(reconciliationDate, branchId || undefined)
+  const { data: reconciliation, isLoading: reconciliationLoading } = useDailyReconciliation(reconciliationDate, (!isolated && branchId) || undefined)
   const { data: cogs, isLoading: cogsLoading } = useCogsReport(query)
 
   const summary = revenue?.summary
@@ -107,7 +112,7 @@ export function ReportsPage() {
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t('subtitle')}</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap print:hidden">
-          <select
+          {!isolated && <select
             value={branchId}
             onChange={(e) => setBranchId(e.target.value)}
             aria-label={t('branchFilter')}
@@ -117,7 +122,7 @@ export function ReportsPage() {
             {(branches ?? []).map((b) => (
               <option key={b.id} value={b.id}>{b.name}</option>
             ))}
-          </select>
+          </select>}
           <DateRangePicker value={range} onChange={(r) => r.from && r.to && setRange(r)} />
           <button type="button" onClick={exportCsv} className="inline-flex items-center gap-1.5 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">
             <Download className="w-4 h-4" />{t('exportCsv')}

@@ -43,6 +43,7 @@
     "branchLoading": "جارٍ التحميل...",
     "branchInactive": "{name} (غير نشط)",
     "switchBranch": "التبديل إلى فرع",
+    "mainBadge": "رئيسي",
     "noBranchesAvailable": "لا توجد فروع متاحة"
   },
   "sidebar": {

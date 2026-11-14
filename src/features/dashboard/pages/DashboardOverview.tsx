@@ -21,6 +21,7 @@ import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { formatNumber } from '@/lib/locale'
 import { KpiCardSkeleton, TableSkeleton, CardListSkeleton, Skeleton } from '@/shared/components/ui/Skeleton'
 import { reportsApi } from '@/features/reports/api/reports.api'
+import { useBranchIsolation } from '@/features/branches/hooks/useBranchesAdmin'
 import { shiftsApi } from '@/features/shifts/api/shifts.api'
 import { customersApi } from '@/features/customers/api/customers.api'
 import { tablesApi } from '@/features/tables/api/tables.api'
@@ -285,6 +286,15 @@ export function DashboardOverview() {
   const branchRows = [...(branchCmp?.branches ?? [])].sort((a, b) => b.revenue - a.revenue)
   const unassignedRow = branchRows.find((b) => !b.branch_id && b.order_count > 0)
   const maxBranchRevenue = branchRows.reduce((m, b) => Math.max(m, b.revenue), 0)
+
+  // Compact per-branch summary: only for a central user who is working in the MAIN branch under isolation.
+  const { data: isolation } = useBranchIsolation()
+  const showBranchesSummary = !!user && user.branchId == null && isolation?.enabled === true && currentBranch?.is_main === true
+  const { data: branchesSummary, isLoading: branchesSummaryLoading } = useQuery({
+    queryKey: ['dashboard', 'branches-summary', branchId],
+    queryFn: () => reportsApi.getBranchesSummary(),
+    enabled: showBranchesSummary, staleTime: 60000, retry: false,
+  })
 
   const { data: recentActivity, error: recentActivityError, isLoading: recentActivityLoading } = useQuery({
     queryKey: ['dashboard', 'recent-activity', branchId],
@@ -706,6 +716,61 @@ export function DashboardOverview() {
           </div>
         </SectionCard>
       </div>
+
+      {showBranchesSummary && (
+        <div className="mt-5">
+        <SectionCard>
+          <SectionHeader title={t('ov.branchesSummaryTitle')} />
+          {branchesSummaryLoading ? (
+            <TableSkeleton rows={3} cols={6} />
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-start text-[13px]">
+                <thead>
+                  <tr className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+                    <th className="pb-3 text-start font-medium">{t('ov.bsBranch')}</th>
+                    <th className="pb-3 text-start font-medium">{t('ov.bsSalesToday')}</th>
+                    <th className="pb-3 text-start font-medium">{t('ov.bsInvoicesToday')}</th>
+                    <th className="pb-3 text-start font-medium">{t('ov.bsSalesMonth')}</th>
+                    <th className="pb-3 text-start font-medium">{t('ov.bsExpensesMonth')}</th>
+                    <th className="pb-3 text-start font-medium">{t('ov.bsNet')}</th>
+                    <th className="pb-3 text-start font-medium">{t('ov.bsEmployees')}</th>
+                    <th className="pb-3 text-start font-medium">{t('ov.bsShift')}</th>
+                    <th className="pb-3" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {(branchesSummary?.branches ?? []).map((b) => (
+                    <tr key={b.branch_id} className="border-t border-posCloud-border dark:border-posCloudDark-border">
+                      <td className="py-3 font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary">
+                        {b.branch_name}
+                        {b.is_main && <span className="ms-2 rounded-full bg-posCloud-primary/10 px-2 py-0.5 text-[10px] font-medium text-posCloud-primary">{t('ov.bsMain')}</span>}
+                      </td>
+                      <td className="py-3">{formatNumber(b.sales_today, { locale, decimals: 2 })} {currency}</td>
+                      <td className="py-3">{formatNumber(b.invoices_today, { locale })}</td>
+                      <td className="py-3">{formatNumber(b.sales_month, { locale, decimals: 2 })} {currency}</td>
+                      <td className="py-3">{formatNumber(b.expenses_month, { locale, decimals: 2 })} {currency}</td>
+                      <td className={cn('py-3 font-semibold', b.net_month < 0 ? 'text-posCloud-danger' : 'text-posCloud-success')}>{formatNumber(b.net_month, { locale, decimals: 2 })} {currency}</td>
+                      <td className="py-3">{formatNumber(b.employee_count, { locale })}</td>
+                      <td className="py-3">
+                        <span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', b.has_open_shift ? 'bg-posCloud-success-light text-posCloud-success dark:bg-posCloud-success/15' : 'bg-slate-100 text-posCloud-text-tertiary dark:bg-white/5')}>
+                          {b.has_open_shift ? t('ov.bsShiftOpen') : t('ov.bsShiftClosed')}
+                        </span>
+                      </td>
+                      <td className="py-3 text-end">
+                        {b.branch_id !== currentBranchId && (
+                          <button type="button" onClick={() => setCurrentBranch(b.branch_id)} className="text-xs font-semibold text-posCloud-primary">{t('ov.bsOpenBranch')}</button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </SectionCard>
+        </div>
+      )}
 
       {/* ── Third row — Branches Overview (pos-cloud reference) + Sefay-only
           extras (Recent Activity, Quick Actions). Branches Overview has no

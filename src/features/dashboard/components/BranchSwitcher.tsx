@@ -84,6 +84,9 @@ export function BranchSwitcher({ variant }: { variant: 'icon' | 'label' }) {
       >
         {icon}
         {variant === 'label' && <span className="max-w-[140px] truncate">{label}</span>}
+        {variant === 'label' && currentBranch?.is_main && (
+          <span className="rounded-full bg-posCloud-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-posCloud-primary">{t('mainBadge')}</span>
+        )}
         {variant === 'label' && isCentral && (
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-55">
             <polyline points="6 9 12 15 18 9" />
@@ -109,7 +112,7 @@ export function BranchSwitcher({ variant }: { variant: 'icon' | 'label' }) {
               <button
                 key={b.id}
                 onClick={() => {
-                  setCurrentBranch(b.id)
+                  if (b.id !== currentBranch?.id) setCurrentBranch(b.id)
                   setOpen(false)
                 }}
                 className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm hover:bg-slate-100 dark:hover:bg-posCloudDark-border/40 ${
@@ -119,7 +122,10 @@ export function BranchSwitcher({ variant }: { variant: 'icon' | 'label' }) {
                 }`}
                 style={{ textAlign: isRTL ? 'right' : 'left' }}
               >
-                {b.name}
+                <span className="truncate">{b.name}</span>
+                {b.is_main && (
+                  <span className="ms-2 shrink-0 rounded-full bg-posCloud-primary/10 px-2 py-0.5 text-[10px] font-medium text-posCloud-primary">{t('mainBadge')}</span>
+                )}
               </button>
             ))
           )}

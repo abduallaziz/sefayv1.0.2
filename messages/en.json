@@ -43,6 +43,7 @@
     "branchLoading": "Loading...",
     "branchInactive": "{name} (Inactive)",
     "switchBranch": "Switch branch",
+    "mainBadge": "Main",
     "noBranchesAvailable": "No branches available"
   },
   "sidebar": {

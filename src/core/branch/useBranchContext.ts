@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { useBranches, useBranchById, type Branch } from '@/shared/hooks/useBranches'
 import { useBranchContextStore } from './stores/branch-context.store'
@@ -47,6 +48,7 @@ export interface BranchContextValue {
 // the UI never *offers* another branch; nothing here is a security boundary.
 export function useBranchContext(): BranchContextValue {
   const user = useAuthStore((s) => s.user)
+  const queryClient = useQueryClient()
   const isCentral = user ? user.branchId == null : true
 
   const { data: activeBranches = [], isLoading: branchesLoading } = useBranches()
@@ -96,7 +98,12 @@ export function useBranchContext(): BranchContextValue {
       currentBranch: activeBranches.find((b) => b.id === currentBranchId) ?? null,
       currentBranchId,
       availableBranches: activeBranches,
-      setCurrentBranch: (branchId: string) => setSelectedBranchId(branchId),
+      setCurrentBranch: (branchId: string) => {
+        if (branchId === selectedBranchId) return
+        setSelectedBranchId(branchId)
+        // Every cached list/report belongs to the previous branch: reset and refetch active queries.
+        void queryClient.resetQueries()
+      },
       isCentral: true,
       currentBranchInactive: false,
       fallbackReason,
@@ -111,5 +118,6 @@ export function useBranchContext(): BranchContextValue {
     branchesLoading,
     selectedBranchId,
     setSelectedBranchId,
+    queryClient,
   ])
 }

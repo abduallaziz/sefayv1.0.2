@@ -104,6 +104,23 @@ export interface BranchComparisonReport {
   }[]
 }
 
+export interface BranchesSummaryReport {
+  period: { today: string; month_start: string }
+  branches: {
+    branch_id: string
+    branch_name: string
+    is_main: boolean
+    sales_today: number
+    invoices_today: number
+    sales_month: number
+    invoices_month: number
+    expenses_month: number
+    net_month: number
+    employee_count: number
+    has_open_shift: boolean
+  }[]
+}
+
 export interface CustomerChurnReport {
   current_period: { from: string; to: string }
   previous_period: { from: string; to: string }
@@ -382,6 +399,9 @@ export const reportsApi = {
     const qs = params.toString()
     return apiClient.get(`/reports/by-branch${qs ? `?${qs}` : ''}`)
   },
+
+  getBranchesSummary: (): Promise<BranchesSummaryReport> =>
+    apiClient.get('/reports/branches-summary'),
 
   getCustomerChurn: (query?: ReportQuery): Promise<CustomerChurnReport> => {
     const params = new URLSearchParams()
