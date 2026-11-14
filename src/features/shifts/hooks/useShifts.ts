@@ -1,18 +1,21 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { shiftsApi } from '../api/shifts.api';
 import { ApiError } from '@/lib/api';
+import { useBranchContextStore } from '@/core/branch/stores/branch-context.store';
 import type { OpenShiftDto, CloseShiftDto } from '../types';
 
 const KEYS = {
-  current: ['shifts', 'current'] as const,
+  current: (branchId?: string | null) => ['shifts', 'current', branchId ?? 'all'] as const,
   all: ['shifts'] as const,
   summary: (id: string) => ['shifts', id, 'summary'] as const,
   report: (id: string) => ['shifts', id, 'report'] as const,
 };
 
-export const useCurrentShift = () =>
-  useQuery({
-    queryKey: KEYS.current,
+export const useCurrentShift = () => {
+  // The register is per working branch under isolation: key the query by the selected branch.
+  const selectedBranchId = useBranchContextStore((s) => s.selectedBranchId);
+  return useQuery({
+    queryKey: KEYS.current(selectedBranchId),
     queryFn: shiftsApi.getCurrent,
     // A rate-limit (429) or a server hiccup is transient: retry a few times with
     // backoff instead of failing the first load (which made the POS look like the
@@ -26,6 +29,7 @@ export const useCurrentShift = () =>
     refetchInterval: 5000,
     select: (data) => data ?? null,
   });
+};
 
 export const useShifts = () =>
   useQuery({
@@ -60,7 +64,7 @@ export const useOpenShift = () => {
   return useMutation({
     mutationFn: (dto: OpenShiftDto) => shiftsApi.open(dto),
     onSuccess: (data) => {
-      qc.setQueryData(KEYS.current, data);
+      qc.setQueryData(KEYS.current(useBranchContextStore.getState().selectedBranchId), data);
       qc.invalidateQueries({ queryKey: KEYS.all });
     },
     // failures are toasted centrally (MutationCache in core/providers.tsx)
@@ -82,9 +86,9 @@ export const useCloseShift = () => {
       // real closing figures.
       qc.removeQueries({ queryKey: ['shifts', data.shift.id, 'summary'] });
       qc.setQueryData(KEYS.report(data.shift.id), data.report);
-      qc.setQueryData(KEYS.current, null);
+      qc.setQueryData(KEYS.current(useBranchContextStore.getState().selectedBranchId), null);
       qc.invalidateQueries({ queryKey: KEYS.all });
-      qc.invalidateQueries({ queryKey: KEYS.current });
+      qc.invalidateQueries({ queryKey: ['shifts', 'current'] });
     },
   });
 };
