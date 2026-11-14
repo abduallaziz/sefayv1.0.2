@@ -3,7 +3,6 @@
 import { useMemo, useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { AlertTriangle, Trash2, Pencil, Wallet, CalendarClock, PauseCircle, PlayCircle, TrendingUp } from 'lucide-react'
-import { toast } from 'sonner'
 import { PageHeader } from '@/shared/ui/page-header'
 import { Button } from '@/shared/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
@@ -13,7 +12,8 @@ import { EmptyState } from '@/shared/ui/empty-state'
 import { DataTable, type Column } from '@/shared/ui/data-table'
 import { useBranchContext } from '@/core/branch/useBranchContext'
 import { usePermission } from '@/core/permissions/hooks/usePermission'
-import { ApiError } from '@/lib/api'
+import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
+import { usePaymentMethodLabel } from '../lib/payment-method'
 import { useExpenseCategoriesV2 } from '../hooks/useExpenseCategories'
 import { useExpenses, useCancelExpense } from '../hooks/useExpensesCore'
 import { ExpenseFormSheet } from '../components/ExpenseFormSheet'
@@ -37,16 +37,12 @@ export function RecurringExpensesPage() {
   const t = useTranslations('expensesV2.recurringExpenses')
   const tBreadcrumb = useTranslations('expensesV2.breadcrumb')
   const tForm = useTranslations('expensesV2.expensesCore')
-  const tMethod = useTranslations('expensesV2.expensesCore.form')
-  const methodLabel = (code: string) => {
-    const keys: Record<string, string> = { cash: 'paymentMethodCash', card: 'paymentMethodCard', bank_transfer: 'paymentMethodBankTransfer', cheque: 'paymentMethodCheque', other: 'paymentMethodOther' }
-    return keys[code] ? tMethod(keys[code] as never) : code
-  }
+  const methodLabel = usePaymentMethodLabel()
   const locale = useLocale()
   const canView = usePermission('expenses.view')
   const canManage = usePermission('expenses.manage')
 
-  const { availableBranches, currentBranchId, setCurrentBranch, isCentral } = useBranchContext()
+  const { availableBranches, currentBranchId, setCurrentBranch, isCentral, isLoading: branchLoading } = useBranchContext()
   const activeBranchId = currentBranchId ?? undefined
 
   const categories = useExpenseCategoriesV2()
@@ -56,6 +52,7 @@ export function RecurringExpensesPage() {
 
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<ExpenseRecord | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<ExpenseRecord | null>(null)
 
   const categoryMap = useMemo(
     () => new Map(categories.data?.map((c) => [c.id, c.name])),
@@ -137,7 +134,13 @@ export function RecurringExpensesPage() {
     {
       key: 'nextOccurrence',
       header: t('nextOccurrence'),
-      render: (row) => row.next_occurrence_date ?? '—',
+      render: (row) =>
+        row.next_occurrence_date
+          ? new Date(`${row.next_occurrence_date.slice(0, 10)}T00:00:00`).toLocaleDateString(
+              locale === 'ar' ? 'ar-SA-u-nu-latn-ca-gregory' : 'en-GB',
+              { day: '2-digit', month: '2-digit', year: 'numeric' },
+            )
+          : '—',
     },
     {
       key: 'status',
@@ -159,6 +162,7 @@ export function RecurringExpensesPage() {
             size="icon"
             className="h-8 w-8"
             title={tForm('actions.edit')}
+            aria-label={tForm('actions.edit')}
             onClick={() => {
               setEditing(row)
               setFormOpen(true)
@@ -172,12 +176,8 @@ export function RecurringExpensesPage() {
               size="icon"
               className="h-8 w-8 text-posCloud-danger hover:text-posCloud-danger"
               title={t('deleteRecurring')}
-              onClick={() => {
-                if (!window.confirm(t('deleteRecurringConfirm'))) return
-                cancelExpense.mutate(row.id, {
-                  onError: (err) => toast.error(err instanceof ApiError ? err.message : 'Failed'),
-                })
-              }}
+              aria-label={t('deleteRecurring')}
+              onClick={() => setDeleteTarget(row)}
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -219,7 +219,12 @@ export function RecurringExpensesPage() {
       </div>
 
       {!activeBranchId ? (
-        <EmptyState title={t('noBranchSelected')} theme="dashboard" size="lg" />
+        // Don't flash the "pick a branch" message while the branch list is still loading.
+        branchLoading ? (
+          <div className="h-32 rounded-xl bg-slate-100 dark:bg-gray-800 animate-pulse" />
+        ) : (
+          <EmptyState title={t('noBranchSelected')} theme="dashboard" size="lg" />
+        )
       ) : (
         <>
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
@@ -265,6 +270,20 @@ export function RecurringExpensesPage() {
           />
         </>
       )}
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => {
+          if (!deleteTarget) return
+          cancelExpense.mutate({ id: deleteTarget.id }, { onSuccess: () => setDeleteTarget(null) })
+        }}
+        title={t('deleteRecurring')}
+        message={t('deleteRecurringConfirm')}
+        confirmLabel={t('deleteRecurring')}
+        cancelLabel={tForm('cancelDialog.back')}
+        isLoading={cancelExpense.isPending}
+      />
 
       {activeBranchId && (
         <ExpenseFormSheet open={formOpen} onOpenChange={setFormOpen} branchId={activeBranchId} editing={editing} />

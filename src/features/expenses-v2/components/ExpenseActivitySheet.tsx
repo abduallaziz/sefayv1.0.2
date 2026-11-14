@@ -1,6 +1,6 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetBody } from '@/shared/ui/sheet'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { useExpenseActivity } from '../hooks/useExpensesCore'
@@ -14,6 +14,14 @@ interface Props {
 
 export function ExpenseActivitySheet({ open, onOpenChange, branchId, expenseId }: Props) {
   const t = useTranslations('expensesV2.expensesCore.activityDrawer')
+  const tSource = useTranslations('expensesV2.expensesCore.source')
+  const locale = useLocale()
+  const fmt = new Intl.DateTimeFormat(locale === 'ar' ? 'ar-SA-u-nu-latn-ca-gregory' : 'en-US', { dateStyle: 'medium', timeStyle: 'short' })
+  // Notes written by the server are English ("source: manual"): translate the known shape.
+  const noteText = (note: string) => {
+    const m = /^source:\s*(manual|quick|recurring|pos)$/i.exec(note.trim())
+    return m ? `${tSource('label')}: ${tSource(m[1].toLowerCase() as never)}` : note
+  }
   const activity = useExpenseActivity(open ? branchId : undefined, open ? expenseId : null)
 
   return (
@@ -34,11 +42,11 @@ export function ExpenseActivitySheet({ open, onOpenChange, branchId, expenseId }
                   </div>
                   {a.note && (
                     <div className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-                      {a.note}
+                      {noteText(a.note)}
                     </div>
                   )}
                   <div className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-                    {new Intl.DateTimeFormat('en-u-nu-latn', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(a.created_at))}
+                    {fmt.format(new Date(a.created_at))}
                   </div>
                 </li>
               ))}

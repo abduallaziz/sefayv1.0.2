@@ -11,7 +11,9 @@ import { Button } from '@/shared/ui/button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/shared/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
 import { Switch } from '@/shared/ui/switch'
-import { ApiError } from '@/lib/api'
+import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
+import { ATTACHMENT_ACCEPT, checkAttachment, displayAttachmentName } from '../lib/attachments'
+import { normalizePaymentMethod } from '../lib/payment-method'
 import { useCreateExpenseDepartment, useExpenseDepartments } from '../hooks/useExpenseDepartments'
 import { useExpenseCategoriesV2 } from '../hooks/useExpenseCategories'
 import { useCreateExpense, useUpdateExpense, useExpenseAttachments, useUploadAttachment } from '../hooks/useExpensesCore'
@@ -23,6 +25,8 @@ import { ExpenseRecord, TaxMode, PaymentStatus, RecurringFrequency } from '../ap
 // Mirrors the backend's authoritative computeTax() (expenses-v2.service.ts)
 // — display-only preview; the server always recomputes on submit, this
 // never becomes the source of truth.
+const money = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+
 function previewTax(enteredAmount: number, taxMode: TaxMode, taxRate: number) {
   if (isNaN(enteredAmount) || enteredAmount < 0) {
     return { amount: 0, tax: 0, total: 0 }
@@ -47,7 +51,8 @@ interface Props {
 }
 
 const fieldLabel = 'block text-xs font-medium mb-1.5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary'
-const ACCEPT = 'image/*,application/pdf'
+const ACCEPT = ATTACHMENT_ACCEPT
+const MAX_AMOUNT = 9999999.99
 
 // Real tokens from tailwind.config.js's posCloud block (not invented):
 // primary #2563eb blue, info #7c3aed violet, success #16a34a green — used
@@ -79,8 +84,34 @@ function SectionHeading({
 }
 
 export function ExpenseFormSheet({ open, onOpenChange, branchId, editing }: Props) {
+  const t = useTranslations('expensesV2.expensesCore.form')
+  const dirtyRef = useRef(false)
+  const [confirmDiscard, setConfirmDiscard] = useState(false)
+  // Closing with typed-in data asks first, instead of silently throwing the draft away.
+  const requestClose = (o: boolean) => {
+    if (!o && dirtyRef.current) {
+      setConfirmDiscard(true)
+      return
+    }
+    onOpenChange(o)
+  }
   return (
-    <Sheet open={open} onOpenChange={onOpenChange} modal={false}>
+    <>
+    <ConfirmDialog
+      open={confirmDiscard}
+      onClose={() => setConfirmDiscard(false)}
+      onConfirm={() => {
+        setConfirmDiscard(false)
+        dirtyRef.current = false
+        onOpenChange(false)
+      }}
+      title={t('discardTitle')}
+      message={t('discardMessage')}
+      confirmLabel={t('discardConfirm')}
+      cancelLabel={t('discardKeep')}
+      variant="warning"
+    />
+    <Sheet open={open} onOpenChange={requestClose} modal={false}>
       <SheetContent side="end" className="sm:max-w-2xl">
         {open && (
           // Keyed by the target record so switching between "add" and
@@ -91,12 +122,19 @@ export function ExpenseFormSheet({ open, onOpenChange, branchId, editing }: Prop
             key={editing?.id ?? 'new'}
             branchId={branchId}
             editing={editing}
-            onDone={() => onOpenChange(false)}
-            onCancel={() => onOpenChange(false)}
+            onDone={() => {
+              dirtyRef.current = false
+              onOpenChange(false)
+            }}
+            onCancel={() => requestClose(false)}
+            onDirtyChange={(d) => {
+              dirtyRef.current = d
+            }}
           />
         )}
       </SheetContent>
     </Sheet>
+    </>
   )
 }
 
@@ -105,11 +143,13 @@ function ExpenseFormBody({
   editing,
   onDone,
   onCancel,
+  onDirtyChange,
 }: {
   branchId: string
   editing: ExpenseRecord | null
   onDone: () => void
   onCancel: () => void
+  onDirtyChange: (dirty: boolean) => void
 }) {
   const t = useTranslations('expensesV2.expensesCore.form')
   const tPayment = useTranslations('expensesV2.expensesCore.payment')
@@ -133,25 +173,28 @@ function ExpenseFormBody({
 
   const today = new Date().toLocaleDateString('en-CA')
   const [expenseDate, setExpenseDate] = useState<string | undefined>(editing?.expense_date ?? today)
-  const [departmentId, setDepartmentId] = useState(editing?.department_id ?? '')
   // The business only needs categories. The API still files every expense under a department,
-  // so the first one (or a default "General") is used silently — there is no picker.
+  // so the first one (or a default "General") is used silently - there is no picker.
+  const [createdDepartmentId, setCreatedDepartmentId] = useState('')
+  const departmentId = editing?.department_id ?? departments.data?.[0]?.id ?? createdDepartmentId
+  const needsDefaultDepartment = !editing && !!departments.data && departments.data.length === 0
   useEffect(() => {
-    if (departmentId || !departments.data) return
-    if (departments.data.length > 0) {
-      setDepartmentId(departments.data[0].id)
-    } else if (!createDepartment.isPending && !createDepartment.isSuccess && !createDepartment.isError) {
-      createDepartment.mutate({ name: 'General' }, { onSuccess: (d) => setDepartmentId(d.id) })
+    if (!needsDefaultDepartment) return
+    if (!createDepartment.isPending && !createDepartment.isSuccess && !createDepartment.isError) {
+      createDepartment.mutate({ name: 'General' }, { onSuccess: (d) => setCreatedDepartmentId(d.id) })
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [departments.data, departmentId])
+  }, [needsDefaultDepartment, createDepartment])
   const [categoryId, setCategoryId] = useState(editing?.category_id ?? '')
   const [title, setTitle] = useState(editing?.title ?? '')
   const [description, setDescription] = useState(editing?.description ?? '')
   const [amount, setAmount] = useState(editing ? String(editing.amount) : '')
   const [taxMode, setTaxMode] = useState<TaxMode>(editing?.tax_mode ?? 'exclusive')
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>('paid')
-  const [paymentMethod, setPaymentMethod] = useState(editing?.payment_method ?? '')
+  // Legacy rows hold free spellings ("Cash", "transfer"): map them onto the picker's codes.
+  const [paymentMethod, setPaymentMethod] = useState(
+    editing ? normalizePaymentMethod(editing.payment_method) ?? 'other' : '',
+  )
+  const [attachError, setAttachError] = useState<string | null>(null)
   const [referenceNumber, setReferenceNumber] = useState(editing?.reference_number ?? '')
   // Phase 5 / T8: which OPEN register the cash came out of ('none' = a safe / petty cash)
   const [registerId, setRegisterId] = useState('none')
@@ -172,32 +215,47 @@ function ExpenseFormBody({
     !!title.trim() &&
     !isNaN(amountNum) &&
     amountNum > 0 &&
+    amountNum <= MAX_AMOUNT &&
     !!paymentMethod.trim()
+  const amountTooBig = !isNaN(amountNum) && amountNum > MAX_AMOUNT
+  const dirty = editing
+    ? false
+    : !!(title.trim() || description.trim() || amount || referenceNumber.trim() || categoryId || paymentMethod || stagedFiles.length > 0)
+  useEffect(() => {
+    onDirtyChange(dirty)
+  }, [dirty, onDirtyChange])
 
   const isPending = createExpense.isPending || updateExpense.isPending
 
   const addFiles = (files: FileList | null) => {
     if (!files || files.length === 0) return
+    // Unsupported files are rejected here, with a message, instead of failing on the server after the expense is saved.
+    const accepted: File[] = []
+    const rejected: string[] = []
+    for (const file of Array.from(files)) {
+      if (checkAttachment(file) === null) accepted.push(file)
+      else rejected.push(file.name)
+    }
+    setAttachError(rejected.length > 0 ? t('attachmentRejected', { names: rejected.join(', ') }) : null)
+    if (accepted.length === 0) return
     if (editing) {
-      Array.from(files).forEach((file) => {
-        uploadAttachment.mutate(
-          { expenseId: editing.id, file },
-          { onError: (err) => toast.error(err instanceof ApiError ? err.message : 'Upload failed') },
-        )
-      })
+      accepted.forEach((file) => uploadAttachment.mutate({ expenseId: editing.id, file }))
     } else {
-      setStagedFiles((prev) => [...prev, ...Array.from(files)])
+      setStagedFiles((prev) => [...prev, ...accepted])
     }
   }
 
-  const uploadStagedFiles = async (expenseId: string) => {
+  // Returns the names of files that could not be uploaded (the expense itself is already saved).
+  const uploadStagedFiles = async (expenseId: string): Promise<string[]> => {
+    const failed: string[] = []
     for (const file of stagedFiles) {
       try {
         await uploadAttachment.mutateAsync({ expenseId, file })
-      } catch (err) {
-        toast.error(err instanceof ApiError ? err.message : 'Upload failed')
+      } catch {
+        failed.push(file.name)
       }
     }
+    return failed
   }
 
   const handleSubmit = () => {
@@ -224,7 +282,6 @@ function ExpenseFormBody({
         },
         {
           onSuccess: onDone,
-          onError: (err) => toast.error(err instanceof ApiError ? err.message : 'Failed'),
         },
       )
       return
@@ -249,10 +306,10 @@ function ExpenseFormBody({
       },
       {
         onSuccess: async (created) => {
-          await uploadStagedFiles(created.id)
+          const failed = await uploadStagedFiles(created.id)
+          if (failed.length > 0) toast.error(t('attachmentsPartialFailed', { names: failed.join(', ') }))
           onDone()
         },
-        onError: (err) => toast.error(err instanceof ApiError ? err.message : 'Failed'),
       },
     )
   }
@@ -436,6 +493,11 @@ function ExpenseFormBody({
                 e.target.value = ''
               }}
             />
+            {attachError && (
+              <p role="alert" className="text-xs text-posCloud-danger">
+                {attachError}
+              </p>
+            )}
             <div
               onDragOver={(e) => {
                 e.preventDefault()
@@ -490,7 +552,7 @@ function ExpenseFormBody({
                           className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-posCloud-text-primary dark:text-posCloudDark-text-primary hover:bg-posCloud-sidebar dark:hover:bg-posCloudDark-background transition-colors"
                         >
                           <Paperclip className="h-4 w-4 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary shrink-0" />
-                          <span className="truncate">{a.storage_path.split('/').pop()}</span>
+                          <span className="truncate">{displayAttachmentName(a.storage_path)}</span>
                         </a>
                       </li>
                     ))}
@@ -517,6 +579,7 @@ function ExpenseFormBody({
                           size="icon"
                           className="h-6 w-6"
                           title={t('removeAttachment')}
+                          aria-label={t('removeAttachment')}
                           onClick={() => setStagedFiles((prev) => prev.filter((_, idx) => idx !== i))}
                         >
                           <X className="h-3.5 w-3.5" />
@@ -541,6 +604,7 @@ function ExpenseFormBody({
                 <Input
                   type="number"
                   min="0"
+                  max={MAX_AMOUNT}
                   step="0.01"
                   inputMode="decimal"
                   value={amount}
@@ -551,13 +615,18 @@ function ExpenseFormBody({
                   {t('currency')}
                 </span>
               </div>
+              {amountTooBig && (
+                <p role="alert" className="mt-1 text-xs text-posCloud-danger">
+                  {t('amountTooBig')}
+                </p>
+              )}
             </div>
 
             <div className="rounded-lg border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-background dark:bg-posCloudDark-background p-3 space-y-2">
               <div className="flex items-center justify-between text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
                 <span>{t('taxBreakdownAmount')}</span>
                 <span className="tabular-nums">
-                  {taxPreview.amount.toFixed(2)} {t('currency')}
+                  {money(taxPreview.amount)} {t('currency')}
                 </span>
               </div>
               <div className="flex items-center justify-between text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
@@ -565,7 +634,7 @@ function ExpenseFormBody({
                   {t('taxBreakdownTax')} ({Math.round(taxRate * 100)}%)
                 </span>
                 <span className="tabular-nums">
-                  {taxPreview.tax.toFixed(2)} {t('currency')}
+                  {money(taxPreview.tax)} {t('currency')}
                 </span>
               </div>
               <div className="flex items-center justify-between pt-2 border-t border-posCloud-border dark:border-posCloudDark-border">
@@ -573,7 +642,7 @@ function ExpenseFormBody({
                   {t('taxBreakdownTotal')}
                 </span>
                 <span className="text-lg font-bold text-posCloud-primary tabular-nums">
-                  {taxPreview.total.toFixed(2)} {t('currency')}
+                  {money(taxPreview.total)} {t('currency')}
                 </span>
               </div>
             </div>
@@ -612,10 +681,15 @@ function ExpenseFormBody({
         </Card>
       </SheetBody>
       <SheetFooter>
-        <Button variant="outline" onClick={onCancel}>
+        {!canSubmit && !isPending && (
+          <p className="me-auto text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+            {t('requiredHint')}
+          </p>
+        )}
+        <Button type="button" variant="outline" onClick={onCancel}>
           {t('cancel')}
         </Button>
-        <Button onClick={handleSubmit} disabled={!canSubmit || isPending}>
+        <Button type="button" onClick={handleSubmit} disabled={!canSubmit || isPending}>
           <Save className="h-4 w-4" />
           {editing ? t('saveChanges') : t('saveExpense')}
         </Button>

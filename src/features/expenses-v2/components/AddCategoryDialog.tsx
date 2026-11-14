@@ -6,7 +6,6 @@ import { Tag } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
-import { ApiError } from '@/lib/api'
 import { useCreateExpenseCategoryV2 } from '../hooks/useExpenseCategories'
 
 /**
@@ -30,7 +29,6 @@ export function AddCategoryDialog() {
           setName('')
           setOpen(false)
         },
-        onError: (err) => toast.error(err instanceof ApiError ? err.message : 'Failed'),
       },
     )
   }

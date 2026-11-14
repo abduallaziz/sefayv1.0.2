@@ -3,13 +3,12 @@
 import { useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { AlertTriangle } from 'lucide-react'
-import { toast } from 'sonner'
 import { PageHeader } from '@/shared/ui/page-header'
 import { SectionCard } from '@/shared/ui/section-card'
 import { StatusBadge } from '@/shared/ui/status-badge'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { usePermission } from '@/core/permissions/hooks/usePermission'
-import { ApiError } from '@/lib/api'
+import { usePaymentMethodLabel, normalizePaymentMethod } from '../lib/payment-method'
 import { useExpenseDepartments } from '../hooks/useExpenseDepartments'
 import { useExpenseCategoriesV2 } from '../hooks/useExpenseCategories'
 import {
@@ -18,13 +17,14 @@ import {
   useUpdateQuickDefinition,
   useDeactivateQuickDefinition,
 } from '../hooks/useQuickDefinitions'
-import { QuickAmountMode, TaxMode } from '../api/expenses-v2.api'
+import { QuickAmountMode, TaxMode, QuickDefinitionRecord } from '../api/expenses-v2.api'
 import { ExpensesSectionNav } from '../components/ExpensesSectionNav'
 
 export function QuickDefinitionsAdminPage() {
   const t = useTranslations('expensesV2.quickDefinitionsAdmin')
   const tBreadcrumb = useTranslations('expensesV2.breadcrumb')
   const locale = useLocale()
+  const methodLabel = usePaymentMethodLabel()
   const canView = usePermission('expenses.view')
   const canManage = usePermission('expenses.configure')
 
@@ -42,6 +42,7 @@ export function QuickDefinitionsAdminPage() {
   const [departmentId, setDepartmentId] = useState('')
   const [categoryId, setCategoryId] = useState('')
   const [paymentMethod, setPaymentMethod] = useState('')
+  const [editingId, setEditingId] = useState<string | null>(null)
 
   if (!canView) {
     return (
@@ -54,34 +55,52 @@ export function QuickDefinitionsAdminPage() {
   const departmentMap = new Map(departments.data?.map((d) => [d.id, d.name]))
   const categoryMap = new Map(categories.data?.map((c) => [c.id, c.name]))
 
+  const fixedNum = parseFloat(fixedAmount)
+  const amountInvalid = amountMode === 'fixed' && !!fixedAmount && !(fixedNum > 0)
   const canSubmit =
     !!label.trim() &&
     !!paymentMethod.trim() &&
-    (amountMode === 'variable' || (!!fixedAmount && parseFloat(fixedAmount) > 0))
+    (amountMode === 'variable' || (!!fixedAmount && fixedNum > 0))
+  const saving = create.isPending || update.isPending
 
-  const handleCreate = () => {
-    if (!canSubmit) return
-    create.mutate(
-      {
-        label: label.trim(),
-        amount_mode: amountMode,
-        fixed_amount: amountMode === 'fixed' ? parseFloat(fixedAmount) : undefined,
-        tax_mode: taxMode,
-        default_department_id: departmentId || undefined,
-        default_category_id: categoryId || undefined,
-        default_payment_method: paymentMethod.trim(),
-      },
-      {
-        onSuccess: () => {
-          setLabel('')
-          setFixedAmount('')
-          setDepartmentId('')
-          setCategoryId('')
-          setPaymentMethod('')
-        },
-        onError: (err) => toast.error(err instanceof ApiError ? err.message : 'Failed'),
-      },
-    )
+  const resetForm = () => {
+    setEditingId(null)
+    setLabel('')
+    setFixedAmount('')
+    setAmountMode('fixed')
+    setTaxMode('exclusive')
+    setDepartmentId('')
+    setCategoryId('')
+    setPaymentMethod('')
+  }
+
+  const startEdit = (d: QuickDefinitionRecord) => {
+    setEditingId(d.id)
+    setLabel(d.label)
+    setAmountMode(d.amount_mode)
+    setFixedAmount(d.fixed_amount != null ? String(d.fixed_amount) : '')
+    setTaxMode(d.tax_mode)
+    setDepartmentId(d.default_department_id ?? '')
+    setCategoryId(d.default_category_id ?? '')
+    setPaymentMethod(normalizePaymentMethod(d.default_payment_method) ?? 'other')
+  }
+
+  const handleSave = () => {
+    if (!canSubmit || saving) return
+    const dto = {
+      label: label.trim(),
+      amount_mode: amountMode,
+      fixed_amount: amountMode === 'fixed' ? fixedNum : undefined,
+      tax_mode: taxMode,
+      default_department_id: departmentId || undefined,
+      default_category_id: categoryId || undefined,
+      default_payment_method: paymentMethod.trim(),
+    }
+    if (editingId) {
+      update.mutate({ id: editingId, dto }, { onSuccess: resetForm })
+    } else {
+      create.mutate(dto, { onSuccess: resetForm })
+    }
   }
 
   return (
@@ -101,6 +120,8 @@ export function QuickDefinitionsAdminPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
             <input
               value={label}
+              maxLength={80}
+              aria-label={t('labelPlaceholder')}
               onChange={(e) => setLabel(e.target.value)}
               placeholder={t('labelPlaceholder')}
               className="px-3 py-2 text-sm bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg"
@@ -157,19 +178,43 @@ export function QuickDefinitionsAdminPage() {
                 </option>
               ))}
             </select>
-            <input
+            <select
               value={paymentMethod}
               onChange={(e) => setPaymentMethod(e.target.value)}
-              placeholder={t('paymentMethodPlaceholder')}
+              aria-label={t('paymentMethodPlaceholder')}
               className="px-3 py-2 text-sm bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg"
-            />
-            <button
-              disabled={!canSubmit || create.isPending}
-              onClick={handleCreate}
-              className="px-4 py-2 text-sm rounded-lg bg-[#0C447C] text-white disabled:opacity-50"
             >
-              {t('add')}
-            </button>
+              <option value="">{t('paymentMethodPlaceholder')}</option>
+              {['cash', 'card', 'bank_transfer', 'cheque', 'other'].map((m) => (
+                <option key={m} value={m}>
+                  {methodLabel(m)}
+                </option>
+              ))}
+            </select>
+            {amountInvalid && (
+              <p role="alert" className="text-xs text-red-500 sm:col-span-2 lg:col-span-3">
+                {t('amountInvalid')}
+              </p>
+            )}
+            <div className="flex gap-2">
+              <button
+                type="button"
+                disabled={!canSubmit || saving}
+                onClick={handleSave}
+                className="px-4 py-2 text-sm rounded-lg bg-[#0C447C] text-white disabled:opacity-50"
+              >
+                {editingId ? t('saveEdit') : t('add')}
+              </button>
+              {editingId && (
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="px-4 py-2 text-sm rounded-lg border border-slate-200 dark:border-gray-700"
+                >
+                  {t('cancelEdit')}
+                </button>
+              )}
+            </div>
           </div>
         )}
 
@@ -183,21 +228,24 @@ export function QuickDefinitionsAdminPage() {
                   <span className="text-sm">{d.label}</span>
                   <span className="ms-2 text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
                     {d.amount_mode === 'fixed' ? `${t('amountModeFixed')}: ${d.fixed_amount}` : t('amountModeVariable')}
-                    {' · '}
-                    {departmentMap.get(d.default_department_id ?? '') ?? t('none')}
-                    {' · '}
-                    {categoryMap.get(d.default_category_id ?? '') ?? t('none')}
+                    {[departmentMap.get(d.default_department_id ?? ''), categoryMap.get(d.default_category_id ?? '')]
+                      .filter(Boolean)
+                      .map((x) => ` · ${x}`)
+                      .join('')}
+                    {` · ${methodLabel(d.default_payment_method)}`}
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
                   <StatusBadge label={d.is_active ? t('active') : t('inactive')} tone={d.is_active ? 'success' : 'neutral'} />
+                  {canManage && (
+                    <button type="button" onClick={() => startEdit(d)} className="text-xs text-[#0C447C] hover:underline">
+                      {t('edit')}
+                    </button>
+                  )}
                   {canManage && d.is_active && (
                     <button
-                      onClick={() =>
-                        deactivate.mutate(d.id, {
-                          onError: (err) => toast.error(err instanceof ApiError ? err.message : 'Failed'),
-                        })
-                      }
+                      type="button"
+                      onClick={() => deactivate.mutate(d.id)}
                       className="text-xs text-red-600 hover:underline"
                     >
                       {t('deactivate')}
@@ -205,12 +253,8 @@ export function QuickDefinitionsAdminPage() {
                   )}
                   {canManage && !d.is_active && (
                     <button
-                      onClick={() =>
-                        update.mutate(
-                          { id: d.id, dto: { is_active: true } },
-                          { onError: (err) => toast.error(err instanceof ApiError ? err.message : 'Failed') },
-                        )
-                      }
+                      type="button"
+                      onClick={() => update.mutate({ id: d.id, dto: { is_active: true } })}
                       className="text-xs text-[#0C447C] hover:underline"
                     >
                       {t('reactivate')}

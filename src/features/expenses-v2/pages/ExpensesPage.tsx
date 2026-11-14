@@ -57,7 +57,7 @@ export function ExpensesPage() {
   const canCreate = usePermission('expenses.create')
   const canManage = usePermission('expenses.manage')
 
-  const { availableBranches, currentBranchId, setCurrentBranch, isCentral } = useBranchContext()
+  const { availableBranches, currentBranchId, setCurrentBranch, isCentral, isLoading: branchLoading } = useBranchContext()
   const activeBranchId = currentBranchId ?? undefined
 
   const [filters, setFilters] = useState<ExpenseFilters>({})
@@ -366,7 +366,11 @@ export function ExpensesPage() {
       </div>
 
       {!activeBranchId ? (
-        <EmptyState title={t('noBranchSelected')} theme="dashboard" size="lg" />
+        branchLoading ? (
+          <div className="h-32 rounded-xl bg-slate-100 dark:bg-gray-800 animate-pulse" />
+        ) : (
+          <EmptyState title={t('noBranchSelected')} theme="dashboard" size="lg" />
+        )
       ) : (
         <div className="space-y-6">
           {/* KPI summary */}

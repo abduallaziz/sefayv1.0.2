@@ -101,7 +101,13 @@
       "dateTo": "To",
       "allDepartments": "All Departments",
       "allCategories": "All Categories",
-      "clear": "Clear filters"
+      "clear": "Clear filters",
+      "dateRange": "Date range",
+      "sort": "Sort",
+      "sortDateDesc": "Newest first",
+      "sortDateAsc": "Oldest first",
+      "sortAmountDesc": "Highest amount",
+      "sortAmountAsc": "Lowest amount"
     },
     "kpi": {
       "totalExpenses": "Total Expenses",
@@ -146,7 +152,8 @@
       "manual": "Manual",
       "quick": "Quick",
       "recurring": "Recurring",
-      "pos": "POS"
+      "pos": "POS",
+      "label": "Source"
     },
     "payment": {
       "paid": "Paid",
@@ -219,7 +226,15 @@
       "selectPaymentStatus": "Select payment status",
       "registerLabel": "Paid from register",
       "registerNone": "Not from a register (safe / petty cash)",
-      "registerHint": "A cash expense taken from an open register lowers that register's expected cash at close."
+      "registerHint": "A cash expense taken from an open register lowers that register's expected cash at close.",
+      "discardTitle": "Discard changes?",
+      "discardMessage": "You have unsaved data. Closing the form will discard it.",
+      "discardConfirm": "Discard and close",
+      "discardKeep": "Keep editing",
+      "attachmentRejected": "Unsupported files (allowed: PDF, PNG, JPG, JPEG up to 10 MB): {names}",
+      "attachmentsPartialFailed": "The expense was saved but these files could not be uploaded: {names}",
+      "amountTooBig": "Amount is too large (maximum 9,999,999.99)",
+      "requiredHint": "Fill in the required fields: category, title, payment method, amount"
     },
     "activityDrawer": {
       "title": "Activity History",
@@ -238,7 +253,9 @@
       "title": "Attachments",
       "empty": "No attachments yet",
       "upload": "Upload File",
-      "uploading": "Uploading..."
+      "uploading": "Uploading...",
+      "tooLarge": "File \"{name}\" is larger than 10 MB",
+      "unsupportedType": "File type of \"{name}\" is not supported. Allowed: PDF, PNG, JPG, JPEG"
     },
     "quickButtons": {
       "title": "Quick Expense",
@@ -252,7 +269,21 @@
     "categoryNamePh": "e.g. Electricity",
     "categorySaved": "Category added",
     "save": "Save",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "exportCsv": "Export CSV",
+    "pagination": {
+      "summary": "Page {page} of {pages} ({total})",
+      "pageSize": "Rows per page",
+      "prev": "Previous",
+      "next": "Next"
+    },
+    "cancelDialog": {
+      "title": "Cancel expense",
+      "message": "The expense \"{name}\" will be cancelled and this cannot be undone. Continue?",
+      "reason": "Cancellation reason (optional)",
+      "confirm": "Cancel expense",
+      "back": "Back"
+    }
   },
   "quickDefinitionsAdmin": {
     "title": "Quick Expense Buttons",
@@ -273,7 +304,7 @@
     "defaultDepartment": "Default Department (optional)",
     "defaultCategory": "Default Category (optional)",
     "paymentMethod": "Payment Method",
-    "paymentMethodPlaceholder": "e.g. Cash",
+    "paymentMethodPlaceholder": "Select payment method",
     "add": "Add",
     "edit": "Edit",
     "save": "Save",
@@ -282,7 +313,10 @@
     "reactivate": "Reactivate",
     "active": "Active",
     "inactive": "Inactive",
-    "none": "None"
+    "none": "None",
+    "amountInvalid": "Enter an amount greater than zero",
+    "saveEdit": "Save changes",
+    "cancelEdit": "Cancel editing"
   },
   "recurringExpenses": {
     "title": "Recurring Expenses",

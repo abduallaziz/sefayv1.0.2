@@ -114,7 +114,13 @@
     "col": {
       "name": "Name",
       "status": "Status"
-    }
+    },
+    "deleteTitle": "Delete category",
+    "deleteMessage": "Delete the category \"{name}\"? It will no longer appear in the list.",
+    "delete": "Delete",
+    "save": "Save",
+    "cancelEdit": "Cancel editing",
+    "edit": "Edit"
   },
   "addExpense": {
     "title": "Add Expense",
@@ -134,8 +140,24 @@
     "amountRequired": "Enter amount",
     "amountMin": "Amount must be greater than 0",
     "nameRequired": "Enter template name",
-    "expiryRequired": "Enter expiry hours"
+    "expiryRequired": "Enter expiry hours",
+    "amountInvalid": "Enter a valid amount (digits 0-9, up to 2 decimals)",
+    "amountMax": "Amount is too large (maximum 9,999,999.99)",
+    "reasonRequired": "A rejection reason is required"
   },
   "expiresIn": "Expires in",
-  "hours": "hours"
+  "hours": "hours",
+  "filter": {
+    "status": "Status",
+    "all": "All statuses"
+  },
+  "approve": {
+    "title": "Approve request",
+    "message": "Approve this request? It will be approved immediately.",
+    "submit": "Approve"
+  },
+  "aria": {
+    "approve": "Approve",
+    "reject": "Reject"
+  }
 }

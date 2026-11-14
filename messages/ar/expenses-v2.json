@@ -101,7 +101,13 @@
       "dateTo": "إلى",
       "allDepartments": "كل الأقسام",
       "allCategories": "كل الفئات",
-      "clear": "مسح الفلاتر"
+      "clear": "مسح الفلاتر",
+      "dateRange": "الفترة",
+      "sort": "الترتيب",
+      "sortDateDesc": "الأحدث أولًا",
+      "sortDateAsc": "الأقدم أولًا",
+      "sortAmountDesc": "الأعلى مبلغًا",
+      "sortAmountAsc": "الأقل مبلغًا"
     },
     "kpi": {
       "totalExpenses": "إجمالي المصروفات",
@@ -146,7 +152,8 @@
       "manual": "يدوي",
       "quick": "سريع",
       "recurring": "متكرر",
-      "pos": "نقطة بيع"
+      "pos": "نقطة بيع",
+      "label": "المصدر"
     },
     "payment": {
       "paid": "مدفوع",
@@ -209,7 +216,7 @@
       "currency": "ريال",
       "taxBreakdownAmount": "المبلغ قبل الضريبة",
       "taxBreakdownTax": "الضريبة",
-      "taxBreakdownTotal": "المبلغ الإجمالي (بشمل الضريبة)",
+      "taxBreakdownTotal": "المبلغ الإجمالي (يشمل الضريبة)",
       "save": "حفظ",
       "saveExpense": "حفظ المصروف",
       "saveChanges": "حفظ التعديلات",
@@ -219,7 +226,15 @@
       "selectPaymentStatus": "اختر حالة الدفع",
       "registerLabel": "مدفوع من الصندوق",
       "registerNone": "ليس من صندوق (خزنة / عهدة)",
-      "registerHint": "المصروف النقدي المأخوذ من صندوق مفتوح يُخصم من المتوقع نقداً عند إغلاق ذلك الصندوق."
+      "registerHint": "المصروف النقدي المأخوذ من صندوق مفتوح يُخصم من المتوقع نقداً عند إغلاق ذلك الصندوق.",
+      "discardTitle": "تجاهل التغييرات؟",
+      "discardMessage": "لديك بيانات لم تُحفظ. إغلاق النموذج سيحذفها.",
+      "discardConfirm": "تجاهل وإغلاق",
+      "discardKeep": "متابعة التعديل",
+      "attachmentRejected": "ملفات غير مدعومة (المسموح PDF وPNG وJPG وJPEG حتى 10 ميجابايت): {names}",
+      "attachmentsPartialFailed": "تم حفظ المصروف لكن تعذّر رفع: {names}",
+      "amountTooBig": "المبلغ كبير جدًا (الحد الأقصى 9,999,999.99)",
+      "requiredHint": "أكمل الحقول المطلوبة: الفئة، العنوان، طريقة الدفع، المبلغ"
     },
     "activityDrawer": {
       "title": "سجل النشاط",
@@ -238,7 +253,9 @@
       "title": "المرفقات",
       "empty": "لا توجد مرفقات بعد",
       "upload": "رفع ملف",
-      "uploading": "جارٍ الرفع..."
+      "uploading": "جارٍ الرفع...",
+      "tooLarge": "الملف «{name}» أكبر من 10 ميجابايت",
+      "unsupportedType": "نوع الملف «{name}» غير مدعوم. المسموح: PDF وPNG وJPG وJPEG"
     },
     "quickButtons": {
       "title": "مصروف سريع",
@@ -252,7 +269,21 @@
     "categoryNamePh": "مثال: كهرباء",
     "categorySaved": "تمت إضافة الفئة",
     "save": "حفظ",
-    "cancel": "إلغاء"
+    "cancel": "إلغاء",
+    "exportCsv": "تصدير CSV",
+    "pagination": {
+      "summary": "صفحة {page} من {pages} ({total})",
+      "pageSize": "عدد الصفوف في الصفحة",
+      "prev": "السابق",
+      "next": "التالي"
+    },
+    "cancelDialog": {
+      "title": "إلغاء المصروف",
+      "message": "سيتم إلغاء المصروف «{name}» ولا يمكن التراجع عن ذلك. متابعة؟",
+      "reason": "سبب الإلغاء (اختياري)",
+      "confirm": "إلغاء المصروف",
+      "back": "رجوع"
+    }
   },
   "quickDefinitionsAdmin": {
     "title": "أزرار المصروف السريع",
@@ -273,7 +304,7 @@
     "defaultDepartment": "القسم الافتراضي (اختياري)",
     "defaultCategory": "الفئة الافتراضية (اختياري)",
     "paymentMethod": "طريقة الدفع",
-    "paymentMethodPlaceholder": "مثال: نقدًا",
+    "paymentMethodPlaceholder": "اختر طريقة الدفع",
     "add": "إضافة",
     "edit": "تعديل",
     "save": "حفظ",
@@ -282,7 +313,10 @@
     "reactivate": "إعادة تفعيل",
     "active": "نشط",
     "inactive": "معطّل",
-    "none": "بلا"
+    "none": "بلا",
+    "amountInvalid": "أدخل مبلغًا أكبر من صفر",
+    "saveEdit": "حفظ التعديل",
+    "cancelEdit": "إلغاء التعديل"
   },
   "recurringExpenses": {
     "title": "المصروفات المتكررة",
