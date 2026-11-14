@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Order, OrderFilters as IOrderFilters, OrderStatus } from '../types/order.types';
 import { useOrders, useOrder, useCancelOrder } from '../hooks/useOrders';
 import { useRevenueReport } from '@/features/reports/hooks/useReports';
@@ -37,12 +38,9 @@ export function OrdersPage() {
   const PrevIcon = isRtl ? ChevronRight : ChevronLeft;
   const NextIcon = isRtl ? ChevronLeft : ChevronRight;
   const currency = useCurrencyDisplay();
-  const [filters, setFilters] = useState<IOrderFilters>({});
   // deep links (e.g. journal entry -> "view in orders") arrive as ?search=INV-000020
-  useEffect(() => {
-    const q = new URLSearchParams(window.location.search).get('search')?.trim();
-    if (q) setFilters((prev) => (prev.search ? prev : { ...prev, search: q }));
-  }, []);
+  const urlSearch = useSearchParams().get('search')?.trim();
+  const [filters, setFilters] = useState<IOrderFilters>(() => (urlSearch ? { search: urlSearch } : {}));
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [cancelTarget, setCancelTarget] = useState<Order | null>(null);
   const [page, setPage] = useState(1);
