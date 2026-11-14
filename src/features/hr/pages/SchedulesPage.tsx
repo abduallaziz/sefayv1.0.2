@@ -13,7 +13,7 @@ import {
   useDeleteShiftPattern,
   useAssignSchedule,
 } from '../hooks/useHr'
-import { useUsers } from '@/features/users/hooks/useUsers'
+import { useEmployees } from '@/features/users/hooks/useUsers'
 import { SingleDatePicker } from '@/shared/ui/date-range-picker'
 import type { ShiftPattern, Shift, DayOverride } from '../api/hr.api'
 
@@ -101,7 +101,7 @@ export function SchedulesPage() {
   const t = useTranslations('schedules')
   const locale = useLocale()
   const { data: patterns = [], isLoading: patternsLoading } = useShiftPatterns()
-  const { data: allUsers = [] } = useUsers()
+  const { data: allUsers = [] } = useEmployees()
   // Same roster as the Employees page: only active employees can be scheduled.
   const users = allUsers.filter((u) => u.is_active !== false)
   const { mutate: createPattern, isPending: creating } = useCreateShiftPattern()

@@ -4,7 +4,7 @@ import { useTranslations, useLocale } from 'next-intl'
 import { useEffect, useMemo, useState } from 'react'
 import { CalendarClock, LogIn, LogOut, Circle, History, X, Search, Download, ChevronRight, ChevronLeft } from 'lucide-react'
 import { useMyAttendance, useAllAttendance, useSchedules } from '../hooks/useHr'
-import { useUsers } from '@/features/users/hooks/useUsers'
+import { useEmployees } from '@/features/users/hooks/useUsers'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { DateRangePicker, SingleDatePicker } from '@/shared/ui/date-range-picker'
 
@@ -147,7 +147,9 @@ function AllEmployeesAttendance({
   const [refDate, setRefDate] = useState(todayStr())
   const { data: records = [], isLoading } = useAllAttendance()
   const { data: dateSchedules = [] } = useSchedules({ from: refDate, to: refDate })
-  const { data: users = [] } = useUsers()
+  // Same roster as the Employees page: records of users who are not employees
+  // (or were deleted) must not appear on the board.
+  const { data: users = [] } = useEmployees()
   const [historyUser, setHistoryUser] = useState<{ id: string; name: string; jobTitle?: string | null; avatarUrl?: string | null } | null>(null)
   const [search, setSearch] = useState('')
   const [departmentFilter, setDepartmentFilter] = useState('')
@@ -162,7 +164,9 @@ function AllEmployeesAttendance({
 
   const latestPerEmployee = useMemo(() => {
     const byUser = new Map<string, (typeof records)[number]>()
+    const employeeIds = new Set(users.map((u) => u.id))
     for (const r of records) {
+      if (!employeeIds.has(r.user_id)) continue
       if (!byUser.has(r.user_id)) byUser.set(r.user_id, r)
     }
     // Employees who never checked in still belong on the board (status: not logged / away).
