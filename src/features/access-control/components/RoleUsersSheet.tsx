@@ -221,7 +221,7 @@ function UserRow({
         <div className="flex shrink-0 items-center gap-2">
           {showPromoteDemote && (
             <Select value={currentRoleName} onValueChange={onPromoteDemote}>
-              <SelectTrigger className="h-8 w-36 rounded-md border-slate-200 bg-white text-xs text-slate-700 dark:border-[#1e2130] dark:bg-[#1a1f2e] dark:text-slate-200">
+              <SelectTrigger aria-label={t('roleUsersSheet.changeRole')} className="h-8 w-36 rounded-md border-slate-200 bg-white text-xs text-slate-700 dark:border-[#1e2130] dark:bg-[#1a1f2e] dark:text-slate-200">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="border-slate-200 bg-white dark:border-[#1e2130] dark:bg-[#1a1f2e]">

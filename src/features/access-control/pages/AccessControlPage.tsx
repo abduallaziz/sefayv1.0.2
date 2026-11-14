@@ -52,7 +52,10 @@ export function AccessControlPage({ initialRoleId }: { initialRoleId?: string } 
         setRoleToDelete(null)
       },
       onError: (err) => {
-        toast.error(err instanceof Error ? err.message : t('toast.roleDeleteError'))
+        // Same id as the central mutation toast so the message is shown once.
+        const message = err instanceof Error ? err.message : t('toast.roleDeleteError')
+        toast.error(message, { id: message })
+        setRoleToDelete(null)
       },
     })
   }
@@ -159,7 +162,7 @@ export function AccessControlPage({ initialRoleId }: { initialRoleId?: string } 
         onConfirm={handleDeleteConfirm}
         variant="danger"
         title={t('deleteConfirm.title')}
-        message={roleToDelete ? t('deleteConfirm.message', { name: roleToDelete.name }) : ''}
+        message={roleToDelete ? t.rich('deleteConfirm.message', { name: () => <span dir="auto" className="[unicode-bidi:isolate] font-semibold">{roleToDelete.name}</span> }) : ''}
         confirmLabel={t('actionsMenu.delete')}
         cancelLabel={t('cancel')}
         loadingLabel={t('deleteConfirm.loadingLabel')}
