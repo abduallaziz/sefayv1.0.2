@@ -1,11 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { accountingApi, AssignBranchAccountingOwnerPayload } from '../api/accounting.api'
+import { retryUnlessClientError } from '../lib/query-retry'
 
 export function useAccountingOwners(enabled: boolean) {
   return useQuery({
     queryKey: ['accounting', 'owners'],
     queryFn: () => accountingApi.getAccountingOwners(),
     enabled,
+    retry: retryUnlessClientError,
   })
 }
 
@@ -14,6 +16,7 @@ export function useBranchAssignments(enabled: boolean) {
     queryKey: ['accounting', 'branch-assignments'],
     queryFn: () => accountingApi.getBranchAssignments(),
     enabled,
+    retry: retryUnlessClientError,
   })
 }
 

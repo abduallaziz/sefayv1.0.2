@@ -41,6 +41,7 @@ const journalStatusTone: Record<string, StatusTone> = {
 
 export function PriceOverrideAuditDetailSheet({ auditId, open, onOpenChange, canView }: Props) {
   const t = useTranslations('accounting.priceOverrideAudit.detail')
+  const tRole = useTranslations('accounting.priceOverrideAudit')
   const locale = useLocale()
 
   const detail = usePriceOverrideAuditDetail(auditId, open && canView)
@@ -134,7 +135,7 @@ export function PriceOverrideAuditDetailSheet({ auditId, open, onOpenChange, can
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('actor.effectiveRole')}</span>
-                    <span className="text-posCloud-text-primary dark:text-posCloudDark-text-primary">{detail.data.actor_role_name_snapshot}</span>
+                    <span className="text-posCloud-text-primary dark:text-posCloudDark-text-primary">{tRole.has(`roleNames.${detail.data.actor_role_name_snapshot}`) ? tRole(`roleNames.${detail.data.actor_role_name_snapshot}`) : detail.data.actor_role_name_snapshot}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('actor.branch')}</span>
@@ -230,7 +231,7 @@ export function PriceOverrideAuditDetailSheet({ auditId, open, onOpenChange, can
               </SectionCard>
 
               <div className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-                {t('createdAt')}: <span className="tabular-nums">{new Date(detail.data.created_at).toLocaleString('en-US')}</span>
+                {t('createdAt')}: <span className="tabular-nums">{new Date(detail.data.created_at).toLocaleString('en-CA', { hour12: false })}</span>
               </div>
             </>
           )}

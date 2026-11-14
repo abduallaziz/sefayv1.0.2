@@ -5,9 +5,11 @@ import { useTranslations } from 'next-intl'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { useRevenueReport, useShiftsReport, useExpensesReport, useEmployeesReport, useTaxReport, useComparisonReport, useBranchComparisonReport, useCustomerChurnReport, useCustomersReport, useDailyReconciliation, useCogsReport } from '../hooks/useReports'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { TrendingUp, Clock, TrendingDown, CreditCard, Users, Receipt, GitCompareArrows, Building2, UserMinus, ArrowUp, ArrowDown, Wallet, PieChart, type LucideIcon } from 'lucide-react'
+import { Download, Printer, TrendingUp, Clock, TrendingDown, CreditCard, Users, Receipt, GitCompareArrows, Building2, UserMinus, ArrowUp, ArrowDown, Wallet, PieChart, type LucideIcon } from 'lucide-react'
 import { DateRangePicker, SingleDatePicker, type DateRange } from '@/shared/ui/date-range-picker'
 import { formatNumber } from '@/lib/format'
+import { useBranches } from '@/shared/hooks/useBranches'
+import { fillMissingDays, downloadCsv } from '../lib/reports-utils'
 
 function toYMD(d: Date) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
@@ -19,8 +21,8 @@ function defaultRange(): DateRange {
   return { from: toYMD(from), to: toYMD(to) }
 }
 
-function ChangeBadge({ pct }: { pct: number | null }) {
-  if (pct === null) return <span className="text-xs text-gray-400">—</span>
+function ChangeBadge({ pct, emptyTitle }: { pct: number | null; emptyTitle?: string }) {
+  if (pct === null) return <span className="text-xs text-gray-400" title={emptyTitle} aria-label={emptyTitle}>—</span>
   const positive = pct >= 0
   const Icon = positive ? ArrowUp : ArrowDown
   return (
@@ -55,7 +57,10 @@ export function ReportsPage() {
   const tOrders = useTranslations('orders')
   const currency = useCurrencyDisplay()
   const [range, setRange] = useState<DateRange>(defaultRange)
-  const query = { period: 'custom' as const, from: range.from, to: range.to }
+  const [branchId, setBranchId] = useState('')
+  const { data: branches } = useBranches()
+  const query = { period: 'custom' as const, from: range.from, to: range.to, branch_id: branchId || undefined }
+  const [peopleSort, setPeopleSort] = useState<'sales' | 'orders'>('sales')
   const [reconciliationDate, setReconciliationDate] = useState<string>(toYMD(new Date()))
 
   const { data: revenue, isLoading: revLoading } = useRevenueReport(query)
@@ -67,14 +72,32 @@ export function ReportsPage() {
   const { data: byBranch, isLoading: byBranchLoading, error: byBranchError } = useBranchComparisonReport(query)
   const { data: churn, isLoading: churnLoading } = useCustomerChurnReport(query)
   const { data: customersReport, isLoading: customersLoading } = useCustomersReport(query)
-  const { data: reconciliation, isLoading: reconciliationLoading } = useDailyReconciliation(reconciliationDate)
+  const { data: reconciliation, isLoading: reconciliationLoading } = useDailyReconciliation(reconciliationDate, branchId || undefined)
   const { data: cogs, isLoading: cogsLoading } = useCogsReport(query)
 
   const summary = revenue?.summary
-  const dailyBreakdown = revenue?.daily_breakdown ?? []
+  const dailyBreakdown = fillMissingDays(revenue?.daily_breakdown ?? [], range.from, range.to)
   const byPaymentMethod = revenue?.by_payment_method ?? {}
   const byCategory = expenses?.by_category ?? []
   const shiftsSummary = shifts?.summary
+  const sortedEmployees = [...(employees?.employees ?? [])].sort((a, b) => (peopleSort === 'sales' ? b.total_sales - a.total_sales : b.order_count - a.order_count))
+  const sortedCustomers = [...(customersReport?.customers ?? [])].sort((a, b) => (peopleSort === 'sales' ? b.total_spent - a.total_spent : b.order_count - a.order_count))
+
+  const exportCsv = () => {
+    const rows: (string | number)[][] = [[t('csvSection'), t('csvMetric'), t('csvValue'), t('csvCount')]]
+    rows.push([t('title'), t('totalRevenue'), summary?.total_revenue ?? 0, summary?.total_orders ?? 0])
+    rows.push([t('title'), t('netRevenue'), summary?.net_revenue ?? 0, ''])
+    for (const d of revenue?.daily_breakdown ?? []) rows.push([t('revenueChart'), d.date, d.total, ''])
+    for (const [m, v] of Object.entries(byPaymentMethod)) rows.push([t('paymentMethods'), tOrders.has(`payment_method.${m}`) ? tOrders(`payment_method.${m}`) : m, v.total, v.count])
+    rows.push([t('taxSummary'), t('subtotalGross'), tax?.summary.total_subtotal ?? 0, ''])
+    rows.push([t('taxSummary'), t('discountsLabel'), tax?.summary.total_discount ?? 0, ''])
+    rows.push([t('taxSummary'), t('taxCollected'), tax?.summary.total_tax_collected ?? 0, ''])
+    rows.push([t('taxSummary'), t('totalRevenue'), tax?.summary.grand_total ?? 0, ''])
+    for (const e of sortedEmployees) rows.push([t('employeePerformance'), e.name ?? t('unassigned'), e.total_sales, e.order_count])
+    for (const c of sortedCustomers) rows.push([t('topCustomers'), c.name, c.total_spent, c.order_count])
+    for (const b of byBranch?.branches ?? []) rows.push([t('branchComparison'), b.branch_name ?? t('unassignedBranch'), b.revenue, b.order_count])
+    downloadCsv(`reports-${range.from ?? ''}_${range.to ?? ''}.csv`, rows)
+  }
 
   return (
     <div className="space-y-6">
@@ -83,7 +106,26 @@ export function ReportsPage() {
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t('title')}</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t('subtitle')}</p>
         </div>
-        <DateRangePicker value={range} onChange={(r) => r.from && r.to && setRange(r)} />
+        <div className="flex items-center gap-2 flex-wrap print:hidden">
+          <select
+            value={branchId}
+            onChange={(e) => setBranchId(e.target.value)}
+            aria-label={t('branchFilter')}
+            className="border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+          >
+            <option value="">{t('allBranches')}</option>
+            {(branches ?? []).map((b) => (
+              <option key={b.id} value={b.id}>{b.name}</option>
+            ))}
+          </select>
+          <DateRangePicker value={range} onChange={(r) => r.from && r.to && setRange(r)} />
+          <button type="button" onClick={exportCsv} className="inline-flex items-center gap-1.5 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">
+            <Download className="w-4 h-4" />{t('exportCsv')}
+          </button>
+          <button type="button" onClick={() => window.print()} className="inline-flex items-center gap-1.5 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">
+            <Printer className="w-4 h-4" />{t('print')}
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -123,8 +165,8 @@ export function ReportsPage() {
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={dailyBreakdown}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:[stroke:#374151]" />
-              <XAxis dataKey="date" tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <XAxis dataKey="date" tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} minTickGap={24} tickFormatter={(v: string) => v.slice(5)} />
+              <YAxis tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v: number) => formatNumber(v)} />
               <Tooltip
                 contentStyle={{
                   background: 'var(--tooltip-bg, #ffffff)',
@@ -152,7 +194,7 @@ export function ReportsPage() {
                   {tOrders.has(`payment_method.${method}`) ? tOrders(`payment_method.${method}`) : method}
                 </span>
                 <div className="flex items-center gap-4 text-xs">
-                  <span className="text-gray-500 dark:text-gray-500">{data.count} {t('orders')}</span>
+                  <span className="text-gray-500 dark:text-gray-500">{data.count} {t('payments')}</span>
                   <span className="text-gray-900 dark:text-white font-medium">{formatNumber(data.total ?? 0)} {currency}</span>
                 </div>
               </div>
@@ -188,6 +230,7 @@ export function ReportsPage() {
             </div>
           </div>
         )}
+        <p className="text-xs text-gray-400 mt-3">{t('taxNote')}</p>
       </div>
 
       {/* Period Comparison */}
@@ -203,17 +246,17 @@ export function ReportsPage() {
             <div>
               <p className="text-xs text-gray-500 mb-1">{t('totalRevenue')}</p>
               <p className="text-sm font-medium text-gray-900 dark:text-white">{formatNumber(comparison?.current_period.revenue ?? 0)} {currency}</p>
-              <ChangeBadge pct={comparison?.change.revenue_pct ?? null} />
+              <ChangeBadge pct={comparison?.change.revenue_pct ?? null} emptyTitle={t('noPreviousData')} />
             </div>
             <div>
               <p className="text-xs text-gray-500 mb-1">{t('totalOrders')}</p>
               <p className="text-sm font-medium text-gray-900 dark:text-white">{comparison?.current_period.order_count}</p>
-              <ChangeBadge pct={comparison?.change.order_count_pct ?? null} />
+              <ChangeBadge pct={comparison?.change.order_count_pct ?? null} emptyTitle={t('noPreviousData')} />
             </div>
             <div>
               <p className="text-xs text-gray-500 mb-1">{t('avgOrder')}</p>
               <p className="text-sm font-medium text-gray-900 dark:text-white">{formatNumber(comparison?.current_period.avg_order_value ?? 0)} {currency}</p>
-              <ChangeBadge pct={comparison?.change.avg_order_value_pct ?? null} />
+              <ChangeBadge pct={comparison?.change.avg_order_value_pct ?? null} emptyTitle={t('noPreviousData')} />
             </div>
           </div>
         )}
@@ -277,7 +320,7 @@ export function ReportsPage() {
                       {tOrders.has(`payment_method.${method}`) ? tOrders(`payment_method.${method}`) : method}
                     </span>
                     <div className="flex items-center gap-4 text-xs">
-                      <span className="text-gray-500 dark:text-gray-500">{data.count} {t('orders')}</span>
+                      <span className="text-gray-500 dark:text-gray-500">{data.count} {t('payments')}</span>
                       <span className="text-gray-900 dark:text-white font-medium">{formatNumber(data.total)} {currency}</span>
                     </div>
                   </div>
@@ -360,7 +403,7 @@ export function ReportsPage() {
                     <div key={item.item_id} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
                       <span className="text-sm text-gray-600 dark:text-gray-400">{item.item_name}</span>
                       <div className="flex items-center gap-4 text-xs">
-                        <span className="text-gray-500 dark:text-gray-500">{item.quantity_sold} {t('items')}</span>
+                        <span className="text-gray-500 dark:text-gray-500">{item.quantity_sold} {t('units')}</span>
                         <span className="text-gray-900 dark:text-white font-medium">{formatNumber(item.total_cost)} {currency}</span>
                       </div>
                     </div>
@@ -369,13 +412,26 @@ export function ReportsPage() {
               </div>
             )}
             {cogs?.coverage_note && (
-              <p className="text-xs text-gray-400 mt-3">{cogs.coverage_note}</p>
+              <p className="text-xs text-gray-400 mt-3">{t('cogsCoverageNote')}</p>
             )}
           </>
         )}
       </div>
 
       <h2 className="pt-2 text-base font-bold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">{t('groups.people')}</h2>
+
+      <div className="flex items-center gap-2 text-sm print:hidden">
+        <label htmlFor="people-sort" className="text-gray-500 dark:text-gray-400">{t('sortBy')}</label>
+        <select
+          id="people-sort"
+          value={peopleSort}
+          onChange={(e) => setPeopleSort(e.target.value as 'sales' | 'orders')}
+          className="border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+        >
+          <option value="sales">{t('sortBySales')}</option>
+          <option value="orders">{t('sortByOrders')}</option>
+        </select>
+      </div>
 
       <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
         <div className="flex items-center gap-2 mb-4">
@@ -386,7 +442,7 @@ export function ReportsPage() {
           <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
         ) : (
           <div className="space-y-2">
-            {(employees?.employees ?? []).map((e) => (
+            {sortedEmployees.map((e) => (
               <div key={e.cashier_id ?? 'unassigned'} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
                 <span className="text-sm text-gray-600 dark:text-gray-400">{e.name ?? t('unassigned')}</span>
                 <div className="flex items-center gap-4 text-xs">
@@ -412,7 +468,7 @@ export function ReportsPage() {
           <p className="text-sm text-gray-500 dark:text-gray-400 py-4 text-center">{t('noCustomers')}</p>
         ) : (
           <div className="space-y-2">
-            {(customersReport?.customers ?? []).slice(0, 10).map((c) => (
+            {sortedCustomers.slice(0, 10).map((c) => (
               <div key={c.customer_id} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
                 <span className="text-sm text-gray-600 dark:text-gray-400">{c.name}</span>
                 <div className="flex items-center gap-4 text-xs">

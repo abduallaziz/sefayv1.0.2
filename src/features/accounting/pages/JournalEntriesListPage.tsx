@@ -16,7 +16,7 @@ import { useUsers } from '@/features/users/hooks/useUsers'
 import { JournalEntriesFilters } from '../components/JournalEntriesFilters'
 import { JournalEntryDetailSheet } from '../components/JournalEntryDetailSheet'
 import { JournalEntriesQuery, JournalEntry } from '../api/accounting.api'
-import { getAmountError, shortId } from '../lib/accounting-utils'
+import { getAmountError } from '../lib/accounting-utils'
 
 const statusTone: Record<string, StatusTone> = {
   draft: 'neutral',
@@ -140,7 +140,7 @@ export function JournalEntriesListPage() {
       key: 'created_by',
       header: t('columns.createdBy'),
       render: (row) => (
-        <span className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+        <span className="text-xs whitespace-nowrap text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
           {row.created_by ? (userNameById.get(row.created_by) ?? row.created_by) : '—'}
         </span>
       ),

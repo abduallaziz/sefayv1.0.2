@@ -1,11 +1,13 @@
 import { useQuery } from '@tanstack/react-query'
 import { accountingApi } from '../api/accounting.api'
+import { retryUnlessClientError } from '../lib/query-retry'
 
 export function useCommandCenter(enabled: boolean) {
   return useQuery({
     queryKey: ['accounting', 'command-center'],
     queryFn: () => accountingApi.getCommandCenter(),
     enabled,
+    retry: retryUnlessClientError,
   })
 }
 
@@ -14,5 +16,6 @@ export function useFiscalPeriods(enabled: boolean) {
     queryKey: ['accounting', 'fiscal-periods'],
     queryFn: () => accountingApi.getFiscalPeriods(),
     enabled,
+    retry: retryUnlessClientError,
   })
 }

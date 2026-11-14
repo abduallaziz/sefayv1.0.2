@@ -17,6 +17,7 @@ export function useJournalEntryDetail(id: string | null, enabled: boolean) {
     queryKey: ['accounting', 'journal-entries', id],
     queryFn: () => accountingApi.getJournalEntry(id as string),
     enabled: enabled && !!id,
+    retry: retryUnlessClientError,
   })
 }
 
@@ -28,6 +29,7 @@ export function useChartOfAccounts(enabled: boolean) {
     queryKey: ['accounting', 'chart-of-accounts'],
     queryFn: () => accountingApi.getChartOfAccounts(),
     enabled,
+    retry: retryUnlessClientError,
     staleTime: 5 * 60_000,
   })
 }

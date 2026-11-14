@@ -284,6 +284,7 @@ export const reportsApi = {
     if (query?.period) params.set('period', query.period)
     if (query?.from) params.set('from', query.from)
     if (query?.to) params.set('to', query.to)
+    if (query?.branch_id) params.set('branch_id', query.branch_id)
     const qs = params.toString()
     return apiClient.get(`/reports/shifts${qs ? `?${qs}` : ''}`)
   },
@@ -303,6 +304,7 @@ export const reportsApi = {
     if (query?.period) params.set('period', query.period)
     if (query?.from) params.set('from', query.from)
     if (query?.to) params.set('to', query.to)
+    if (query?.branch_id) params.set('branch_id', query.branch_id)
     const qs = params.toString()
     return apiClient.get(`/reports/payments${qs ? `?${qs}` : ''}`)
   },
@@ -334,6 +336,7 @@ export const reportsApi = {
     if (query?.period) params.set('period', query.period)
     if (query?.from) params.set('from', query.from)
     if (query?.to) params.set('to', query.to)
+    if (query?.branch_id) params.set('branch_id', query.branch_id)
     const qs = params.toString()
     return apiClient.get(`/reports/employees${qs ? `?${qs}` : ''}`)
   },
@@ -343,6 +346,7 @@ export const reportsApi = {
     if (query?.period) params.set('period', query.period)
     if (query?.from) params.set('from', query.from)
     if (query?.to) params.set('to', query.to)
+    if (query?.branch_id) params.set('branch_id', query.branch_id)
     const qs = params.toString()
     return apiClient.get(`/reports/customers${qs ? `?${qs}` : ''}`)
   },
@@ -352,6 +356,7 @@ export const reportsApi = {
     if (query?.period) params.set('period', query.period)
     if (query?.from) params.set('from', query.from)
     if (query?.to) params.set('to', query.to)
+    if (query?.branch_id) params.set('branch_id', query.branch_id)
     const qs = params.toString()
     return apiClient.get(`/reports/tax${qs ? `?${qs}` : ''}`)
   },
@@ -364,6 +369,7 @@ export const reportsApi = {
     if (query?.period) params.set('period', query.period)
     if (query?.from) params.set('from', query.from)
     if (query?.to) params.set('to', query.to)
+    if (query?.branch_id) params.set('branch_id', query.branch_id)
     const qs = params.toString()
     return apiClient.get(`/reports/comparison${qs ? `?${qs}` : ''}`)
   },
@@ -382,6 +388,7 @@ export const reportsApi = {
     if (query?.period) params.set('period', query.period)
     if (query?.from) params.set('from', query.from)
     if (query?.to) params.set('to', query.to)
+    if (query?.branch_id) params.set('branch_id', query.branch_id)
     const qs = params.toString()
     return apiClient.get(`/reports/customer-churn${qs ? `?${qs}` : ''}`)
   },
