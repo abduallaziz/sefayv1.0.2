@@ -7,7 +7,7 @@
   "filterRejected": "مرفوضة",
   "employee": "الموظف",
   "type": "النوع",
-  "period": "الفترة",
+  "period": "من {from} إلى {to}",
   "days": "الأيام",
   "reason": "السبب",
   "status": "الحالة",
@@ -19,5 +19,14 @@
   "leaveTypeSick": "إجازة مرضية",
   "leaveTypeUnpaid": "إجازة بدون راتب",
   "leaveTypeOther": "أخرى",
-  "noReason": "بدون سبب"
+  "noReason": "بدون سبب",
+  "daysCount": "{count, plural, one {يوم} two {يومان} few {{count} أيام} many {{count} يومًا} other {{count} يوم}}",
+  "confirmApproveTitle": "اعتماد طلب الإجازة",
+  "confirmRejectTitle": "رفض طلب الإجازة",
+  "confirmApproveMessage": "هل تريد اعتماد طلب الإجازة للموظف",
+  "confirmRejectMessage": "هل تريد رفض طلب الإجازة للموظف",
+  "rejectReason": "سبب الرفض",
+  "rejectReasonPlaceholder": "سبب الرفض (اختياري)",
+  "cancel": "إلغاء",
+  "processing": "جارٍ التنفيذ..."
 }

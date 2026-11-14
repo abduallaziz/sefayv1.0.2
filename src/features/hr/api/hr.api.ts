@@ -213,6 +213,6 @@ export const hrApi = {
   approveLeaveRequest: (id: string): Promise<LeaveRequest> =>
     apiClient.patch(`/leaves/${id}/approve`, {}),
 
-  rejectLeaveRequest: (id: string): Promise<LeaveRequest> =>
-    apiClient.patch(`/leaves/${id}/reject`, {}),
+  rejectLeaveRequest: (id: string, reason?: string): Promise<LeaveRequest> =>
+    apiClient.patch(`/leaves/${id}/reject`, reason ? { reason } : {}),
 }

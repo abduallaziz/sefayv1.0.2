@@ -7,7 +7,7 @@
   "filterRejected": "Rejected",
   "employee": "Employee",
   "type": "Type",
-  "period": "Period",
+  "period": "{from} to {to}",
   "days": "Days",
   "reason": "Reason",
   "status": "Status",
@@ -19,5 +19,14 @@
   "leaveTypeSick": "Sick Leave",
   "leaveTypeUnpaid": "Unpaid Leave",
   "leaveTypeOther": "Other",
-  "noReason": "No reason given"
+  "noReason": "No reason given",
+  "daysCount": "{count, plural, one {1 day} other {{count} days}}",
+  "confirmApproveTitle": "Approve leave request",
+  "confirmRejectTitle": "Reject leave request",
+  "confirmApproveMessage": "Approve the leave request of",
+  "confirmRejectMessage": "Reject the leave request of",
+  "rejectReason": "Rejection reason",
+  "rejectReasonPlaceholder": "Rejection reason (optional)",
+  "cancel": "Cancel",
+  "processing": "Processing..."
 }

@@ -168,7 +168,7 @@ export function useApproveLeaveRequest() {
 export function useRejectLeaveRequest() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (id: string) => hrApi.rejectLeaveRequest(id),
+    mutationFn: ({ id, reason }: { id: string; reason?: string }) => hrApi.rejectLeaveRequest(id, reason),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['leaves'] }),
   })
 }

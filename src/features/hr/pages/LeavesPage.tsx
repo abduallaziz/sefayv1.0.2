@@ -1,7 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
+import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
+import { formatDate } from '@/lib/format'
 import { CalendarDays, Check, X } from 'lucide-react'
 import { useLeaveRequests, useApproveLeaveRequest, useRejectLeaveRequest } from '../hooks/useHr'
 import type { LeaveRequest } from '../api/hr.api'
@@ -33,6 +35,20 @@ export function LeavesPage() {
   const { data: requests = [], isLoading } = useLeaveRequests(filter)
   const approve = useApproveLeaveRequest()
   const reject = useRejectLeaveRequest()
+  const [pendingAction, setPendingAction] = useState<{ type: 'approve' | 'reject'; request: LeaveRequest } | null>(null)
+  const [reason, setReason] = useState('')
+
+  function closeDialog() {
+    setPendingAction(null)
+    setReason('')
+  }
+
+  function confirmAction() {
+    if (!pendingAction) return
+    const { type, request } = pendingAction
+    if (type === 'approve') approve.mutate(request.id, { onSuccess: closeDialog })
+    else reject.mutate({ id: request.id, reason: reason.trim() || undefined }, { onSuccess: closeDialog })
+  }
 
   return (
     <div className="space-y-6">
@@ -48,6 +64,7 @@ export function LeavesPage() {
             {FILTERS.map((f) => (
               <button
                 key={f.labelKey}
+                type="button"
                 onClick={() => setFilter(f.key)}
                 className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
                   filter === f.key
@@ -73,8 +90,8 @@ export function LeavesPage() {
               <LeaveRow
                 key={r.id}
                 request={r}
-                onApprove={() => approve.mutate(r.id)}
-                onReject={() => reject.mutate(r.id)}
+                onApprove={() => setPendingAction({ type: 'approve', request: r })}
+                onReject={() => setPendingAction({ type: 'reject', request: r })}
                 pending={approve.isPending || reject.isPending}
                 t={t}
               />
@@ -82,6 +99,37 @@ export function LeavesPage() {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        open={!!pendingAction}
+        onClose={closeDialog}
+        onConfirm={confirmAction}
+        variant={pendingAction?.type === 'reject' ? 'danger' : 'warning'}
+        title={pendingAction ? t(pendingAction.type === 'approve' ? 'confirmApproveTitle' : 'confirmRejectTitle') : ''}
+        message={
+          pendingAction && (
+            <>
+              {t(pendingAction.type === 'approve' ? 'confirmApproveMessage' : 'confirmRejectMessage')}{' '}
+              <span dir="auto" className="[unicode-bidi:isolate] font-semibold text-slate-700 dark:text-white">{pendingAction.request.users?.name ?? '—'}</span>؟
+              {pendingAction.type === 'reject' && (
+                <textarea
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  maxLength={500}
+                  rows={3}
+                  aria-label={t('rejectReason')}
+                  placeholder={t('rejectReasonPlaceholder')}
+                  className="mt-3 w-full bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white"
+                />
+              )}
+            </>
+          )
+        }
+        confirmLabel={pendingAction ? t(pendingAction.type) : ''}
+        cancelLabel={t('cancel')}
+        loadingLabel={t('processing')}
+        isLoading={approve.isPending || reject.isPending}
+      />
     </div>
   )
 }
@@ -99,7 +147,9 @@ function LeaveRow({
   pending: boolean
   t: ReturnType<typeof useTranslations>
 }) {
+  const locale = useLocale()
   const name = request.users?.name ?? '—'
+  const fmt = (d: string) => formatDate(`${d.substring(0, 10)}T12:00:00`, locale)
   const typeKey = `leaveType${request.leave_type.charAt(0).toUpperCase()}${request.leave_type.slice(1)}`
 
   return (
@@ -121,8 +171,9 @@ function LeaveRow({
       </div>
 
       <div className="text-xs text-slate-600 dark:text-slate-300 shrink-0 text-end">
-        <p>{request.date_from} → {request.date_to}</p>
-        <p className="text-slate-400">{request.days_count} {t('days')}</p>
+        <p>{t('period', { from: fmt(request.date_from), to: fmt(request.date_to) })}</p>
+        <p className="text-slate-400">{t('daysCount', { count: request.days_count })}</p>
+        {request.reason && <p className="text-slate-400 truncate max-w-[200px]" title={request.reason}>{request.reason}</p>}
       </div>
 
       <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0 ${
@@ -136,6 +187,8 @@ function LeaveRow({
       {request.status === 'pending' && (
         <div className="flex items-center gap-1.5 shrink-0">
           <button
+            type="button"
+            aria-label={t('approve')}
             onClick={onApprove}
             disabled={pending}
             className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 disabled:opacity-50 transition-colors"
@@ -144,6 +197,8 @@ function LeaveRow({
             <Check className="w-3.5 h-3.5" />
           </button>
           <button
+            type="button"
+            aria-label={t('reject')}
             onClick={onReject}
             disabled={pending}
             className="p-1.5 rounded-lg bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/20 disabled:opacity-50 transition-colors"
