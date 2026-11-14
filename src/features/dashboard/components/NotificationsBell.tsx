@@ -5,7 +5,7 @@ import { Bell } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/lib/api'
-import { formatDateTime } from '@/lib/format'
+import { formatDateTime, formatNumber } from '@/lib/format'
 
 interface NotificationRow {
   id: string
@@ -13,6 +13,24 @@ interface NotificationRow {
   body: string
   is_read: boolean
   created_at: string
+  type?: string | null
+  data?: Record<string, unknown> | null
+}
+
+// type -> message key prefix under header.notif (types not listed keep the server text)
+const NOTIF_KEYS: Record<string, string> = {
+  'shift.opened': 'shift_opened',
+  'shift.closed': 'shift_closed',
+  'billing.payment_success': 'payment_success',
+  'expense.requested': 'expense_requested',
+  'expense.approved': 'expense_approved',
+  'expense.rejected': 'expense_rejected',
+  'inventory.stock_deduction_failed': 'stock_failed',
+}
+
+const num = (v: unknown): string | null => {
+  const n = typeof v === 'string' ? parseFloat(v) : v
+  return typeof n === 'number' && Number.isFinite(n) ? formatNumber(n) : null
 }
 
 interface NotificationsResponse {
@@ -59,6 +77,35 @@ export function NotificationsBell() {
     }
   }, [open])
 
+  // Arabic/English text built on the client from the notification type + data, so values are
+  // always filled; unknown types fall back to the text stored by the server.
+  const render = (n: NotificationRow): { title: string; body: string } => {
+    const key = n.type ? NOTIF_KEYS[n.type] : undefined
+    if (!key) return { title: n.title, body: n.body }
+    const d = n.data ?? {}
+    const amount = num(d.amount ?? d.total ?? d.opening_cash)
+    const title = t(`notif.${key}_title` as Parameters<typeof t>[0])
+    let body: string
+    if (key === 'stock_failed') body = t('notif.stock_failed_body_plain')
+    else if (key === 'shift_closed') {
+      const total = num(d.total)
+      body = total !== null
+        ? t('notif.shift_closed_body', { total: total.replace(/\.00$/, '') })
+        : t('notif.shift_closed_body_plain')
+    } else if (key === 'shift_opened') {
+      const cash = num(d.opening_cash)
+      body = cash !== null ? t('notif.shift_opened_body', { amount: cash }) : t('notif.shift_opened_body_plain')
+    } else if (key === 'expense_rejected') {
+      const reason = typeof d.reason === 'string' ? d.reason.trim() : ''
+      body = reason ? t('notif.expense_rejected_body', { reason }) : t('notif.expense_rejected_body_plain')
+    } else {
+      body = amount !== null
+        ? t(`notif.${key}_body` as Parameters<typeof t>[0], { amount })
+        : t(`notif.${key}_body_plain` as Parameters<typeof t>[0])
+    }
+    return { title, body }
+  }
+
   const unread = data?.meta.unreadCount ?? 0
   const rows = data?.data ?? []
 
@@ -102,7 +149,9 @@ export function NotificationsBell() {
             {rows.length === 0 ? (
               <p className="px-3 py-6 text-center text-sm text-posCloud-text-tertiary">{t('noNotifications')}</p>
             ) : (
-              rows.map((n) => (
+              rows.map((n) => {
+                const view = render(n)
+                return (
                 <button
                   key={n.id}
                   type="button"
@@ -111,12 +160,13 @@ export function NotificationsBell() {
                 >
                   <span className="flex items-center gap-2 text-sm font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary">
                     {!n.is_read && <span className="h-2 w-2 shrink-0 rounded-full bg-posCloud-primary" />}
-                    <span className="truncate">{n.title}</span>
+                    <span className="truncate">{view.title}</span>
                   </span>
-                  <span className="line-clamp-2 text-xs text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{n.body}</span>
+                  <span className="line-clamp-2 text-xs text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{view.body}</span>
                   <span className="text-[11px] text-posCloud-text-tertiary">{formatDateTime(n.created_at, locale)}</span>
                 </button>
-              ))
+                )
+              })
             )}
           </div>
         </div>
