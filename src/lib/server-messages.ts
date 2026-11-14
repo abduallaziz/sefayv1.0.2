@@ -251,4 +251,6 @@ RULES.push(
 
 Object.assign(EXACT, {
   'Insufficient cash tendered': 'المبلغ المدفوع أقل من إجمالي الفاتورة',
+  'Table name must be at most 50 characters': 'اسم الطاولة يجب ألا يزيد عن 50 حرفًا',
+  'text must not be empty': 'نص الملاحظة لا يمكن أن يكون فارغًا',
 });
