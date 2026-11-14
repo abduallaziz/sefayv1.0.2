@@ -66,7 +66,18 @@
     "dateTo": "إلى تاريخ",
     "markExcused": "تسجيل الإعفاء",
     "excused": "تم تسجيل الإعفاء",
-    "saving": "جاري الحفظ..."
+    "saving": "جاري الحفظ...",
+    "prevMonth": "الشهر السابق",
+    "nextMonth": "الشهر التالي",
+    "export": "تصدير",
+    "totals": "الإجمالي",
+    "absenceDeduction": "خصم الغياب",
+    "lateDeduction": "خصم التأخير",
+    "leaveDeduction": "خصم الإجازات",
+    "futureMonthNote": "هذا الشهر لم يبدأ بعد، لذلك لا تُحتسب أي خصومات على أيام لم تحن بعد.",
+    "errExcuseEmployee": "اختر الموظف",
+    "errExcusePeriod": "اختر الفترة المراد إعفاؤها",
+    "errExcuseReason": "اكتب سبب الإعفاء"
   },
   "groups": {
     "sales": "المبيعات",

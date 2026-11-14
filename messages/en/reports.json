@@ -66,7 +66,18 @@
     "dateTo": "To date",
     "markExcused": "Mark excused",
     "excused": "Excused successfully",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month",
+    "export": "Export",
+    "totals": "Total",
+    "absenceDeduction": "Absence deduction",
+    "lateDeduction": "Late deduction",
+    "leaveDeduction": "Leave deduction",
+    "futureMonthNote": "This month has not started yet, so no deductions apply to days that have not happened.",
+    "errExcuseEmployee": "Select an employee",
+    "errExcusePeriod": "Select the period to excuse",
+    "errExcuseReason": "Enter the reason"
   },
   "groups": {
     "sales": "Sales",
