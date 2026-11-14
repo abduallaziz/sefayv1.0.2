@@ -84,10 +84,15 @@ export function POSPage() {
 
   const { data: currentShift, isLoading: shiftLoading, isError: shiftError, refetch: refetchShift } = useCurrentShift()
 
-  const { data: posConfig, isLoading: posConfigLoading, isError: posConfigError } = useQuery({
+  const { data: posConfig, isLoading: posConfigLoading, isError: posConfigError, refetch: refetchPosConfig, isFetching: posConfigFetching } = useQuery({
     queryKey: ['tenant', 'pos-config'],
     queryFn: () => apiClient.get<{ tax_rate?: number | null; tax_inclusive_pricing?: boolean; customer_capture_enabled?: boolean; loyalty_enabled?: boolean; loyalty_redemption_value?: number; enabled_payment_methods?: string[] }>('/tenant/pos-config'),
     enabled: !!user,
+    // a rate-limit / network blip must not leave the screen blocked: keep retrying (also after the
+    // automatic retries are used up) until the config arrives
+    retry: 6,
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10000),
+    refetchInterval: (query) => (query.state.status === 'error' ? 5000 : false),
   })
 
   // tenants.tax_rate (GET /tenant/pos-config) is the sole authoritative
@@ -467,6 +472,14 @@ export function POSPage() {
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             {t('taxConfig.unavailableSubtitle')}
           </p>
+          <button
+            type="button"
+            onClick={() => refetchPosConfig()}
+            disabled={posConfigFetching}
+            className="mt-4 rounded-lg bg-posCloud-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+          >
+            {t('taxConfig.retry')}
+          </button>
         </div>
       </div>
     )

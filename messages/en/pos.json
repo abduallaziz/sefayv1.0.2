@@ -30,7 +30,8 @@
   },
   "taxConfig": {
     "unavailableTitle": "Tax configuration unavailable",
-    "unavailableSubtitle": "The tenant's tax rate could not be loaded, so a sale preview cannot be shown safely. Please try again shortly or contact support."
+    "unavailableSubtitle": "The tenant's tax rate could not be loaded, so a sale preview cannot be shown safely. Please try again shortly or contact support.",
+    "retry": "Retry"
   },
   "heldOrders": {
     "title": "Held Orders",
