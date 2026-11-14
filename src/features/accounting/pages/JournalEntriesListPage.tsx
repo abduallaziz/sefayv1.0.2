@@ -163,7 +163,7 @@ export function JournalEntriesListPage() {
 
       {isForbidden ? (
         <EmptyState icon={AlertTriangle} title={t('noPermission.title')} description={t('noPermission.description')} theme="dashboard" size="lg" />
-      ) : query.isError ? (
+      ) : amountError ? null : query.isError ? (
         <EmptyState icon={AlertTriangle} title={t('error.title')} description={t('error.description')} theme="dashboard" size="md" />
       ) : (
         <DataTable

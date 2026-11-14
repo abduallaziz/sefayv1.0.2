@@ -266,7 +266,7 @@ export function JournalEntryDetailSheet({ entryId, open, onOpenChange, canView, 
               {detail.data.reversal_of_id && (
                 <SectionCard title={t('reversal.title')} theme="dashboard">
                   <p className="text-sm text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">
-                    {t('reversal.reversalOf', { id: detail.data.reversal_of_id })}
+                    {t('reversal.reversalOf', { id: shortenReference(detail.data.reversal_of_id) })}
                   </p>
                 </SectionCard>
               )}
