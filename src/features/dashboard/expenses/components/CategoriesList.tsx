@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
+import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
 import { Plus, Trash2, Pencil, Check, X } from 'lucide-react'
 import { useExpenseCategories, useDeleteCategory, useUpdateCategory } from '../hooks/useExpenses'
 import { AddCategoryModal } from './AddCategoryModal'
@@ -15,6 +16,7 @@ export function CategoriesList() {
   const [showAdd, setShowAdd] = useState(false)
   const [editId, setEditId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
+  const [deleteTarget, setDeleteTarget] = useState<ExpenseCategory | null>(null)
 
   function startEdit(cat: ExpenseCategory) {
     setEditId(cat.id)
@@ -77,16 +79,16 @@ export function CategoriesList() {
                 <div className="flex items-center gap-2 justify-end mt-2">
                   {editId === cat.id ? (
                     <>
-                      <button onClick={() => saveEdit(cat.id)} className="p-1.5 rounded-lg hover:bg-emerald-500/10 text-slate-400 hover:text-emerald-500 dark:hover:text-emerald-400">
+                      <button onClick={() => saveEdit(cat.id)} aria-label={t('category.save')} className="p-1.5 rounded-lg hover:bg-emerald-500/10 text-slate-400 hover:text-emerald-500 dark:hover:text-emerald-400">
                         <Check className="w-4 h-4" />
                       </button>
-                      <button onClick={() => setEditId(null)} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-700 text-slate-400 hover:text-slate-600 dark:hover:text-white">
+                      <button onClick={() => setEditId(null)} aria-label={t('category.cancelEdit')} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-700 text-slate-400 hover:text-slate-600 dark:hover:text-white">
                         <X className="w-4 h-4" />
                       </button>
                     </>
                   ) : (
                     <>
-                      <button onClick={() => startEdit(cat)} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-700 text-slate-400 hover:text-slate-600 dark:hover:text-white">
+                      <button onClick={() => startEdit(cat)} aria-label={t('category.edit')} title={t('category.edit')} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-700 text-slate-400 hover:text-slate-600 dark:hover:text-white">
                         <Pencil className="w-4 h-4" />
                       </button>
                       <button
@@ -95,7 +97,7 @@ export function CategoriesList() {
                       >
                         {cat.is_active ? t('category.deactivate') : t('category.activate')}
                       </button>
-                      <button onClick={() => deleteMutation.mutate(cat.id)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-slate-400 hover:text-red-500 dark:hover:text-red-400">
+                      <button onClick={() => setDeleteTarget(cat)} aria-label={t('category.delete')} title={t('category.delete')} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-slate-400 hover:text-red-500 dark:hover:text-red-400">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </>
@@ -143,16 +145,16 @@ export function CategoriesList() {
                     <div className="flex items-center gap-2 justify-end">
                       {editId === cat.id ? (
                         <>
-                          <button onClick={() => saveEdit(cat.id)} className="p-1.5 rounded-lg hover:bg-emerald-500/10 text-slate-400 hover:text-emerald-500 dark:hover:text-emerald-400">
+                          <button onClick={() => saveEdit(cat.id)} aria-label={t('category.save')} className="p-1.5 rounded-lg hover:bg-emerald-500/10 text-slate-400 hover:text-emerald-500 dark:hover:text-emerald-400">
                             <Check className="w-4 h-4" />
                           </button>
-                          <button onClick={() => setEditId(null)} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-700 text-slate-400 hover:text-slate-600 dark:hover:text-white">
+                          <button onClick={() => setEditId(null)} aria-label={t('category.cancelEdit')} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-700 text-slate-400 hover:text-slate-600 dark:hover:text-white">
                             <X className="w-4 h-4" />
                           </button>
                         </>
                       ) : (
                         <>
-                          <button onClick={() => startEdit(cat)} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-700 text-slate-400 hover:text-slate-600 dark:hover:text-white">
+                          <button onClick={() => startEdit(cat)} aria-label={t('category.edit')} title={t('category.edit')} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-700 text-slate-400 hover:text-slate-600 dark:hover:text-white">
                             <Pencil className="w-4 h-4" />
                           </button>
                           <button
@@ -161,7 +163,7 @@ export function CategoriesList() {
                           >
                             {cat.is_active ? t('category.deactivate') : t('category.activate')}
                           </button>
-                          <button onClick={() => deleteMutation.mutate(cat.id)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-slate-400 hover:text-red-500 dark:hover:text-red-400">
+                          <button onClick={() => setDeleteTarget(cat)} aria-label={t('category.delete')} title={t('category.delete')} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-slate-400 hover:text-red-500 dark:hover:text-red-400">
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </>
@@ -176,6 +178,20 @@ export function CategoriesList() {
       )}
 
       {showAdd && <AddCategoryModal onClose={() => setShowAdd(false)} />}
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => {
+          if (!deleteTarget) return
+          deleteMutation.mutate(deleteTarget.id, { onSettled: () => setDeleteTarget(null) })
+        }}
+        title={t('category.deleteTitle')}
+        message={t('category.deleteMessage', { name: deleteTarget?.name ?? '' })}
+        confirmLabel={t('category.delete')}
+        cancelLabel={t('actions.back')}
+        isLoading={deleteMutation.isPending}
+      />
     </>
   )
 }

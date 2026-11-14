@@ -55,7 +55,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       {/* dir="auto" (not a fixed locale) — this sits above the [locale]
           segment in app/layout.tsx, so next-intl's locale context isn't
           available here to read directly. */}
-      <Toaster richColors position="top-center" dir="auto" />
+      <Toaster richColors closeButton duration={5000} position="top-center" dir="auto" />
     </QueryClientProvider>
   )
 }

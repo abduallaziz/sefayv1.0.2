@@ -47,7 +47,7 @@ export function ShiftReportModal({ shiftId, initialReport, onClose }: Props) {
     setBusy('print');
     try {
       printPdf(await getPdf());
-    } catch (e) {
+    } catch {
       toast.error(t('report_failed'), { id: 'shift-report-failed' });
     } finally {
       setBusy(null);
@@ -59,7 +59,7 @@ export function ShiftReportModal({ shiftId, initialReport, onClose }: Props) {
     try {
       const result = await sharePdf(await getPdf(), fileName, t('report_title'));
       if (result === 'downloaded') toast.success(t('report_downloaded'));
-    } catch (e) {
+    } catch {
       toast.error(t('report_failed'), { id: 'shift-report-failed' });
     } finally {
       setBusy(null);

@@ -26,12 +26,24 @@ export function AddExpenseModal({ onClose }: Props) {
 
   const [form, setForm] = useState({ category_id: '', amount: '', description: '' })
 
+  // Arabic-Indic digits are converted; anything that is not a plain amount (letters, negatives, 3+ decimals) is rejected.
+  const amountText = form.amount
+    .replace(/[٠-٩]/g, (d) => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))
+    .replace(/[۰-۹]/g, (d) => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)))
+    .replace('٫', '.')
+    .trim()
+  const amountNum = Number(amountText)
+  const amountFormatOk = /^\d+(\.\d{1,2})?$/.test(amountText) && amountNum > 0
+  const amountTooBig = amountFormatOk && amountNum > 9999999.99
+  const amountValid = amountFormatOk && !amountTooBig
+  const amountError = form.amount.trim() === '' ? null : amountTooBig ? t('validation.amountMax') : amountFormatOk ? null : t('validation.amountInvalid')
+
   function handleSubmit() {
-    if (!form.category_id || !form.amount || !branchId) return
+    if (!form.category_id || !amountValid || !branchId || mutation.isPending) return
     mutation.mutate({
       branch_id: branchId,
       category_id: form.category_id,
-      amount: parseFloat(form.amount),
+      amount: amountNum,
       description: form.description || undefined,
       type: 'one_time',
       shift_id: currentShift?.id,
@@ -66,8 +78,10 @@ export function AddExpenseModal({ onClose }: Props) {
             type="text" inputMode="decimal" placeholder="0.00"
             value={form.amount}
             onChange={e => setForm(p => ({ ...p, amount: e.target.value }))}
+            aria-invalid={!!amountError}
             className={inputClass}
           />
+          {amountError && <p role="alert" className="mt-1 text-xs text-red-500">{amountError}</p>}
         </div>
 
         <div>
@@ -93,7 +107,7 @@ export function AddExpenseModal({ onClose }: Props) {
           </button>
           <button
             onClick={handleSubmit}
-            disabled={!form.category_id || !form.amount || mutation.isPending}
+            disabled={!form.category_id || !amountValid || mutation.isPending}
             className="flex-1 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 text-white rounded-lg text-sm font-medium"
           >
             {mutation.isPending ? '...' : t('actions.add')}

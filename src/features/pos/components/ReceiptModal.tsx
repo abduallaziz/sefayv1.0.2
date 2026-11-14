@@ -33,7 +33,7 @@ interface Props {
 }
 
 export function ReceiptModal({
-  items, subtotal, discountAmount, taxAmount, couponCode, taxInclusive,
+  items, subtotal, discountAmount, taxAmount, couponCode,
   payment, invoiceNumber, orderId, taxRate, total, onNewOrder,
 }: Props) {
   const t = useTranslations('pos')

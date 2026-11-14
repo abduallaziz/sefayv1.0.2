@@ -512,7 +512,7 @@ export function POSPage() {
           onOpenHeldOrders={() => setShowHeldOrders(true)}
           heldOrdersCount={heldOrders.length}
           aside={
-        <div className="flex w-[clamp(168px,36%,360px)] shrink-0 flex-col rounded-2xl border border-posCloud-border bg-posCloud-surface p-2.5 dark:border-posCloudDark-border dark:bg-posCloudDark-surface order-first rtl:order-last self-start sticky top-4 min-h-[26rem] max-h-[calc(100vh-24rem)] min-[480px]:w-[clamp(230px,38%,400px)] min-[480px]:max-h-[calc(100vh-19rem)] min-[480px]:p-4">
+        <div className="flex w-[clamp(168px,36%,360px)] shrink-0 flex-col rounded-2xl border border-posCloud-border bg-posCloud-surface p-2.5 dark:border-posCloudDark-border dark:bg-posCloudDark-surface order-first rtl:order-last self-start sticky top-4 min-h-[26rem] max-h-[calc(100vh-24rem)] min-[480px]:w-[clamp(264px,42%,400px)] min-[480px]:max-h-[calc(100vh-19rem)] min-[480px]:p-4">
           <CartPanel
             cart={cart}
             onUpdateQty={updateQty}

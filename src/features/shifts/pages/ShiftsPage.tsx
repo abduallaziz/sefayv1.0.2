@@ -9,12 +9,10 @@ import { ShiftsList } from '../components/ShiftsList';
 import { OpenShiftModal } from '../components/OpenShiftModal';
 import { CloseShiftModal } from '../components/CloseShiftModal';
 import { ShiftSummaryModal } from '../components/ShiftSummaryModal';
-import { useAuthStore } from '@/core/auth/stores/auth.store';
 import { useBranchContext } from '@/core/branch/useBranchContext';
 
 export function ShiftsPage() {
   const t = useTranslations('shifts');
-  const { user } = useAuthStore();
   const { data: currentShift } = useCurrentShift();
   const qc = useQueryClient();
 

@@ -172,6 +172,10 @@ export function DashboardOverview() {
   const isRTL = locale === 'ar'
   const vsYesterdayLabel = t('ov.vsYesterday')
   const showTables = config.sidebar.includes('tables')
+  // The trend badges compare the last two days of the sparkline: only meaningful for a single-day period.
+  const trend = (series: number[] | undefined) => (range.from && range.from === range.to ? computeDelta(series) : null)
+  const tOrders = useTranslations('orders')
+  const PAYMENT_KEYS = ['cash', 'card', 'split', 'wallet', 'mada', 'visa', 'mastercard', 'stc_pay', 'apple_pay', 'tab', 'gift_card']
 
   useEffect(() => {
     if (!user) router.replace(`/${locale}/login`)
@@ -333,7 +337,7 @@ export function DashboardOverview() {
   // (or vice versa) as a real-looking negative/positive number.
   const netProfitLoading = revenueLoading || expensesLoading || cogsLoading
 
-  const dateLocale = locale === 'ar' ? 'ar-SA-u-nu-latn' : 'en-US'
+  const dateLocale = locale === 'ar' ? 'ar-SA-u-nu-latn-ca-gregory' : 'en-US'
 
   // The report only returns days that have sales, so lay out all 7 days
   // ourselves and put 0 on the quiet ones (otherwise the chart skips them).
@@ -420,22 +424,22 @@ export function DashboardOverview() {
       <div className="grid grid-cols-2 items-stretch gap-4 sm:grid-cols-3 lg:grid-cols-6">
         <StatCard icon={TrendingUp} iconBg="bg-posCloud-success-light dark:bg-posCloud-success/15" iconColor="text-posCloud-success"
           label={t('statSales')} value={formatNumber(totalRevenue, { locale, decimals: 2 })} unit={currency}
-          delta={computeDelta(sp.sales)} vsYesterdayLabel={vsYesterdayLabel} loading={revenueLoading} />
+          delta={trend(sp.sales)} vsYesterdayLabel={vsYesterdayLabel} loading={revenueLoading} />
         <StatCard icon={Wallet} iconBg="bg-posCloud-success-light dark:bg-posCloud-success/15" iconColor="text-posCloud-success"
           label={t('netProfit')} value={formatNumber(netProfit, { locale, decimals: 2 })} unit={currency}
-          delta={computeDelta(sp.sales)} vsYesterdayLabel={vsYesterdayLabel} loading={netProfitLoading} />
+          delta={trend(sp.sales)} vsYesterdayLabel={vsYesterdayLabel} loading={netProfitLoading} />
         <StatCard icon={Tag} iconBg="bg-posCloud-warning-light dark:bg-posCloud-warning/15" iconColor="text-posCloud-warning"
           label={t('avgOrder')} value={formatNumber(avgOrder, { locale, decimals: 2 })} unit={currency}
           delta={null} vsYesterdayLabel={vsYesterdayLabel} loading={revenueLoading} />
         <StatCard icon={ShoppingCart} iconBg="bg-posCloud-info-light dark:bg-posCloud-info/15" iconColor="text-posCloud-info"
           label={t('statOrders')} value={formatNumber(totalOrders, { locale, decimals: 0 })}
-          delta={computeDelta(sp.orders)} vsYesterdayLabel={vsYesterdayLabel} loading={revenueLoading} />
+          delta={trend(sp.orders)} vsYesterdayLabel={vsYesterdayLabel} loading={revenueLoading} />
         <StatCard icon={Users} iconBg="bg-posCloud-primary-light dark:bg-posCloud-primary/15" iconColor="text-posCloud-primary"
           label={t('statNewCustomers')} value={formatNumber(newCustomers, { locale, decimals: 0 })}
-          delta={computeDelta(sp.customers)} vsYesterdayLabel={vsYesterdayLabel} loading={customerStatsLoading} />
+          delta={trend(sp.customers)} vsYesterdayLabel={vsYesterdayLabel} loading={customerStatsLoading} />
         <StatCard icon={Wallet} iconBg="bg-posCloud-danger-light dark:bg-posCloud-danger/15" iconColor="text-posCloud-danger"
           label={t('statExpensesTitle')} value={formatNumber(totalExpenses, { locale, decimals: 2 })} unit={currency}
-          delta={computeDelta(sp.expenses)} vsYesterdayLabel={vsYesterdayLabel} loading={expensesLoading} />
+          delta={trend(sp.expenses)} vsYesterdayLabel={vsYesterdayLabel} loading={expensesLoading} />
       </div>
 
       {/* HR/Audit KPI rows moved out — see docs/rebuild/PARKING_LOT.md (A1).
@@ -450,7 +454,7 @@ export function DashboardOverview() {
       {showTables && (
         <div className="mt-4 grid grid-cols-2 items-stretch gap-4 sm:grid-cols-4">
           <StatCard icon={UtensilsCrossed} iconBg="bg-posCloud-warning-light dark:bg-posCloud-warning/15" iconColor="text-posCloud-warning"
-            label={t('occupiedTables')} value={`${formatNumber(occupiedTables, { locale, decimals: 0 })} / ${formatNumber(totalTables, { locale, decimals: 0 })}`}
+            label={t('occupiedTables')} value={`⁦${formatNumber(occupiedTables, { locale, decimals: 0 })} / ${formatNumber(totalTables, { locale, decimals: 0 })}⁩`}
             delta={null} vsYesterdayLabel={vsYesterdayLabel} loading={tablesLoading} />
         </div>
       )}
@@ -631,7 +635,7 @@ export function DashboardOverview() {
         <SectionCard>
           <SectionHeader
             title={t('ov.salesByBranch')}
-            action={<span className="rounded-lg border border-posCloud-border dark:border-posCloudDark-border px-3 py-1.5 text-xs font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{t('ov.thisMonth')}</span>}
+            action={<span className="rounded-lg border border-posCloud-border dark:border-posCloudDark-border px-3 py-1.5 text-xs font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary"><span dir="ltr">{range.from === range.to ? range.from : `${range.from} - ${range.to}`}</span></span>}
           />
           {branchCmpLoading ? (
             <CardListSkeleton rows={4} />
@@ -762,7 +766,7 @@ export function DashboardOverview() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-[13px] font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary truncate">{item.title}</p>
-                  <p className="mt-0.5 text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{item.sub}</p>
+                  <p className="mt-0.5 text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{PAYMENT_KEYS.includes(item.sub) ? tOrders(`payment_method.${item.sub}`) : item.sub}</p>
                 </div>
                 <div className="text-end shrink-0">
                   <p className={cn('text-sm font-bold', item.amount !== null && item.amount < 0 ? 'text-posCloud-danger' : 'text-posCloud-text-primary dark:text-posCloudDark-text-primary')}>
@@ -784,7 +788,7 @@ export function DashboardOverview() {
               { label: t('newCustomer'), href: '/dashboard/customers', color: 'bg-posCloud-success' },
               { label: t('newInvoice'), href: '/dashboard/pos', color: 'bg-posCloud-primary' },
               { label: t('todayReport'), href: '/dashboard/reports', color: 'bg-posCloud-info' },
-              { label: t('newExpense'), href: '/dashboard/expenses', color: 'bg-posCloud-warning' },
+              { label: t('newExpense'), href: '/dashboard/expenses-v2/expenses', color: 'bg-posCloud-warning' },
             ].map((a, i) => (
               <Link key={i} href={`/${locale}${a.href}`}
                 className="flex flex-col items-center gap-2 rounded-xl border border-posCloud-border dark:border-posCloudDark-border p-3 text-center transition-colors hover:bg-slate-100 dark:hover:bg-white/5">

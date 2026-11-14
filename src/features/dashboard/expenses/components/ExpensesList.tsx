@@ -7,6 +7,7 @@ import { AddExpenseModal } from './AddExpenseModal'
 import { formatCurrency } from '@/lib/format'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { useTranslations } from 'next-intl'
+import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
 import type { Expense, ExpenseStatus } from '../api/expenses.api'
 
 // `notes` on an auto-generated expense is a raw string built server-side
@@ -50,11 +51,19 @@ export function ExpensesList() {
   const [rejectTarget, setRejectTarget] = useState<Expense | null>(null)
   const [rejectReason, setRejectReason] = useState('')
   const [cancelTarget, setCancelTarget] = useState<Expense | null>(null)
+  const [approveTarget, setApproveTarget] = useState<Expense | null>(null)
+  const [rejectError, setRejectError] = useState(false)
+  const [statusFilter, setStatusFilter] = useState<'all' | ExpenseStatus>('all')
+  const visible = statusFilter === 'all' ? expenses : expenses.filter((e) => e.status === statusFilter)
 
   function handleReject() {
     if (!rejectTarget) return
-    rejectMutation.mutate({ id: rejectTarget.id, reason: rejectReason }, {
-      onSuccess: () => { setRejectTarget(null); setRejectReason('') }
+    if (!rejectReason.trim()) {
+      setRejectError(true)
+      return
+    }
+    rejectMutation.mutate({ id: rejectTarget.id, reason: rejectReason.trim() }, {
+      onSuccess: () => { setRejectTarget(null); setRejectReason(''); setRejectError(false) }
     })
   }
 
@@ -69,7 +78,18 @@ export function ExpensesList() {
 
   return (
     <>
-      <div className="flex justify-end mb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value as 'all' | ExpenseStatus)}
+          aria-label={t('filter.status')}
+          className="px-3 py-2 text-sm bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 text-slate-800 dark:text-white rounded-lg"
+        >
+          <option value="all">{t('filter.all')}</option>
+          {(Object.keys(statusConfig) as ExpenseStatus[]).map((st) => (
+            <option key={st} value={st}>{t(statusConfig[st].labelKey as Parameters<typeof t>[0])}</option>
+          ))}
+        </select>
         <button
           onClick={() => setShowAdd(true)}
           className="flex items-center gap-2 px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] text-white rounded-lg text-sm font-medium"
@@ -84,7 +104,7 @@ export function ExpensesList() {
         <div className="space-y-2">
           {[1,2,3].map(i => <div key={i} className="h-14 bg-slate-100 dark:bg-gray-800 rounded-xl animate-pulse" />)}
         </div>
-      ) : expenses.length === 0 ? (
+      ) : visible.length === 0 ? (
         <div className="text-center py-16 text-slate-500">
           <Clock className="w-10 h-10 mx-auto mb-3 opacity-30" />
           <p>{t('empty.requests')}</p>
@@ -93,7 +113,7 @@ export function ExpensesList() {
         <>
           {/* Mobile cards */}
           <div className="md:hidden space-y-2">
-            {expenses.map((row) => {
+            {visible.map((row) => {
               const cfg = statusConfig[row.status]
               const Icon = cfg.icon
               return (
@@ -117,15 +137,15 @@ export function ExpensesList() {
                     <div className="flex items-center gap-1 justify-end mt-2 pt-2 border-t border-slate-100 dark:border-gray-800">
                       {row.status === 'pending' && (
                         <>
-                          <button onClick={() => approveMutation.mutate(row.id)} className="px-2 py-1 rounded-lg text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20">✓</button>
-                          <button onClick={() => setRejectTarget(row)} className="px-2 py-1 rounded-lg text-xs font-medium bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20 border border-red-500/20">✕</button>
-                          <button onClick={() => setCancelTarget(row)} className="px-2 py-1 rounded-lg text-xs font-medium bg-gray-500/10 text-gray-500 hover:bg-gray-500/20 border border-gray-500/20" title={t('actions.cancel')}>
+                          <button onClick={() => setApproveTarget(row)} aria-label={t('aria.approve')} title={t('aria.approve')} className="px-2 py-1 rounded-lg text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20">✓</button>
+                          <button onClick={() => setRejectTarget(row)} aria-label={t('aria.reject')} title={t('aria.reject')} className="px-2 py-1 rounded-lg text-xs font-medium bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20 border border-red-500/20">✕</button>
+                          <button onClick={() => setCancelTarget(row)} className="px-2 py-1 rounded-lg text-xs font-medium bg-gray-500/10 text-gray-500 hover:bg-gray-500/20 border border-gray-500/20" title={t('actions.cancel')} aria-label={t('actions.cancel')}>
                             <Ban className="w-3 h-3" />
                           </button>
                         </>
                       )}
                       {row.status === 'approved' && (
-                        <button onClick={() => setRejectTarget(row)} className="px-2 py-1 rounded-lg text-xs font-medium bg-orange-500/10 text-orange-600 dark:text-orange-400 hover:bg-orange-500/20 border border-orange-500/20" title={t('actions.reverse')}>
+                        <button onClick={() => setRejectTarget(row)} className="px-2 py-1 rounded-lg text-xs font-medium bg-orange-500/10 text-orange-600 dark:text-orange-400 hover:bg-orange-500/20 border border-orange-500/20" title={t('actions.reverse')} aria-label={t('actions.reverse')}>
                           <RotateCcw className="w-3 h-3" />
                         </button>
                       )}
@@ -151,7 +171,7 @@ export function ExpensesList() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-gray-800">
-                  {expenses.map((row) => {
+                  {visible.map((row) => {
                     const cfg = statusConfig[row.status]
                     const Icon = cfg.icon
                     return (
@@ -178,13 +198,17 @@ export function ExpensesList() {
                           {row.status === 'pending' && (
                             <div className="flex items-center gap-1 justify-end">
                               <button
-                                onClick={() => approveMutation.mutate(row.id)}
+                                onClick={() => setApproveTarget(row)}
+                                aria-label={t('aria.approve')}
+                                title={t('aria.approve')}
                                 className="px-2 py-1 rounded-lg text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20"
                               >
                                 ✓
                               </button>
                               <button
                                 onClick={() => setRejectTarget(row)}
+                                aria-label={t('aria.reject')}
+                                title={t('aria.reject')}
                                 className="px-2 py-1 rounded-lg text-xs font-medium bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20 border border-red-500/20"
                               >
                                 ✕
@@ -192,7 +216,7 @@ export function ExpensesList() {
                               <button
                                 onClick={() => setCancelTarget(row)}
                                 className="px-2 py-1 rounded-lg text-xs font-medium bg-gray-500/10 text-gray-500 hover:bg-gray-500/20 border border-gray-500/20"
-                                title={t('actions.cancel')}
+                                title={t('actions.cancel')} aria-label={t('actions.cancel')}
                               >
                                 <Ban className="w-3 h-3" />
                               </button>
@@ -203,7 +227,7 @@ export function ExpensesList() {
                               <button
                                 onClick={() => setRejectTarget(row)}
                                 className="px-2 py-1 rounded-lg text-xs font-medium bg-orange-500/10 text-orange-600 dark:text-orange-400 hover:bg-orange-500/20 border border-orange-500/20"
-                                title={t('actions.reverse')}
+                                title={t('actions.reverse')} aria-label={t('actions.reverse')}
                               >
                                 <RotateCcw className="w-3 h-3" />
                               </button>
@@ -234,15 +258,18 @@ export function ExpensesList() {
               <label className="text-xs text-slate-500 mb-1 block">{t('reject.reason')}</label>
               <textarea
                 value={rejectReason}
-                onChange={e => setRejectReason(e.target.value)}
+                onChange={e => { setRejectReason(e.target.value); setRejectError(false) }}
                 placeholder={t('reject.reasonPlaceholder')}
                 rows={3}
+                maxLength={300}
+                aria-invalid={rejectError}
                 className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 text-slate-800 dark:text-white rounded-lg focus:outline-none focus:border-[#0C447C] dark:focus:border-[#0C447C] resize-none"
               />
+              {rejectError && <p role="alert" className="mt-1 text-xs text-red-500">{t('validation.reasonRequired')}</p>}
             </div>
             <div className="flex gap-3">
               <button
-                onClick={() => { setRejectTarget(null); setRejectReason('') }}
+                onClick={() => { setRejectTarget(null); setRejectReason(''); setRejectError(false) }}
                 className="flex-1 py-2 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-800 rounded-lg text-sm transition-colors"
               >
                 {t('actions.back')}
@@ -258,6 +285,21 @@ export function ExpensesList() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!approveTarget}
+        onClose={() => setApproveTarget(null)}
+        onConfirm={() => {
+          if (!approveTarget) return
+          approveMutation.mutate(approveTarget.id, { onSettled: () => setApproveTarget(null) })
+        }}
+        title={t('approve.title')}
+        message={approveTarget ? `${approveTarget.category?.name ?? '—'} — ${formatCurrency(approveTarget.amount, currency)}. ${t('approve.message')}` : ''}
+        confirmLabel={t('approve.submit')}
+        cancelLabel={t('actions.back')}
+        isLoading={approveMutation.isPending}
+        variant="warning"
+      />
 
       {/* Cancel Modal */}
       {cancelTarget && (

@@ -256,17 +256,22 @@ export function ItemGrid({ onAddItem, onOpenHeldOrders, heldOrdersCount = 0, asi
     return matchCat && matchSearch
   })
 
-  useEffect(() => {
+  // Reset paging when the filter changes (adjusting state during render, not in an effect).
+  const filterKey = `${search}|${activeCategory}`
+  const [pagingKey, setPagingKey] = useState(filterKey)
+  if (pagingKey !== filterKey) {
+    setPagingKey(filterKey)
     setVisibleCount(PAGE_SIZE)
-  }, [search, activeCategory])
+  }
 
   // Stable callback (reads the latest onAddItem from a ref) so memoized cards
   // are not re-rendered on every cart change. A 150ms per-item guard swallows
   // an accidental double-fire without blocking deliberate repeated taps.
-  const tRef = useRef(t)
-  tRef.current = t
+  const outOfStockMsg = t('outOfStockBlocked')
   const onAddItemRef = useRef(onAddItem)
-  onAddItemRef.current = onAddItem
+  useEffect(() => {
+    onAddItemRef.current = onAddItem
+  })
   const lastPickRef = useRef<{ id: string; at: number } | null>(null)
   const handleItemClick = useCallback((item: POSItem) => {
     const now = performance.now()
@@ -275,7 +280,7 @@ export function ItemGrid({ onAddItem, onOpenHeldOrders, heldOrdersCount = 0, asi
     lastPickRef.current = { id: item.id, at: now }
     // An item with no stock left cannot be sold from the till.
     if (item.out_of_stock) {
-      toast.error(tRef.current('outOfStockBlocked'), { id: 'pos-out-of-stock' })
+      toast.error(outOfStockMsg, { id: 'pos-out-of-stock' })
       return
     }
     if (item.has_variants) {
@@ -283,7 +288,7 @@ export function ItemGrid({ onAddItem, onOpenHeldOrders, heldOrdersCount = 0, asi
     } else {
       onAddItemRef.current(item)
     }
-  }, [])
+  }, [outOfStockMsg])
 
   // Barcode scanners behave like a keyboard that types the code then presses
   // Enter — a real person typing an item name into a name-search field
