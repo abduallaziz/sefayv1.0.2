@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from 'react'
 import dynamic from 'next/dynamic'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
+import { toast } from 'sonner'
 import Link from 'next/link'
 import {
   ArrowRight, Mail, Briefcase, Building2, Clock, CalendarDays, Wallet, Phone, MapPin,
@@ -14,7 +15,9 @@ import { useLeaveRequests, useEmployeeGeofences, useCreateEmployeeGeofence, useD
 import { usePayrollReport } from '@/features/reports/hooks/useReports'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { useBranches, useBranchById } from '@/shared/hooks/useBranches'
-import { formatNumber } from '@/lib/format'
+import { formatNumber, formatDate, formatDateTime } from '@/lib/format'
+import { SectionErrorBoundary } from '../components/SectionErrorBoundary'
+import { parseNumber, isValidLatitude, isValidLongitude, isPositiveNumber } from '../lib/validation'
 import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
 import { DateRangePicker } from '@/shared/ui/date-range-picker'
 import type { LateDeductionMode, User } from '../api/users.api'
@@ -107,6 +110,7 @@ export function EmployeeDetailPage({ userId }: { userId: string }) {
           {tabs.map((tItem) => (
             <button
               key={tItem.key}
+              type="button"
               onClick={() => setTab(tItem.key)}
               className={`flex items-center gap-1.5 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
                 tab === tItem.key
@@ -233,6 +237,7 @@ function OverviewTab({
 
 /* ── Job Information tab ── */
 function JobInfoTab({ t, user }: { t: ReturnType<typeof useTranslations>; user: User }) {
+  const locale = useLocale()
   const employmentTypeLabel = user.employment_type === 'full_time' ? t('employmentTypeFullTime')
     : user.employment_type === 'part_time' ? t('employmentTypePartTime')
     : t('notSet')
@@ -245,7 +250,7 @@ function JobInfoTab({ t, user }: { t: ReturnType<typeof useTranslations>; user: 
           <InfoItem icon={Briefcase} label={t('jobTitle')} value={user.job_title ?? t('notSet')} />
           <InfoItem icon={Clock} label={t('employmentType')} value={employmentTypeLabel} />
           <InfoItem icon={UserIcon} label={t('manager')} value={user.manager_name ?? t('notSet')} />
-          <InfoItem icon={CalendarDays} label={t('joinDate')} value={user.join_date ?? t('notSet')} />
+          <InfoItem icon={CalendarDays} label={t('joinDate')} value={user.join_date ? formatDate(`${user.join_date.substring(0, 10)}T12:00:00`, locale) : t('notSet')} />
           <InfoItem icon={MapPin} label={t('location')} value={user.city ?? t('notSet')} />
         </div>
       </div>
@@ -273,7 +278,7 @@ function BranchSection({ t, user }: { t: ReturnType<typeof useTranslations>; use
   const [branchId, setBranchId] = useState(currentBranchId)
 
   function save() {
-    updateEmployee({ id: user.id, data: { branch_id: branchId || null } })
+    updateEmployee({ id: user.id, data: { branch_id: branchId || null } }, { onSuccess: () => toast.success(t('saved')) })
   }
 
   return (
@@ -281,8 +286,9 @@ function BranchSection({ t, user }: { t: ReturnType<typeof useTranslations>; use
       <SectionTitle icon={Building2} title={t('branchAssignment')} />
       <div className="flex flex-wrap items-end gap-3 mt-3">
         <div className="min-w-[220px]">
-          <label className="text-xs text-slate-500 mb-1 block">{t('branch')}</label>
+          <label htmlFor="emp-branch" className="text-xs text-slate-500 mb-1 block">{t('branch')}</label>
           <select
+            id="emp-branch"
             value={branchId}
             onChange={(e) => setBranchId(e.target.value)}
             className="w-full bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white"
@@ -299,6 +305,7 @@ function BranchSection({ t, user }: { t: ReturnType<typeof useTranslations>; use
           </select>
         </div>
         <button
+          type="button"
           onClick={save}
           disabled={saving || branchId === currentBranchId}
           className="px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 text-white rounded-lg text-sm font-medium"
@@ -319,16 +326,30 @@ function PayrollSection({ t, user }: { t: ReturnType<typeof useTranslations>; us
   const [deductionMode, setDeductionMode] = useState<LateDeductionMode | ''>(user.late_deduction_mode ?? '')
   const [deductionValue, setDeductionValue] = useState(user.late_deduction_value?.toString() ?? '')
 
+  const [errors, setErrors] = useState<Record<string, string>>({})
+
   function save() {
-    updateEmployee({
-      id: user.id,
-      data: {
-        base_salary: baseSalary === '' ? null : Number(baseSalary),
-        grace_period_minutes: Number(gracePeriod) || 0,
-        late_deduction_mode: deductionMode === '' ? null : deductionMode,
-        late_deduction_value: deductionValue === '' ? null : Number(deductionValue),
+    const next: Record<string, string> = {}
+    const salary = baseSalary.trim() === '' ? null : parseNumber(baseSalary)
+    if (salary !== null && (!Number.isFinite(salary) || salary < 0)) next.baseSalary = t('errSalary')
+    const grace = gracePeriod.trim() === '' ? 0 : parseNumber(gracePeriod)
+    if (!Number.isInteger(grace) || grace < 0) next.gracePeriod = t('errGrace')
+    const dv = deductionValue.trim() === '' ? null : parseNumber(deductionValue)
+    if (dv !== null && (!Number.isFinite(dv) || dv < 0)) next.deductionValue = t('errDeductionValue')
+    setErrors(next)
+    if (Object.keys(next).length > 0) return
+    updateEmployee(
+      {
+        id: user.id,
+        data: {
+          base_salary: salary,
+          grace_period_minutes: grace,
+          late_deduction_mode: deductionMode === '' ? null : deductionMode,
+          late_deduction_value: deductionMode === '' ? null : dv,
+        },
       },
-    })
+      { onSuccess: () => toast.success(t('saved')) },
+    )
   }
 
   return (
@@ -336,26 +357,35 @@ function PayrollSection({ t, user }: { t: ReturnType<typeof useTranslations>; us
       <SectionTitle icon={Wallet} title={t('payrollPolicy')} />
       <div className="grid grid-cols-2 gap-3 mt-3">
         <div>
-          <label className="text-xs text-slate-500 mb-1 block">{t('baseSalary')}</label>
+          <label htmlFor="emp-salary" className="text-xs text-slate-500 mb-1 block">{t('baseSalary')}</label>
           <input
-            type="number"
+            id="emp-salary"
+            type="text"
+            inputMode="decimal"
+            aria-invalid={!!errors.baseSalary}
             value={baseSalary}
             onChange={(e) => setBaseSalary(e.target.value)}
             className="w-full bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white"
           />
+          {errors.baseSalary && <p role="alert" className="text-xs text-red-600 mt-1">{errors.baseSalary}</p>}
         </div>
         <div>
-          <label className="text-xs text-slate-500 mb-1 block">{t('gracePeriod')}</label>
+          <label htmlFor="emp-grace" className="text-xs text-slate-500 mb-1 block">{t('gracePeriod')}</label>
           <input
-            type="number"
+            id="emp-grace"
+            type="text"
+            inputMode="numeric"
+            aria-invalid={!!errors.gracePeriod}
             value={gracePeriod}
             onChange={(e) => setGracePeriod(e.target.value)}
             className="w-full bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white"
           />
+          {errors.gracePeriod && <p role="alert" className="text-xs text-red-600 mt-1">{errors.gracePeriod}</p>}
         </div>
         <div>
-          <label className="text-xs text-slate-500 mb-1 block">{t('deductionMode')}</label>
+          <label htmlFor="emp-dmode" className="text-xs text-slate-500 mb-1 block">{t('deductionMode')}</label>
           <select
+            id="emp-dmode"
             value={deductionMode}
             onChange={(e) => setDeductionMode(e.target.value as LateDeductionMode | '')}
             className="w-full bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white"
@@ -367,18 +397,22 @@ function PayrollSection({ t, user }: { t: ReturnType<typeof useTranslations>; us
           </select>
         </div>
         <div>
-          <label className="text-xs text-slate-500 mb-1 block">{t('deductionValue')}</label>
+          <label htmlFor="emp-dvalue" className="text-xs text-slate-500 mb-1 block">{t('deductionValue')}</label>
           <input
-            type="number"
-            step="0.01"
+            id="emp-dvalue"
+            type="text"
+            inputMode="decimal"
+            aria-invalid={!!errors.deductionValue}
             value={deductionValue}
             onChange={(e) => setDeductionValue(e.target.value)}
             disabled={!deductionMode}
             className="w-full bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white disabled:opacity-50"
           />
+          {errors.deductionValue && <p role="alert" className="text-xs text-red-600 mt-1">{errors.deductionValue}</p>}
         </div>
       </div>
       <button
+        type="button"
         onClick={save}
         disabled={saving}
         className="mt-3 px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 text-white rounded-lg text-sm font-medium"
@@ -421,7 +455,8 @@ function AttendanceTab({
 
   function copyLink() {
     if (!link) return
-    navigator.clipboard.writeText(link)
+    navigator.clipboard.writeText(link).catch(() => undefined)
+    toast.success(t('linkCopied'))
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -433,6 +468,7 @@ function AttendanceTab({
         <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">{t('attendanceDisabledTitle')}</h3>
         <p className="text-xs text-slate-400 mb-4">{t('attendanceDisabledDesc')}</p>
         <button
+          type="button"
           onClick={() => setConfirmType('enable')}
           className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#0C447C] hover:bg-[#0a3a6b] transition-colors"
         >
@@ -467,7 +503,7 @@ function AttendanceTab({
           <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-100 dark:border-gray-800">
             <LinkIcon className="w-3.5 h-3.5 text-slate-400 shrink-0" />
             <input readOnly value={link} className="flex-1 bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-xs text-slate-600 dark:text-slate-400" />
-            <button onClick={copyLink} className="p-2 rounded-lg border border-slate-200 dark:border-gray-700 text-slate-500 hover:text-[#0C447C] shrink-0">
+            <button type="button" onClick={copyLink} aria-label={copied ? t('linkCopied') : t('copyLink')} title={copied ? t('linkCopied') : t('copyLink')} className="p-2 rounded-lg border border-slate-200 dark:border-gray-700 text-slate-500 hover:text-[#0C447C] shrink-0">
               {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
             </button>
           </div>
@@ -476,12 +512,14 @@ function AttendanceTab({
 
       <div className="flex flex-wrap gap-2">
         <button
+          type="button"
           onClick={() => setConfirmType('regenerate')}
           className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium border border-slate-200 dark:border-gray-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-gray-800 transition-colors"
         >
           <RotateCcw className="w-3.5 h-3.5" /> {t('regenerateLink')}
         </button>
         <button
+          type="button"
           onClick={() => setConfirmType('reset')}
           className="px-4 py-2.5 rounded-xl text-sm font-medium border border-slate-200 dark:border-gray-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-gray-800 transition-colors"
         >
@@ -534,15 +572,25 @@ function GeofenceSection({ t, user }: { t: ReturnType<typeof useTranslations>; u
     )
   }
 
+  const [zoneErrors, setZoneErrors] = useState<Record<string, string>>({})
+  const latOk = isValidLatitude(zoneLat)
+  const lngOk = isValidLongitude(zoneLng)
+  const radiusOk = isPositiveNumber(zoneRadius)
+
   function addZone() {
-    if (!zoneLat || !zoneLng || !zoneRadius) return
+    const next: Record<string, string> = {}
+    if (!latOk) next.lat = t('errLat')
+    if (!lngOk) next.lng = t('errLng')
+    if (!radiusOk) next.radius = t('errRadius')
+    setZoneErrors(next)
+    if (Object.keys(next).length > 0) return
     createZone(
       {
         user_id: user.id,
         name: zoneName || undefined,
-        center_lat: Number(zoneLat),
-        center_lng: Number(zoneLng),
-        radius_m: Number(zoneRadius),
+        center_lat: parseNumber(zoneLat),
+        center_lng: parseNumber(zoneLng),
+        radius_m: parseNumber(zoneRadius),
         valid_from: zoneFrom || undefined,
         valid_to: zoneTo || undefined,
       },
@@ -575,7 +623,7 @@ function GeofenceSection({ t, user }: { t: ReturnType<typeof useTranslations>; u
                   <span className="text-slate-400"> · {z.valid_from ?? '…'} → {z.valid_to ?? '…'}</span>
                 )}
               </div>
-              <button onClick={() => deleteZone(z.id)} className="text-slate-400 hover:text-red-500">
+              <button type="button" onClick={() => deleteZone(z.id)} aria-label={t('deleteZone')} title={t('deleteZone')} className="text-slate-400 hover:text-red-500">
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -590,43 +638,67 @@ function GeofenceSection({ t, user }: { t: ReturnType<typeof useTranslations>; u
           onChange={(e) => setZoneName(e.target.value)}
           className="col-span-2 bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white"
         />
-        <input
-          placeholder={t('lat')}
-          value={zoneLat}
-          onChange={(e) => setZoneLat(e.target.value)}
-          className="bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white"
-        />
-        <input
-          placeholder={t('lng')}
-          value={zoneLng}
-          onChange={(e) => setZoneLng(e.target.value)}
-          className="bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white"
-        />
+        <div>
+          <input
+            placeholder={t('lat')}
+            aria-label={t('lat')}
+            inputMode="decimal"
+            aria-invalid={!!zoneErrors.lat}
+            value={zoneLat}
+            onChange={(e) => setZoneLat(e.target.value)}
+            className="w-full bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white"
+          />
+          {zoneErrors.lat && <p role="alert" className="text-xs text-red-600 mt-1">{zoneErrors.lat}</p>}
+        </div>
+        <div>
+          <input
+            placeholder={t('lng')}
+            aria-label={t('lng')}
+            inputMode="decimal"
+            aria-invalid={!!zoneErrors.lng}
+            value={zoneLng}
+            onChange={(e) => setZoneLng(e.target.value)}
+            className="w-full bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white"
+          />
+          {zoneErrors.lng && <p role="alert" className="text-xs text-red-600 mt-1">{zoneErrors.lng}</p>}
+        </div>
         <button
+          type="button"
           onClick={useMyLocation}
           disabled={locating}
           className="col-span-2 text-xs px-3 py-2 rounded-lg border border-slate-200 dark:border-gray-700 text-[#0C447C] dark:text-[#5B9BD5] hover:bg-slate-50 dark:hover:bg-gray-800"
         >
           {locating ? t('locating') : t('useMyLocation')}
         </button>
-        <input
-          type="number"
-          placeholder={t('radiusM')}
-          value={zoneRadius}
-          onChange={(e) => setZoneRadius(e.target.value)}
-          className="bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white"
-        />
+        <div>
+          <input
+            placeholder={t('radiusM')}
+            aria-label={t('radiusM')}
+            inputMode="decimal"
+            aria-invalid={!!zoneErrors.radius}
+            value={zoneRadius}
+            onChange={(e) => setZoneRadius(e.target.value)}
+            className="w-full bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white"
+          />
+          {zoneErrors.radius && <p role="alert" className="text-xs text-red-600 mt-1">{zoneErrors.radius}</p>}
+        </div>
         <div className="col-span-2">
           <p className="text-xs text-slate-400 mb-1">{t('pickOnMap')}</p>
-          <LocationMapPicker
-            lat={zoneLat ? Number(zoneLat) : null}
-            lng={zoneLng ? Number(zoneLng) : null}
-            radiusM={zoneRadius ? Number(zoneRadius) : null}
-            onPick={(lat, lng) => {
-              setZoneLat(lat.toFixed(6))
-              setZoneLng(lng.toFixed(6))
-            }}
-          />
+          <SectionErrorBoundary
+            resetKey={`${zoneLat}|${zoneLng}|${zoneRadius}`}
+            fallback={<p className="text-xs text-amber-600 py-3">{t('mapUnavailable')}</p>}
+          >
+            <LocationMapPicker
+              lat={latOk ? parseNumber(zoneLat) : null}
+              lng={lngOk ? parseNumber(zoneLng) : null}
+              radiusM={radiusOk ? parseNumber(zoneRadius) : null}
+              onPick={(lat, lng) => {
+                setZoneLat(lat.toFixed(6))
+                setZoneLng(lng.toFixed(6))
+                setZoneErrors({})
+              }}
+            />
+          </SectionErrorBoundary>
         </div>
         <div className="col-span-2">
           <DateRangePicker
@@ -639,8 +711,9 @@ function GeofenceSection({ t, user }: { t: ReturnType<typeof useTranslations>; u
         </div>
       </div>
       <button
+        type="button"
         onClick={addZone}
-        disabled={creatingZone || !zoneLat || !zoneLng}
+        disabled={creatingZone}
         className="mt-3 px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 text-white rounded-lg text-sm font-medium"
       >
         {creatingZone ? t('saving') : t('addZone')}
@@ -651,7 +724,16 @@ function GeofenceSection({ t, user }: { t: ReturnType<typeof useTranslations>; u
 
 /* ── History tab ── */
 function HistoryTab({ t, userId }: { t: ReturnType<typeof useTranslations>; userId: string }) {
-  const { data: history = [], isLoading } = useEmployeeHistory(userId)
+  const locale = useLocale()
+  const { data: rawHistory = [], isLoading } = useEmployeeHistory(userId)
+  const label = (action: string) => {
+    const key = action.replace(/\./g, '_')
+    return t.has(`historyActions.${key}`) ? t(`historyActions.${key}`) : action
+  }
+  // employee.create + employee.created are the same event logged twice: show it once.
+  const history = rawHistory.filter((e, i, arr) =>
+    !(i > 0 && label(arr[i - 1].action) === label(e.action)
+      && Math.abs(new Date(arr[i - 1].created_at).getTime() - new Date(e.created_at).getTime()) < 5000))
 
   if (isLoading) {
     return <div className="h-24 bg-slate-100 dark:bg-gray-800 rounded-xl animate-pulse" />
@@ -667,8 +749,8 @@ function HistoryTab({ t, userId }: { t: ReturnType<typeof useTranslations>; user
         <div key={entry.id} className="flex items-start gap-3 border border-slate-100 dark:border-gray-800 rounded-xl p-3">
           <HistoryIcon className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
           <div className="min-w-0 flex-1">
-            <p className="text-sm text-slate-700 dark:text-slate-300 font-medium">{entry.action}</p>
-            <p className="text-xs text-slate-400">{new Date(entry.created_at).toLocaleString('en-US')}</p>
+            <p className="text-sm text-slate-700 dark:text-slate-300 font-medium">{label(entry.action)}</p>
+            <p className="text-xs text-slate-400">{formatDateTime(entry.created_at, locale)}</p>
           </div>
         </div>
       ))}

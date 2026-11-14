@@ -85,5 +85,28 @@
   "locating": "Locating...",
   "radiusM": "Radius (meters)",
   "pickOnMap": "Or pick the location by clicking the map",
-  "addZone": "Add zone"
+  "addZone": "Add zone",
+  "saved": "Saved",
+  "copyLink": "Copy link",
+  "linkCopied": "Link copied",
+  "deleteZone": "Delete zone",
+  "errSalary": "Base salary must be a number of at least 0",
+  "errGrace": "Grace period must be a whole number of at least 0",
+  "errDeductionValue": "Deduction value must be a number of at least 0",
+  "errLat": "Latitude must be a number between -90 and 90",
+  "errLng": "Longitude must be a number between -180 and 180",
+  "errRadius": "Radius must be a number greater than 0",
+  "mapUnavailable": "The map could not be shown, check the coordinates",
+  "historyActions": {
+    "employee_created": "Employee created",
+    "employee_create": "Employee created",
+    "employee_updated": "Employee updated",
+    "employee_linked": "Employee linked to an account",
+    "user_create": "User created",
+    "user_update": "User updated",
+    "user_role_change": "Role changed",
+    "user_role_added": "Role added",
+    "user_role_removed": "Role removed",
+    "user_delete": "User deleted"
+  }
 }
