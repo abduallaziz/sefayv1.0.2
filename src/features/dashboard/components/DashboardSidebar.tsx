@@ -29,7 +29,7 @@ interface SidebarProps {
   onClose: () => void
 }
 
-interface NavItem {
+export interface NavItem {
   key: NavKey
   href: string
   icon: React.ElementType
@@ -39,7 +39,7 @@ interface NavItem {
 
 const INVENTORY_ROLES = ['superadmin', 'owner', 'manager', 'inventory_clerk']
 
-const ALL_NAV_ITEMS: NavItem[] = [
+export const ALL_NAV_ITEMS: NavItem[] = [
   { key: 'dashboard', href: '/dashboard',           icon: LayoutDashboard, section: 'general' },
   { key: 'pos',       href: '/dashboard/pos',        icon: ShoppingCart,    section: 'sales' },
   { key: 'orders',    href: '/dashboard/orders',     icon: Receipt,         section: 'sales' },
@@ -67,7 +67,7 @@ const ALL_NAV_ITEMS: NavItem[] = [
 
 // Children of the single collapsible "Inventory" sidebar group. Kept out of
 // ALL_NAV_ITEMS so they never render as separate top-level rows.
-const INVENTORY_GROUP_ITEMS: NavItem[] = [
+export const INVENTORY_GROUP_ITEMS: NavItem[] = [
   { key: 'inventoryDashboard', href: '/dashboard/inventory',         icon: LayoutDashboard,   section: 'inventory-group' },
   { key: 'warehouses',         href: '/dashboard/warehouses',        icon: Warehouse,         section: 'inventory-group' },
   { key: 'locations',          href: '/dashboard/locations',         icon: MapPin,            section: 'inventory-group' },
