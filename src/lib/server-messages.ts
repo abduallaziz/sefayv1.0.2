@@ -56,6 +56,16 @@ const EXACT: Record<string, string> = {
   'Archived templates cannot be edited': 'لا يمكن تعديل قالب مؤرشف',
 };
 
+const FIELDS: Record<string, string> = {
+  capacity: 'السعة', party_size: 'عدد الأشخاص', customer_name: 'اسم العميل', customer_phone: 'جوال العميل',
+  opening_cash: 'رصيد الافتتاح', closing_cash: 'النقد المعدود', discount_value: 'قيمة الخصم', min_order_amount: 'الحد الأدنى للطلب',
+  gps_radius_meters: 'نصف قطر الموقع', latitude: 'خط العرض', longitude: 'خط الطول', price: 'السعر', sku: 'رمز الصنف',
+  name: 'الاسم', phone: 'الجوال', email: 'البريد الإلكتروني', amount: 'المبلغ', plate: 'رقم اللوحة', notes: 'الملاحظات',
+  quantity: 'الكمية', reservation_time: 'وقت الحجز', tax_rate: 'نسبة الضريبة', code: 'الكود', title: 'العنوان',
+  address: 'العنوان', full_name: 'الاسم الكامل', value: 'القيمة', threshold: 'الحد', points: 'النقاط',
+};
+const f = (field: string) => FIELDS[field] ?? field;
+
 const RULES: Array<[RegExp, (m: RegExpMatchArray) => string]> = [
   [
     /^(.+?) not found$/i,
@@ -65,14 +75,16 @@ const RULES: Array<[RegExp, (m: RegExpMatchArray) => string]> = [
     },
   ],
   [/^Table is not available \(status: (.+)\)$/, () => 'الطاولة غير متاحة'],
-  [/^(\w+) should not be empty$/, (m) => `الحقل ${m[1]} مطلوب`],
+  [/^(\w+) should not be empty$/, (m) => `الحقل ${f(m[1])} مطلوب`],
   [/^(\w+) must be an email$|^(\w+) must be a valid email$/, () => 'البريد الإلكتروني غير صحيح'],
-  [/^(\w+) must be a (string|number|boolean|UUID|number string)$/i, (m) => `قيمة الحقل ${m[1]} غير صحيحة`],
-  [/^(\w+) must be an? (integer|array|object|date string|enum value).*$/i, (m) => `قيمة الحقل ${m[1]} غير صحيحة`],
-  [/^(\w+) must not be (greater|less) than (.+)$/, (m) => `قيمة الحقل ${m[1]} ${m[2] === 'greater' ? 'أكبر' : 'أقل'} من المسموح (${m[3]})`],
-  [/^(\w+) must be (longer|shorter) than or equal to (\d+) characters$/, (m) => `طول الحقل ${m[1]} ${m[2] === 'longer' ? 'أقل' : 'أكثر'} من المسموح (${m[3]})`],
-  [/^(\w+) must be one of the following values: .+$/, (m) => `قيمة الحقل ${m[1]} غير مسموحة`],
-  [/^(\w+) must be a positive number$/, (m) => `الحقل ${m[1]} يجب أن يكون رقمًا موجبًا`],
+  [/^(\w+) must be a (string|number|boolean|UUID|number string)$/i, (m) => `قيمة الحقل ${f(m[1])} غير صحيحة`],
+  [/^(\w+) must be an? (integer|array|object|date string|enum value).*$/i, (m) => `قيمة الحقل ${f(m[1])} غير صحيحة`],
+  [/^(\w+) must not be (greater|less) than (.+)$/, (m) => `قيمة الحقل ${f(m[1])} ${m[2] === 'greater' ? 'أكبر' : 'أقل'} من المسموح (${m[3]})`],
+  [/^(\w+) must be (longer|shorter) than or equal to (\d+) characters$/, (m) => `طول الحقل ${f(m[1])} ${m[2] === 'longer' ? 'أقل' : 'أكثر'} من المسموح (${m[3]})`],
+  [/^(\w+) must be one of the following values: .+$/, (m) => `قيمة الحقل ${f(m[1])} غير مسموحة`],
+  [/^(\w+) must be a positive number$/, (m) => `الحقل ${f(m[1])} يجب أن يكون رقمًا موجبًا`],
+  [/^(\w+) must not be less than (.+)$/, (m) => `قيمة الحقل ${f(m[1])} يجب ألا تقل عن ${m[2]}`],
+  [/^(\w+) must not be greater than or equal to (.+)$/, (m) => `قيمة الحقل ${f(m[1])} خارج المدى المسموح`],
   [/^(.+) already exists$/i, () => 'السجل موجود مسبقًا'],
   [/^(.+) is too long( \(max (\d+)\))?$/, () => 'النص أطول من المسموح'],
 ];

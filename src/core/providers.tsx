@@ -1,9 +1,10 @@
 'use client'
 
-import { QueryClient, QueryClientProvider, QueryCache } from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider, QueryCache, MutationCache } from '@tanstack/react-query'
 import { useState } from 'react'
-import { Toaster } from 'sonner'
+import { Toaster, toast } from 'sonner'
 import { ApiError } from '@/lib/api'
+import { localizeServerMessage } from '@/lib/server-messages'
 
 /** A failure worth retrying: no answer from the server (fetch rejects with a
  *  TypeError), the rate limit, or a 5xx. Everything else is a real answer. */
@@ -22,6 +23,18 @@ export function Providers({ children }: { children: React.ReactNode }) {
           .map((part) => (typeof part === 'object' && part !== null ? JSON.stringify(part) : String(part)))
           .join('/')
         console.error(`[Query Error] ${key}:`, error)
+      },
+    }),
+    // No failed write may be silent: forms that show the error themselves still get it, and the
+    // many that don't (silent 400/500s found in the UI audit) now show a toast. The message id is
+    // the text itself, so the same error shown twice (inline handler + here) appears once.
+    mutationCache: new MutationCache({
+      onError: (error) => {
+        if (error instanceof ApiError && error.status === 401) return
+        const message = error instanceof ApiError
+          ? error.message
+          : error instanceof TypeError ? localizeServerMessage('Service temporarily unavailable') : null
+        if (message) toast.error(message, { id: message })
       },
     }),
     defaultOptions: {

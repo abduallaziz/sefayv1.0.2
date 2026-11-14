@@ -62,7 +62,23 @@ export async function refreshSession(): Promise<{ access_token: string; realtime
   return refreshPromise;
 }
 
+// A double-click (or a retry while the first request is still running) must not run a write
+// twice: while an identical write (same method + path + body) is in flight, later callers get the
+// SAME promise instead of firing a second request.
+const inFlightWrites = new Map<string, Promise<unknown>>();
+
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  const method = options.method ?? 'GET';
+  if (method === 'GET') return doRequest<T>(path, options);
+  const key = `${method} ${path} ${options.body === undefined ? '' : JSON.stringify(options.body)}`;
+  const running = inFlightWrites.get(key);
+  if (running) return running as Promise<T>;
+  const promise = doRequest<T>(path, options).finally(() => inFlightWrites.delete(key));
+  inFlightWrites.set(key, promise);
+  return promise;
+}
+
+async function doRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { method = 'GET', body, headers = {} } = options;
 
   const { useAuthStore } = await import('@/core/auth/stores/auth.store');
@@ -99,7 +115,7 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     }
     const { setAccessToken } = useAuthStore.getState();
     setAccessToken(refreshed.access_token, refreshed.realtime_token);
-    return request<T>(path, options);
+    return doRequest<T>(path, options);
   }
 
   if (!res.ok) {
