@@ -182,7 +182,8 @@ export function DashboardOverview() {
   }, [user, router, locale])
 
   // Every figure follows the branch picked in the header (not the whole business).
-  const { currentBranchId, availableBranches, setCurrentBranch } = useBranchContext()
+  const { currentBranchId, currentBranch, availableBranches, setCurrentBranch } = useBranchContext()
+  const currentBranchName = currentBranch?.name
   const branchId = currentBranchId ?? undefined
   const rangeQuery = { period: 'custom' as const, from: range.from, to: range.to, branch_id: branchId }
   // the cross-branch comparison is deliberately business-wide
@@ -282,6 +283,7 @@ export function DashboardOverview() {
     retry: false,
   })
   const branchRows = [...(branchCmp?.branches ?? [])].sort((a, b) => b.revenue - a.revenue)
+  const unassignedRow = branchRows.find((b) => !b.branch_id && b.order_count > 0)
   const maxBranchRevenue = branchRows.reduce((m, b) => Math.max(m, b.revenue), 0)
 
   const { data: recentActivity, error: recentActivityError, isLoading: recentActivityLoading } = useQuery({
@@ -416,6 +418,13 @@ export function DashboardOverview() {
             )}
             {rangeLabel}
           </p>
+          {(currentBranchName || unassignedRow) && (
+            <p className="mt-1 text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+              {currentBranchName && t('ov.scopeBranch', { branch: currentBranchName })}
+              {currentBranchName && unassignedRow && ' · '}
+              {unassignedRow && t('ov.scopeUnassigned', { count: unassignedRow.order_count, amount: formatNumber(unassignedRow.revenue, { locale, decimals: 2 }), currency })}
+            </p>
+          )}
         </div>
         <DateRangePicker value={range} onChange={(r) => r.from && r.to && setRange(r)} />
       </div>

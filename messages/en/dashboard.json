@@ -50,6 +50,8 @@
     "branchesOverview": "Branches Overview",
     "soonNeedsBranches": "Soon — needs a real branch system",
     "branchOrders": "{count} orders",
+    "scopeBranch": "Figures above are for branch: {branch}",
+    "scopeUnassigned": "Orders without a branch are not included: {count} orders ({amount} {currency}) - shown in the branches summary.",
     "currentBranch": "Current",
     "last7Days": "Last 7 days",
     "thisMonth": "This month",

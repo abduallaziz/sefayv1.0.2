@@ -50,6 +50,8 @@
     "branchesOverview": "ملخص الفروع",
     "soonNeedsBranches": "قريبًا — يحتاج نظام فروع حقيقي",
     "branchOrders": "{count} طلب",
+    "scopeBranch": "الأرقام أعلاه تخص الفرع: {branch}",
+    "scopeUnassigned": "طلبات بلا فرع غير مشمولة: {count} طلب ({amount} {currency}) - تظهر في ملخص الفروع.",
     "currentBranch": "الفرع الحالي",
     "last7Days": "آخر 7 أيام",
     "thisMonth": "هذا الشهر",
