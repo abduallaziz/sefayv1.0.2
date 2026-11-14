@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/shared/ui/dialog'
@@ -19,7 +19,12 @@ interface Props {
 }
 
 /** Reusable "publish to branches" dialog: choose target branches + mode, preview counts, see the result. */
-export function PublishToBranchesDialog({ open, onOpenChange, entityType, sourceIds }: Props) {
+export function PublishToBranchesDialog(props: Props) {
+  // Mounted only while open so every opening starts from a clean state.
+  return props.open ? <PublishToBranchesDialogInner {...props} /> : null
+}
+
+function PublishToBranchesDialogInner({ open, onOpenChange, entityType, sourceIds }: Props) {
   const t = useTranslations('branches')
   const { availableBranches, currentBranchId } = useBranchContext()
   const publish = usePublishToBranches()
@@ -30,14 +35,6 @@ export function PublishToBranchesDialog({ open, onOpenChange, entityType, source
   const [selected, setSelected] = useState<string[]>([])
   const [mode, setMode] = useState<PublishMode>('copy_new')
   const [result, setResult] = useState<PublishResult | null>(null)
-
-  useEffect(() => {
-    if (open) {
-      setSelected([])
-      setMode('copy_new')
-      setResult(null)
-    }
-  }, [open])
 
   const allSelected = targets.length > 0 && selected.length === targets.length
   const toggle = (id: string) =>
