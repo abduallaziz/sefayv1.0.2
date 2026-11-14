@@ -19,16 +19,60 @@ export interface BranchRecord {
   geofence_lat: number | null
   geofence_lng: number | null
   geofence_radius_m: number | null
+  short_code?: string | null
+  city?: string | null
+  phone?: string | null
+  email?: string | null
+  tax_number?: string | null
+  commercial_registration?: string | null
+  invoice_footer?: string | null
+  printer_size?: '58mm' | '80mm' | null
+  working_hours?: WorkingHours | null
 }
 
-export interface CreateBranchDto {
+export type WeekdayKey = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun'
+export interface DayHours {
+  open?: string
+  close?: string
+  closed: boolean
+}
+export type WorkingHours = Partial<Record<WeekdayKey, DayHours>>
+
+/** Optional profile fields shared by create (wizard) and update; null clears on update. */
+export interface BranchProfileFields {
+  short_code?: string | null
+  city?: string | null
+  phone?: string | null
+  email?: string | null
+  tax_number?: string | null
+  commercial_registration?: string | null
+  invoice_footer?: string | null
+  printer_size?: '58mm' | '80mm' | null
+  working_hours?: WorkingHours | null
+  geofence_lat?: number | null
+  geofence_lng?: number | null
+  geofence_radius_m?: number | null
+}
+
+export interface WizardCopyTypeResult {
+  entity_type: string
+  ok: boolean
+  created: number
+  skipped: number
+  failed: number
+  error?: string
+}
+
+export interface CreateBranchDto extends BranchProfileFields {
   name: string
   address?: string
+  warehouse_name?: string
+  wizard_copy?: { source_branch_id: string; entity_types: string[] }
   /** Branch isolation only: copy the main branch's setup (categories, expense lookups, shift patterns...) */
   copy_setup_from_main?: boolean
 }
 
-export interface UpdateBranchDto {
+export interface UpdateBranchDto extends BranchProfileFields {
   name?: string
   address?: string
   is_active?: boolean
@@ -82,7 +126,8 @@ export const branchesApi = {
   setMain: (id: string) => apiClient.patch<BranchRecord>(`/branches/${id}/main`, {}),
   getAll: () => apiClient.get<BranchRecord[]>('/branches'),
   getOne: (id: string) => apiClient.get<BranchRecord>(`/branches/${id}`),
-  create: (dto: CreateBranchDto) => apiClient.post<BranchRecord>('/branches', dto),
+  create: (dto: CreateBranchDto) =>
+    apiClient.post<BranchRecord & { wizard_copy?: WizardCopyTypeResult[] }>('/branches', dto),
   update: (id: string, dto: UpdateBranchDto) => apiClient.patch<BranchRecord>(`/branches/${id}`, dto),
   remove: (id: string) => apiClient.delete<{ success: boolean }>(`/branches/${id}`),
 }

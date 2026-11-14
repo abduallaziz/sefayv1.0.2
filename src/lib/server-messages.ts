@@ -257,3 +257,14 @@ Object.assign(EXACT, {
   'Table name must be at most 50 characters': 'اسم الطاولة يجب ألا يزيد عن 50 حرفًا',
   'text must not be empty': 'نص الملاحظة لا يمكن أن يكون فارغًا',
 });
+
+Object.assign(EXACT, {
+  'A branch with this short code already exists': 'يوجد فرع بنفس الرمز المختصر',
+  'short_code must be 2-6 letters or digits (A-Z, 0-9)': 'الرمز المختصر من 2 إلى 6 أحرف إنجليزية أو أرقام',
+  'tax_number must be exactly 15 digits': 'الرقم الضريبي يجب أن يكون 15 رقمًا',
+  'commercial_registration must be 4-20 digits': 'السجل التجاري يجب أن يكون من 4 إلى 20 رقمًا',
+  'email must be an email': 'البريد الإلكتروني غير صحيح',
+  'Only the owner / central users can copy data from another branch.': 'نسخ البيانات من فرع آخر متاح للمالك والمستخدمين المركزيين فقط',
+  'Branch isolation must be enabled to copy data from another branch.': 'يجب تفعيل عزل الفروع لنسخ البيانات من فرع آخر',
+  'The source branch must be active.': 'الفرع المصدر يجب أن يكون نشطًا',
+});

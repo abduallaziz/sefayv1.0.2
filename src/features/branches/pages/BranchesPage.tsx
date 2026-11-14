@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { toast } from 'sonner'
 import Link from 'next/link'
-import { Plus, Search, Pencil, Pause, Play, Trash2, Building2, AlertTriangle, MapPin, CalendarDays, Warehouse, Filter, ShieldAlert, ArrowUpCircle, Loader2 } from 'lucide-react'
+import { Plus, Search, Pencil, Pause, Play, Trash2, Building2, AlertTriangle, MapPin, Phone, Clock, CalendarDays, Warehouse, Filter, ShieldAlert, ArrowUpCircle, Loader2 } from 'lucide-react'
 import { Card, CardContent } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
@@ -15,12 +15,28 @@ import { EmptyState } from '@/shared/ui/empty-state'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetBody, SheetFooter } from '@/shared/ui/sheet'
 import { usePermission } from '@/core/permissions/hooks/usePermission'
 import { ApiError } from '@/lib/api'
+import { Badge } from '@/shared/ui/badge'
 import { useUsage, useSubscription } from '@/features/settings/hooks/useSettings'
 import { useWarehouses } from '@/features/warehouses/hooks/useWarehouses'
-import { useBranchesAdmin, useCreateBranch, useUpdateBranch, useDeleteBranch } from '../hooks/useBranchesAdmin'
+import { useBranchesAdmin, useUpdateBranch, useDeleteBranch } from '../hooks/useBranchesAdmin'
 import { BranchRecord } from '../api/branches.api'
 import { BranchIsolationCard } from '../components/BranchIsolationCard'
 import { useBranchIsolation } from '../hooks/useBranchesAdmin'
+import { useBranchContext } from '@/core/branch/useBranchContext'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/shared/ui/tabs'
+import { BranchWizard } from '../components/BranchWizard'
+import { HoursStep, IdentityStep, TaxStep } from '../components/BranchProfileSteps'
+import {
+  BranchDraft,
+  FieldErrors,
+  buildProfile,
+  draftFromBranch,
+  hasErrors,
+  validateHours,
+  validateIdentity,
+  validateTax,
+  WEEKDAYS,
+} from '../lib/branch-draft'
 
 // Statuses BillingService.checkBranchLimit() treats as a valid, capacity-bearing
 // subscription (billing.types.ts SubscriptionStatus). Kept in sync manually —
@@ -36,6 +52,15 @@ const PAGE_SIZE = 10
 // list/create/edit/activate/deactivate, existing branches.view/manage
 // permissions, existing plan-limit enforcement on create. No backend
 // change, no new permission, no schema change accompanies this page.
+const JS_DAY: Record<number, (typeof WEEKDAYS)[number]> = { 0: 'sun', 1: 'mon', 2: 'tue', 3: 'wed', 4: 'thu', 5: 'fri', 6: 'sat' }
+
+/** "09:00 - 22:00" or "closed" for today's weekday of the branch's informational working hours. */
+function todayHours(b: BranchRecord, t: ReturnType<typeof useTranslations>): string {
+  const h = b.working_hours?.[JS_DAY[new Date().getDay()]]
+  const text = !h ? t('wizard.notSet') : h.closed ? t('wizard.closed') : `${h.open} - ${h.close}`
+  return t('wizard.hoursToday', { hours: text })
+}
+
 export function BranchesPage() {
   const t = useTranslations('branches')
   const locale = useLocale()
@@ -46,11 +71,9 @@ export function BranchesPage() {
   const usage = useUsage()
   const subscription = useSubscription()
   const warehouses = useWarehouses()
-  const createBranch = useCreateBranch()
   const updateBranch = useUpdateBranch()
   const deleteBranch = useDeleteBranch()
   const [toDelete, setToDelete] = useState<BranchRecord | null>(null)
-  const [nameError, setNameError] = useState<string | null>(null)
 
   const warehouseNameById = useMemo(() => {
     const map = new Map<string, string>()
@@ -62,60 +85,48 @@ export function BranchesPage() {
   const [statusFilter, setStatusFilter] = useState(ALL)
   const [page, setPage] = useState(1)
 
+  const [wizardOpen, setWizardOpen] = useState(false)
   const [sheetOpen, setSheetOpen] = useState(false)
   const [editing, setEditing] = useState<BranchRecord | null>(null)
-  const [name, setName] = useState('')
-  const [address, setAddress] = useState('')
-  const [copySetup, setCopySetup] = useState(false)
+  const [draft, setDraft] = useState<BranchDraft | null>(null)
+  const [showErrors, setShowErrors] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
   const isolation = useBranchIsolation()
-  const showCopySetup = !editing && isolation.data?.enabled === true
+  const { isCentral } = useBranchContext()
 
-  const openCreate = () => {
-    setEditing(null)
-    setName('')
-    setAddress('')
-    setCopySetup(false)
-    setNameError(null)
-    setSheetOpen(true)
-  }
+  const patchDraft = (p: Partial<BranchDraft>) => setDraft((d) => (d ? { ...d, ...p } : d))
+  const editErrors: FieldErrors =
+    showErrors && draft && editing
+      ? { ...validateIdentity(draft, branches.data ?? [], editing.id), ...validateTax(draft), ...validateHours(draft) }
+      : {}
+
+  const openCreate = () => setWizardOpen(true)
   const openEdit = (b: BranchRecord) => {
     setEditing(b)
-    setName(b.name)
-    setAddress(b.address ?? '')
-    setNameError(null)
+    setDraft(draftFromBranch(b))
+    setShowErrors(false)
+    setSaveError(null)
     setSheetOpen(true)
   }
 
   const handleSave = () => {
-    if (createBranch.isPending || updateBranch.isPending) return
-    const trimmed = name.trim()
-    if (!trimmed) {
-      setNameError(t('nameRequired'))
+    if (updateBranch.isPending || !editing || !draft) return
+    const errs = { ...validateIdentity(draft, branches.data ?? [], editing.id), ...validateTax(draft), ...validateHours(draft) }
+    if (hasErrors(errs)) {
+      setShowErrors(true)
       return
     }
-    if (trimmed.length > 100) {
-      setNameError(t('nameTooLong'))
-      return
-    }
-    const lower = trimmed.toLowerCase()
-    if ((branches.data ?? []).some((b) => b.id !== editing?.id && b.name.trim().toLowerCase() === lower)) {
-      setNameError(t('nameDuplicate'))
-      return
-    }
-    setNameError(null)
-    const dto = { name: trimmed, address: address.trim() || undefined }
-    const createDto = showCopySetup && copySetup ? { ...dto, copy_setup_from_main: true } : dto
-    const opts = {
-      onSuccess: () => {
-        setSheetOpen(false)
-        toast.success(t('saved'))
+    setSaveError(null)
+    updateBranch.mutate(
+      { id: editing.id, dto: { name: draft.name.trim(), address: draft.address.trim() || undefined, ...buildProfile(draft, true) } },
+      {
+        onSuccess: () => {
+          setSheetOpen(false)
+          toast.success(t('saved'))
+        },
+        onError: (err: unknown) => setSaveError(err instanceof ApiError ? err.message : t('saveFailed')),
       },
-      onError: (err: unknown) => {
-        setNameError(err instanceof ApiError ? err.message : t('saveFailed'))
-      },
-    }
-    if (editing) updateBranch.mutate({ id: editing.id, dto }, opts)
-    else createBranch.mutate(createDto, opts)
+    )
   }
 
   const confirmDelete = () => {
@@ -143,7 +154,7 @@ export function BranchesPage() {
     let rows = branches.data ?? []
     if (search.trim()) {
       const q = search.trim().toLowerCase()
-      rows = rows.filter((b) => b.name.toLowerCase().includes(q) || (b.address ?? '').toLowerCase().includes(q))
+      rows = rows.filter((b) => b.name.toLowerCase().includes(q) || (b.address ?? '').toLowerCase().includes(q) || (b.city ?? '').toLowerCase().includes(q) || (b.short_code ?? '').toLowerCase().includes(q))
     }
     if (statusFilter !== ALL) {
       rows = rows.filter((b) => (statusFilter === 'active' ? b.is_active : !b.is_active))
@@ -317,6 +328,11 @@ export function BranchesPage() {
                     <p className="font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary truncate pt-2">
                       {b.name}
                     </p>
+                    {b.short_code && (
+                      <Badge variant="muted" className="mt-2 font-mono tabular-nums" dir="ltr">
+                        {b.short_code}
+                      </Badge>
+                    )}
                   </div>
                 </div>
 
@@ -341,9 +357,26 @@ export function BranchesPage() {
                   <MapPin className="h-4 w-4 mt-0.5 shrink-0 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary" />
                   <div className="min-w-0">
                     <p className="text-[11px] text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('columnAddress')}</p>
-                    <span className="line-clamp-2">{b.address || t('noAddress')}</span>
+                    <span className="line-clamp-2">{[b.city, b.address].filter(Boolean).join(' - ') || t('noAddress')}</span>
                   </div>
                 </div>
+
+                {(b.phone || b.working_hours) && (
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">
+                    {b.phone && (
+                      <span className="inline-flex items-center gap-1.5" dir="ltr">
+                        <Phone className="h-3.5 w-3.5 text-posCloud-text-tertiary" aria-hidden="true" />
+                        {b.phone}
+                      </span>
+                    )}
+                    {b.working_hours && (
+                      <span className="inline-flex items-center gap-1.5">
+                        <Clock className="h-3.5 w-3.5 text-posCloud-text-tertiary" aria-hidden="true" />
+                        {todayHours(b, t)}
+                      </span>
+                    )}
+                  </div>
+                )}
 
                 {canManage && (
                   <div className="flex items-center gap-2 pt-2 border-t border-posCloud-border dark:border-posCloudDark-border">
@@ -406,69 +439,63 @@ export function BranchesPage() {
         </div>
       )}
 
+      <BranchWizard
+        open={wizardOpen}
+        onOpenChange={setWizardOpen}
+        branches={branches.data ?? []}
+        isolationEnabled={isolation.data?.enabled === true}
+        isCentral={isCentral}
+      />
+
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen} modal={false}>
-        <SheetContent side="end">
+        <SheetContent side="end" className="w-full sm:max-w-xl">
           <SheetHeader>
-            <SheetTitle>{editing ? t('editTitle') : t('addTitle')}</SheetTitle>
+            <SheetTitle>{t('editTitle')}</SheetTitle>
           </SheetHeader>
           <SheetBody className="space-y-4">
-            <fieldset disabled={createBranch.isPending} className="space-y-4 border-0 p-0 m-0 min-w-0">
-            <div>
-              <label className="block text-xs font-medium mb-1.5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-                {t('name')}
-              </label>
-              <Input
-                value={name}
-                maxLength={100}
-                aria-invalid={!!nameError}
-                onChange={(e) => {
-                  setName(e.target.value)
-                  if (nameError) setNameError(null)
-                }}
-                placeholder={t('namePlaceholder')}
-              />
-              {nameError && (
-                <p role="alert" className="mt-1.5 text-xs text-posCloud-danger">
-                  {nameError}
-                </p>
-              )}
-            </div>
-            <div>
-              <label className="block text-xs font-medium mb-1.5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-                {t('address')}
-              </label>
-              <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder={t('addressPlaceholder')} />
-            </div>
-            {showCopySetup && (
-              <label className="flex items-start gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  className="mt-1"
-                  aria-label={t('copySetupFromMain')}
-                  checked={copySetup}
-                  onChange={(e) => setCopySetup(e.target.checked)}
-                />
-                <span>
-                  {t('copySetupFromMain')}
-                  <span className="block text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-                    {t('copySetupHint')}
-                  </span>
-                </span>
-              </label>
+            {draft && (
+              <fieldset disabled={updateBranch.isPending} className="space-y-4 border-0 p-0 m-0 min-w-0">
+                <Tabs defaultValue="identity">
+                  <TabsList className="w-full">
+                    <TabsTrigger value="identity" className="flex-1 px-2">
+                      {t('wizard.steps.identity')}
+                    </TabsTrigger>
+                    <TabsTrigger value="tax" className="flex-1 px-2">
+                      {t('wizard.steps.tax')}
+                    </TabsTrigger>
+                    <TabsTrigger value="hours" className="flex-1 px-2">
+                      {t('wizard.steps.hours')}
+                    </TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="identity" className="pt-4">
+                    <IdentityStep draft={draft} patch={patchDraft} errors={editErrors} />
+                  </TabsContent>
+                  <TabsContent value="tax" className="pt-4">
+                    <TaxStep draft={draft} patch={patchDraft} errors={editErrors} />
+                  </TabsContent>
+                  <TabsContent value="hours" className="pt-4">
+                    <HoursStep draft={draft} patch={patchDraft} errors={editErrors} />
+                  </TabsContent>
+                </Tabs>
+              </fieldset>
             )}
-            </fieldset>
-            {createBranch.isPending && (
-              <p role="status" aria-live="polite" className="flex items-center gap-2 text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                {copySetup ? t('creatingWithCopy') : t('creating')}
+            {showErrors && hasErrors(editErrors) && (
+              <p role="alert" className="text-xs text-posCloud-danger">
+                {t('wizard.fixErrors')}
+              </p>
+            )}
+            {saveError && (
+              <p role="alert" className="text-sm text-posCloud-danger">
+                {saveError}
               </p>
             )}
           </SheetBody>
           <SheetFooter>
-            <Button variant="outline" disabled={createBranch.isPending} onClick={() => setSheetOpen(false)}>
+            <Button variant="outline" disabled={updateBranch.isPending} onClick={() => setSheetOpen(false)}>
               {t('cancel')}
             </Button>
-            <Button onClick={handleSave} disabled={createBranch.isPending || updateBranch.isPending}>
+            <Button onClick={handleSave} disabled={updateBranch.isPending}>
+              {updateBranch.isPending && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
               {t('save')}
             </Button>
           </SheetFooter>
