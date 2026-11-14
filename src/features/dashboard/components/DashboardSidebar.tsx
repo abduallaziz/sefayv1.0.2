@@ -292,7 +292,7 @@ export function DashboardSidebar({ open, onClose }: SidebarProps) {
             ) : null}
 
             <Link
-              href={`/${locale}/dashboard/settings`}
+              href={`/${locale}/dashboard/settings/subscription`}
               className="mt-[13px] flex items-center justify-center gap-1.5 rounded-[11px] bg-white/20 py-2 text-xs font-bold text-white no-underline hover:bg-white/25"
             >
               {t('upgrade')}

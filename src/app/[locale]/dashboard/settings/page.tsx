@@ -1,5 +1,6 @@
-import { SettingsPage } from '@/features/settings/pages/SettingsPage';
+import { redirect } from 'next/navigation'
 
-export default function Page() {
-  return <SettingsPage />;
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params
+  redirect(`/${locale}/dashboard/settings/general`)
 }

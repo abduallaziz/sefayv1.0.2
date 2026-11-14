@@ -203,7 +203,7 @@ export function BranchesPage() {
                 </p>
               </div>
               <Button variant="warning" size="sm" asChild className="ms-2">
-                <Link href={`/${locale}/dashboard/settings`}>
+                <Link href={`/${locale}/dashboard/settings/subscription`}>
                   <ArrowUpCircle className="h-3.5 w-3.5" />
                   {t('buyAdditionalBranch')}
                 </Link>
@@ -252,7 +252,7 @@ export function BranchesPage() {
 
           {canManage && !hasValidSubscription && !usage.isLoading && !subscription.isLoading && (
             <Button variant="outline" asChild>
-              <Link href={`/${locale}/dashboard/settings`}>
+              <Link href={`/${locale}/dashboard/settings/subscription`}>
                 <ArrowUpCircle className="h-4 w-4" />
                 {t('buyAdditionalBranch')}
               </Link>

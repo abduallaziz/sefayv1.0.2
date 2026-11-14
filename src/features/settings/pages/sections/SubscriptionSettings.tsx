@@ -1,0 +1,83 @@
+'use client'
+
+import { useLocale, useTranslations } from 'next-intl'
+import { cn } from '@/lib/utils'
+import { SectionCard } from '@/shared/ui/section-card'
+import { useSubscription, useUsage } from '../../hooks/useSettings'
+import { effectiveSubscriptionStatus } from '../../lib/validators'
+import { PageStack, SettingsPageHeader, SettingsSection, SettingsSkeleton } from '../../components/settings-ui'
+
+function Stat({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-lg border border-slate-100 bg-slate-50/60 p-3.5 dark:border-posCloudDark-border dark:bg-white/[0.02]">
+      <p className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{label}</p>
+      <div className="mt-1 text-sm font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{children}</div>
+    </div>
+  )
+}
+
+function Meter({ label, used, limit, color }: { label: string; used: number; limit: number; color: string }) {
+  const percent = Math.min((used / (limit || 1)) * 100, 100)
+  return (
+    <div className="px-5 py-4">
+      <div className="mb-2 flex items-center justify-between text-sm">
+        <span className="font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary">{label}</span>
+        <span className="tabular-nums text-xs text-posCloud-text-tertiary" dir="ltr">{used}/{limit}</span>
+      </div>
+      <div
+        role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={limit} aria-valuenow={used}
+        className="h-2 rounded-full bg-slate-100 dark:bg-posCloudDark-border/60"
+      >
+        <div className={cn('h-2 rounded-full transition-all', color)} style={{ width: `${percent}%` }} />
+      </div>
+    </div>
+  )
+}
+
+export function SubscriptionSettings() {
+  const t = useTranslations('settings')
+  const locale = useLocale()
+  const { data: subscriptionData, isLoading: subLoading } = useSubscription()
+  const { data: usage, isLoading: usageLoading } = useUsage()
+  const sub = subscriptionData?.subscription
+  const status = effectiveSubscriptionStatus(sub)
+  const bad = status === 'expired' || status === 'cancelled' || status === 'suspended' || status === 'none'
+  const tr = (prefix: string, key?: string, fallback?: string) => (key ? (t.has(`${prefix}.${key}`) ? t(`${prefix}.${key}`) : (fallback ?? key)) : '—')
+
+  return (
+    <PageStack>
+      <SettingsPageHeader title={t('nav.items.subscription')} description={t('nav.descriptions.subscription')} />
+
+      {subLoading ? <SettingsSkeleton rows={2} /> : (
+        <SectionCard title={t('subscription')} description={t('sections.subscriptionHint')}>
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <Stat label={t('plan')}>{sub?.plan_name ? tr('planNames', sub.plan_name.toLowerCase(), sub.plan_name) : '—'}</Stat>
+            <Stat label={t('status')}>
+              <span className={cn('inline-flex items-center gap-1.5', bad ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400')}>
+                <span className={cn('h-1.5 w-1.5 rounded-full', bad ? 'bg-red-500' : 'bg-emerald-500')} aria-hidden />
+                {sub ? tr('subStatus', status) : '—'}
+              </span>
+            </Stat>
+            <Stat label={t('interval')}>{tr('billingCycles', sub?.billing_cycle)}</Stat>
+            <Stat label={t('endsAt')}>
+              <span className="tabular-nums">
+                {sub?.current_period_end ? new Date(sub.current_period_end).toLocaleDateString(locale === 'ar' ? 'ar-SA-u-nu-latn-ca-gregory' : 'en-CA') : '—'}
+              </span>
+            </Stat>
+          </div>
+        </SectionCard>
+      )}
+
+      {usageLoading ? <SettingsSkeleton rows={2} /> : (
+        <SettingsSection title={t('usage')} description={t('sections.usageHint')}>
+          <Meter label={t('users')} used={usage?.users?.used ?? 0} limit={usage?.users?.limit ?? sub?.max_users ?? 0} color="bg-posCloud-primary" />
+          <Meter label={t('branches')} used={usage?.branches?.used ?? 0} limit={usage?.branches?.limit ?? sub?.max_branches ?? 0} color="bg-violet-500" />
+          <div className="flex items-center justify-between px-5 py-4 text-sm">
+            <span className="font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary">{t('invoicesThisMonth')}</span>
+            <span className="font-semibold tabular-nums text-posCloud-text-primary dark:text-posCloudDark-text-primary">{usage?.invoices_this_month?.used ?? 0}</span>
+          </div>
+        </SettingsSection>
+      )}
+    </PageStack>
+  )
+}

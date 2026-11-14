@@ -117,5 +117,61 @@
     "enterprise": "Enterprise",
     "free": "Free",
     "trial": "Trial"
+  },
+  "dismiss": "Dismiss",
+  "unsavedChanges": "Unsaved changes",
+  "upToDate": "All changes saved",
+  "reset": "Reset",
+  "sections": {
+    "profileHint": "The name shown on invoices and reports",
+    "businessTypeHint": "Set when the account was created",
+    "currencyHint": "Currency used for prices and invoices",
+    "taxRateHint": "Applied automatically to POS invoices",
+    "invoiceHint": "Tax details and the text printed at the bottom of invoices",
+    "vatHint": "15 digits; starts and ends with 3 when e-invoicing is enabled",
+    "footerHint": "A short message printed under every invoice (up to 500 characters)",
+    "printerHint": "Paper size and auto-print for cashier and kitchen receipts",
+    "designersTitle": "Print design",
+    "designersHint": "Invoice logo, layout and live preview",
+    "captureTitle": "Customer capture at checkout",
+    "fieldsTitle": "Custom customer fields",
+    "fieldsHint": "The fields cashiers fill when registering a new customer",
+    "loyaltyOnHint": "Customers earn points on every invoice and redeem them for a discount",
+    "loyaltyRulesTitle": "Points rules",
+    "loyaltyRulesHint": "How many points a customer earns and what each point is worth",
+    "tiersTitle": "Loyalty tiers",
+    "subscriptionHint": "Your current plan and subscription status",
+    "usageHint": "Current usage against your plan limits"
+  },
+  "nav": {
+    "label": "Settings sections",
+    "groups": {
+      "workspace": "Account",
+      "commerce": "Tax & sales",
+      "customers": "Customers",
+      "system": "System"
+    },
+    "items": {
+      "general": "General",
+      "subscription": "Subscription & usage",
+      "tax": "Tax & invoicing",
+      "zatca": "E-invoicing (ZATCA)",
+      "sales": "Sales & POS",
+      "documents": "Document templates",
+      "customers": "Customers",
+      "loyalty": "Loyalty program",
+      "notifications": "Notifications",
+      "accessControl": "Access control",
+      "branches": "Branches"
+    },
+    "descriptions": {
+      "general": "Store information and currency",
+      "subscription": "Your current plan and usage limits",
+      "tax": "Tax rate, VAT number and invoice footer",
+      "sales": "Payment methods, printing and receipt design",
+      "customers": "Customer capture and custom fields",
+      "loyalty": "Points and loyalty tiers",
+      "notifications": "Choose which notifications reach you by email"
+    }
   }
 }
