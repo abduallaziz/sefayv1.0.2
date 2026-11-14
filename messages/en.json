@@ -1,5 +1,14 @@
 {
   "header": {
+    "notifications": "Notifications",
+    "markAllRead": "Mark all as read",
+    "noNotifications": "No notifications",
+    "searchPlaceholder": "Search pages, invoices, customers, items...",
+    "searchNoResults": "No results",
+    "searchPages": "Page",
+    "searchOrders": "Invoice",
+    "searchCustomers": "Customer",
+    "searchItems": "Item",
     "search": "Search...",
     "user": "User",
     "logout": "Logout",
@@ -815,6 +824,8 @@
   "datePicker": {
     "placeholder": "Select date range",
     "placeholderSingle": "Select a date",
+    "prev": "Previous",
+    "next": "Next",
     "selectEnd": "Select end date",
     "clear": "Clear range",
     "from": "From",

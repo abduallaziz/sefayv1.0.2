@@ -1,5 +1,14 @@
 {
   "header": {
+    "notifications": "الإشعارات",
+    "markAllRead": "تحديد الكل كمقروء",
+    "noNotifications": "لا توجد إشعارات",
+    "searchPlaceholder": "ابحث عن صفحة أو فاتورة أو عميل أو منتج...",
+    "searchNoResults": "لا توجد نتائج",
+    "searchPages": "صفحة",
+    "searchOrders": "فاتورة",
+    "searchCustomers": "عميل",
+    "searchItems": "منتج",
     "search": "بحث...",
     "user": "مستخدم",
     "logout": "تسجيل الخروج",
@@ -815,6 +824,8 @@
   "datePicker": {
     "placeholder": "اختر فترة زمنية",
     "placeholderSingle": "اختر تاريخًا",
+    "prev": "السابق",
+    "next": "التالي",
     "selectEnd": "اختر تاريخ الانتهاء",
     "clear": "مسح الفترة",
     "from": "من",
