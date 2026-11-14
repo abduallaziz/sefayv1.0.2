@@ -92,12 +92,17 @@ export function OrderDetailsModal({ order, onClose, onCancel, onReturn }: Props)
                 <CreditCard size={12} /> {t('payment')}
               </div>
               <div className="text-posCloud-text-primary dark:text-posCloudDark-text-primary">
-                {order.payment_method ? <MethodMark id={order.payment_method} /> : t('payment_method.unknown')}
+                {order.payment_method ? (
+                  <span className="inline-flex items-center gap-1.5">
+                    <MethodMark id={order.payment_method} />
+                    <span className="text-sm font-semibold">{t(`payment_method.${order.payment_method}` as Parameters<typeof t>[0])}</span>
+                  </span>
+                ) : t('payment_method.unknown')}
               </div>
             </div>
             <div className="rounded-lg border border-posCloud-border dark:border-posCloudDark-border p-2.5">
               <div className="flex items-center gap-1 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary text-[11px] mb-1">
-                <CircleCheck size={12} /> {t('status.all')}
+                <CircleCheck size={12} /> {t('status.header')}
               </div>
               <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[order.status]}`}>
                 {t(`status.${order.status}` as Parameters<typeof t>[0])}
