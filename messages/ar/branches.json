@@ -78,5 +78,26 @@
     "cancel": "إلغاء",
     "enabledToast": "تم تفعيل عزل الفروع",
     "disabledToast": "تم إيقاف عزل الفروع"
-  }
+  },
+  "publishAction": "نشر إلى الفروع",
+  "publishTitle": "نشر إلى الفروع",
+  "publishDescription": "انسخ السجلات المحددة من الفرع الحالي إلى فروع أخرى.",
+  "publishTargets": "الفروع المستهدفة",
+  "publishAll": "كل الفروع",
+  "publishMode": "إذا كان السجل موجودًا في الفرع",
+  "publishModeCopyNew": "إضافة السجلات الناقصة فقط (دون المساس بالموجود)",
+  "publishModeUpdate": "إضافة الناقص وتحديث الموجود",
+  "publishPreview": "{records} سجل إلى {branches} فرع",
+  "publishRun": "نشر",
+  "publishClose": "إغلاق",
+  "publishNoTargets": "اختر فرعًا واحدًا على الأقل",
+  "publishResultTitle": "النتيجة",
+  "publishCreated": "تم إنشاؤها",
+  "publishUpdated": "تم تحديثها",
+  "publishSkipped": "تم تخطيها",
+  "publishFailed": "فشلت",
+  "publishDone": "اكتمل النشر",
+  "publishError": "فشل النشر",
+  "copySetupFromMain": "نسخ الإعدادات من الفرع الرئيسي",
+  "copySetupHint": "التصنيفات والعلامات والوحدات ومستويات الولاء وحقول العملاء وتصنيفات/أقسام المصروفات وأنماط الورديات."
 }

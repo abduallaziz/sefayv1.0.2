@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 import { useTranslations } from 'next-intl'
 import { AlertTriangle, Building2, Tag } from 'lucide-react'
 import { toast } from 'sonner'
+import { PublishToBranchesButton } from '@/features/branches/components/PublishToBranchesButton'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
 import { usePermission } from '@/core/permissions/hooks/usePermission'
@@ -99,6 +100,9 @@ export function ExpenseMasterDataAdminPage() {
       </div>
 
       <div id="departments" className="scroll-mt-24">
+      <div className="mb-2 flex justify-end">
+        <PublishToBranchesButton entityType="expense_departments" ids={(departments.data ?? []).map((d) => d.id)} />
+      </div>
       <MasterDataAdminSection
         namespace="departmentsAdmin"
         icon={Building2}
@@ -122,6 +126,9 @@ export function ExpenseMasterDataAdminPage() {
       </div>
 
       <div id="categories" className="scroll-mt-24">
+      <div className="mb-2 flex justify-end">
+        <PublishToBranchesButton entityType="expense_categories_v2" ids={(categories.data ?? []).map((c) => c.id)} />
+      </div>
       <MasterDataAdminSection
         namespace="categoriesAdmin"
         icon={Tag}

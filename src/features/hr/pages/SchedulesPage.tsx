@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
+import { PublishToBranchesButton } from '@/features/branches/components/PublishToBranchesButton'
 import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
 import { formatDate } from '@/lib/format'
 import { Plus, Trash2, Pencil, Users as UsersIcon, CalendarClock, X } from 'lucide-react'
@@ -240,6 +241,8 @@ export function SchedulesPage() {
           <h2 className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
             <CalendarClock className="w-4 h-4 text-slate-400" /> {t('patternsTitle')}
           </h2>
+          <div className="flex items-center gap-3">
+          <PublishToBranchesButton entityType="shift_patterns" ids={patterns.map((p) => p.id)} />
           <button
             type="button"
             onClick={openNewPatternForm}
@@ -248,6 +251,7 @@ export function SchedulesPage() {
             <Plus className="w-3.5 h-3.5" />
             {t('newPattern')}
           </button>
+          </div>
         </div>
 
         {showPatternForm && (

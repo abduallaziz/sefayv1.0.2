@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Plus, Trash2 } from 'lucide-react'
+import { PublishToBranchesButton } from '@/features/branches/components/PublishToBranchesButton'
 import {
   useLoyaltyTiers,
   useCreateLoyaltyTier,
@@ -92,6 +93,10 @@ export function LoyaltyTiersManager() {
           ))}
         </div>
       )}
+
+      <div className="mb-2">
+        <PublishToBranchesButton entityType="loyalty_tiers" ids={tiers.map((x) => x.id)} />
+      </div>
 
       {adding ? (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end p-3 bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg">

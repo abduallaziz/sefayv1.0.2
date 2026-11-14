@@ -24,6 +24,8 @@ export interface BranchRecord {
 export interface CreateBranchDto {
   name: string
   address?: string
+  /** Branch isolation only: copy the main branch's setup (categories, expense lookups, shift patterns...) */
+  copy_setup_from_main?: boolean
 }
 
 export interface UpdateBranchDto {
@@ -37,7 +39,44 @@ export interface BranchIsolation {
   main_branch_id: string | null
 }
 
+export type PublishMode = 'copy_new' | 'update_existing'
+
+export interface PublishTypeInfo {
+  type: string
+  group: string
+  label_ar: string
+  label_en: string
+  supported: boolean
+  reason?: string
+}
+
+export interface PublishTargetResult {
+  branch_id: string
+  branch_name: string
+  created: number
+  updated: number
+  skipped: number
+  failed: number
+  errors: { source_id: string; message: string }[]
+}
+
+export interface PublishResult {
+  entity_type: string
+  mode: PublishMode
+  source_count: number
+  results: PublishTargetResult[]
+}
+
+export interface PublishRequest {
+  entity_type: string
+  source_ids: string[]
+  target_branch_ids: string[] | 'all'
+  mode: PublishMode
+}
+
 export const branchesApi = {
+  publishTypes: () => apiClient.get<PublishTypeInfo[]>('/branches/publish/types'),
+  publish: (dto: PublishRequest) => apiClient.post<PublishResult>('/branches/publish', dto),
   getIsolation: () => apiClient.get<BranchIsolation>('/branches/isolation/status'),
   setIsolation: (enabled: boolean) => apiClient.put<BranchIsolation>('/branches/isolation/status', { enabled }),
   setMain: (id: string) => apiClient.patch<BranchRecord>(`/branches/${id}/main`, {}),

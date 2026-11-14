@@ -78,5 +78,26 @@
     "cancel": "Cancel",
     "enabledToast": "Branch isolation enabled",
     "disabledToast": "Branch isolation turned off"
-  }
+  },
+  "publishAction": "Publish to branches",
+  "publishTitle": "Publish to branches",
+  "publishDescription": "Copy the selected records from the current branch to other branches.",
+  "publishTargets": "Target branches",
+  "publishAll": "All branches",
+  "publishMode": "If a record already exists in the branch",
+  "publishModeCopyNew": "Only add missing records (keep existing untouched)",
+  "publishModeUpdate": "Add missing and update existing records",
+  "publishPreview": "{records} record(s) to {branches} branch(es)",
+  "publishRun": "Publish",
+  "publishClose": "Close",
+  "publishNoTargets": "Select at least one branch",
+  "publishResultTitle": "Result",
+  "publishCreated": "Created",
+  "publishUpdated": "Updated",
+  "publishSkipped": "Skipped",
+  "publishFailed": "Failed",
+  "publishDone": "Publishing finished",
+  "publishError": "Publishing failed",
+  "copySetupFromMain": "Copy setup from the main branch",
+  "copySetupHint": "Categories, brands, units, loyalty tiers, customer fields, expense categories/departments and shift patterns."
 }

@@ -2,6 +2,9 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
+import { Share2 } from 'lucide-react'
+import { PublishToBranchesDialog } from '@/features/branches/components/PublishToBranchesDialog'
+import { useCanPublishToBranches } from '@/features/branches/hooks/useCanPublish'
 import { Plus, Ticket, Edit, Trash2, ToggleLeft, ToggleRight, Search } from 'lucide-react'
 import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
@@ -53,6 +56,9 @@ export function CouponsPage() {
   const { mutate: deleteCoupon } = useDeleteCoupon()
 
   const [formOpen, setFormOpen] = useState(false)
+  const tb = useTranslations('branches')
+  const canPublish = useCanPublishToBranches()
+  const [publishId, setPublishId] = useState<string | null>(null)
   const [selected, setSelected] = useState<Coupon | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Coupon | null>(null)
 
@@ -145,6 +151,7 @@ export function CouponsPage() {
                     </p>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
+                    {canPublish && <button type="button" aria-label={tb('publishAction')} title={tb('publishAction')} onClick={() => setPublishId(c.id)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400"><Share2 className="w-3.5 h-3.5" /></button>}
                     <button type="button" aria-label={t('editCoupon')} title={t('editCoupon')} onClick={() => openEdit(c)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400"><Edit className="w-3.5 h-3.5" /></button>
                     <button type="button" aria-label={t('deleteCoupon')} title={t('deleteCoupon')} onClick={() => setDeleteTarget(c)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-gray-400 hover:text-red-500"><Trash2 className="w-3.5 h-3.5" /></button>
                   </div>
@@ -203,7 +210,8 @@ export function CouponsPage() {
                     </td>
                     <td className="px-3 py-3 w-16">
                       <div className="flex items-center gap-1">
-                        <button type="button" aria-label={t('editCoupon')} title={t('editCoupon')} onClick={() => openEdit(c)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600 dark:hover:text-white"><Edit className="w-3.5 h-3.5" /></button>
+                        {canPublish && <button type="button" aria-label={tb('publishAction')} title={tb('publishAction')} onClick={() => setPublishId(c.id)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400"><Share2 className="w-3.5 h-3.5" /></button>}
+                    <button type="button" aria-label={t('editCoupon')} title={t('editCoupon')} onClick={() => openEdit(c)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600 dark:hover:text-white"><Edit className="w-3.5 h-3.5" /></button>
                         <button type="button" aria-label={t('deleteCoupon')} title={t('deleteCoupon')} onClick={() => setDeleteTarget(c)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-gray-400 hover:text-red-500"><Trash2 className="w-3.5 h-3.5" /></button>
                       </div>
                     </td>
@@ -219,6 +227,14 @@ export function CouponsPage() {
         <CouponFormModal coupon={selected} onClose={() => { setFormOpen(false); setSelected(null) }} />
       )}
 
+      {canPublish && (
+        <PublishToBranchesDialog
+          open={publishId !== null}
+          onOpenChange={(o) => { if (!o) setPublishId(null) }}
+          entityType="coupons"
+          sourceIds={publishId ? [publishId] : []}
+        />
+      )}
       <ConfirmDialog
         open={deleteTarget !== null}
         onClose={() => setDeleteTarget(null)}

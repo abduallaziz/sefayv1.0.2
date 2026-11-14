@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store';
-import { Edit, Trash2, Layers, ToggleLeft, ToggleRight, Barcode, Boxes } from 'lucide-react';
+import { Edit, Share2, Trash2, Layers, ToggleLeft, ToggleRight, Barcode, Boxes } from 'lucide-react';
 import { Item } from '../types/item.types';
 
 interface Props {
@@ -17,10 +17,13 @@ interface Props {
   onToggleSelected: (id: string) => void;
   allSelected: boolean;
   onToggleAll: () => void;
+  /** Set only for central users with branch isolation on (more than one branch). */
+  onPublish?: (item: Item) => void;
 }
 
-export function ItemsTable({ items, onEdit, onDelete, onVariants, onBarcodes, onPackaging, onToggleActive, selectedIds, onToggleSelected, allSelected, onToggleAll }: Props) {
+export function ItemsTable({ items, onEdit, onDelete, onVariants, onBarcodes, onPackaging, onToggleActive, selectedIds, onToggleSelected, allSelected, onToggleAll, onPublish }: Props) {
   const t = useTranslations('items');
+  const tb = useTranslations('branches');
   const currency = useCurrencyDisplay();
   // Always two decimals, English digits: same format as the KPI cards.
   const fmtPrice = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -77,6 +80,11 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onBarcodes, on
                 <button type="button" aria-label={t('attributesAndPackaging')} title={t('attributesAndPackaging')} onClick={() => onPackaging(item)} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary transition-colors">
                   <Boxes className="w-3.5 h-3.5" />
                 </button>
+                {onPublish && (
+                  <button type="button" aria-label={tb('publishAction')} title={tb('publishAction')} onClick={() => onPublish(item)} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary transition-colors">
+                    <Share2 className="w-3.5 h-3.5" />
+                  </button>
+                )}
                 <button type="button" aria-label={t('editItem')} title={t('editItem')} onClick={() => onEdit(item)} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary transition-colors">
                   <Edit className="w-3.5 h-3.5" />
                 </button>
@@ -203,6 +211,17 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onBarcodes, on
                     >
                       <Boxes className="w-3.5 h-3.5" />
                     </button>
+                    {onPublish && (
+                      <button
+                        type="button"
+                        title={tb('publishAction')}
+                        aria-label={tb('publishAction')}
+                        onClick={() => onPublish(item)}
+                        className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary transition-colors"
+                      >
+                        <Share2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                     <button
                       type="button"
                       title={t('editItem')}

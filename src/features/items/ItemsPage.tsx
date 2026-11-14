@@ -38,6 +38,8 @@ import { VariantsModal } from './components/VariantsModal';
 import { BarcodesModal } from './components/BarcodesModal';
 import { PackagingAttributesModal } from './components/PackagingAttributesModal';
 import { DeleteItemModal } from './components/DeleteItemModal';
+import { PublishToBranchesDialog } from '@/features/branches/components/PublishToBranchesDialog';
+import { useCanPublishToBranches } from '@/features/branches/hooks/useCanPublish';
 import { Item, ItemFilters, ItemType, CreateItemDTO } from './types/item.types';
 
 // Every item type the backend accepts (create-item.dto.ts ItemType enum) —
@@ -169,6 +171,9 @@ export function ItemsPage() {
   // Row selection for bulk actions. Cleared whenever the visible list changes.
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const tb = useTranslations('branches');
+  const canPublish = useCanPublishToBranches();
+  const [publishIds, setPublishIds] = useState<string[] | null>(null);
   const [bulkBusy, setBulkBusy] = useState(false);
   const [exporting, setExporting] = useState(false);
   const listKey = `${filterKey}|${effectivePage}`;
@@ -335,6 +340,11 @@ export function ItemsPage() {
                 >
                   {t('bulkDeactivate')}
                 </DropdownMenuItem>
+                {canPublish && (
+                  <DropdownMenuItem disabled={selectedIds.size === 0} onClick={() => setPublishIds([...selectedIds])}>
+                    {tb('publishAction')}
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem disabled={selectedIds.size === 0} onClick={() => setBulkDeleteOpen(true)}>
                   {t('bulkDelete')}
                 </DropdownMenuItem>
@@ -432,6 +442,7 @@ export function ItemsPage() {
           onToggleSelected={toggleSelected}
           allSelected={allOnPageSelected}
           onToggleAll={toggleAllOnPage}
+          onPublish={canPublish ? (item) => setPublishIds([item.id]) : undefined}
           onEdit={(item) => { createItem.reset(); updateItem.reset(); openOnly('form', item); }}
           onDelete={(item) => openOnly('delete', item)}
           onVariants={(item) => openOnly('variants', item)}
@@ -490,6 +501,14 @@ export function ItemsPage() {
         onClose={() => { setPackagingOpen(false); setSelectedItem(null); }}
         item={selectedItem}
       />
+      {canPublish && (
+        <PublishToBranchesDialog
+          open={publishIds !== null}
+          onOpenChange={(o) => { if (!o) setPublishIds(null); }}
+          entityType="items"
+          sourceIds={publishIds ?? []}
+        />
+      )}
       <ConfirmDialog
         open={bulkDeleteOpen}
         onClose={() => setBulkDeleteOpen(false)}

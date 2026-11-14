@@ -1,5 +1,7 @@
 'use client'
 
+import { PublishToBranchesButton } from '@/features/branches/components/PublishToBranchesButton'
+
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Plus, Trash2, Pencil } from 'lucide-react'
@@ -456,6 +458,10 @@ export function CustomFieldsManager() {
           ))}
         </div>
       )}
+
+      <div className="mb-2">
+        <PublishToBranchesButton entityType="customer_field_definitions" ids={(fields ?? []).map((f) => f.id)} />
+      </div>
 
       {showAdd ? (
         <AddFieldForm onClose={() => setShowAdd(false)} businessType={profile?.business_type} />

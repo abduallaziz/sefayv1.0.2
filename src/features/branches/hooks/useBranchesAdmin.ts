@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { branchesApi, CreateBranchDto, UpdateBranchDto } from '../api/branches.api'
+import { branchesApi, CreateBranchDto, UpdateBranchDto, PublishRequest } from '../api/branches.api'
 
 const KEY = ['branches', 'admin'] as const
 
@@ -77,5 +77,14 @@ export const useDeleteBranch = () => {
       qc.invalidateQueries({ queryKey: ['warehouses'] })
       qc.invalidateQueries({ queryKey: ['tenant', 'usage'] })
     },
+  })
+}
+
+export const usePublishToBranches = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (dto: PublishRequest) => branchesApi.publish(dto),
+    // Records now exist in other branches; this branch's own cache is unaffected but stay safe.
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['branches'] }),
   })
 }

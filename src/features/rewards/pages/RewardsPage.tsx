@@ -3,6 +3,9 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
+import { Share2 } from 'lucide-react'
+import { PublishToBranchesDialog } from '@/features/branches/components/PublishToBranchesDialog'
+import { useCanPublishToBranches } from '@/features/branches/hooks/useCanPublish'
 import { Plus, Gift, Edit, Trash2, ToggleLeft, ToggleRight } from 'lucide-react'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { useRewardDefinitions, useUpdateRewardDefinition, useDeleteRewardDefinition } from '../hooks/useRewards'
@@ -16,6 +19,9 @@ export function RewardsPage() {
   const { mutate: deleteReward } = useDeleteRewardDefinition()
 
   const [formOpen, setFormOpen] = useState(false)
+  const tb = useTranslations('branches')
+  const canPublish = useCanPublishToBranches()
+  const [publishId, setPublishId] = useState<string | null>(null)
   const [selected, setSelected] = useState<RewardDefinition | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<RewardDefinition | null>(null)
 
@@ -72,6 +78,7 @@ export function RewardsPage() {
                     <p className="text-xs text-gray-500">{t(`trigger.${r.trigger_type}`)}</p>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
+                    {canPublish && <button type="button" aria-label={tb('publishAction')} title={tb('publishAction')} onClick={() => setPublishId(r.id)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400"><Share2 className="w-3.5 h-3.5" /></button>}
                     <button type="button" aria-label={t('editReward')} title={t('editReward')} onClick={() => openEdit(r)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400"><Edit className="w-3.5 h-3.5" /></button>
                     <button type="button" aria-label={t('deleteReward')} title={t('deleteReward')} onClick={() => setDeleteTarget(r)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-gray-400 hover:text-red-500"><Trash2 className="w-3.5 h-3.5" /></button>
                   </div>
@@ -121,7 +128,8 @@ export function RewardsPage() {
                     </td>
                     <td className="px-3 py-3 w-16">
                       <div className="flex items-center gap-1">
-                        <button type="button" aria-label={t('editReward')} title={t('editReward')} onClick={() => openEdit(r)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600 dark:hover:text-white"><Edit className="w-3.5 h-3.5" /></button>
+                        {canPublish && <button type="button" aria-label={tb('publishAction')} title={tb('publishAction')} onClick={() => setPublishId(r.id)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400"><Share2 className="w-3.5 h-3.5" /></button>}
+                    <button type="button" aria-label={t('editReward')} title={t('editReward')} onClick={() => openEdit(r)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600 dark:hover:text-white"><Edit className="w-3.5 h-3.5" /></button>
                         <button type="button" aria-label={t('deleteReward')} title={t('deleteReward')} onClick={() => setDeleteTarget(r)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-gray-400 hover:text-red-500"><Trash2 className="w-3.5 h-3.5" /></button>
                       </div>
                     </td>
@@ -137,6 +145,14 @@ export function RewardsPage() {
         <RewardFormModal reward={selected} onClose={() => { setFormOpen(false); setSelected(null) }} />
       )}
 
+      {canPublish && (
+        <PublishToBranchesDialog
+          open={publishId !== null}
+          onOpenChange={(o) => { if (!o) setPublishId(null) }}
+          entityType="reward_definitions"
+          sourceIds={publishId ? [publishId] : []}
+        />
+      )}
       <ConfirmDialog
         open={deleteTarget !== null}
         onClose={() => setDeleteTarget(null)}

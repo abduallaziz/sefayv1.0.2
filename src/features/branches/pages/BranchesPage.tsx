@@ -20,6 +20,7 @@ import { useWarehouses } from '@/features/warehouses/hooks/useWarehouses'
 import { useBranchesAdmin, useCreateBranch, useUpdateBranch, useDeleteBranch } from '../hooks/useBranchesAdmin'
 import { BranchRecord } from '../api/branches.api'
 import { BranchIsolationCard } from '../components/BranchIsolationCard'
+import { useBranchIsolation } from '../hooks/useBranchesAdmin'
 
 // Statuses BillingService.checkBranchLimit() treats as a valid, capacity-bearing
 // subscription (billing.types.ts SubscriptionStatus). Kept in sync manually —
@@ -65,11 +66,15 @@ export function BranchesPage() {
   const [editing, setEditing] = useState<BranchRecord | null>(null)
   const [name, setName] = useState('')
   const [address, setAddress] = useState('')
+  const [copySetup, setCopySetup] = useState(false)
+  const isolation = useBranchIsolation()
+  const showCopySetup = !editing && isolation.data?.enabled === true
 
   const openCreate = () => {
     setEditing(null)
     setName('')
     setAddress('')
+    setCopySetup(false)
     setNameError(null)
     setSheetOpen(true)
   }
@@ -99,6 +104,7 @@ export function BranchesPage() {
     }
     setNameError(null)
     const dto = { name: trimmed, address: address.trim() || undefined }
+    const createDto = showCopySetup && copySetup ? { ...dto, copy_setup_from_main: true } : dto
     const opts = {
       onSuccess: () => {
         setSheetOpen(false)
@@ -109,7 +115,7 @@ export function BranchesPage() {
       },
     }
     if (editing) updateBranch.mutate({ id: editing.id, dto }, opts)
-    else createBranch.mutate(dto, opts)
+    else createBranch.mutate(createDto, opts)
   }
 
   const confirmDelete = () => {
@@ -432,6 +438,23 @@ export function BranchesPage() {
               </label>
               <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder={t('addressPlaceholder')} />
             </div>
+            {showCopySetup && (
+              <label className="flex items-start gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  className="mt-1"
+                  aria-label={t('copySetupFromMain')}
+                  checked={copySetup}
+                  onChange={(e) => setCopySetup(e.target.checked)}
+                />
+                <span>
+                  {t('copySetupFromMain')}
+                  <span className="block text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+                    {t('copySetupHint')}
+                  </span>
+                </span>
+              </label>
+            )}
           </SheetBody>
           <SheetFooter>
             <Button variant="outline" onClick={() => setSheetOpen(false)}>
