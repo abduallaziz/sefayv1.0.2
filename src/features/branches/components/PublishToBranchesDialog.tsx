@@ -1,7 +1,8 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { useTranslations } from 'next-intl'
+import Link from 'next/link'
+import { useLocale, useTranslations } from 'next-intl'
 import { toast } from 'sonner'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/shared/ui/dialog'
 import { Button } from '@/shared/ui/button'
@@ -25,6 +26,7 @@ export function PublishToBranchesDialog(props: Props) {
 }
 
 function PublishToBranchesDialogInner({ open, onOpenChange, entityType, sourceIds }: Props) {
+  const locale = useLocale()
   const t = useTranslations('branches')
   const { availableBranches, currentBranchId } = useBranchContext()
   const publish = usePublishToBranches()
@@ -89,6 +91,14 @@ function PublishToBranchesDialogInner({ open, onOpenChange, entityType, sourceId
                 ))}
               </div>
             ))}
+            {entityType === 'items' && result.results.some((r) => r.created > 0) && (
+              <p className={`text-xs ${muted}`}>
+                {t('publishStockNote')}{' '}
+                <Link href={`/${locale}/dashboard/adjustments`} className="font-medium text-[#0C447C] dark:text-[#5B9BD5] hover:underline">
+                  {t('publishStockLink')}
+                </Link>
+              </p>
+            )}
             <div className="flex justify-end pt-2">
               <Button onClick={() => onOpenChange(false)}>{t('publishClose')}</Button>
             </div>

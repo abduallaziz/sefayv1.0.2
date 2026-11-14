@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { toast } from 'sonner'
 import Link from 'next/link'
-import { Plus, Search, Pencil, Pause, Play, Trash2, Building2, AlertTriangle, MapPin, CalendarDays, Warehouse, Filter, ShieldAlert, ArrowUpCircle } from 'lucide-react'
+import { Plus, Search, Pencil, Pause, Play, Trash2, Building2, AlertTriangle, MapPin, CalendarDays, Warehouse, Filter, ShieldAlert, ArrowUpCircle, Loader2 } from 'lucide-react'
 import { Card, CardContent } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
@@ -412,6 +412,7 @@ export function BranchesPage() {
             <SheetTitle>{editing ? t('editTitle') : t('addTitle')}</SheetTitle>
           </SheetHeader>
           <SheetBody className="space-y-4">
+            <fieldset disabled={createBranch.isPending} className="space-y-4 border-0 p-0 m-0 min-w-0">
             <div>
               <label className="block text-xs font-medium mb-1.5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
                 {t('name')}
@@ -455,9 +456,16 @@ export function BranchesPage() {
                 </span>
               </label>
             )}
+            </fieldset>
+            {createBranch.isPending && (
+              <p role="status" aria-live="polite" className="flex items-center gap-2 text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                {copySetup ? t('creatingWithCopy') : t('creating')}
+              </p>
+            )}
           </SheetBody>
           <SheetFooter>
-            <Button variant="outline" onClick={() => setSheetOpen(false)}>
+            <Button variant="outline" disabled={createBranch.isPending} onClick={() => setSheetOpen(false)}>
               {t('cancel')}
             </Button>
             <Button onClick={handleSave} disabled={createBranch.isPending || updateBranch.isPending}>

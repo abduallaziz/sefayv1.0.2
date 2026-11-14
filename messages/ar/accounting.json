@@ -352,6 +352,10 @@
         "effectiveFrom": "ساري من",
         "effectiveTo": "ساري حتى",
         "reason": "السبب"
+      },
+      "reasons": {
+        "newBranch": "إعداد تلقائي لفرع جديد",
+        "tenantRegistration": "إعداد تلقائي عند تسجيل المنشأة"
       }
     },
     "chartOfAccounts": {

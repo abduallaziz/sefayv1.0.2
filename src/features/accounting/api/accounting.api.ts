@@ -44,6 +44,7 @@ export interface JournalEntry {
   reversal_of_id: string | null
   requires_cogs_reconciliation: boolean
   created_by: string | null
+  created_by_name?: string | null
   created_at: string
   posted_at: string | null
   reversed_at: string | null

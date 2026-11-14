@@ -293,7 +293,7 @@ export function JournalEntryDetailSheet({ entryId, open, onOpenChange, canView, 
                   <div className="flex items-center justify-between">
                     <span className="text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('audit.createdBy')}</span>
                     <span className="text-posCloud-text-primary dark:text-posCloudDark-text-primary">
-                      {detail.data.created_by ? (userNameById.get(detail.data.created_by) ?? detail.data.created_by) : '—'}
+                      {detail.data.created_by ? (detail.data.created_by_name ?? userNameById.get(detail.data.created_by) ?? detail.data.created_by) : '—'}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">

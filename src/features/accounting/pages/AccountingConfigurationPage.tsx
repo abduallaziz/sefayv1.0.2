@@ -17,6 +17,12 @@ import { accountLabel } from '../lib/accounting-utils'
 import { AssignBranchOwnerSheet } from '../components/AssignBranchOwnerSheet'
 import { FiscalPeriod, AccountingOwner, BranchAssignment, Account } from '../api/accounting.api'
 
+// System-generated owner-link reasons (stored in English by the API) are translated for display.
+const KNOWN_REASONS: Record<string, string> = {
+  'Automatic setup for a new branch': 'newBranch',
+  'Automatic bootstrap on tenant registration': 'tenantRegistration',
+}
+
 const fiscalStatusTone: Record<string, StatusTone> = {
   open: 'success',
   closed: 'neutral',
@@ -78,7 +84,7 @@ export function AccountingConfigurationPage() {
     { key: 'accounting_owner_id', header: t('assignments.columns.owner'), render: (row) => <span>{ownerNameById.get(row.accounting_owner_id) ?? row.accounting_owner_id}</span> },
     { key: 'effective_from', header: t('assignments.columns.effectiveFrom'), render: (row) => <span className="tabular-nums">{row.effective_from}</span> },
     { key: 'effective_to', header: t('assignments.columns.effectiveTo'), render: (row) => <span className="tabular-nums">{row.effective_to ?? '—'}</span> },
-    { key: 'reason', header: t('assignments.columns.reason'), render: (row) => <span className="truncate block max-w-[160px] text-xs">{row.reason ?? '—'}</span> },
+    { key: 'reason', header: t('assignments.columns.reason'), render: (row) => <span className="truncate block max-w-[160px] text-xs">{row.reason ? (KNOWN_REASONS[row.reason] ? t(`assignments.reasons.${KNOWN_REASONS[row.reason]}`) : row.reason) : '—'}</span> },
   ]
 
   const accountColumns: Column<Account>[] = [

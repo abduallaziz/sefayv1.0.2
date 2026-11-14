@@ -352,6 +352,10 @@
         "effectiveFrom": "Effective From",
         "effectiveTo": "Effective To",
         "reason": "Reason"
+      },
+      "reasons": {
+        "newBranch": "Automatic setup for a new branch",
+        "tenantRegistration": "Automatic bootstrap on tenant registration"
       }
     },
     "chartOfAccounts": {

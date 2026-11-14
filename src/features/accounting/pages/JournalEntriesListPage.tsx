@@ -141,7 +141,7 @@ export function JournalEntriesListPage() {
       header: t('columns.createdBy'),
       render: (row) => (
         <span className="text-xs whitespace-nowrap text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-          {row.created_by ? (userNameById.get(row.created_by) ?? row.created_by) : '—'}
+          {row.created_by ? (row.created_by_name ?? userNameById.get(row.created_by) ?? row.created_by) : '—'}
         </span>
       ),
     },

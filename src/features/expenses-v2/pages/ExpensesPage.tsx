@@ -42,6 +42,7 @@ import { ExpenseFormSheet } from '../components/ExpenseFormSheet'
 import { ExpenseActivitySheet } from '../components/ExpenseActivitySheet'
 import { ExpenseAttachmentsSheet } from '../components/ExpenseAttachmentsSheet'
 import { AddCategoryDialog } from '../components/AddCategoryDialog'
+import { PublishToBranchesButton } from '@/features/branches/components/PublishToBranchesButton'
 import { ExpensesSectionNav } from '../components/ExpensesSectionNav'
 import { ExpenseRecord, ExpenseFilters } from '../api/expenses-v2.api'
 
@@ -333,6 +334,7 @@ export function ExpensesPage() {
           canCreate && (
             <div className="flex flex-wrap items-center gap-2">
               <AddCategoryDialog />
+              <PublishToBranchesButton entityType="expense_categories_v2" ids={(categories.data ?? []).map((c) => c.id)} />
               <Button
                 onClick={() => {
                   setEditing(null)
