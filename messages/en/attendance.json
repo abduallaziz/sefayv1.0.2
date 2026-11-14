@@ -24,7 +24,8 @@
     "present": "Present now",
     "out": "Out",
     "away": "Away",
-    "not_logged": "Not logged"
+    "not_logged": "Not logged",
+    "disabled": "Attendance disabled"
   },
   "totalHours": "Total Hours",
   "workDays": "Work Days",
@@ -34,5 +35,10 @@
   "lastCheckIn": "Last Check-in",
   "lastCheckOut": "Last Check-out",
   "actions": "Actions",
-  "paginationSummary": "Showing {from} to {to} of {total} employees"
+  "paginationSummary": "Showing {from} to {to} of {total} employees",
+  "subtitleAll": "Track attendance of all employees",
+  "noMatch": "No matching results",
+  "prevPage": "Previous page",
+  "nextPage": "Next page",
+  "close": "Close"
 }

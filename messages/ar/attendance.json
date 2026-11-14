@@ -24,7 +24,8 @@
     "present": "حاضر الآن",
     "out": "خارج",
     "away": "غير متواجد",
-    "not_logged": "غير مسجل"
+    "not_logged": "غير مسجل",
+    "disabled": "الحضور غير مفعّل"
   },
   "totalHours": "إجمالي الساعات",
   "workDays": "أيام العمل",
@@ -34,5 +35,10 @@
   "lastCheckIn": "آخر حضور",
   "lastCheckOut": "آخر انصراف",
   "actions": "الإجراءات",
-  "paginationSummary": "عرض {from} إلى {to} من {total} موظف"
+  "paginationSummary": "عرض {from} إلى {to} من {total} موظف",
+  "subtitleAll": "متابعة حضور وانصراف جميع الموظفين",
+  "noMatch": "لا توجد نتائج مطابقة",
+  "prevPage": "الصفحة السابقة",
+  "nextPage": "الصفحة التالية",
+  "close": "إغلاق"
 }

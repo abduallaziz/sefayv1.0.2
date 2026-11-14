@@ -1,20 +1,32 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
-import { useMemo, useState } from 'react'
+import { useTranslations, useLocale } from 'next-intl'
+import { useEffect, useMemo, useState } from 'react'
 import { CalendarClock, LogIn, LogOut, Circle, History, X, Search, Download, ChevronRight, ChevronLeft } from 'lucide-react'
 import { useMyAttendance, useAllAttendance, useSchedules } from '../hooks/useHr'
 import { useUsers } from '@/features/users/hooks/useUsers'
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { DateRangePicker, SingleDatePicker } from '@/shared/ui/date-range-picker'
 
-type Status = 'present' | 'out' | 'away' | 'not_logged'
+type Status = 'present' | 'out' | 'away' | 'not_logged' | 'disabled'
 
 const STATUS_STYLE: Record<Status, { dot: string; text: string }> = {
   present: { dot: 'bg-emerald-500', text: 'text-emerald-600 dark:text-emerald-400' },
   out: { dot: 'bg-red-500', text: 'text-red-600 dark:text-red-400' },
   away: { dot: 'bg-amber-500', text: 'text-amber-600 dark:text-amber-400' },
   not_logged: { dot: 'bg-slate-400', text: 'text-slate-500 dark:text-slate-400' },
+  disabled: { dot: 'bg-slate-300', text: 'text-slate-400' },
+}
+
+// Arabic UI: Gregorian dates/times in Arabic words but ALWAYS Western 0-9 numerals (project rule).
+const intlLocale = (locale: string) => (locale === 'ar' ? 'ar-SA-u-nu-latn-ca-gregory' : 'en-US')
+
+function useEscape(onClose: () => void) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [onClose])
 }
 
 function todayStr() {
@@ -23,6 +35,7 @@ function todayStr() {
 
 export function AttendancePage() {
   const t = useTranslations('attendance')
+  const locale = useLocale()
   const { user } = useAuthStore()
   const canViewAll = !!user?.permissions?.includes('attendance.view.all')
   const { data: records = [], isLoading } = useMyAttendance()
@@ -30,13 +43,14 @@ export function AttendancePage() {
 
   const latestRecord = records[0] ?? null
 
-  const fmtDateTime = (iso: string) => new Date(iso).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
+  const fmtDateTime = (iso: string) => new Date(iso).toLocaleString(intlLocale(locale), { dateStyle: 'medium', timeStyle: 'short' })
+  useEscape(() => setShowMyHistory(false))
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-xl font-bold text-slate-800 dark:text-white">{t('title')}</h1>
-        <p className="text-sm text-slate-500 mt-0.5">{t('subtitle')}</p>
+        <p className="text-sm text-slate-500 mt-0.5">{canViewAll ? t('subtitleAll') : t('subtitle')}</p>
       </div>
 
       <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl">
@@ -44,7 +58,7 @@ export function AttendancePage() {
           <h2 className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('history')}</h2>
         </div>
         {canViewAll ? (
-          <AllEmployeesAttendance t={t} fmtDateTime={fmtDateTime} />
+          <AllEmployeesAttendance t={t} fmtDateTime={fmtDateTime} locale={locale} />
         ) : (
           <>
             <AttendanceList
@@ -57,6 +71,7 @@ export function AttendancePage() {
             {records.length > 1 && (
               <div className="px-4 py-3 border-t border-slate-100 dark:border-gray-800 text-center">
                 <button
+                  type="button"
                   onClick={() => setShowMyHistory(true)}
                   className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-slate-200 dark:border-gray-700 text-[#0C447C] dark:text-[#5B9BD5] hover:bg-slate-50 dark:hover:bg-gray-800 mx-auto"
                 >
@@ -73,7 +88,7 @@ export function AttendancePage() {
                 >
                   <div className="px-4 py-3 border-b border-slate-200 dark:border-gray-800 flex items-center justify-between">
                     <h2 className="text-sm font-semibold text-slate-800 dark:text-white">{t('history')}</h2>
-                    <button onClick={() => setShowMyHistory(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <button type="button" aria-label={t('close')} onClick={() => setShowMyHistory(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
@@ -122,10 +137,13 @@ const PAGE_SIZE = 5
 function AllEmployeesAttendance({
   t,
   fmtDateTime,
+  locale,
 }: {
   t: ReturnType<typeof useTranslations>
   fmtDateTime: (iso: string) => string
+  locale: string
 }) {
+  const loc = intlLocale(locale)
   const [refDate, setRefDate] = useState(todayStr())
   const { data: records = [], isLoading } = useAllAttendance()
   const { data: dateSchedules = [] } = useSchedules({ from: refDate, to: refDate })
@@ -149,7 +167,7 @@ function AllEmployeesAttendance({
     }
     // Employees who never checked in still belong on the board (status: not logged / away).
     for (const u of users) {
-      if (u.is_active === false || u.attendance_enabled === false || byUser.has(u.id)) continue
+      if (u.is_active === false || byUser.has(u.id)) continue
       byUser.set(u.id, {
         id: `none-${u.id}`, user_id: u.id, user_name: u.name ?? null, branch_id: null,
         check_in_at: '', check_out_at: null, hours_worked: null,
@@ -171,6 +189,7 @@ function AllEmployeesAttendance({
   const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
 
   function getStatus(r: (typeof records)[number]): Status {
+    if (usersById.get(r.user_id)?.attendance_enabled === false) return 'disabled'
     const isRefDate = !!r.check_in_at && r.check_in_at.substring(0, 10) === refDate
     if (isRefDate) return r.check_out_at ? 'out' : 'present'
     return scheduledUserIdsOnDate.has(r.user_id) ? 'away' : 'not_logged'
@@ -184,7 +203,7 @@ function AllEmployeesAttendance({
         r.user_name ?? '',
         usersById.get(r.user_id)?.department ?? '',
         t(`statusValues.${status}`),
-        r.hours_worked !== null && r.check_in_at.substring(0, 10) === refDate ? String(r.hours_worked) : '',
+        r.check_in_at && r.hours_worked !== null && r.check_in_at.substring(0, 10) === refDate ? String(r.hours_worked) : '',
         r.check_in_at ? fmtDateTime(r.check_in_at) : '',
         r.check_out_at ? fmtDateTime(r.check_out_at) : '',
       ]
@@ -210,6 +229,7 @@ function AllEmployeesAttendance({
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1) }}
             placeholder={t('searchEmployee')}
+            aria-label={t('searchEmployee')}
             className="w-full bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg ps-8 pe-3 py-2 text-sm text-slate-800 dark:text-white"
           />
         </div>
@@ -218,6 +238,7 @@ function AllEmployeesAttendance({
           {departments.length > 0 && (
             <select
               value={departmentFilter}
+              aria-label={t('allDepartments')}
               onChange={(e) => { setDepartmentFilter(e.target.value); setPage(1) }}
               className="bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white"
             >
@@ -228,6 +249,7 @@ function AllEmployeesAttendance({
             </select>
           )}
           <button
+            type="button"
             onClick={exportCsv}
             className="flex items-center gap-1.5 px-3 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] text-white rounded-lg text-xs font-medium shrink-0"
           >
@@ -238,9 +260,10 @@ function AllEmployeesAttendance({
       </div>
 
       {filtered.length === 0 ? (
-        <p className="text-sm text-slate-500 dark:text-slate-400 py-8 text-center">{t('noRecords')}</p>
+        <p className="text-sm text-slate-500 dark:text-slate-400 py-8 text-center">{search || departmentFilter ? t('noMatch') : t('noRecords')}</p>
       ) : (
         <>
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-200 dark:border-gray-800">
@@ -282,7 +305,7 @@ function AllEmployeesAttendance({
                       </span>
                     </td>
                     <td className="px-4 py-3 text-center align-middle text-slate-700 dark:text-slate-300">
-                      {r.hours_worked !== null && r.check_in_at.substring(0, 10) === refDate
+                      {r.check_in_at && r.hours_worked !== null && r.check_in_at.substring(0, 10) === refDate
                         ? t('hoursWorked', { hours: r.hours_worked })
                         : <span className="text-slate-400">—</span>}
                     </td>
@@ -291,10 +314,10 @@ function AllEmployeesAttendance({
                         {r.check_in_at ? (
                           <>
                             <p className="text-sm font-medium text-slate-800 dark:text-white">
-                              {new Date(r.check_in_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                              {new Date(r.check_in_at).toLocaleTimeString(loc, { hour: '2-digit', minute: '2-digit' })}
                             </p>
                             <p className="text-[10px] text-slate-400">
-                              {new Date(r.check_in_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                              {new Date(r.check_in_at).toLocaleDateString(loc, { year: 'numeric', month: 'long', day: 'numeric' })}
                             </p>
                           </>
                         ) : (
@@ -307,10 +330,10 @@ function AllEmployeesAttendance({
                         {r.check_out_at ? (
                           <>
                             <p className="text-sm font-medium text-slate-800 dark:text-white">
-                              {new Date(r.check_out_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                              {new Date(r.check_out_at).toLocaleTimeString(loc, { hour: '2-digit', minute: '2-digit' })}
                             </p>
                             <p className="text-[10px] text-slate-400">
-                              {new Date(r.check_out_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                              {new Date(r.check_out_at).toLocaleDateString(loc, { year: 'numeric', month: 'long', day: 'numeric' })}
                             </p>
                           </>
                         ) : (
@@ -320,6 +343,7 @@ function AllEmployeesAttendance({
                     </td>
                     <td className="px-4 py-3 text-center align-middle">
                       <button
+                        type="button"
                         onClick={() => setHistoryUser({ id: r.user_id, name, jobTitle: employeeUser?.job_title, avatarUrl: employeeUser?.avatar_url })}
                         className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-slate-200 dark:border-gray-700 text-[#0C447C] dark:text-[#5B9BD5] hover:bg-slate-50 dark:hover:bg-gray-800"
                       >
@@ -332,6 +356,7 @@ function AllEmployeesAttendance({
               })}
             </tbody>
           </table>
+          </div>
 
           <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100 dark:border-gray-800">
             <p className="text-xs text-slate-400">
@@ -343,6 +368,8 @@ function AllEmployeesAttendance({
             </p>
             <div className="flex items-center gap-1">
               <button
+                type="button"
+                aria-label={t('prevPage')}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
                 className="p-1.5 rounded-lg border border-slate-200 dark:border-gray-700 text-slate-500 disabled:opacity-40"
@@ -351,6 +378,8 @@ function AllEmployeesAttendance({
               </button>
               <span className="text-xs text-slate-500 px-2">{currentPage} / {totalPages}</span>
               <button
+                type="button"
+                aria-label={t('nextPage')}
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
                 className="p-1.5 rounded-lg border border-slate-200 dark:border-gray-700 text-slate-500 disabled:opacity-40"
@@ -362,7 +391,7 @@ function AllEmployeesAttendance({
         </>
       )}
       {historyUser && (
-        <EmployeeHistoryModal user={historyUser} onClose={() => setHistoryUser(null)} t={t} />
+        <EmployeeHistoryModal user={historyUser} onClose={() => setHistoryUser(null)} t={t} locale={locale} />
       )}
     </>
   )
@@ -372,11 +401,14 @@ function EmployeeHistoryModal({
   user,
   onClose,
   t,
+  locale,
 }: {
   user: { id: string; name: string; jobTitle?: string | null; avatarUrl?: string | null }
   onClose: () => void
   t: ReturnType<typeof useTranslations>
+  locale: string
 }) {
+  useEscape(onClose)
   const [range, setRange] = useState<{ from: string | undefined; to: string | undefined }>({ from: undefined, to: undefined })
   const { data: records = [], isLoading } = useAllAttendance({
     userId: user.id,
@@ -403,8 +435,13 @@ function EmployeeHistoryModal({
       const diffHours = (actualStart.getTime() - scheduledStart.getTime()) / 3600000
       if (diffHours > 0) lateHours += diffHours
     }
-    const scheduledDayCount = scheduledDaysWithEarliestStart.size
-    const attendancePercentage = scheduledDayCount > 0 ? Math.min(100, Math.round((workDays / scheduledDayCount) * 100)) : 0
+    // Only scheduled days that have already elapsed can be attended/missed.
+    const today = todayStr()
+    const elapsedScheduled = Array.from(scheduledDaysWithEarliestStart.keys()).filter((d) => d <= today)
+    const attendedScheduled = elapsedScheduled.filter((d) => records.some((r) => r.check_in_at.substring(0, 10) === d)).length
+    const attendancePercentage = elapsedScheduled.length > 0
+      ? Math.min(100, Math.round((attendedScheduled / elapsedScheduled.length) * 100))
+      : null
 
     return {
       totalHours: Math.round(totalHours * 100) / 100,
@@ -421,7 +458,7 @@ function EmployeeHistoryModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="pt-6 px-5 pb-3 flex items-center justify-between">
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+          <button type="button" aria-label={t('close')} onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
             <X className="w-4 h-4" />
           </button>
           <h2 className="text-sm font-semibold text-slate-800 dark:text-white flex items-center gap-1.5">
@@ -454,13 +491,13 @@ function EmployeeHistoryModal({
             <p className="text-[10px] text-slate-500 dark:text-slate-400">{t('lateHours')}</p>
           </div>
           <div className="bg-emerald-50 dark:bg-emerald-500/10 rounded-lg p-3 text-center">
-            <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{stats.attendancePercentage}%</p>
+            <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{stats.attendancePercentage === null ? '—' : `${stats.attendancePercentage}%`}</p>
             <p className="text-[10px] text-slate-500 dark:text-slate-400">{t('attendancePercentage')}</p>
           </div>
         </div>
 
         <div className="overflow-y-auto">
-          <AttendanceTimeline records={records} isLoading={isLoading} t={t} />
+          <AttendanceTimeline records={records} isLoading={isLoading} t={t} locale={locale} />
         </div>
       </div>
     </div>
@@ -468,14 +505,35 @@ function EmployeeHistoryModal({
 }
 
 function AttendanceTimeline({
-  records,
+  records: rawRecords,
   isLoading,
   t,
+  locale,
 }: {
   records: { id: string; check_in_at: string; check_out_at: string | null; hours_worked: number | null }[]
   isLoading: boolean
   t: ReturnType<typeof useTranslations>
+  locale: string
 }) {
+  const loc = intlLocale(locale)
+  // One row per day: first check-in, last check-out, summed hours (several punches on the same day
+  // used to render as many identical rows).
+  const records = useMemo(() => {
+    const byDay = new Map<string, { id: string; check_in_at: string; check_out_at: string | null; hours_worked: number | null; open: boolean }>()
+    for (const r of rawRecords) {
+      const day = r.check_in_at.substring(0, 10)
+      const cur = byDay.get(day)
+      if (!cur) {
+        byDay.set(day, { ...r, open: !r.check_out_at })
+        continue
+      }
+      if (r.check_in_at < cur.check_in_at) cur.check_in_at = r.check_in_at
+      if (r.check_out_at && (!cur.check_out_at || r.check_out_at > cur.check_out_at)) cur.check_out_at = r.check_out_at
+      if (!r.check_out_at) cur.open = true
+      if (r.hours_worked !== null) cur.hours_worked = Math.round(((cur.hours_worked ?? 0) + r.hours_worked) * 100) / 100
+    }
+    return Array.from(byDay.values())
+  }, [rawRecords])
   if (isLoading) return <div className="p-4 h-20 bg-slate-100 dark:bg-gray-800 rounded animate-pulse" />
   if (records.length === 0) {
     return <p className="text-sm text-slate-500 dark:text-slate-400 py-8 text-center">{t('noRecords')}</p>
@@ -494,7 +552,7 @@ function AttendanceTimeline({
               <div className="absolute end-[7px] top-1.5 bottom-1.5 w-px bg-slate-200 dark:bg-gray-700" />
               <div className="relative flex items-center justify-end gap-2 mb-2">
                 <span className="text-xs font-medium px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                  {t('checkIn')}
+                  {t('checkIn')} {d.toLocaleTimeString(loc, { hour: '2-digit', minute: '2-digit' })}
                 </span>
                 <span className="absolute end-[-24px] w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center text-white z-10">
                   <LogIn className="w-2.5 h-2.5" />
@@ -502,7 +560,7 @@ function AttendanceTimeline({
               </div>
               <div className="relative flex items-center justify-end gap-2">
                 <span className="text-xs font-medium px-3 py-1 rounded-full bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400">
-                  {r.check_out_at ? t('checkOut') : t('stillOpen')}
+                  {r.check_out_at ? `${t('checkOut')} ${new Date(r.check_out_at).toLocaleTimeString(loc, { hour: '2-digit', minute: '2-digit' })}` : t('stillOpen')}
                 </span>
                 <span className="absolute end-[-24px] w-4 h-4 rounded-full bg-red-500 flex items-center justify-center text-white z-10">
                   <LogOut className="w-2.5 h-2.5" />
@@ -514,10 +572,10 @@ function AttendanceTimeline({
               <CalendarClock className="w-3.5 h-3.5 text-slate-400" />
               <div className="text-end">
                 <p className="text-xs font-medium text-slate-600 dark:text-slate-300">
-                  {d.toLocaleDateString('en-US', { weekday: 'long' })}
+                  {d.toLocaleDateString(loc, { weekday: 'long' })}
                 </p>
                 <p className="text-[10px] text-slate-400">
-                  {d.toLocaleDateString('en-US', { day: 'numeric', month: 'long' })}
+                  {d.toLocaleDateString(loc, { day: 'numeric', month: 'long' })}
                 </p>
               </div>
             </div>
