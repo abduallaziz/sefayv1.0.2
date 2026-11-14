@@ -13,5 +13,15 @@
   "writeNote": "Write a note",
   "customPlaceholder": "Type your note here...",
   "noPresets": "No preset notes available",
-  "notesLabel": "Order notes (optional)"
+  "notesLabel": "Order notes (optional)",
+  "error": "Something went wrong, try again",
+  "duplicate": "A preset with this text already exists",
+  "emptyText": "Enter the note text",
+  "moveUp": "Move up",
+  "moveDown": "Move down",
+  "edit": "Edit note",
+  "saveEdit": "Save edit",
+  "cancelEdit": "Cancel edit",
+  "activate": "Activate note",
+  "deactivate": "Deactivate note"
 }

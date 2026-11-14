@@ -1,16 +1,15 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { queueApi, type CreateWashJobDto, type WashStatus } from '../api/queue.api'
-import { useRealtimeStatusStore } from '@/core/realtime/realtime-status.store'
 
 export function useWashBoard(branchId: string, date?: string) {
-  const realtimeConnected = useRealtimeStatusStore((s) => s.connected)
   return useQuery({
     queryKey: ['queue', 'board', branchId, date ?? 'today'],
     queryFn: () => queueApi.getBoard(branchId, date),
     enabled: !!branchId,
-    // Fallback polling only - changes push through RealtimeProvider's
-    // wash_jobs subscription, which invalidates the ['queue'] keys.
-    refetchInterval: realtimeConnected ? false : 10000,
+    // Always poll: the board must not go stale even when realtime is connected
+    // (realtime pushes through RealtimeProvider only make it faster).
+    refetchInterval: 10000,
+    refetchOnWindowFocus: true,
   })
 }
 
@@ -30,6 +29,14 @@ export function useChangeWashStatus(onError: (e: unknown) => void) {
       queueApi.changeStatus(id, status),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['queue'] }),
     onError,
+  })
+}
+
+export function useLinkWashOrder() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, orderId }: { id: string; orderId: string }) => queueApi.linkOrder(id, orderId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['queue'] }),
   })
 }
 

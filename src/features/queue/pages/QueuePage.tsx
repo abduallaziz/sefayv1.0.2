@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
 import { Car, ArrowRight, RotateCcw, X, Plus } from 'lucide-react'
@@ -8,6 +8,9 @@ import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { useBranchContext } from '@/core/branch/useBranchContext'
 import { useUsers } from '@/features/users/hooks/useUsers'
 import { ApiError } from '@/lib/api'
+import { plateKey, toEnglishDigits } from '@/lib/digits'
+import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
+import { WashChargeDialog } from '../components/WashChargeDialog'
 import {
   useWashBoard,
   useCreateWashJob,
@@ -51,8 +54,14 @@ export function QueuePage() {
 
   const { data: board, isLoading } = useWashBoard(branchId)
   const { data: users = [] } = useUsers()
-  // Lazy initializer keeps "now" a stable render input (same pattern as the sidebar).
-  const [now] = useState(() => Date.now())
+  // live elapsed timer: re-render every 30s
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 30000)
+    return () => clearInterval(id)
+  }, [])
+  const [cancelTarget, setCancelTarget] = useState<WashJob | null>(null)
+  const [chargeTarget, setChargeTarget] = useState<WashJob | null>(null)
   const [plate, setPlate] = useState('')
   const [size, setSize] = useState('')
 
@@ -66,11 +75,14 @@ export function QueuePage() {
   const workerName = (id: string | null) =>
     id ? (users.find((u) => u.id === id)?.name ?? t('unknownWorker')) : t('unassigned')
 
+  const activeKeys = new Set(COLUMNS.flatMap((c) => (board?.columns[c] ?? []).map((j) => plateKey(j.plate))))
+  const duplicate = plate.trim() !== '' && activeKeys.has(plateKey(plate))
+
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!plate.trim() || !branchId) return
+    if (!plate.trim() || !branchId || duplicate) return
     create.mutate(
-      { branch_id: branchId, plate: plate.trim(), vehicle_size: size || undefined },
+      { branch_id: branchId, plate: toEnglishDigits(plate).replace(/\s+/g, ' ').trim(), vehicle_size: size || undefined },
       { onSuccess: () => { setPlate(''); setSize('') } },
     )
   }
@@ -90,8 +102,9 @@ export function QueuePage() {
           <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">{t('form.plate')}</label>
           <input
             value={plate}
-            onChange={(e) => setPlate(e.target.value)}
+            onChange={(e) => setPlate(toEnglishDigits(e.target.value))}
             maxLength={32}
+            aria-invalid={duplicate}
             className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
           />
         </div>
@@ -110,12 +123,13 @@ export function QueuePage() {
         </div>
         <button
           type="submit"
-          disabled={!plate.trim() || !branchId || create.isPending}
+          disabled={!plate.trim() || !branchId || create.isPending || duplicate}
           className="flex items-center gap-1 px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 text-white rounded-lg text-sm font-medium"
         >
           <Plus className="w-4 h-4" />
           {t('form.add')}
         </button>
+        {duplicate && <p className="w-full text-xs text-red-500">{t('duplicatePlate')}</p>}
       </form>
 
       {isLoading ? (
@@ -167,7 +181,10 @@ export function QueuePage() {
                         </select>
                         <div className="flex gap-2">
                           <button
-                            onClick={() => change.mutate({ id: job.id, status: NEXT[status] })}
+                            onClick={() => {
+                              if (status === 'ready' && !job.order_id) setChargeTarget(job)
+                              else change.mutate({ id: job.id, status: NEXT[status] })
+                            }}
                             className="flex-1 flex items-center justify-center gap-1 py-1.5 bg-[#0C447C] hover:bg-[#0a3a6b] text-white rounded-lg text-xs font-medium"
                           >
                             {t(`advanceTo.${NEXT[status]}`)}
@@ -185,7 +202,7 @@ export function QueuePage() {
                           )}
                           {status !== 'ready' && (
                             <button
-                              onClick={() => change.mutate({ id: job.id, status: 'cancelled' })}
+                              onClick={() => setCancelTarget(job)}
                               title={t('cancel')}
                               aria-label={t('cancel')}
                               className="px-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-300"
@@ -203,6 +220,21 @@ export function QueuePage() {
           })}
         </div>
       )}
+
+      {chargeTarget && <WashChargeDialog job={chargeTarget} branchId={branchId} onClose={() => setChargeTarget(null)} />}
+      <ConfirmDialog
+        open={!!cancelTarget}
+        onClose={() => setCancelTarget(null)}
+        onConfirm={() =>
+          cancelTarget &&
+          change.mutate({ id: cancelTarget.id, status: 'cancelled' }, { onSettled: () => setCancelTarget(null) })
+        }
+        isLoading={change.isPending}
+        title={t('confirmCancel.title')}
+        message={t('confirmCancel.message', { plate: cancelTarget?.plate ?? '' })}
+        confirmLabel={t('confirmCancel.confirm')}
+        cancelLabel={t('confirmCancel.back')}
+      />
     </div>
   )
 }

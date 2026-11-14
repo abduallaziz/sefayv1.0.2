@@ -32,5 +32,28 @@
   },
   "errors": {
     "action": "Could not update the queue"
+  },
+  "duplicatePlate": "This vehicle is already in the queue",
+  "confirmCancel": {
+    "title": "Cancel this car?",
+    "message": "Car {plate} will be removed from the queue.",
+    "confirm": "Cancel car",
+    "back": "Back"
+  },
+  "charge": {
+    "title": "Charge and deliver",
+    "service": "Service",
+    "selectService": "Select a service",
+    "loading": "Loading...",
+    "price": "Price",
+    "method": "Payment method",
+    "cash": "Cash",
+    "card": "Card",
+    "tendered": "Cash tendered",
+    "noShift": "No open shift: the sale will be recorded without a shift.",
+    "confirm": "Charge invoice and deliver car",
+    "processing": "Processing...",
+    "skip": "Deliver without invoice",
+    "done": "Charged and delivered"
   }
 }

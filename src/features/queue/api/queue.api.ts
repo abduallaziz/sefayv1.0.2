@@ -47,6 +47,9 @@ export const queueApi = {
     apiClient.post<WashJob>('/wash-queue', dto),
   changeStatus: (id: string, status: Exclude<WashStatus, 'waiting'>): Promise<WashJob> =>
     apiClient.patch<WashJob>(`/wash-queue/${id}/status`, { status }),
+  /** Links the invoice that billed this job (set once, after the sale succeeded). */
+  linkOrder: (id: string, orderId: string): Promise<WashJob> =>
+    apiClient.patch<WashJob>(`/wash-queue/${id}/order`, { order_id: orderId }),
   assign: (id: string, workerId: string | null): Promise<WashJob> =>
     apiClient.patch<WashJob>(`/wash-queue/${id}/worker`, { worker_id: workerId }),
 }
