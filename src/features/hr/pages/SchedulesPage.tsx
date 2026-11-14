@@ -1,7 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
+import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
+import { formatDate } from '@/lib/format'
 import { Plus, Trash2, Pencil, Users as UsersIcon, CalendarClock, X } from 'lucide-react'
 import { ApiError } from '@/lib/api'
 import {
@@ -17,13 +19,39 @@ import type { ShiftPattern, Shift, DayOverride } from '../api/hr.api'
 
 const WEEKDAYS = [0, 1, 2, 3, 4, 5, 6] // 0 = Sunday
 
-function formatShifts(shifts: Shift[]) {
-  return shifts.map((s) => `${s.start_time.slice(0, 5)}–${s.end_time.slice(0, 5)}`).join(' + ')
+const toMin = (v: string) => {
+  const [h, m] = v.split(':').map(Number)
+  return h * 60 + m
+}
+
+/** Mirrors the API rule: start != end (end < start = overnight), same-day shifts must not overlap. */
+function findShiftsError(shifts: Shift[]): 'same' | 'overlap' | 'missing' | null {
+  const spans: [number, number][] = []
+  for (const sh of shifts) {
+    if (!sh.start_time || !sh.end_time) return 'missing'
+    const start = toMin(sh.start_time)
+    let end = toMin(sh.end_time)
+    if (start === end) return 'same'
+    if (end < start) end += 1440
+    spans.push([start, end])
+  }
+  spans.sort((a, b) => a[0] - b[0])
+  for (let i = 1; i < spans.length; i++) if (spans[i][0] < spans[i - 1][1]) return 'overlap'
+  return null
+}
+
+function formatShifts(shifts: Shift[], nextDay?: string) {
+  return shifts
+    .map((s) => {
+      const overnight = s.end_time.slice(0, 5) < s.start_time.slice(0, 5)
+      return `${s.start_time.slice(0, 5)}–${s.end_time.slice(0, 5)}${overnight && nextDay ? ` (${nextDay})` : ''}`
+    })
+    .join(' + ')
 }
 
 function formatDaysAndShifts(t: ReturnType<typeof useTranslations>, days: number[], shifts: Shift[]) {
   const dayLabels = days.map((d) => t(`weekday.${d}`)).join('، ')
-  return `${dayLabels} · ${formatShifts(shifts)}`
+  return shifts.length > 0 ? `${dayLabels} · ${formatShifts(shifts, t('nextDay'))}` : dayLabels
 }
 
 function ShiftsEditor({ shifts, onChange }: { shifts: Shift[]; onChange: (shifts: Shift[]) => void }) {
@@ -41,6 +69,7 @@ function ShiftsEditor({ shifts, onChange }: { shifts: Shift[]; onChange: (shifts
         <div key={i} className="grid grid-cols-2 gap-2 items-center">
           <input
             type="time"
+            aria-label={t('startTime')}
             value={s.start_time}
             onChange={(e) => updateShift(i, 'start_time', e.target.value)}
             className="bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white"
@@ -48,19 +77,20 @@ function ShiftsEditor({ shifts, onChange }: { shifts: Shift[]; onChange: (shifts
           <div className="flex items-center gap-2">
             <input
               type="time"
+              aria-label={t('endTime')}
               value={s.end_time}
               onChange={(e) => updateShift(i, 'end_time', e.target.value)}
               className="flex-1 bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white"
             />
             {shifts.length > 1 && (
-              <button onClick={() => removeShift(i)} className="text-slate-400 hover:text-red-500 shrink-0">
+              <button type="button" aria-label={t('removeShift')} onClick={() => removeShift(i)} className="text-slate-400 hover:text-red-500 shrink-0">
                 <X className="w-4 h-4" />
               </button>
             )}
           </div>
         </div>
       ))}
-      <button onClick={addShift} className="flex items-center gap-1 text-xs text-[#0C447C] dark:text-[#5B9BD5]">
+      <button type="button" onClick={addShift} className="flex items-center gap-1 text-xs text-[#0C447C] dark:text-[#5B9BD5]">
         <Plus className="w-3.5 h-3.5" /> {t('addShift')}
       </button>
     </div>
@@ -69,8 +99,11 @@ function ShiftsEditor({ shifts, onChange }: { shifts: Shift[]; onChange: (shifts
 
 export function SchedulesPage() {
   const t = useTranslations('schedules')
+  const locale = useLocale()
   const { data: patterns = [], isLoading: patternsLoading } = useShiftPatterns()
-  const { data: users = [] } = useUsers()
+  const { data: allUsers = [] } = useUsers()
+  // Same roster as the Employees page: only active employees can be scheduled.
+  const users = allUsers.filter((u) => u.is_active !== false)
   const { mutate: createPattern, isPending: creating } = useCreateShiftPattern()
   const { mutate: updatePattern, isPending: updating } = useUpdateShiftPattern()
   const { mutate: deletePattern } = useDeleteShiftPattern()
@@ -83,6 +116,7 @@ export function SchedulesPage() {
   const [patternShifts, setPatternShifts] = useState<Shift[]>([{ start_time: '09:00', end_time: '17:00' }])
   const [patternDayOverrides, setPatternDayOverrides] = useState<DayOverride[]>([])
   const [patternError, setPatternError] = useState<string | null>(null)
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
 
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
   const [assignMode, setAssignMode] = useState<'pattern' | 'custom'>('pattern')
@@ -132,7 +166,13 @@ export function SchedulesPage() {
 
   const handleSavePattern = () => {
     setPatternError(null)
-    if (!patternName.trim() || patternDays.length === 0 || patternShifts.length === 0) return
+    if (!patternName.trim()) return setPatternError(t('errPatternName'))
+    if (patternDays.length === 0) return setPatternError(t('errPatternDays'))
+    if (patternShifts.length === 0) return setPatternError(t('errPatternShifts'))
+    for (const list of [patternShifts, ...patternDayOverrides.map((o) => o.shifts)]) {
+      const problem = findShiftsError(list)
+      if (problem) return setPatternError(t(`errShift_${problem}`))
+    }
     const dto = {
       name: patternName.trim(),
       days_of_week: patternDays,
@@ -147,16 +187,22 @@ export function SchedulesPage() {
     }
   }
 
-  const handleDeletePattern = (id: string) => {
-    if (!confirm(t('deletePatternConfirm'))) return
-    deletePattern(id)
+  const confirmDeletePattern = () => {
+    if (!pendingDeleteId) return
+    deletePattern(pendingDeleteId, { onSuccess: () => setPendingDeleteId(null) })
   }
 
   const handleAssign = () => {
     setAssignError(null)
     setAssignSuccess(null)
-    if (selectedUserIds.length === 0 || !scheduleStartDate) return
-    if (assignMode === 'pattern' && !selectedPatternId) return
+    if (selectedUserIds.length === 0) return setAssignError(t('errSelectEmployees'))
+    if (assignMode === 'pattern' && !selectedPatternId) return setAssignError(t('errSelectPattern'))
+    if (assignMode === 'custom') {
+      if (customDays.length === 0) return setAssignError(t('errPatternDays'))
+      const problem = findShiftsError(customShifts)
+      if (problem) return setAssignError(t(`errShift_${problem}`))
+    }
+    if (!scheduleStartDate) return setAssignError(t('errStartDate'))
 
     assignSchedule(
       {
@@ -195,6 +241,7 @@ export function SchedulesPage() {
             <CalendarClock className="w-4 h-4 text-slate-400" /> {t('patternsTitle')}
           </h2>
           <button
+            type="button"
             onClick={openNewPatternForm}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0C447C] hover:bg-[#0a3a6b] text-white rounded-lg text-xs font-medium"
           >
@@ -206,6 +253,7 @@ export function SchedulesPage() {
         {showPatternForm && (
           <div className="p-4 border-b border-slate-100 dark:border-gray-800 space-y-3">
             <input
+              aria-label={t('patternName')}
               value={patternName}
               onChange={(e) => setPatternName(e.target.value)}
               placeholder={t('patternName')}
@@ -217,6 +265,7 @@ export function SchedulesPage() {
                 {WEEKDAYS.map((d) => (
                   <button
                     key={d}
+                    type="button"
                     onClick={() => toggleDay(patternDays, setPatternDays, d)}
                     className={`px-2.5 py-1 rounded-full text-xs border ${
                       patternDays.includes(d)
@@ -242,7 +291,7 @@ export function SchedulesPage() {
                     <div key={o.day} className="border border-slate-200 dark:border-gray-700 rounded-lg p-2 space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-medium text-slate-600 dark:text-slate-300">{t(`weekday.${o.day}`)}</span>
-                        <button onClick={() => removeDayOverride(o.day)} className="text-slate-400 hover:text-red-500">
+                        <button type="button" aria-label={t('removeOverride')} onClick={() => removeDayOverride(o.day)} className="text-slate-400 hover:text-red-500">
                           <X className="w-3.5 h-3.5" />
                         </button>
                       </div>
@@ -253,6 +302,7 @@ export function SchedulesPage() {
                     {patternDays.filter((d) => !overriddenDays.has(d)).map((d) => (
                       <button
                         key={d}
+                        type="button"
                         onClick={() => addDayOverride(d)}
                         className="px-2.5 py-1 rounded-full text-xs border border-dashed border-slate-300 dark:border-gray-600 text-slate-500 dark:text-slate-400"
                       >
@@ -264,20 +314,22 @@ export function SchedulesPage() {
               </div>
             )}
 
-            {patternError && <p className="text-sm text-red-500">{patternError}</p>}
+            {patternError && <p role="alert" className="text-sm text-red-500">{patternError}</p>}
             <div className="flex items-center gap-2">
               <button
+                type="button"
                 onClick={handleSavePattern}
-                disabled={creating || updating || !patternName.trim() || patternDays.length === 0 || patternShifts.length === 0}
+                disabled={creating || updating}
                 className="px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 text-white rounded-lg text-sm font-medium"
               >
                 {creating || updating ? t('saving') : t('save')}
               </button>
               <button
+                type="button"
                 onClick={() => setShowPatternForm(false)}
                 className="px-4 py-2 text-slate-500 text-sm"
               >
-                ✕
+                {t('cancel')}
               </button>
             </div>
           </div>
@@ -296,15 +348,15 @@ export function SchedulesPage() {
                   <p className="text-xs text-slate-400">{formatDaysAndShifts(t, p.days_of_week, p.shifts)}</p>
                   {p.day_overrides?.length > 0 && (
                     <p className="text-xs text-slate-400">
-                      {p.day_overrides.map((o) => `${t(`weekday.${o.day}`)}: ${formatShifts(o.shifts)}`).join(' · ')}
+                      {p.day_overrides.map((o) => `${t(`weekday.${o.day}`)}: ${formatShifts(o.shifts, t('nextDay'))}`).join(' · ')}
                     </p>
                   )}
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <button onClick={() => openEditPatternForm(p)} className="text-slate-400 hover:text-[#0C447C] p-1.5">
+                  <button type="button" aria-label={t('editPattern')} title={t('editPattern')} onClick={() => openEditPatternForm(p)} className="text-slate-400 hover:text-[#0C447C] p-1.5">
                     <Pencil className="w-4 h-4" />
                   </button>
-                  <button onClick={() => handleDeletePattern(p.id)} className="text-slate-400 hover:text-red-500 p-1.5">
+                  <button type="button" aria-label={t('deletePattern')} title={t('deletePattern')} onClick={() => setPendingDeleteId(p.id)} className="text-slate-400 hover:text-red-500 p-1.5">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
@@ -326,6 +378,8 @@ export function SchedulesPage() {
             {users.map((u) => (
               <button
                 key={u.id}
+                type="button"
+                aria-pressed={selectedUserIds.includes(u.id)}
                 onClick={() => toggleUserId(u.id)}
                 className={`px-2.5 py-1 rounded-full text-xs border ${
                   selectedUserIds.includes(u.id)
@@ -341,12 +395,14 @@ export function SchedulesPage() {
 
         <div className="flex gap-1 bg-slate-100 dark:bg-gray-800 rounded-lg p-1 w-fit">
           <button
+            type="button"
             onClick={() => setAssignMode('pattern')}
             className={`px-3 py-1.5 rounded-md text-xs font-medium ${assignMode === 'pattern' ? 'bg-white dark:bg-gray-900 text-slate-800 dark:text-white shadow-sm' : 'text-slate-500'}`}
           >
             {t('useExistingPattern')}
           </button>
           <button
+            type="button"
             onClick={() => setAssignMode('custom')}
             className={`px-3 py-1.5 rounded-md text-xs font-medium ${assignMode === 'custom' ? 'bg-white dark:bg-gray-900 text-slate-800 dark:text-white shadow-sm' : 'text-slate-500'}`}
           >
@@ -356,6 +412,7 @@ export function SchedulesPage() {
 
         {assignMode === 'pattern' ? (
           <select
+            aria-label={t('selectPattern')}
             value={selectedPatternId}
             onChange={(e) => setSelectedPatternId(e.target.value)}
             className="w-full bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white"
@@ -373,6 +430,7 @@ export function SchedulesPage() {
                 {WEEKDAYS.map((d) => (
                   <button
                     key={d}
+                    type="button"
                     onClick={() => toggleDay(customDays, setCustomDays, d)}
                     className={`px-2.5 py-1 rounded-full text-xs border ${
                       customDays.includes(d)
@@ -400,17 +458,12 @@ export function SchedulesPage() {
         {assignSuccess !== null && (
           <p className="text-sm text-emerald-600 dark:text-emerald-400">{t('assigned', { count: assignSuccess })}</p>
         )}
-        {assignError && <p className="text-sm text-red-500">{assignError}</p>}
+        {assignError && <p role="alert" className="text-sm text-red-500">{assignError}</p>}
 
         <button
+          type="button"
           onClick={handleAssign}
-          disabled={
-            assigning ||
-            selectedUserIds.length === 0 ||
-            !scheduleStartDate ||
-            (assignMode === 'pattern' && !selectedPatternId) ||
-            (assignMode === 'custom' && (customDays.length === 0 || customShifts.length === 0))
-          }
+          disabled={assigning}
           className="px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 text-white rounded-lg text-sm font-medium"
         >
           {assigning ? t('applying') : t('apply')}
@@ -440,7 +493,7 @@ export function SchedulesPage() {
                     <p className="text-xs text-slate-400">{t('noAssignment')}</p>
                   )}
                   {u.schedule_start_date && (
-                    <p className="text-xs text-slate-400">{t('sinceDate', { date: u.schedule_start_date })}</p>
+                    <p className="text-xs text-slate-400">{t('sinceDate', { date: formatDate(`${u.schedule_start_date.substring(0, 10)}T12:00:00`, locale) })}</p>
                   )}
                 </div>
               </div>
@@ -448,6 +501,24 @@ export function SchedulesPage() {
           })}
         </div>
       </div>
+
+      <ConfirmDialog
+        open={!!pendingDeleteId}
+        onClose={() => setPendingDeleteId(null)}
+        onConfirm={confirmDeletePattern}
+        variant="danger"
+        title={t('deletePattern')}
+        message={
+          <>
+            <span dir="auto" className="[unicode-bidi:isolate] font-semibold">{patterns.find((p) => p.id === pendingDeleteId)?.name}</span>
+            {' — '}
+            {t('deletePatternConfirm')}
+          </>
+        }
+        confirmLabel={t('delete')}
+        cancelLabel={t('cancel')}
+        loadingLabel={t('saving')}
+      />
     </div>
   )
 }
