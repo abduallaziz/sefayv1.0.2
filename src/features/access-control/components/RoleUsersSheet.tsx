@@ -209,6 +209,7 @@ function UserRow({
           <div className="flex items-center gap-2">
             <span className="truncate text-sm font-medium text-slate-800 dark:text-white">{user.name}</span>
             {user.is_primary && <StatusBadge label={t('roleUsersSheet.primaryBadge')} tone="brand" />}
+            {!user.is_active && <StatusBadge label={t('roleUsersSheet.disabledBadge')} tone="neutral" />}
             {locked && (
               <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-700 dark:text-amber-400">
                 <Lock className="h-3 w-3" /> {t('userPermissionChecklist.ownerBadge')}

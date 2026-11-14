@@ -68,6 +68,7 @@
     "noCandidates": "No matching users found",
     "add": "Add",
     "primaryBadge": "Primary",
+    "disabledBadge": "Disabled",
     "removeRole": "Remove role",
     "cannotRemovePrimary": "This is the user's primary role — change it via their role instead",
     "emptyTitle": "No users hold this role yet",
