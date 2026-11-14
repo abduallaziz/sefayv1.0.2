@@ -12,6 +12,8 @@ interface Props {
   placeholder?: string;
   align?: 'left' | 'right';
   className?: string;
+  /** Earliest selectable day (YYYY-MM-DD); earlier days are disabled. */
+  min?: string;
 }
 
 function toYMD(d: Date) {
@@ -31,7 +33,7 @@ function formatLabel(s: string, locale: string) {
 
 type CalView = 'days' | 'months' | 'years';
 
-export function SingleDatePicker({ value, onChange, placeholder, className }: Props) {
+export function SingleDatePicker({ value, onChange, placeholder, className, min }: Props) {
   const t = useTranslations('datePicker');
   const locale = useLocale();
 
@@ -49,7 +51,7 @@ export function SingleDatePicker({ value, onChange, placeholder, className }: Pr
   const pos = useFloatingPosition(triggerRef, panelRef, open);
 
   const dayNames = Array.from({ length: 7 }, (_, i) =>
-    new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(new Date(2024, 0, i))
+    new Intl.DateTimeFormat(locale, { weekday: locale.startsWith('ar') ? 'narrow' : 'short' }).format(new Date(2024, 0, i))
   );
   const monthNames = Array.from({ length: 12 }, (_, i) =>
     new Intl.DateTimeFormat(locale, { month: 'long' }).format(new Date(2024, i, 1))
@@ -138,7 +140,7 @@ export function SingleDatePicker({ value, onChange, placeholder, className }: Pr
 
           {/* Nav */}
           <div className="flex items-center justify-between">
-            <button onClick={handleNavPrev} className="p-1 rounded hover:bg-slate-100 dark:hover:bg-posCloudDark-border/40">
+            <button onClick={handleNavPrev} aria-label={cv === 'days' ? t('next') : t('prev')} className="p-1 rounded hover:bg-slate-100 dark:hover:bg-posCloudDark-border/40">
               <ChevronRight size={16} className="text-posCloud-text-secondary dark:text-posCloudDark-text-secondary" />
             </button>
 
@@ -159,7 +161,7 @@ export function SingleDatePicker({ value, onChange, placeholder, className }: Pr
               )}
             </div>
 
-            <button onClick={handleNavNext} className="p-1 rounded hover:bg-slate-100 dark:hover:bg-posCloudDark-border/40">
+            <button onClick={handleNavNext} aria-label={cv === 'days' ? t('prev') : t('next')} className="p-1 rounded hover:bg-slate-100 dark:hover:bg-posCloudDark-border/40">
               <ChevronLeft size={16} className="text-posCloud-text-secondary dark:text-posCloudDark-text-secondary" />
             </button>
           </div>
@@ -168,17 +170,19 @@ export function SingleDatePicker({ value, onChange, placeholder, className }: Pr
           {cv === 'days' && (
             <>
               <div className="grid grid-cols-7">
-                {dayNames.map(d => <div key={d} className="text-center text-xs text-posCloud-text-tertiary py-1">{d}</div>)}
+                {dayNames.map((d, i) => <div key={i} title={new Intl.DateTimeFormat(locale, { weekday: 'long' }).format(new Date(2024, 0, i))} className="min-w-0 truncate text-center text-xs text-posCloud-text-tertiary py-1">{d}</div>)}
               </div>
               <div className="grid grid-cols-7 -mt-2">
                 {cells.map((ymd, i) => {
                   if (!ymd) return <div key={i} />;
                   const isSelected = ymd === value;
+                  const disabled = !!min && ymd < min;
                   return (
                     <div key={ymd} className="relative flex items-center justify-center">
                       <button
                         onClick={() => handleDayClick(ymd)}
-                        className={`w-8 h-8 text-xs rounded-full transition-colors z-10 font-medium
+                        disabled={disabled}
+                        className={`w-8 h-8 text-xs rounded-full transition-colors z-10 font-medium disabled:opacity-30 disabled:cursor-not-allowed
                           ${isSelected ? 'bg-posCloud-primary text-white' : 'text-posCloud-text-secondary dark:text-posCloudDark-text-secondary hover:bg-slate-100 dark:hover:bg-posCloudDark-border/40'}`}
                       >
                         {fromYMD(ymd).getDate()}

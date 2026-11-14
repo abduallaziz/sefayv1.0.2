@@ -57,6 +57,8 @@ export function EmployeesPage() {
         </div>
         <div className="flex items-center gap-2">
           <button
+            type="button"
+            aria-label={t('linkExistingUser')}
             onClick={() => setLinkModalOpen(true)}
             className="flex items-center gap-2 px-3 py-2 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg text-sm text-gray-700 dark:text-gray-300 transition-colors shrink-0"
           >
@@ -65,6 +67,7 @@ export function EmployeesPage() {
           </button>
           <Link
             href="/dashboard/employees/new"
+            aria-label={t('addEmployee')}
             className="flex items-center gap-2 px-3 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] rounded-lg text-sm text-white transition-colors shrink-0"
           >
             <Plus className="w-4 h-4" />
@@ -137,9 +140,9 @@ export function EmployeesPage() {
                       </span>
                     </td>
                     <td className="px-3 py-3">
-                      <span className={`inline-flex items-center gap-1 text-xs font-medium ${emp.attendance_enabled ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'}`}>
+                      <span className={`inline-flex items-center gap-1 text-xs font-medium ${emp.attendance_enabled && emp.is_active ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'}`}>
                         <CalendarClock className="w-3.5 h-3.5" />
-                        {emp.attendance_enabled ? t('attendanceEnabled') : t('attendanceDisabled')}
+                        {emp.attendance_enabled && emp.is_active ? t('attendanceEnabled') : t('attendanceDisabled')}
                       </span>
                     </td>
                     <td className="px-3 py-3">

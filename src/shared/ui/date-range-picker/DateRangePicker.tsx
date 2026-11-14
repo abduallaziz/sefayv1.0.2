@@ -76,7 +76,7 @@ export function DateRangePicker({ value, onChange, placeholder, className }: Pro
   ];
 
   const dayNames = Array.from({ length: 7 }, (_, i) =>
-    new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(new Date(2024, 0, i))
+    new Intl.DateTimeFormat(locale, { weekday: locale.startsWith('ar') ? 'narrow' : 'short' }).format(new Date(2024, 0, i))
   );
   const monthNames = Array.from({ length: 12 }, (_, i) =>
     new Intl.DateTimeFormat(locale, { month: 'long' }).format(new Date(2024, i, 1))
@@ -258,7 +258,7 @@ export function DateRangePicker({ value, onChange, placeholder, className }: Pro
             {cv === 'days' && (
               <>
                 <div className="grid grid-cols-7">
-                  {dayNames.map(d => <div key={d} className="text-center text-xs text-slate-400 py-1">{d}</div>)}
+                  {dayNames.map((d, i) => <div key={i} title={new Intl.DateTimeFormat(locale, { weekday: 'long' }).format(new Date(2024, 0, i))} className="min-w-0 truncate text-center text-xs text-slate-400 py-1">{d}</div>)}
                 </div>
                 <div className="grid grid-cols-7 -mt-2">
                   {cells.map((ymd, i) => {
