@@ -7,6 +7,7 @@ export interface User {
   name: string
   email: string
   role: string
+  role_name?: string | null
   is_active: boolean
   created_at: string
   branch_id?: string | null
