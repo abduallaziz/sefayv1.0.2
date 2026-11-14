@@ -9,6 +9,8 @@ export interface Column<T> {
   header: string;
   width?: string;
   align?: 'left' | 'center' | 'right';
+  /** Pins the column to the end edge so row actions stay reachable on narrow screens. */
+  sticky?: boolean;
   render?: (row: T, index: number) => ReactNode;
 }
 
@@ -69,7 +71,9 @@ export function DataTable<T>({
                   className={cn(
                     'px-4 py-3 text-xs font-semibold uppercase tracking-wide',
                     headerText,
-                    alignClass(col.align)
+                    alignClass(col.align),
+                    col.sticky && 'sticky end-0 z-10 shadow-[-8px_0_8px_-8px_rgba(0,0,0,0.12)]',
+                    col.sticky && headerBg
                   )}
                 >
                   {col.header}
@@ -115,7 +119,7 @@ export function DataTable<T>({
                   {columns.map((col) => (
                     <td
                       key={col.key}
-                      className={cn('px-4 py-3 text-sm', cellText, alignClass(col.align))}
+                      className={cn('px-4 py-3 text-sm', cellText, alignClass(col.align), col.sticky && cn('sticky end-0 z-10', bgColor))}
                     >
                       {col.render
                         ? col.render(row, i)

@@ -147,8 +147,16 @@ function AllEmployeesAttendance({
     for (const r of records) {
       if (!byUser.has(r.user_id)) byUser.set(r.user_id, r)
     }
+    // Employees who never checked in still belong on the board (status: not logged / away).
+    for (const u of users) {
+      if (u.is_active === false || u.attendance_enabled === false || byUser.has(u.id)) continue
+      byUser.set(u.id, {
+        id: `none-${u.id}`, user_id: u.id, user_name: u.name ?? null, branch_id: null,
+        check_in_at: '', check_out_at: null, hours_worked: null,
+      })
+    }
     return Array.from(byUser.values())
-  }, [records])
+  }, [records, users])
 
   const filtered = useMemo(() => {
     return latestPerEmployee.filter((r) => {
@@ -163,7 +171,7 @@ function AllEmployeesAttendance({
   const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
 
   function getStatus(r: (typeof records)[number]): Status {
-    const isRefDate = r.check_in_at.substring(0, 10) === refDate
+    const isRefDate = !!r.check_in_at && r.check_in_at.substring(0, 10) === refDate
     if (isRefDate) return r.check_out_at ? 'out' : 'present'
     return scheduledUserIdsOnDate.has(r.user_id) ? 'away' : 'not_logged'
   }
@@ -177,7 +185,7 @@ function AllEmployeesAttendance({
         usersById.get(r.user_id)?.department ?? '',
         t(`statusValues.${status}`),
         r.hours_worked !== null && r.check_in_at.substring(0, 10) === refDate ? String(r.hours_worked) : '',
-        fmtDateTime(r.check_in_at),
+        r.check_in_at ? fmtDateTime(r.check_in_at) : '',
         r.check_out_at ? fmtDateTime(r.check_out_at) : '',
       ]
     })
@@ -280,12 +288,18 @@ function AllEmployeesAttendance({
                     </td>
                     <td className="px-4 py-3 text-center align-middle">
                       <div className="inline-block bg-emerald-50 dark:bg-emerald-500/10 rounded-lg px-3 py-1.5">
-                        <p className="text-sm font-medium text-slate-800 dark:text-white">
-                          {new Date(r.check_in_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
-                        </p>
-                        <p className="text-[10px] text-slate-400">
-                          {new Date(r.check_in_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                        </p>
+                        {r.check_in_at ? (
+                          <>
+                            <p className="text-sm font-medium text-slate-800 dark:text-white">
+                              {new Date(r.check_in_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                            </p>
+                            <p className="text-[10px] text-slate-400">
+                              {new Date(r.check_in_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                            </p>
+                          </>
+                        ) : (
+                          <p className="text-sm font-medium text-slate-400">--</p>
+                        )}
                       </div>
                     </td>
                     <td className="px-4 py-3 text-center align-middle">

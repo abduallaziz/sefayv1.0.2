@@ -95,10 +95,10 @@ export function ConfirmDialog({
           <div className={cn('flex items-center justify-center w-12 h-12 rounded-full mb-4', styles.iconBg)}>
             <AlertTriangle className={cn('w-6 h-6', styles.icon)} />
           </div>
-          <h2 id="confirm-dialog-title" className={cn('text-base font-semibold', styles.title)}>
+          <h2 id="confirm-dialog-title" dir="auto" className={cn('text-base font-semibold', styles.title)}>
             {title}
           </h2>
-          <div className="mt-2 text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{message}</div>
+          <div dir="auto" className="mt-2 text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary [unicode-bidi:plaintext]">{message}</div>
         </div>
 
         <div className="flex items-center gap-3 px-6 pb-6 pt-4">

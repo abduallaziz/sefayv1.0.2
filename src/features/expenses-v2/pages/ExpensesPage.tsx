@@ -212,6 +212,7 @@ export function ExpensesPage() {
     },
     {
       key: 'actions',
+      sticky: true,
       header: t('table.actions'),
       render: (row) => (
         <DropdownMenu>

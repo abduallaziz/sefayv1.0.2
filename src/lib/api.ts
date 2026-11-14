@@ -1,3 +1,5 @@
+import { localizeServerMessage } from './server-messages';
+
 const API_BASE = '/api/v1';
 
 type RequestOptions = {
@@ -83,7 +85,7 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
       if (lastRefreshFailure === 'transient') {
         // Could not reach the server to renew the session: keep the user signed
         // in and let the caller's retry try again, instead of logging them out.
-        throw new ApiError(503, 'Service temporarily unavailable');
+        throw new ApiError(503, localizeServerMessage('Service temporarily unavailable'));
       }
       // The session really ended: remember why, then sign out (the app then
       // redirects to the login page, which shows the "session expired" note).
@@ -102,7 +104,7 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 
   if (!res.ok) {
     const error = await res.json().catch(() => ({ message: res.statusText }));
-    throw new ApiError(res.status, error.message ?? 'Request failed');
+    throw new ApiError(res.status, localizeServerMessage(error.message ?? 'Request failed'));
   }
 
   if (res.status === 204) return undefined as T;
