@@ -19,6 +19,7 @@ import { useUsage, useSubscription } from '@/features/settings/hooks/useSettings
 import { useWarehouses } from '@/features/warehouses/hooks/useWarehouses'
 import { useBranchesAdmin, useCreateBranch, useUpdateBranch, useDeleteBranch } from '../hooks/useBranchesAdmin'
 import { BranchRecord } from '../api/branches.api'
+import { BranchIsolationCard } from '../components/BranchIsolationCard'
 
 // Statuses BillingService.checkBranchLimit() treats as a valid, capacity-bearing
 // subscription (billing.types.ts SubscriptionStatus). Kept in sync manually —
@@ -170,6 +171,7 @@ export function BranchesPage() {
 
   return (
     <div className="p-4 lg:p-6 space-y-4">
+      <BranchIsolationCard branches={branches.data ?? []} canManage={canManage} />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="text-start">
           <h1 className="text-xl font-bold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{t('title')}</h1>

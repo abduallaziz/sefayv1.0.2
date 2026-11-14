@@ -9,6 +9,32 @@ export const useBranchesAdmin = () =>
     queryFn: branchesApi.getAll,
   })
 
+export const useBranchIsolation = () =>
+  useQuery({
+    queryKey: ['branches', 'isolation'],
+    queryFn: branchesApi.getIsolation,
+  })
+
+export const useSetBranchIsolation = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (enabled: boolean) => branchesApi.setIsolation(enabled),
+    // Isolation changes what every list returns: drop all cached data.
+    onSuccess: () => qc.invalidateQueries(),
+  })
+}
+
+export const useSetMainBranch = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => branchesApi.setMain(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: KEY })
+      qc.invalidateQueries({ queryKey: ['branches'] })
+    },
+  })
+}
+
 export const useCreateBranch = () => {
   const qc = useQueryClient()
   return useMutation({

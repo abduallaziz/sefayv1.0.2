@@ -82,7 +82,16 @@ async function doRequest<T>(path: string, options: RequestOptions = {}): Promise
   const { method = 'GET', body, headers = {} } = options;
 
   const { useAuthStore } = await import('@/core/auth/stores/auth.store');
-  const { accessToken } = useAuthStore.getState();
+  const { accessToken, user: authUser } = useAuthStore.getState();
+  // A central user (owner/admin, no fixed branch) works inside the branch they picked in the switcher:
+  // the server resolves every request against it (branch isolation). Branch-restricted users never send
+  // it: the server always uses their own branch.
+  let branchHeader: Record<string, string> = {};
+  if (authUser && authUser.branchId == null) {
+    const { useBranchContextStore } = await import('@/core/branch/stores/branch-context.store');
+    const selected = useBranchContextStore.getState().selectedBranchId;
+    if (selected) branchHeader = { 'x-branch-id': selected };
+  }
 
   const res = await fetch(`${API_BASE}${path}`, {
     method,
@@ -90,6 +99,7 @@ async function doRequest<T>(path: string, options: RequestOptions = {}): Promise
     headers: {
       'Content-Type': 'application/json',
       ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      ...branchHeader,
       ...headers,
     },
     ...(body ? { body: JSON.stringify(body) } : {}),
@@ -144,6 +154,7 @@ export const apiClient = {
   get: <T>(path: string) => request<T>(path),
   post: <T>(path: string, body: unknown) => request<T>(path, { method: 'POST', body }),
   patch: <T>(path: string, body: unknown) => request<T>(path, { method: 'PATCH', body }),
+  put: <T>(path: string, body: unknown) => request<T>(path, { method: 'PUT', body }),
   delete: <T>(path: string, options?: { data?: unknown }) =>
     request<T>(path, { method: 'DELETE', body: options?.data }),
 };

@@ -13,6 +13,7 @@ export interface BranchRecord {
   name: string
   address: string | null
   is_active: boolean
+  is_main?: boolean
   created_at: string
   default_warehouse_id: string | null
   geofence_lat: number | null
@@ -31,7 +32,15 @@ export interface UpdateBranchDto {
   is_active?: boolean
 }
 
+export interface BranchIsolation {
+  enabled: boolean
+  main_branch_id: string | null
+}
+
 export const branchesApi = {
+  getIsolation: () => apiClient.get<BranchIsolation>('/branches/isolation/status'),
+  setIsolation: (enabled: boolean) => apiClient.put<BranchIsolation>('/branches/isolation/status', { enabled }),
+  setMain: (id: string) => apiClient.patch<BranchRecord>(`/branches/${id}/main`, {}),
   getAll: () => apiClient.get<BranchRecord[]>('/branches'),
   getOne: (id: string) => apiClient.get<BranchRecord>(`/branches/${id}`),
   create: (dto: CreateBranchDto) => apiClient.post<BranchRecord>('/branches', dto),

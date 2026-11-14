@@ -83,7 +83,9 @@ export function useBranchContext(): BranchContextValue {
     if (selectedBranchId && activeBranches.some((b) => b.id === selectedBranchId)) {
       currentBranchId = selectedBranchId
     } else if (activeBranches.length > 0) {
-      currentBranchId = activeBranches[0].id
+      // The tenant's main branch is the natural default (it is also the server's default scope
+      // under branch isolation); otherwise the first active branch.
+      currentBranchId = (activeBranches.find((b) => b.is_main) ?? activeBranches[0]).id
       fallbackReason = selectedBranchId ? 'previous-branch-invalid' : 'no-selection'
     } else {
       currentBranchId = null

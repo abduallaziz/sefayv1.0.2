@@ -5,6 +5,7 @@ export interface Branch {
   id: string;
   name: string;
   is_active: boolean;
+  is_main?: boolean;
 }
 
 // Used by branch-assignment selectors (Employee Wizard, Employee Detail,

@@ -63,5 +63,20 @@
   "noResults": "No matching branches",
   "deleteBranch": "Delete branch",
   "deleteTitle": "Delete this branch?",
-  "deleteConfirm": "Branch \"{name}\" will be deleted. A branch with shifts, invoices or an open shift cannot be deleted. This cannot be undone."
+  "deleteConfirm": "Branch \"{name}\" will be deleted. A branch with shifts, invoices or an open shift cannot be deleted. This cannot be undone.",
+  "isolation": {
+    "title": "Branch isolation",
+    "description": "Each branch works as an independent business: its own items, customers, staff, sales, expenses and accounting. The main branch only sees a summary.",
+    "mainIs": "Main branch: {name}",
+    "noMain": "No main branch set yet",
+    "enableTitle": "Enable branch isolation?",
+    "enableConfirm": "Every branch will see only its own data, and you will work inside the branch picked in the branch switcher. You can turn it off later.",
+    "disableTitle": "Turn off branch isolation?",
+    "disableConfirm": "Data goes back to being shared across the tenant.",
+    "enable": "Enable",
+    "disable": "Turn off",
+    "cancel": "Cancel",
+    "enabledToast": "Branch isolation enabled",
+    "disabledToast": "Branch isolation turned off"
+  }
 }
