@@ -34,5 +34,19 @@
   "error": "Something went wrong, try again",
   "invalidValue": "The discount value must be greater than zero",
   "invalidPercent": "A percentage discount cannot be more than 100%",
-  "invalidDates": "The end date must be after the start date"
+  "invalidDates": "The end date must be after the start date",
+  "close": "Close",
+  "searchPlaceholder": "Search by coupon code...",
+  "allStatuses": "All statuses",
+  "noMatches": "No matching coupons",
+  "state_active": "Active",
+  "state_inactive": "Inactive",
+  "state_exhausted": "Exhausted",
+  "state_expired": "Expired",
+  "state_upcoming": "Not started yet",
+  "invalidCode": "Code must be at least 2 characters (A-Z, 0-9, - and _)",
+  "valueTooLarge": "Discount value exceeds the maximum (1,000,000)",
+  "invalidMaxDiscount": "Max discount must be a number greater than 0 (up to 1,000,000)",
+  "invalidMinOrder": "Minimum order must be a number from 0 to 1,000,000",
+  "invalidMaxUses": "Max uses must be a whole number from 1 to 1,000,000"
 }
