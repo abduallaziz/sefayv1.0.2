@@ -28,6 +28,8 @@
   "addItems": "Add Items",
   "addItemsCount": "Add ({count})",
   "checkout": "Checkout",
+  "releaseTable": "Release table",
+  "changeDue": "Change due",
   "confirmCheckout": "Confirm Payment",
   "processing": "Processing...",
   "noItemsYet": "No items added yet",

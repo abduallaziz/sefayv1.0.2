@@ -8,7 +8,7 @@ import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { ItemGrid } from '@/features/pos/components/ItemGrid'
 import type { POSItem, POSVariant } from '@/features/pos/types/pos.types'
 import type { RestaurantTable } from '../api/tables.api'
-import { useOpenTable, useCurrentOrder, useAddDineInItems, useRemoveDineInItem, useCheckoutTable } from '../hooks/useTables'
+import { useOpenTable, useCurrentOrder, useAddDineInItems, useRemoveDineInItem, useCheckoutTable, useReleaseTable } from '../hooks/useTables'
 
 interface Props {
   table: RestaurantTable
@@ -29,6 +29,7 @@ export function DineInModal({ table, onClose }: Props) {
   const { mutate: addItems, isPending: addingItems } = useAddDineInItems(table.id)
   const { mutate: removeItem, isPending: removingItem } = useRemoveDineInItem(table.id)
   const { mutate: checkout, isPending: checkingOut } = useCheckoutTable(table.id)
+  const { mutate: release, isPending: releasing } = useReleaseTable(table.id)
 
   const fmt = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
@@ -72,6 +73,14 @@ export function DineInModal({ table, onClose }: Props) {
         onError: (e: unknown) => setError(e instanceof ApiError ? e.message : t('error')),
       },
     )
+  }
+
+  const handleRelease = () => {
+    setError(null)
+    release(undefined, {
+      onSuccess: () => onClose(),
+      onError: (e: unknown) => setError(e instanceof ApiError ? e.message : t('error')),
+    })
   }
 
   const handleCheckout = () => {
@@ -172,14 +181,22 @@ export function DineInModal({ table, onClose }: Props) {
                 ))}
               </div>
               {paymentMethod === 'cash' && (
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  placeholder={fmt(order?.total ?? 0)}
-                  value={cashTendered}
-                  onChange={(e) => setCashTendered(e.target.value)}
-                  className="w-full text-center h-11 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg"
-                />
+                <>
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    placeholder={fmt(order?.total ?? 0)}
+                    value={cashTendered}
+                    onChange={(e) => setCashTendered(e.target.value)}
+                    className="w-full text-center h-11 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg"
+                  />
+                  {parseFloat(cashTendered) > (order?.total ?? 0) && (
+                    <div className="flex justify-between text-sm font-bold text-emerald-600">
+                      <span>{t('changeDue')}</span>
+                      <span>{fmt(parseFloat(cashTendered) - (order?.total ?? 0))} {currency}</span>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           )}
@@ -191,6 +208,15 @@ export function DineInModal({ table, onClose }: Props) {
           <div className="flex gap-3 p-5 pt-0">
             {view === 'order' && (
               <>
+                {(order?.items ?? []).length === 0 && !orderLoading && (
+                  <button
+                    onClick={handleRelease}
+                    disabled={releasing}
+                    className="flex-1 py-2.5 border border-red-200 dark:border-red-900 text-red-600 disabled:opacity-50 rounded-lg text-sm font-medium"
+                  >
+                    {releasing ? t('processing') : t('releaseTable')}
+                  </button>
+                )}
                 <button
                   onClick={() => setView('addItems')}
                   className="flex-1 flex items-center justify-center gap-2 py-2.5 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium"

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { X, ShoppingCart, Check, CreditCard, Calculator, Delete, Gift, Coins, Minus, Plus, User } from 'lucide-react'
 import Image from 'next/image'
@@ -126,6 +126,14 @@ export function PaymentModal({
   const [cashInput, setCashInput] = useState<string | null>(null)
   const [splitCash, setSplitCash] = useState('')
   const [showPad, setShowPad] = useState(false)
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !isSubmitting) onClose()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose, isSubmitting])
 
   const fmt = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
@@ -608,14 +616,16 @@ export function PaymentModal({
                 </div>
               )}
 
-              {error && (
-                <div className="rounded-xl border border-posCloud-danger/20 bg-posCloud-danger-light p-2.5 text-xs text-posCloud-danger dark:bg-posCloud-danger/15">
-                  {error}
-                </div>
-              )}
             </div>
           </div>
         </div>
+
+        {/* Errors sit in the pinned footer so they are never scrolled out of view */}
+        {error && (
+          <div role="alert" className="shrink-0 border-t border-posCloud-danger/20 bg-posCloud-danger-light px-3 py-2 text-xs text-posCloud-danger dark:bg-posCloud-danger/15">
+            {error}
+          </div>
+        )}
 
         {/* Footer pinned under both columns */}
         <div className="flex shrink-0 gap-2 border-t border-posCloud-border bg-posCloud-surface p-2 dark:border-posCloudDark-border dark:bg-posCloudDark-surface">

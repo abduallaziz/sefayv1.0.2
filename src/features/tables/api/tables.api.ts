@@ -106,7 +106,10 @@ export const tablesApi = {
   getCurrentOrder: (tableId: string): Promise<DineInOrder> =>
     apiClient.get(`/tables/${tableId}/order`),
 
-  checkout: (tableId: string, data: CheckoutDineInInput): Promise<{ id: string; total: number; status: string }> =>
+  release: (tableId: string): Promise<{ table_id: string; status: string }> =>
+    apiClient.post(`/tables/${tableId}/release`, {}),
+
+  checkout: (tableId: string, data: CheckoutDineInInput): Promise<{ id: string; invoice_no?: string | null; total: number; status: string }> =>
     apiClient.post(`/tables/${tableId}/checkout`, data),
 
   getReservations: (filters?: { tableId?: string; from?: string; to?: string; status?: string }): Promise<Reservation[]> => {

@@ -28,6 +28,8 @@
   "addItems": "إضافة أصناف",
   "addItemsCount": "إضافة ({count})",
   "checkout": "تحصيل الفاتورة",
+  "releaseTable": "إلغاء فتح الطاولة",
+  "changeDue": "المتبقي للعميل",
   "confirmCheckout": "تأكيد الدفع",
   "processing": "جاري المعالجة...",
   "noItemsYet": "لا توجد أصناف مضافة بعد",

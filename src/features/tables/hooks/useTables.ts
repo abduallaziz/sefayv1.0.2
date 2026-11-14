@@ -83,6 +83,16 @@ export function useRemoveDineInItem(tableId: string) {
   })
 }
 
+export function useReleaseTable(tableId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: () => tablesApi.release(tableId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['tables'] })
+    },
+  })
+}
+
 export function useCheckoutTable(tableId: string) {
   const qc = useQueryClient()
   return useMutation({

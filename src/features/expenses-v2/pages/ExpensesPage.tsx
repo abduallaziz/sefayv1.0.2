@@ -216,7 +216,7 @@ export function ExpensesPage() {
       render: (row) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Button variant="ghost" aria-label={t('table.actions')} size="icon" className="h-8 w-8">
               <MoreVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>

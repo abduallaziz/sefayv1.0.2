@@ -254,7 +254,7 @@ export function SettingsPage() {
               <label className="text-xs text-slate-500 mb-1 block">{t('businessType')}</label>
               <input
                 type="text"
-                value={profile?.business_type ?? '—'}
+                value={profile?.business_type ? (t.has(`businessTypes.${profile.business_type}`) ? t(`businessTypes.${profile.business_type}`) : profile.business_type) : '—'}
                 disabled
                 className="w-full bg-slate-100 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-400"
               />

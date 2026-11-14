@@ -5,6 +5,14 @@
   "accessControl": "إدارة الصلاحيات",
   "accessControlHint": "تحكم فيما يمكن لكل دور الوصول إليه",
   "businessName": "اسم المتجر",
+  "businessTypes": {
+    "restaurant": "مطعم",
+    "cafe": "مقهى",
+    "retail": "تجزئة",
+    "services": "خدمات",
+    "workshop": "ورشة",
+    "other": "أخرى"
+  },
   "businessType": "نوع النشاط",
   "save": "حفظ",
   "saving": "جاري الحفظ...",

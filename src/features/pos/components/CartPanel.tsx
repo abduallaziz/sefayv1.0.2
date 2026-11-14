@@ -392,6 +392,7 @@ export function CartPanel({
                   placeholder={t('couponCode')}
                   value={couponInput}
                   onChange={(e) => { setCouponInput(e.target.value.toUpperCase()); setCouponError(null) }}
+                  onKeyDown={(e) => { if (e.key === 'Enter' && couponInput.trim() && !validatingCoupon) handleApplyCoupon() }}
                   className="flex-1 min-w-0 rounded-full border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-3.5 py-2 text-xs uppercase text-posCloud-text-primary dark:text-posCloudDark-text-primary outline-none placeholder:normal-case placeholder:text-posCloud-text-tertiary dark:placeholder:text-posCloudDark-text-tertiary"
                 />
                 <button

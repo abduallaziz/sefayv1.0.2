@@ -146,7 +146,7 @@ export function ShiftReportModal({ shiftId, initialReport, onClose }: Props) {
                       <td className="py-1.5 text-end tabular-nums">{formatNumber(m.expected)}</td>
                       <td className="py-1.5 text-end tabular-nums">{m.counted === null ? '—' : formatNumber(m.counted)}</td>
                       <td className={`py-1.5 text-end tabular-nums font-semibold ${diffClass(m.difference)}`}>
-                        {signed(m.difference)}
+                        {m.counted === null ? '—' : signed(m.difference)}
                       </td>
                     </tr>
                   ))}

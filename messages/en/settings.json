@@ -5,6 +5,14 @@
   "accessControl": "Access Control",
   "accessControlHint": "Control what each role can access",
   "businessName": "Business Name",
+  "businessTypes": {
+    "restaurant": "Restaurant",
+    "cafe": "Cafe",
+    "retail": "Retail",
+    "services": "Services",
+    "workshop": "Workshop",
+    "other": "Other"
+  },
   "businessType": "Business Type",
   "save": "Save",
   "saving": "Saving...",
