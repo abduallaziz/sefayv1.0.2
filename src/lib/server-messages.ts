@@ -105,6 +105,8 @@ const FIELDS: Record<string, string> = {
 const f = (field: string) => FIELDS[field] ?? field;
 
 const RULES: Array<[RegExp, (m: RegExpMatchArray) => string]> = [
+  [/^No Accounting Owner is assigned to branch/i, () => 'لا يوجد مسؤول محاسبة مرتبط بهذا الفرع، فلا يمكن ترحيل المبيعات'],
+  [/^accounting_posting_failed/i, () => 'تعذّر ترحيل القيد المحاسبي لهذه العملية'],
   [/^PDF engine failed to start on this server: (.+)$/, (m) => `تعذّر تشغيل محرك PDF (${m[1]})`],
   [
     /^(.+?) not found$/i,
