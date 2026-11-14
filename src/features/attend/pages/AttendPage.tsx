@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
+import { localizeServerMessage } from '@/lib/server-messages'
+import { formatDate } from '@/lib/format'
 import { Bell, MapPin, CheckCircle2, XCircle, LogIn, LogOut, ShieldCheck, Clock, CalendarCheck, TrendingUp, Gift } from 'lucide-react'
 import { BottomNav } from '../components/BottomNav'
 
@@ -61,6 +63,8 @@ interface Dashboard {
 
 export function AttendPage({ token }: { token: string }) {
   const t = useTranslations('attend')
+  const locale = useLocale()
+  const loc = locale === 'ar' ? 'ar-SA-u-nu-latn-ca-gregory' : 'en-US'
   const [status, setStatus] = useState<Status | null>(null)
   const [dashboard, setDashboard] = useState<Dashboard | null>(null)
   const [notFound, setNotFound] = useState(false)
@@ -121,7 +125,10 @@ export function AttendPage({ token }: { token: string }) {
   }, [])
 
   async function handleSubmit() {
-    if (!coords) return
+    if (!coords) {
+      setError(locationState === 'locating' ? t('locating') : t('locationError'))
+      return
+    }
     setSubmitting(true)
     setError(null)
     try {
@@ -134,10 +141,10 @@ export function AttendPage({ token }: { token: string }) {
           device_fingerprint: getDeviceFingerprint(),
         }),
       })
-      const data = await res.json()
+      const data = await res.json().catch(() => ({}))
       if (!res.ok) {
         setLocationState(res.status === 400 ? 'out_of_range' : locationState)
-        setError(data.message ?? t('error'))
+        setError(data.message ? localizeServerMessage(data.message) : t('error'))
         return
       }
       // Confirmation code is intentionally not shown — the flipped check-in/out
@@ -167,8 +174,8 @@ export function AttendPage({ token }: { token: string }) {
     )
   }
 
-  const fmtTime = (iso: string | null) => (iso ? new Date(iso).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '--:--')
-  const fmtDate = (d: Date) => d.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+  const fmtTime = (iso: string | null) => (iso ? new Date(iso).toLocaleTimeString(loc, { hour: '2-digit', minute: '2-digit' }) : '--:--')
+  const fmtDate = (d: Date) => d.toLocaleDateString(loc, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 
   return (
     <Shell>
@@ -239,6 +246,7 @@ export function AttendPage({ token }: { token: string }) {
                 <p className="text-xs text-slate-500 dark:text-slate-400">{status.zone_name}</p>
               )}
               <button
+                type="button"
                 onClick={() => setLocationKey((k) => k + 1)}
                 className="flex items-center gap-1 text-xs text-[#0C447C] dark:text-[#5B9BD5] mx-auto"
               >
@@ -250,16 +258,17 @@ export function AttendPage({ token }: { token: string }) {
             <div className="text-center py-2">
               <p className="text-xs text-slate-400 mb-1">{t('currentTime')}</p>
               <p className="text-3xl font-bold text-slate-800 dark:text-white tabular-nums">
-                {now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
+                {now.toLocaleTimeString(loc, { hour: '2-digit', minute: '2-digit', hour12: true })}
               </p>
               <p className="text-xs text-slate-400 mt-1">{fmtDate(now)}</p>
             </div>
 
-            {error && <p className="text-sm text-red-500 text-center">{error}</p>}
+            {error && <p role="alert" className="text-sm text-red-500 text-center">{error}</p>}
 
             <button
+              type="button"
               onClick={handleSubmit}
-              disabled={submitting || locationState !== 'in_range'}
+              disabled={submitting}
               className={`w-full flex items-center justify-center gap-2 py-3.5 disabled:opacity-50 text-white rounded-xl font-semibold shadow-sm transition-colors ${
                 status?.checked_in ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700'
               }`}
@@ -358,7 +367,7 @@ export function AttendPage({ token }: { token: string }) {
                       </span>
                       <div className="text-end">
                         <p className="font-medium text-slate-700 dark:text-slate-300">{t('leaveDaysCount', { count: l.days_count })}</p>
-                        <p className="text-slate-400">{t('leaveDateRange', { from: l.date_from, to: l.date_to })}</p>
+                        <p className="text-slate-400">{t('leaveDateRange', { from: formatDate(`${l.date_from.substring(0, 10)}T12:00:00`, locale), to: formatDate(`${l.date_to.substring(0, 10)}T12:00:00`, locale) })}</p>
                       </div>
                     </div>
                   ))}

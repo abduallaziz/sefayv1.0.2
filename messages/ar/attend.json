@@ -41,7 +41,7 @@
   "approved": "معتمدة",
   "pending": "قيد الموافقة",
   "rejected": "مرفوضة",
-  "leaveDaysCount": "{count} أيام",
+  "leaveDaysCount": "{count, plural, one {يوم} two {يومان} few {{count} أيام} many {{count} يومًا} other {{count} يوم}}",
   "leaveDateRange": "من {from} إلى {to}",
   "logRangeDay": "اليوم",
   "logRangeWeek": "الأسبوع",
@@ -66,5 +66,8 @@
   "leaveBalanceExceeded": "لديك فقط {count} يوم إجازة متبقي",
   "cancel": "إلغاء",
   "insideWork": "داخل الدوام",
-  "outsideWork": "خارج الدوام"
+  "outsideWork": "خارج الدوام",
+  "errLeaveDates": "اختر تاريخ البداية والنهاية",
+  "errLeaveRange": "تاريخ النهاية يجب أن يكون في أو بعد تاريخ البداية",
+  "leaveOverlap": "يوجد طلب إجازة آخر يتقاطع مع هذه الفترة"
 }

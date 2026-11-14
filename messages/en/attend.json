@@ -41,7 +41,7 @@
   "approved": "Approved",
   "pending": "Pending",
   "rejected": "Rejected",
-  "leaveDaysCount": "{count} days",
+  "leaveDaysCount": "{count, plural, one {1 day} other {{count} days}}",
   "leaveDateRange": "From {from} to {to}",
   "logRangeDay": "Day",
   "logRangeWeek": "Week",
@@ -66,5 +66,8 @@
   "leaveBalanceExceeded": "You only have {count} leave days remaining",
   "cancel": "Cancel",
   "insideWork": "Inside Work",
-  "outsideWork": "Outside Work"
+  "outsideWork": "Outside Work",
+  "errLeaveDates": "Select the start and end dates",
+  "errLeaveRange": "The end date must be on or after the start date",
+  "leaveOverlap": "Another leave request overlaps this period"
 }

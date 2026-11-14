@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { CalendarDays, LogIn, LogOut, ChevronRight, ChevronLeft } from 'lucide-react'
 import { BottomNav } from '../components/BottomNav'
 import { TenantHeader } from '../components/TenantHeader'
@@ -51,7 +51,9 @@ export function AttendLogPage({ token }: { token: string }) {
     return Array.from(map.entries()).sort((a, b) => (a[0] < b[0] ? 1 : -1))
   }, [data])
 
-  const fmtTime = (iso: string | null) => (iso ? new Date(iso).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '--:--')
+  const locale = useLocale()
+  const loc = locale === 'ar' ? 'ar-SA-u-nu-latn-ca-gregory' : 'en-US'
+  const fmtTime = (iso: string | null) => (iso ? new Date(iso).toLocaleTimeString(loc, { hour: '2-digit', minute: '2-digit' }) : '--:--')
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-gray-950 p-4">
@@ -98,7 +100,7 @@ export function AttendLogPage({ token }: { token: string }) {
                   <div className="text-center shrink-0 w-12">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block mb-1" />
                     <p className="text-lg font-bold text-slate-800 dark:text-white leading-none">{d.getUTCDate()}</p>
-                    <p className="text-[10px] text-slate-400">{d.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' })}</p>
+                    <p className="text-[10px] text-slate-400">{d.toLocaleDateString(loc, { month: 'short', timeZone: 'UTC' })}</p>
                   </div>
                   <div className="flex-1 border-s border-slate-100 dark:border-gray-800 ps-3 space-y-2">
                     {records.map((r) => (

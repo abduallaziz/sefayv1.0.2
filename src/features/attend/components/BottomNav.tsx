@@ -2,7 +2,7 @@
 
 import { useRouter, usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { Home, ClipboardList, CalendarDays, MoreHorizontal } from 'lucide-react'
+import { Home, ClipboardList, CalendarDays } from 'lucide-react'
 
 export function BottomNav({ token }: { token: string }) {
   const t = useTranslations('attend')
@@ -13,7 +13,6 @@ export function BottomNav({ token }: { token: string }) {
     { key: 'home', href: `/attend/${token}`, icon: Home, label: t('navHome') },
     { key: 'log', href: `/attend/${token}/log`, icon: ClipboardList, label: t('navLog') },
     { key: 'leaves', href: `/attend/${token}/leaves`, icon: CalendarDays, label: t('navLeaves') },
-    { key: 'more', href: `/attend/${token}/more`, icon: MoreHorizontal, label: t('navMore') },
   ]
 
   return (
@@ -24,6 +23,7 @@ export function BottomNav({ token }: { token: string }) {
         return (
           <button
             key={tab.key}
+            type="button"
             onClick={() => router.push(tab.href)}
             className={`flex flex-col items-center gap-1 text-[10px] ${active ? 'text-[#0C447C] dark:text-[#5B9BD5]' : 'text-slate-400'}`}
           >
