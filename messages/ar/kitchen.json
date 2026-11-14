@@ -12,5 +12,21 @@
     "preparing": "بدء التحضير",
     "ready": "جاهز",
     "served": "تم التقديم"
-  }
+  },
+  "refresh": "تحديث",
+  "updatedAt": "آخر تحديث {time}",
+  "elapsed": "منذ {minutes} د",
+  "justNow": "الآن",
+  "filterAll": "الكل",
+  "filterLabel": "تصفية حسب الحالة",
+  "orderTitle": "طلب {table}",
+  "itemsCount": "{count} صنف",
+  "late": "تأخر",
+  "itemStatus": {
+    "pending": "بانتظار التحضير",
+    "preparing": "قيد التحضير",
+    "ready": "جاهز"
+  },
+  "emptyAll": "لا توجد طلبات نشطة في المطبخ",
+  "emptyFiltered": "لا توجد أصناف بهذه الحالة"
 }

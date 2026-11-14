@@ -12,5 +12,21 @@
     "preparing": "Start Preparing",
     "ready": "Mark Ready",
     "served": "Mark Served"
-  }
+  },
+  "refresh": "Refresh",
+  "updatedAt": "Updated {time}",
+  "elapsed": "{minutes} min ago",
+  "justNow": "Just now",
+  "filterAll": "All",
+  "filterLabel": "Filter by status",
+  "orderTitle": "Order {table}",
+  "itemsCount": "{count} items",
+  "late": "Late",
+  "itemStatus": {
+    "pending": "Awaiting Prep",
+    "preparing": "Preparing",
+    "ready": "Ready"
+  },
+  "emptyAll": "No active orders in the kitchen",
+  "emptyFiltered": "No items with this status"
 }

@@ -138,7 +138,7 @@ export function DineInModal({ table, onClose }: Props) {
 
   return (
     <>
-    <DialogShell title={`${t('table')} ${table.name}`} onClose={onClose} busy={checkingOut || releasing || addingItems} maxWidth="max-w-2xl">
+    <DialogShell title={`${t('table')} ${table.name}`} onClose={onClose} busy={checkingOut || releasing || addingItems || !!removeTarget || confirmDeleteTable || showEdit} maxWidth="max-w-2xl">
         <div className="flex-1 overflow-y-auto p-5">
           {table.status === 'available' ? (
             <div className="text-center py-10">
@@ -340,7 +340,7 @@ export function DineInModal({ table, onClose }: Props) {
                   className="flex-[2] flex items-center justify-center gap-2 py-2.5 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 text-white rounded-xl text-sm font-bold"
                 >
                   <ShoppingCart className="w-4 h-4" />
-                  {addingItems ? t('saving') : t('addItemsCount', { count: pendingItems.length })}
+                  {addingItems ? t('saving') : t('addItemsCount', { count: pendingItems.reduce((n, p) => n + p.quantity, 0) })}
                 </button>
               </>
             )}

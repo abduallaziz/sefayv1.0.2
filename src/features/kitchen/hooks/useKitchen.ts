@@ -1,15 +1,15 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { kitchenApi } from '../api/kitchen.api'
-import { useRealtimeStatusStore } from '@/core/realtime/realtime-status.store'
 
-export function useKitchenOrders(branchId?: string) {
-  const realtimeConnected = useRealtimeStatusStore((s) => s.connected)
+export function useKitchenOrders(branchId?: string, enabled = true) {
   return useQuery({
     queryKey: ['kitchen', 'orders', branchId],
     queryFn: () => kitchenApi.getActiveOrders(branchId),
-    // Fallback polling only — new/changed items push via RealtimeProvider's
-    // order_items subscription, invalidating this same query key instantly.
-    refetchInterval: realtimeConnected ? false : 10000,
+    enabled,
+    // The kitchen must never show a stale board: poll every 10s even when realtime is
+    // connected (realtime pushes only speed it up), and refetch when the tab regains focus.
+    refetchInterval: 10000,
+    refetchOnWindowFocus: true,
   })
 }
 
