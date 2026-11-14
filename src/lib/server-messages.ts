@@ -225,3 +225,26 @@ Object.assign(EXACT, {
   'Item not found for this barcode': 'لا يوجد صنف لهذا الباركود',
   'Coupon deleted': 'تم حذف الكوبون',
 });
+
+// ---- HR / users / access control (appended) ----
+Object.assign(EXACT, {
+  'identity_number must contain digits only (4-20)': 'رقم الهوية يجب أن يتكون من أرقام فقط (من 4 إلى 20)',
+  'Leave request overlaps an existing request': 'يوجد طلب إجازة آخر يتقاطع مع هذه الفترة',
+  'Leave request overlaps an already approved request': 'لا يمكن الاعتماد: توجد إجازة معتمدة تتقاطع مع هذه الفترة',
+  'Shift start and end times must be different': 'وقت بداية الوردية يجب أن يختلف عن وقت نهايتها',
+  'Shifts must not overlap': 'فترات الدوام لا يجب أن تتداخل',
+  'date_to must not be before date_from': 'تاريخ النهاية يجب أن يكون في أو بعد تاريخ البداية',
+  'System roles cannot be deleted': 'لا يمكن حذف الأدوار الأساسية للنظام',
+  'Leave request not found': 'طلب الإجازة غير موجود',
+});
+Object.assign(FIELDS, {
+  base_salary: 'الراتب الأساسي', grace_period_minutes: 'فترة السماح', late_deduction_value: 'قيمة خصم التأخير',
+  late_deduction_mode: 'طريقة خصم التأخير', identity_number: 'رقم الهوية', employee_number: 'رقم الموظف',
+  join_date: 'تاريخ بداية العمل', radius_m: 'نصف القطر', center_lat: 'خط العرض', center_lng: 'خط الطول',
+  department: 'القسم', job_title: 'المسمى الوظيفي', manager_name: 'المدير المباشر', date_from: 'تاريخ البداية',
+  date_to: 'تاريخ النهاية', reason: 'السبب', leave_type: 'نوع الإجازة',
+});
+RULES.push(
+  [/^A role named "(.+)" already exists for this tenant$/, (m) => `يوجد دور بالاسم "${m[1]}" مسبقًا`],
+  [/^Cannot delete role "(.+)" . (\d+) user\(s\) are still assigned to it$/, (m) => `لا يمكن حذف الدور "${m[1]}" لأن ${m[2]} مستخدم ما زالوا مرتبطين به`],
+);

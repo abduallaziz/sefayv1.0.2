@@ -129,5 +129,6 @@
   "documentsNote": "Document upload is not available yet.",
   "attendanceLinkAfterSave": "The attendance link is created after the employee is saved",
   "reviewBranch": "Branch",
-  "statusSelectHint": "Status is set after creation"
+  "statusSelectHint": "Status is set after creation",
+  "disableAttendance": "Disable attendance"
 }

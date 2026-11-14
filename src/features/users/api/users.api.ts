@@ -60,6 +60,10 @@ export interface CreateEmployeeDto {
   address?: string
   gps_radius_meters?: number
   enable_attendance?: boolean
+  base_salary?: number
+  grace_period_minutes?: number
+  late_deduction_mode?: LateDeductionMode
+  late_deduction_value?: number
 }
 
 export interface UpdateUserDto {

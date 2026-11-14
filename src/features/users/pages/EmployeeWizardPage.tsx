@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { CheckCircle2 } from 'lucide-react'
@@ -8,7 +8,10 @@ import { ApiError } from '@/lib/api'
 import { useCreateEmployee, useCheckDuplicate } from '../hooks/useUsers'
 import { SingleDatePicker } from '@/shared/ui/date-range-picker'
 import { useBranches } from '@/shared/hooks/useBranches'
-import type { CreateEmployeeDto } from '../api/users.api'
+import type { CreateEmployeeDto, LateDeductionMode } from '../api/users.api'
+import {
+  toWesternDigits, normalizePhone, isValidEmail, isValidPhone, isValidIdentity, parseNumber, isPositiveNumber,
+} from '../lib/validation'
 
 type Step = 1 | 2 | 3 | 4 | 5
 
@@ -28,6 +31,19 @@ interface WizardData {
   gps_radius_meters: string
   enable_attendance: boolean
   branch_id: string
+  base_salary: string
+  grace_period_minutes: string
+  late_deduction_mode: '' | LateDeductionMode
+  late_deduction_value: string
+}
+
+type FieldErrors = Partial<Record<keyof WizardData, string>>
+
+// Which wizard step owns each validated field.
+const FIELD_STEP: Partial<Record<keyof WizardData, Step>> = {
+  name: 1, email: 1, phone: 1, identity_number: 1,
+  base_salary: 2, grace_period_minutes: 2, late_deduction_value: 2,
+  gps_radius_meters: 3,
 }
 
 const INITIAL_DATA: WizardData = {
@@ -46,12 +62,38 @@ const INITIAL_DATA: WizardData = {
   gps_radius_meters: '',
   enable_attendance: false,
   branch_id: '',
+  base_salary: '',
+  grace_period_minutes: '',
+  late_deduction_mode: '',
+  late_deduction_value: '',
 }
 
 function initials(name: string) {
   const trimmed = name.trim()
   if (!trimmed) return ''
   return trimmed.split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase()
+}
+
+function validate(data: WizardData, t: (k: string) => string): FieldErrors {
+  const e: FieldErrors = {}
+  if (!data.name.trim()) e.name = t('nameRequired')
+  if (data.email.trim() && !isValidEmail(data.email)) e.email = t('errEmail')
+  if (data.phone.trim() && !isValidPhone(data.phone)) e.phone = t('errPhone')
+  if (data.identity_number.trim() && !isValidIdentity(data.identity_number)) e.identity_number = t('errIdentity')
+  if (data.gps_radius_meters.trim() && !isPositiveNumber(data.gps_radius_meters)) e.gps_radius_meters = t('errRadius')
+  if (data.base_salary.trim() && !(parseNumber(data.base_salary) >= 0)) e.base_salary = t('errSalary')
+  if (data.grace_period_minutes.trim() && !(Number.isInteger(parseNumber(data.grace_period_minutes)) && parseNumber(data.grace_period_minutes) >= 0)) e.grace_period_minutes = t('errGrace')
+  if (data.late_deduction_mode && data.late_deduction_value.trim() && !(parseNumber(data.late_deduction_value) >= 0)) e.late_deduction_value = t('errDeductionValue')
+  return e
+}
+
+// Server errors name the field in (translated) text: send the user back to the step that owns it.
+function stepForServerError(message: string): Step | null {
+  const m = message.toLowerCase()
+  if (/email|phone|identity|البريد|الجوال|الهوية|الاسم|name/.test(m)) return 1
+  if (/salary|grace|deduction|الراتب|السماح|الخصم/.test(m)) return 2
+  if (/gps|radius|نصف|نطاق/.test(m)) return 3
+  return null
 }
 
 export function EmployeeWizardPage() {
@@ -62,11 +104,15 @@ export function EmployeeWizardPage() {
   const [step, setStep] = useState<Step>(1)
   const [data, setData] = useState<WizardData>(INITIAL_DATA)
   const [error, setError] = useState<string | null>(null)
+  const [errors, setErrors] = useState<FieldErrors>({})
+  const submitting = useRef(false)
   const [duplicates, setDuplicates] = useState<{ email?: boolean; phone?: boolean; employee_number?: boolean }>({})
   const { mutate: checkDuplicate } = useCheckDuplicate()
 
-  const set = <K extends keyof WizardData>(key: K, value: WizardData[K]) =>
+  const set = <K extends keyof WizardData>(key: K, value: WizardData[K]) => {
     setData((d) => ({ ...d, [key]: value }))
+    setErrors((prev) => (prev[key] ? { ...prev, [key]: undefined } : prev))
+  }
 
   // Real-time duplicate validation (debounced) — blocks moving past Step 1
   // while any of email/phone/employee_number match another record in this tenant.
@@ -78,7 +124,7 @@ export function EmployeeWizardPage() {
         return
       }
       checkDuplicate(
-        { email: data.email || undefined, phone: data.phone || undefined, employee_number: data.employee_number || undefined },
+        { email: data.email || undefined, phone: data.phone ? normalizePhone(data.phone) : undefined, employee_number: data.employee_number || undefined },
         { onSuccess: (result) => setDuplicates(result) },
       )
     }, 500)
@@ -99,11 +145,14 @@ export function EmployeeWizardPage() {
   const canGoNext = step !== 1 || (data.name.trim().length > 0 && !hasDuplicates)
 
   function goNext() {
+    const all = validate(data, t as (k: string) => string)
+    const own = Object.fromEntries(Object.entries(all).filter(([k]) => FIELD_STEP[k as keyof WizardData] === step)) as FieldErrors
+    if (Object.keys(own).length > 0) {
+      setErrors((prev) => ({ ...prev, ...own }))
+      setError(t('fixErrors'))
+      return
+    }
     if (step === 1) {
-      if (!data.name.trim()) {
-        setError(t('nameRequired'))
-        return
-      }
       if (hasDuplicates) {
         setError(t('resolveDuplicatesFirst'))
         return
@@ -118,19 +167,24 @@ export function EmployeeWizardPage() {
   }
 
   function handleSubmit() {
-    if (!data.name.trim()) {
-      setStep(1)
-      setError(t('nameRequired'))
+    if (submitting.current) return
+    const all = validate(data, t as (k: string) => string)
+    const firstKey = (Object.keys(all) as (keyof WizardData)[]).sort((a, b) => (FIELD_STEP[a] ?? 9) - (FIELD_STEP[b] ?? 9))[0]
+    if (firstKey) {
+      setErrors(all)
+      setStep(FIELD_STEP[firstKey] ?? 1)
+      setError(t('fixErrors'))
       return
     }
     setError(null)
+    submitting.current = true
 
     const dto: CreateEmployeeDto = {
       name: data.name.trim(),
       employee_number: data.employee_number || undefined,
       email: data.email || undefined,
-      phone: data.phone || undefined,
-      identity_number: data.identity_number || undefined,
+      phone: data.phone.trim() ? normalizePhone(data.phone) : undefined,
+      identity_number: data.identity_number.trim() ? toWesternDigits(data.identity_number).trim() : undefined,
       department: data.department || undefined,
       job_title: data.job_title || undefined,
       employment_type: data.employment_type || undefined,
@@ -138,17 +192,26 @@ export function EmployeeWizardPage() {
       manager_name: data.manager_name || undefined,
       city: data.city || undefined,
       address: data.address || undefined,
-      gps_radius_meters: data.gps_radius_meters ? Number(data.gps_radius_meters) : undefined,
+      gps_radius_meters: data.gps_radius_meters.trim() ? parseNumber(data.gps_radius_meters) : undefined,
       enable_attendance: data.enable_attendance,
       branch_id: data.branch_id || undefined,
+      base_salary: data.base_salary.trim() ? parseNumber(data.base_salary) : undefined,
+      grace_period_minutes: data.grace_period_minutes.trim() ? parseNumber(data.grace_period_minutes) : undefined,
+      late_deduction_mode: data.late_deduction_mode || undefined,
+      late_deduction_value: data.late_deduction_mode && data.late_deduction_value.trim() ? parseNumber(data.late_deduction_value) : undefined,
     }
 
     createEmployee(dto, {
       onSuccess: (created) => {
+        submitting.current = false
         router.push(`/dashboard/users/${created.id}`)
       },
       onError: (err: unknown) => {
-        setError(err instanceof ApiError ? err.message : t('createError'))
+        submitting.current = false
+        const message = err instanceof ApiError ? err.message : t('createError')
+        setError(message)
+        const owner = stepForServerError(message)
+        if (owner) setStep(owner)
       },
     })
   }
@@ -168,6 +231,7 @@ export function EmployeeWizardPage() {
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{stepSubtitle}</p>
         </div>
         <button
+          type="button"
           onClick={primaryFooterAction.onClick}
           disabled={isPending}
           className="px-5 py-3 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 rounded-xl text-sm font-semibold text-white transition-colors shrink-0"
@@ -197,13 +261,13 @@ export function EmployeeWizardPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 mt-6">
           <div>
-            {step === 1 && <BasicInfoStep t={t} data={data} set={set} duplicates={duplicates} />}
-            {step === 2 && <JobInfoStep t={t} data={data} set={set} />}
-            {step === 3 && <LocationStep t={t} data={data} set={set} />}
+            {step === 1 && <BasicInfoStep t={t} data={data} set={set} duplicates={duplicates} errors={errors} />}
+            {step === 2 && <JobInfoStep t={t} data={data} set={set} errors={errors} />}
+            {step === 3 && <LocationStep t={t} data={data} set={set} errors={errors} />}
             {step === 4 && <AttendanceStep t={t} data={data} set={set} />}
             {step === 5 && <ReviewStep t={t} data={data} />}
 
-            {error && <p className="text-sm text-red-500 mt-4">{error}</p>}
+            {error && <p role="alert" className="text-sm text-red-500 mt-4">{error}</p>}
           </div>
 
           <SummaryCard t={t} data={data} step={step} />
@@ -211,6 +275,7 @@ export function EmployeeWizardPage() {
 
         <div className="flex items-center justify-between mt-6">
           <button
+            type="button"
             onClick={goPrev}
             disabled={step === 1}
             className="px-6 py-3 bg-gray-500 hover:bg-gray-600 disabled:opacity-40 rounded-xl text-sm font-semibold text-white transition-colors"
@@ -218,6 +283,7 @@ export function EmployeeWizardPage() {
             {t('previous')}
           </button>
           <button
+            type="button"
             onClick={primaryFooterAction.onClick}
             disabled={!canGoNext || isPending}
             className="px-6 py-3 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 rounded-xl text-sm font-semibold text-white transition-colors"
@@ -234,48 +300,52 @@ export function EmployeeWizardPage() {
 const inputClass = 'w-full p-3.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-950 text-sm text-gray-900 dark:text-white'
 const labelClass = 'block text-sm mb-2 text-gray-600 dark:text-gray-300'
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, children, error }: { label: string; children: React.ReactNode; error?: string }) {
   return (
     <div>
-      <label className={labelClass}>{label}</label>
-      {children}
+      <label className={labelClass}>
+        {label}
+        <div className="mt-2">{children}</div>
+      </label>
+      {error && <p role="alert" className="text-xs text-red-500 mt-1.5">{error}</p>}
     </div>
   )
 }
 
 /* ── Step 1: Basic Information ── */
 function BasicInfoStep({
-  t, data, set, duplicates,
+  t, data, set, duplicates, errors,
 }: {
   t: ReturnType<typeof useTranslations>
   data: WizardData
   set: <K extends keyof WizardData>(key: K, value: WizardData[K]) => void
   duplicates: { email?: boolean; phone?: boolean; employee_number?: boolean }
+  errors: FieldErrors
 }) {
   return (
     <div>
       <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{t('basicInfoTitle')}</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Field label={t('fullName')}>
+        <Field label={t('fullName')} error={errors.name}>
           <input className={inputClass} value={data.name} onChange={(e) => set('name', e.target.value)} placeholder={t('fullNamePlaceholder')} />
         </Field>
         <Field label={t('employeeNumber')}>
           <input className={inputClass} value={data.employee_number} onChange={(e) => set('employee_number', e.target.value)} placeholder={t('employeeNumberPlaceholder')} />
           {duplicates.employee_number && <p className="text-xs text-red-500 mt-1.5">{t('employeeNumberDuplicate')}</p>}
         </Field>
-        <Field label={t('email')}>
-          <input type="email" className={inputClass} value={data.email} onChange={(e) => set('email', e.target.value)} />
+        <Field label={t('email')} error={errors.email}>
+          <input type="email" dir="ltr" className={inputClass} value={data.email} onChange={(e) => set('email', e.target.value)} />
           {duplicates.email && <p className="text-xs text-red-500 mt-1.5">{t('emailDuplicate')}</p>}
         </Field>
-        <Field label={t('phone')}>
-          <input className={inputClass} value={data.phone} onChange={(e) => set('phone', e.target.value)} />
+        <Field label={t('phone')} error={errors.phone}>
+          <input className={inputClass} dir="ltr" inputMode="tel" value={data.phone} onChange={(e) => set('phone', toWesternDigits(e.target.value))} />
           {duplicates.phone && <p className="text-xs text-red-500 mt-1.5">{t('phoneDuplicate')}</p>}
         </Field>
-        <Field label={t('identityNumber')}>
-          <input className={inputClass} value={data.identity_number} onChange={(e) => set('identity_number', e.target.value)} />
+        <Field label={t('identityNumber')} error={errors.identity_number}>
+          <input className={inputClass} dir="ltr" inputMode="numeric" value={data.identity_number} onChange={(e) => set('identity_number', toWesternDigits(e.target.value))} />
         </Field>
         <Field label={t('status')}>
-          <select className={inputClass} disabled value="active">
+          <select className={inputClass} disabled value="active" title={t('statusSelectHint')}>
             <option value="active">{t('statusActive')}</option>
           </select>
         </Field>
@@ -285,7 +355,7 @@ function BasicInfoStep({
 }
 
 /* ── Step 2: Job Information ── */
-function JobInfoStep({ t, data, set }: { t: ReturnType<typeof useTranslations>; data: WizardData; set: <K extends keyof WizardData>(key: K, value: WizardData[K]) => void }) {
+function JobInfoStep({ t, data, set, errors }: { t: ReturnType<typeof useTranslations>; data: WizardData; set: <K extends keyof WizardData>(key: K, value: WizardData[K]) => void; errors: FieldErrors }) {
   return (
     <div>
       <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{t('jobInfoTitle')}</h2>
@@ -309,12 +379,33 @@ function JobInfoStep({ t, data, set }: { t: ReturnType<typeof useTranslations>; 
           <input className={inputClass} value={data.manager_name} onChange={(e) => set('manager_name', e.target.value)} placeholder={t('managerNamePlaceholder')} />
         </Field>
       </div>
+
+      <h2 className="text-lg font-bold text-gray-900 dark:text-white mt-8 mb-4">{t('payrollTitle')}</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Field label={t('baseSalary')} error={errors.base_salary}>
+          <input className={inputClass} dir="ltr" inputMode="decimal" value={data.base_salary} onChange={(e) => set('base_salary', toWesternDigits(e.target.value))} />
+        </Field>
+        <Field label={t('gracePeriod')} error={errors.grace_period_minutes}>
+          <input className={inputClass} dir="ltr" inputMode="numeric" value={data.grace_period_minutes} onChange={(e) => set('grace_period_minutes', toWesternDigits(e.target.value))} />
+        </Field>
+        <Field label={t('deductionMode')}>
+          <select className={inputClass} value={data.late_deduction_mode} onChange={(e) => set('late_deduction_mode', e.target.value as WizardData['late_deduction_mode'])}>
+            <option value="">{t('deductionModeNone')}</option>
+            <option value="fixed">{t('deductionModeFixed')}</option>
+            <option value="per_minute">{t('deductionModePerMinute')}</option>
+            <option value="percentage_of_daily_rate">{t('deductionModePercentage')}</option>
+          </select>
+        </Field>
+        <Field label={t('deductionValue')} error={errors.late_deduction_value}>
+          <input className={`${inputClass} disabled:opacity-50`} dir="ltr" inputMode="decimal" disabled={!data.late_deduction_mode} value={data.late_deduction_value} onChange={(e) => set('late_deduction_value', toWesternDigits(e.target.value))} />
+        </Field>
+      </div>
     </div>
   )
 }
 
 /* ── Step 3: Location ── */
-function LocationStep({ t, data, set }: { t: ReturnType<typeof useTranslations>; data: WizardData; set: <K extends keyof WizardData>(key: K, value: WizardData[K]) => void }) {
+function LocationStep({ t, data, set, errors }: { t: ReturnType<typeof useTranslations>; data: WizardData; set: <K extends keyof WizardData>(key: K, value: WizardData[K]) => void; errors: FieldErrors }) {
   const { data: branches = [], isLoading: branchesLoading } = useBranches()
 
   return (
@@ -343,12 +434,13 @@ function LocationStep({ t, data, set }: { t: ReturnType<typeof useTranslations>;
         <Field label={t('address')}>
           <input className={inputClass} value={data.address} onChange={(e) => set('address', e.target.value)} placeholder={t('addressPlaceholder')} />
         </Field>
-        <Field label={t('gpsRadius')}>
+        <Field label={t('gpsRadius')} error={errors.gps_radius_meters}>
           <input
-            type="number"
+            inputMode="decimal"
+            dir="ltr"
             className={inputClass}
             value={data.gps_radius_meters}
-            onChange={(e) => set('gps_radius_meters', e.target.value)}
+            onChange={(e) => set('gps_radius_meters', toWesternDigits(e.target.value))}
             placeholder={t('gpsRadiusPlaceholder')}
           />
         </Field>
@@ -375,11 +467,14 @@ function AttendanceStep({ t, data, set }: { t: ReturnType<typeof useTranslations
         <h3 className="text-sm font-semibold text-gray-800 dark:text-white mb-1">{t('attendanceLinkTitle')}</h3>
         <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">{t('attendanceLinkDesc')}</p>
         <button
+          type="button"
+          aria-pressed={data.enable_attendance}
           onClick={() => set('enable_attendance', !data.enable_attendance)}
           className={`px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-colors ${data.enable_attendance ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-[#0C447C] hover:bg-[#0a3a6b]'}`}
         >
-          {data.enable_attendance ? t('attendanceEnabled') : t('enableAttendance')}
+          {data.enable_attendance ? t('disableAttendance') : t('enableAttendance')}
         </button>
+        {data.enable_attendance && <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">{t('attendanceLinkAfterSave')}</p>}
       </div>
 
       <div className="bg-[#0C447C]/5 border border-[#0C447C]/15 rounded-2xl p-5 mb-4">
@@ -400,6 +495,8 @@ function AttendanceStep({ t, data, set }: { t: ReturnType<typeof useTranslations
 
 /* ── Step 5: Review ── */
 function ReviewStep({ t, data }: { t: ReturnType<typeof useTranslations>; data: WizardData }) {
+  const { data: branches = [] } = useBranches()
+  const branchName = branches.find((b) => b.id === data.branch_id)?.name ?? t('centralNoBranch')
   return (
     <div>
       <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{t('reviewTitle')}</h2>
@@ -413,7 +510,9 @@ function ReviewStep({ t, data }: { t: ReturnType<typeof useTranslations>; data: 
       <ReviewSection title={t('reviewJobSection')}>
         <ReviewRow label={t('reviewDepartment')} value={data.department || t('notSet')} />
         <ReviewRow label={t('reviewJobTitle')} value={data.job_title || t('notSet')} />
-        <ReviewRow label={t('reviewLocation')} value={data.city || t('mainBranch')} />
+        <ReviewRow label={t('reviewBranch')} value={branchName} />
+        <ReviewRow label={t('reviewLocation')} value={data.city || t('notSet')} />
+        <ReviewRow label={t('reviewBaseSalary')} value={data.base_salary || t('notSet')} />
       </ReviewSection>
 
       <ReviewSection title={t('reviewAttendanceSection')}>

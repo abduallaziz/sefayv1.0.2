@@ -129,5 +129,6 @@
   "documentsNote": "رفع المستندات غير متاح حاليًا.",
   "attendanceLinkAfterSave": "يُنشأ رابط الحضور بعد حفظ الموظف",
   "reviewBranch": "الفرع",
-  "statusSelectHint": "الحالة تُحدد بعد الإنشاء"
+  "statusSelectHint": "الحالة تُحدد بعد الإنشاء",
+  "disableAttendance": "إلغاء التفعيل"
 }
