@@ -26,7 +26,7 @@ export function DeleteSupplierModal({ open, onClose, onConfirm, supplier, isLoad
       title={t('deleteSupplier')}
       message={
         <>
-          {t('deleteConfirm')} <span className="font-semibold text-slate-700 dark:text-white">{supplier.name}</span>؟
+          {t('deleteConfirm')} <span dir="auto" className="[unicode-bidi:isolate] font-semibold text-slate-700 dark:text-white">{supplier.name}</span>؟
         </>
       }
       confirmLabel={t('delete')}

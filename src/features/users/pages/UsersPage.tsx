@@ -205,7 +205,7 @@ export function UsersPage() {
           pendingAction && (
             <>
               {t(`confirmActionMessage_${pendingAction.type}`)}{' '}
-              <span className="font-semibold text-slate-700 dark:text-white">{pendingAction.user.name}</span>؟
+              <span dir="auto" className="[unicode-bidi:isolate] font-semibold text-slate-700 dark:text-white">{pendingAction.user.name}</span>؟
             </>
           )
         }

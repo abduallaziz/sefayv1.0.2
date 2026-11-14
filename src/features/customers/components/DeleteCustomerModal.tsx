@@ -21,7 +21,7 @@ export function DeleteCustomerModal({ customer, onClose, onConfirm, isLoading }:
       onConfirm={onConfirm}
       variant="danger"
       title={t('delete.title')}
-      message={t('delete.message', { name: customer.full_name ?? '' })}
+      message={t('delete.message', { name: `⁨${customer.full_name ?? ''}⁩` })}
       confirmLabel={t('delete.confirm')}
       cancelLabel={t('delete.cancel')}
       loadingLabel={t('delete.deleting')}

@@ -26,7 +26,7 @@ export function DeleteWarehouseModal({ open, onClose, onConfirm, warehouse, isLo
       title={t('deleteWarehouse')}
       message={
         <>
-          {t('deleteConfirm')} <span className="font-semibold text-slate-700 dark:text-white">{warehouse.name}</span>؟
+          {t('deleteConfirm')} <span dir="auto" className="[unicode-bidi:isolate] font-semibold text-slate-700 dark:text-white">{warehouse.name}</span>؟
         </>
       }
       confirmLabel={t('delete')}

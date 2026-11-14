@@ -26,7 +26,7 @@ export function DeleteItemModal({ open, onClose, onConfirm, item, isLoading }: P
       title={t('deleteItem')}
       message={
         <>
-          {t('deleteConfirm')} <span className="font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{item.name}</span>؟
+          {t('deleteConfirm')} <span dir="auto" className="[unicode-bidi:isolate] font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{item.name}</span>؟
         </>
       }
       confirmLabel={t('delete')}

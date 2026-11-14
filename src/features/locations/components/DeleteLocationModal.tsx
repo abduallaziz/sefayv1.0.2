@@ -26,7 +26,7 @@ export function DeleteLocationModal({ open, onClose, onConfirm, location, isLoad
       title={t('deleteLocation')}
       message={
         <>
-          {t('deleteConfirm')} <span className="font-semibold text-slate-700 dark:text-white">{location.name}</span>؟
+          {t('deleteConfirm')} <span dir="auto" className="[unicode-bidi:isolate] font-semibold text-slate-700 dark:text-white">{location.name}</span>؟
         </>
       }
       confirmLabel={t('delete')}
