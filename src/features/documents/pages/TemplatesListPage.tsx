@@ -249,7 +249,7 @@ export function TemplatesListPage() {
           setToDelete(null)
         }}
         title={t('delete')}
-        message={t('deleteConfirm')}
+        message={t('deleteConfirmNamed', { name: toDelete?.name ?? '' })}
         confirmLabel={t('delete')}
         cancelLabel={t('cancel')}
       />

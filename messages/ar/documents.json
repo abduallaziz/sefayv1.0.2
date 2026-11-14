@@ -15,6 +15,7 @@
   "create": "إنشاء",
   "delete": "حذف",
   "deleteConfirm": "حذف هذا القالب؟ لا يمكن التراجع.",
+  "deleteConfirmNamed": "حذف القالب \"{name}\"؟ لا يمكن التراجع.",
   "duplicate": "نسخ",
   "publish": "نشر",
   "archive": "أرشفة",

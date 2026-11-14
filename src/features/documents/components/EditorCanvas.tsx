@@ -120,7 +120,7 @@ export function EditorCanvas({
       }
       const box = { ...b, x: b.x + dx, y: b.y + dy }
       showLive(b.id, box, 'move', ps)
-      onFreeMove(b.id, { x: r1(box.x / MM_TO_PX), y: r1(box.y / MM_TO_PX), width: r1(widthMm) })
+      onFreeMove(b.id, { x: Math.max(0, r1(box.x / MM_TO_PX)), y: Math.max(0, r1(box.y / MM_TO_PX)), width: r1(widthMm) })
     }
     const up = () => window.removeEventListener('pointermove', move)
     window.addEventListener('pointermove', move)
@@ -149,7 +149,7 @@ export function EditorCanvas({
         const w = Math.max(5 * MM_TO_PX * scale, b.w - dx)
         const x = b.x + (b.w - w)
         showLive(b.id, { ...b, x, w }, 'w', scale)
-        onFreeMove(b.id, { ...f, x: r1(x / MM_TO_PX), width: r1(w / MM_TO_PX / scale) })
+        onFreeMove(b.id, { ...f, x: Math.max(0, r1(x / MM_TO_PX)), width: r1(w / MM_TO_PX / scale) })
       } else {
         const s = Math.min(5, Math.max(0.2, scale * ((b.w + dx) / b.w)))
         const r = s / scale
