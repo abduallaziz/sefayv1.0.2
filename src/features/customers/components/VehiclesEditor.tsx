@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Car, Plus, Trash2 } from 'lucide-react';
 import { ApiError } from '@/lib/api';
+import { PLATE_MAX_LENGTH } from '../lib/customer-input';
 import { useCustomerVehicles, useVehicleMutations } from '../hooks/useCustomers';
 import type { CustomerVehicle } from '../types/customer.types';
 
@@ -26,7 +27,13 @@ export function VehiclesEditor({ customerId }: { customerId: string }) {
   const [newSize, setNewSize] = useState('');
 
   const fail = (e: unknown) =>
-    setError(e instanceof ApiError && e.status === 409 ? t('plateTaken') : t('failed'));
+    setError(
+      e instanceof ApiError && e.status === 409
+        ? t('plateTaken')
+        : e instanceof Error && e.message
+          ? e.message
+          : t('failed'),
+    );
 
   const handleAdd = () => {
     const plate = newPlate.trim();
@@ -82,6 +89,7 @@ export function VehiclesEditor({ customerId }: { customerId: string }) {
         <input
           type="text"
           dir="ltr"
+          maxLength={PLATE_MAX_LENGTH}
           value={newPlate}
           onChange={(e) => setNewPlate(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAdd(); } }}
@@ -138,6 +146,7 @@ function VehicleRow({
       <input
         type="text"
         dir="ltr"
+        maxLength={PLATE_MAX_LENGTH}
         value={plate}
         onChange={(e) => setPlate(e.target.value)}
         onBlur={commitPlate}

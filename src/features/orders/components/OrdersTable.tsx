@@ -1,9 +1,10 @@
 'use client';
 
 import { Order } from '../types/order.types';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Eye, Pencil, Ban, MoreVertical, Printer, Store, Undo2 } from 'lucide-react';
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store';
+import { formatNumber } from '@/lib/format';
 import { MethodMark } from '@/shared/ui/method-mark';
 import { useBranches } from '@/shared/hooks/useBranches';
 import {
@@ -40,21 +41,20 @@ const PAYMENT_PILL_BG: Record<string, string> = {
   split: 'bg-slate-100 dark:bg-white/5',
 };
 
-// Two-line date/time matching the reference exactly: Arabic month name with
-// Western numerals (house rule), then "AM/PM h:mm:ss" with the period first.
-function formatOrderDateTime(iso: string) {
+// Two-line date/time: Gregorian date (day/month order) then the time with the
+// locale's AM/PM marker (Arabic in the Arabic UI). Western 0-9 numerals always.
+function formatOrderDateTime(iso: string, locale: string) {
+  const loc = locale === 'ar' ? 'ar-SA-u-nu-latn-ca-gregory' : 'en-US';
   const d = new Date(iso);
-  const dateStr = d.toLocaleDateString('ar-SA-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' });
-  const hours24 = d.getHours();
-  const period = hours24 >= 12 ? 'PM' : 'AM';
-  const hours12 = hours24 % 12 || 12;
-  const mm = String(d.getMinutes()).padStart(2, '0');
-  const ss = String(d.getSeconds()).padStart(2, '0');
-  return { dateStr, timeStr: `${period} ${hours12}:${mm}:${ss}` };
+  return {
+    dateStr: d.toLocaleDateString(loc, { year: 'numeric', month: 'long', day: 'numeric' }),
+    timeStr: d.toLocaleTimeString(loc, { hour: 'numeric', minute: '2-digit', second: '2-digit' }),
+  };
 }
 
 export function OrdersTable({ orders, onViewOrder, onPrintOrder, onCancelOrder, onReturnOrder }: Props) {
   const t = useTranslations('orders');
+  const locale = useLocale();
   const currency = useCurrencyDisplay();
   const { data: branches = [] } = useBranches();
   const branchName = (id: string) => branches.find(b => b.id === id)?.name || '—';
@@ -86,6 +86,7 @@ export function OrdersTable({ orders, onViewOrder, onPrintOrder, onCancelOrder, 
                 </span>
                 <button
                   onClick={(e) => { e.stopPropagation(); onPrintOrder(order); }}
+                  aria-label={t('details.print')}
                   className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary"
                 >
                   <Printer size={15} />
@@ -94,6 +95,7 @@ export function OrdersTable({ orders, onViewOrder, onPrintOrder, onCancelOrder, 
                   <DropdownMenuTrigger asChild>
                     <button
                       onClick={(e) => e.stopPropagation()}
+                      aria-label={t('actions.header')}
                       className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary"
                     >
                       <MoreVertical size={15} />
@@ -135,13 +137,13 @@ export function OrdersTable({ orders, onViewOrder, onPrintOrder, onCancelOrder, 
                 {order.customer_name && <p className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary truncate">{order.customer_name}</p>}
               </div>
               <span className="font-bold text-posCloud-text-primary dark:text-posCloudDark-text-primary tabular-nums shrink-0">
-                {order.total.toLocaleString('en-US')} {currency}
+                {formatNumber(order.total)} {currency}
               </span>
             </div>
             <div className="flex items-center justify-between mt-2 pt-2 border-t border-posCloud-border dark:border-posCloudDark-border text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
               <span>{branchName(order.branch_id)}</span>
               <span>{order.payment_method ? t(`payment_method.${order.payment_method}`) : t('payment_method.unknown')}</span>
-              <span>{new Date(order.created_at).toLocaleString('en-US')}</span>
+              <span dir="ltr">{(() => { const d = formatOrderDateTime(order.created_at, locale); return `${d.dateStr} ${d.timeStr}`; })()}</span>
             </div>
           </div>
         ))}
@@ -164,7 +166,7 @@ export function OrdersTable({ orders, onViewOrder, onPrintOrder, onCancelOrder, 
           </thead>
           <tbody className="divide-y divide-posCloud-border dark:divide-posCloudDark-border">
             {orders.map((order) => {
-              const { dateStr, timeStr } = formatOrderDateTime(order.created_at);
+              const { dateStr, timeStr } = formatOrderDateTime(order.created_at, locale);
               return (
                 <tr key={order.id} className="bg-white dark:bg-posCloudDark-surface hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
                   <td className="px-3 py-3 w-28">
@@ -183,7 +185,7 @@ export function OrdersTable({ orders, onViewOrder, onPrintOrder, onCancelOrder, 
                     {order.cashier_name || '—'}
                   </td>
                   <td className="px-3 py-3 w-24 font-bold text-posCloud-text-primary dark:text-posCloudDark-text-primary tabular-nums whitespace-nowrap">
-                    {order.total.toLocaleString('en-US')} {currency}
+                    {formatNumber(order.total)} {currency}
                   </td>
                   <td className="px-3 py-3 w-24">
                     <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${statusColors[order.status]}`}>
@@ -207,6 +209,7 @@ export function OrdersTable({ orders, onViewOrder, onPrintOrder, onCancelOrder, 
                         <DropdownMenuTrigger asChild>
                           <button
                             onClick={(e) => e.stopPropagation()}
+                            aria-label={t('actions.header')}
                             className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary"
                           >
                             <MoreVertical size={15} />

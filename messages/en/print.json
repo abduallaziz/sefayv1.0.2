@@ -232,6 +232,14 @@
         "notes": "Notes",
         "taxNumber": "Tax number",
         "commercialRegister": "Commercial register"
+      },
+      "accentNames": {
+        "black": "Black",
+        "blue": "Blue",
+        "green": "Green",
+        "red": "Red",
+        "purple": "Purple",
+        "gray": "Gray"
       }
     }
   }

@@ -156,10 +156,10 @@ export function QuoteTopBar(p: Props) {
           {p.locked ? <LockOpen className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
         </Button>
         {divider}
-        <Button variant="ghost" size="icon" className={iconBtn} onClick={p.onUndo} disabled={!p.canUndo} aria-label="Undo (Ctrl+Z)" title="Ctrl+Z">
+        <Button variant="ghost" size="icon" className={iconBtn} onClick={p.onUndo} disabled={!p.canUndo} aria-label={te('undo')} title="Ctrl+Z">
           <Undo2 className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="icon" className={iconBtn} onClick={p.onRedo} disabled={!p.canRedo} aria-label="Redo (Ctrl+Y)" title="Ctrl+Y">
+        <Button variant="ghost" size="icon" className={iconBtn} onClick={p.onRedo} disabled={!p.canRedo} aria-label={te('redo')} title="Ctrl+Y">
           <Redo2 className="h-4 w-4" />
         </Button>
       </div>

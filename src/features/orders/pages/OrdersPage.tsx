@@ -14,6 +14,8 @@ import { toast } from 'sonner';
 import { usePrinting } from '@/lib/print/usePrinting';
 import { FileText, ClipboardList, Clock, CheckCircle2, XCircle, Wallet, ChevronRight, ChevronLeft, ChevronDown, Download, Settings2, ArrowUp, ArrowDown, Circle } from 'lucide-react';
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store';
+import { formatNumber } from '@/lib/format';
+import { downloadBlob } from '@/features/shifts/utils/reportOutput';
 
 const PAGE_SIZES = [10, 25, 50];
 // Real percentage swings against a still-thin monthly data history can be
@@ -69,7 +71,11 @@ export function OrdersPage() {
           !order.id.toLowerCase().includes(q) &&
           !(order.invoice_no?.toLowerCase().includes(q)) &&
           !order.cashier_name?.toLowerCase().includes(q) &&
-          !(order.customer_name?.toLowerCase().includes(q))
+          !(order.customer_name?.toLowerCase().includes(q)) &&
+          !(order.plate_snapshot?.toLowerCase().includes(q)) &&
+          // the amount: "5.75", "5.7", "575" (decimal point ignored)
+          !Number(order.total).toFixed(2).includes(q) &&
+          !String(order.total).includes(q)
         ) return false;
       }
       return true;
@@ -134,8 +140,30 @@ export function OrdersPage() {
     { labelKey: 'pendingCount', value: stats.pending, delta: deltas.pending, icon: Clock, iconBg: 'bg-posCloud-warning-light dark:bg-posCloud-warning/15', iconColor: 'text-posCloud-warning' },
     { labelKey: 'completedCount', value: stats.completed, delta: deltas.completed, icon: CheckCircle2, iconBg: 'bg-posCloud-success-light dark:bg-posCloud-success/15', iconColor: 'text-posCloud-success' },
     { labelKey: 'cancelledCount', value: stats.cancelled, delta: deltas.cancelled, icon: XCircle, iconBg: 'bg-posCloud-danger-light dark:bg-posCloud-danger/15', iconColor: 'text-posCloud-danger' },
-    { labelKey: 'todayRevenue', value: `${(todayRevenue?.summary.total_revenue ?? 0).toLocaleString('en-US')} ${currency}`, delta: null, icon: Wallet, iconBg: 'bg-posCloud-primary-light dark:bg-posCloud-primary/15', iconColor: 'text-posCloud-primary' },
+    { labelKey: 'todayRevenue', value: `${formatNumber(todayRevenue?.summary.total_revenue ?? 0)} ${currency}`, delta: null, icon: Wallet, iconBg: 'bg-posCloud-primary-light dark:bg-posCloud-primary/15', iconColor: 'text-posCloud-primary' },
   ];
+
+  // Exports the invoices currently listed (all filters applied, every page) as a CSV file.
+  function handleExport() {
+    if (filteredOrders.length === 0) {
+      toast.error(t('filters.exportEmpty'), { id: 'orders-export-empty' });
+      return;
+    }
+    const esc = (v: string | number | null | undefined) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const header = [t('invoiceNumber'), t('date'), t('cashier'), t('customer'), t('amount'), t('status.header'), t('paymentMethod')];
+    const rows = filteredOrders.map((o) => [
+      o.invoice_no ?? o.id.slice(-6).toUpperCase(),
+      new Date(o.created_at).toISOString(),
+      o.cashier_name ?? '',
+      o.customer_name ?? '',
+      Number(o.total).toFixed(2),
+      t(`status.${o.status}` as Parameters<typeof t>[0]),
+      o.payment_method ? t(`payment_method.${o.payment_method}` as Parameters<typeof t>[0]) : '',
+    ]);
+    const csv = [header, ...rows].map((r) => r.map(esc).join(',')).join('\r\n');
+    downloadBlob(new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' }), `invoices-${today}.csv`);
+    toast.success(t('filters.exportDone', { count: filteredOrders.length }));
+  }
 
   function handlePrintOrder(order: Order) {
     setSelectedOrderId(order.id);
@@ -159,6 +187,7 @@ export function OrdersPage() {
       { id, payload: { reason } },
       {
         onSuccess: () => {
+          toast.success(t('cancel.done'));
           setCancelTarget(null);
           setSelectedOrderId(null);
         },
@@ -250,7 +279,7 @@ export function OrdersPage() {
         <div className="flex items-center gap-2">
           <button
             type="button"
-            title={t('edit.soon')}
+            onClick={handleExport}
             className="flex items-center gap-1.5 h-8 rounded-lg border border-posCloud-border dark:border-posCloudDark-border px-2.5 text-xs font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-primary hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
           >
             <Download size={13} />
@@ -258,8 +287,10 @@ export function OrdersPage() {
           </button>
           <button
             type="button"
+            disabled
+            aria-label={t('filters.more')}
             title={t('edit.soon')}
-            className="flex items-center justify-center h-8 w-8 rounded-lg border border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-secondary dark:text-posCloudDark-text-primary hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+            className="flex items-center justify-center h-8 w-8 opacity-50 cursor-not-allowed rounded-lg border border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-secondary dark:text-posCloudDark-text-primary hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
           >
             <Settings2 size={13} />
           </button>
@@ -341,6 +372,8 @@ export function OrdersPage() {
       <OrderDetailsModal
         order={selectedOrder}
         onClose={() => setSelectedOrderId(null)}
+        onCancel={(order) => setCancelTarget(order)}
+        onReturn={(order) => setReturnTarget(order)}
       />
       <CancelOrderModal
         order={cancelTarget}

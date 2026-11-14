@@ -14,6 +14,7 @@ import { EmptyState } from '@/shared/ui/empty-state'
 import { Modal } from '@/shared/ui/modal'
 import { StatusBadge, type StatusTone } from '@/shared/ui/status-badge'
 import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
+import { localizeServerMessage } from '@/lib/server-messages'
 import { documentsApi } from '../api/documents.api'
 import {
   DOCUMENT_TYPES,
@@ -38,6 +39,8 @@ export function TemplatesListPage() {
   const [status, setStatus] = useState('')
   const [creating, setCreating] = useState(false)
   const [toDelete, setToDelete] = useState<TemplateSummary | null>(null)
+  const [toArchive, setToArchive] = useState<TemplateSummary | null>(null)
+  const [toDefault, setToDefault] = useState<TemplateSummary | null>(null)
 
   const enabled = useQuery({ queryKey: ['documents', 'enabled'], queryFn: documentsApi.enabled })
   const list = useQuery({
@@ -47,7 +50,7 @@ export function TemplatesListPage() {
   })
 
   const refresh = () => qc.invalidateQueries({ queryKey: ['documents', 'templates'] })
-  const fail = (e: unknown) => toast.error(e instanceof Error ? e.message : t('failed'))
+  const fail = (e: unknown) => toast.error(e instanceof Error ? localizeServerMessage(e.message) : t('failed'))
   const useAct = (fn: (id: string) => Promise<unknown>, ok: string) =>
     useMutation({
       mutationFn: fn,
@@ -62,6 +65,14 @@ export function TemplatesListPage() {
   const defaultM = useAct(documentsApi.setDefault, t('defaultSet'))
   const dupM = useAct(documentsApi.duplicate, t('duplicated'))
   const deleteM = useAct((id) => documentsApi.remove(id), t('deleted'))
+  const defaultsM = useMutation({
+    mutationFn: documentsApi.restoreDefaults,
+    onSuccess: (r) => {
+      toast.success(r.created ? t('defaultsCreated') : t('defaultsExist'))
+      refresh()
+    },
+    onError: fail,
+  })
 
   if (enabled.isSuccess && !enabled.data.enabled) {
     return (
@@ -118,17 +129,27 @@ export function TemplatesListPage() {
       </div>
 
       {list.data && list.data.length === 0 ? (
-        <EmptyState
-          icon={FileText}
-          title={t('empty')}
-          description={t('emptyHint')}
-          action={
-            <Button onClick={() => setCreating(true)}>
-              <Plus className="h-4 w-4" />
-              {t('newTemplate')}
-            </Button>
-          }
-        />
+        docType || status ? (
+          <EmptyState icon={FileText} title={t('emptyFiltered')} />
+        ) : (
+          <EmptyState
+            icon={FileText}
+            title={t('empty')}
+            description={t('emptyHint')}
+            action={
+              <div className="flex flex-wrap justify-center gap-2">
+                <Button variant="outline" onClick={() => defaultsM.mutate()} disabled={defaultsM.isPending}>
+                  <Star className="h-4 w-4" />
+                  {t('createDefaults')}
+                </Button>
+                <Button onClick={() => setCreating(true)}>
+                  <Plus className="h-4 w-4" />
+                  {t('newTemplate')}
+                </Button>
+              </div>
+            }
+          />
+        )
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {list.data?.map((tpl) => (
@@ -160,7 +181,7 @@ export function TemplatesListPage() {
                   </Button>
                 )}
                 {tpl.status === 'published' && !tpl.is_default && (
-                  <Button size="sm" variant="outline" onClick={() => defaultM.mutate(tpl.id)}>
+                  <Button size="sm" variant="outline" onClick={() => setToDefault(tpl)}>
                     <Star className="h-3.5 w-3.5" />
                     {t('setDefault')}
                   </Button>
@@ -169,7 +190,7 @@ export function TemplatesListPage() {
                   <Copy className="h-3.5 w-3.5" />
                 </Button>
                 {tpl.status !== 'archived' && (
-                  <Button size="sm" variant="ghost" onClick={() => archiveM.mutate(tpl.id)} aria-label={t('archive')} title={t('archive')}>
+                  <Button size="sm" variant="ghost" onClick={() => setToArchive(tpl)} aria-label={t('archive')} title={t('archive')}>
                     <Archive className="h-3.5 w-3.5" />
                   </Button>
                 )}
@@ -190,6 +211,34 @@ export function TemplatesListPage() {
           refresh()
           router.push(`/dashboard/settings/documents/${id}`)
         }}
+      />
+
+      <ConfirmDialog
+        open={!!toArchive}
+        variant="warning"
+        onClose={() => setToArchive(null)}
+        onConfirm={() => {
+          if (toArchive) archiveM.mutate(toArchive.id)
+          setToArchive(null)
+        }}
+        title={t('archive')}
+        message={t('archiveConfirm', { name: toArchive?.name ?? '' })}
+        confirmLabel={t('archive')}
+        cancelLabel={t('cancel')}
+      />
+
+      <ConfirmDialog
+        open={!!toDefault}
+        variant="warning"
+        onClose={() => setToDefault(null)}
+        onConfirm={() => {
+          if (toDefault) defaultM.mutate(toDefault.id)
+          setToDefault(null)
+        }}
+        title={t('setDefault')}
+        message={t('setDefaultConfirm', { name: toDefault?.name ?? '', type: toDefault ? t(`type.${toDefault.doc_type}`) : '' })}
+        confirmLabel={t('setDefault')}
+        cancelLabel={t('cancel')}
       />
 
       <ConfirmDialog
@@ -222,6 +271,7 @@ function CreateDialog({
   const [docType, setDocType] = useState<DocumentType>('quotation')
   const [paper, setPaper] = useState<Paper>('A4')
   const [orientation, setOrientation] = useState<Orientation>('portrait')
+  const [nameError, setNameError] = useState(false)
 
   const m = useMutation({
     mutationFn: () => documentsApi.create({ name: name.trim(), doc_type: docType, paper, orientation }),
@@ -230,8 +280,18 @@ function CreateDialog({
       setName('')
       onCreated(r.id)
     },
-    onError: (e) => toast.error(e instanceof Error ? e.message : t('failed')),
+    onError: (e) => toast.error(e instanceof Error ? localizeServerMessage(e.message) : t('failed')),
   })
+
+  const submit = () => {
+    if (m.isPending) return
+    if (!name.trim()) {
+      setNameError(true)
+      return
+    }
+    setNameError(false)
+    m.mutate()
+  }
 
   return (
     <Modal
@@ -243,7 +303,7 @@ function CreateDialog({
           <Button variant="outline" onClick={onClose}>
             {t('cancel')}
           </Button>
-          <Button disabled={!name.trim() || m.isPending} onClick={() => m.mutate()}>
+          <Button disabled={m.isPending} onClick={submit}>
             {t('create')}
           </Button>
         </div>
@@ -252,7 +312,21 @@ function CreateDialog({
       <div className="space-y-4">
         <div className="space-y-1.5">
           <label className={labelCls}>{t('name')}</label>
-          <Input value={name} onChange={(e) => setName(e.target.value)} maxLength={120} autoFocus />
+          <Input
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value)
+              setNameError(false)
+            }}
+            maxLength={120}
+            aria-invalid={nameError}
+            autoFocus
+          />
+          {nameError && (
+            <p role="alert" className="text-xs text-posCloud-danger">
+              {t('nameRequired')}
+            </p>
+          )}
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">

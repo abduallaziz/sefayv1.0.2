@@ -1,18 +1,24 @@
 'use client';
 
 import { Order } from '../types/order.types';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store';
-import { X, Receipt, User, UserCog, CreditCard, CircleCheck, ShoppingBasket, StickyNote, Calculator, FileText, Download, Send, Printer, Package } from 'lucide-react';
+import { X, Ban, Undo2, Receipt, User, UserCog, CreditCard, CircleCheck, ShoppingBasket, StickyNote, Calculator, FileText, Download, Send, Printer, Package } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
 import { toast } from 'sonner';
 import { usePrinting } from '@/lib/print/usePrinting';
 import { MethodMark } from '@/shared/ui/method-mark';
 import { InvoiceNoteEditor } from '@/features/pos/components/InvoiceNoteEditor';
+import { formatDateTimeSeconds, formatNumber } from '@/lib/format';
+import { useEscape } from '@/lib/use-escape';
 
 interface Props {
   order: Order | null;
   onClose: () => void;
+  /** Opens the cancel-with-reason dialog for this invoice. */
+  onCancel?: (order: Order) => void;
+  /** Opens the (partial) return dialog for this invoice. */
+  onReturn?: (order: Order) => void;
 }
 
 const statusColors: Record<string, string> = {
@@ -22,8 +28,10 @@ const statusColors: Record<string, string> = {
   refunded: 'bg-posCloud-danger-light dark:bg-posCloud-danger/15 text-posCloud-danger',
 };
 
-export function OrderDetailsModal({ order, onClose }: Props) {
+export function OrderDetailsModal({ order, onClose, onCancel, onReturn }: Props) {
   const t = useTranslations('orders');
+  const locale = useLocale();
+  useEscape(onClose, !!order);
   const currency = useCurrencyDisplay();
   const tPrint = useTranslations('print.actions');
   const { printInvoice, printKitchen } = usePrinting();
@@ -39,7 +47,7 @@ export function OrderDetailsModal({ order, onClose }: Props) {
 
   return (
     <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-posCloud-surface dark:bg-posCloudDark-surface border border-posCloud-border dark:border-posCloudDark-border rounded-xl shadow-2xl w-full max-w-xl max-h-full overflow-y-auto">
+      <div role="dialog" aria-modal="true" aria-label={t('details.title')} className="bg-posCloud-surface dark:bg-posCloudDark-surface border border-posCloud-border dark:border-posCloudDark-border rounded-xl shadow-2xl w-full max-w-xl max-h-full overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-posCloud-border dark:border-posCloudDark-border">
           <div className="flex items-center gap-3">
@@ -51,11 +59,11 @@ export function OrderDetailsModal({ order, onClose }: Props) {
                 {t('details.title')} <span dir="ltr">{order.invoice_no ?? `#${order.id.slice(-6).toUpperCase()}`}</span>
               </h2>
               <p className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-                {new Date(order.created_at).toLocaleString('en-US')}
+                {formatDateTimeSeconds(order.created_at, locale)}
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary">
+          <button onClick={onClose} aria-label={t('back')} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary">
             <X size={18} />
           </button>
         </div>
@@ -104,7 +112,7 @@ export function OrderDetailsModal({ order, onClose }: Props) {
                 {order.cancelled_at && (
                   <div className="flex justify-between gap-3">
                     <dt>{t('details.cancelledAt')}</dt>
-                    <dd dir="ltr">{new Date(order.cancelled_at).toLocaleString('en-US')}</dd>
+                    <dd dir="ltr">{formatDateTimeSeconds(order.cancelled_at, locale)}</dd>
                   </div>
                 )}
                 <div className="flex justify-between gap-3">
@@ -155,9 +163,9 @@ export function OrderDetailsModal({ order, onClose }: Props) {
                           </div>
                         </td>
                         <td className="px-3 py-2 tabular-nums text-posCloud-text-secondary dark:text-posCloudDark-text-primary">{item.quantity}</td>
-                        <td className="px-3 py-2 tabular-nums text-posCloud-text-secondary dark:text-posCloudDark-text-primary">{item.unit_price.toLocaleString('en-US')} {currency}</td>
-                        <td className="px-3 py-2 tabular-nums text-posCloud-text-secondary dark:text-posCloudDark-text-primary">{lineDiscount.toLocaleString('en-US')} {currency}</td>
-                        <td className="px-3 py-2 font-semibold tabular-nums text-posCloud-text-primary dark:text-posCloudDark-text-primary">{item.total_price.toLocaleString('en-US')} {currency}</td>
+                        <td className="px-3 py-2 tabular-nums text-posCloud-text-secondary dark:text-posCloudDark-text-primary">{formatNumber(item.unit_price)} {currency}</td>
+                        <td className="px-3 py-2 tabular-nums text-posCloud-text-secondary dark:text-posCloudDark-text-primary">{formatNumber(lineDiscount)} {currency}</td>
+                        <td className="px-3 py-2 font-semibold tabular-nums text-posCloud-text-primary dark:text-posCloudDark-text-primary">{formatNumber(item.total_price)} {currency}</td>
                       </tr>
                     );
                   })}
@@ -190,21 +198,21 @@ export function OrderDetailsModal({ order, onClose }: Props) {
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
                   <span>{t('details.subtotal')}</span>
-                  <span>{order.subtotal} {currency}</span>
+                  <span>{formatNumber(order.subtotal)} {currency}</span>
                 </div>
                 {order.discount_amount > 0 && (
                   <div className="flex justify-between text-posCloud-success">
                     <span>{t('details.discount')}</span>
-                    <span>-{order.discount_amount} {currency}</span>
+                    <span>-{formatNumber(order.discount_amount)} {currency}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
                   <span>{t('details.tax')}</span>
-                  <span>{order.tax} {currency}</span>
+                  <span>{formatNumber(order.tax)} {currency}</span>
                 </div>
                 <div className="flex justify-between font-bold text-posCloud-text-primary dark:text-posCloudDark-text-primary text-base border-t border-posCloud-border dark:border-posCloudDark-border pt-1.5 mt-1.5">
                   <span>{t('total')}</span>
-                  <span>{order.total} {currency}</span>
+                  <span>{formatNumber(order.total)} {currency}</span>
                 </div>
               </div>
             </div>
@@ -239,6 +247,22 @@ export function OrderDetailsModal({ order, onClose }: Props) {
             <Printer size={15} />
             {tPrint('kitchen')}
           </Button>
+          {order.status === 'completed' && onReturn && (
+            <Button variant="outline" onClick={() => onReturn(order)} className="flex-1 min-w-[100px]">
+              <Undo2 size={15} />
+              {t('returns.action')}
+            </Button>
+          )}
+          {order.status !== 'cancelled' && onCancel && (
+            <Button
+              variant="outline"
+              onClick={() => onCancel(order)}
+              className="flex-1 min-w-[100px] text-posCloud-danger border-posCloud-danger/40 hover:bg-posCloud-danger-light dark:hover:bg-posCloud-danger/10"
+            >
+              <Ban size={15} />
+              {t('cancel.action')}
+            </Button>
+          )}
         </div>
       </div>
     </div>

@@ -65,7 +65,7 @@ export function ReturnOrderModal({ order, onClose }: Props) {
       qc.invalidateQueries({ queryKey: ['shifts'] });
       onClose();
     },
-    onError: (e) => toast.error(errorMessage(e, t('returns.failed'))),
+    // failures are toasted centrally (MutationCache in core/providers.tsx)
   });
 
   useEffect(() => {

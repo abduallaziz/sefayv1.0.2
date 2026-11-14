@@ -61,5 +61,8 @@
   "difference": "الفرق",
   "notes": "ملاحظات",
   "returned": "المرتجعات",
-  "returns_col": "المرتجع"
+  "returns_col": "المرتجع",
+  "close_confirm_title": "تأكيد إغلاق الصندوق",
+  "close_confirm_message": "سيتم إغلاق الصندوق بالمبالغ المدخلة ولا يمكن التراجع. هل تريد المتابعة؟",
+  "load_more": "عرض المزيد"
 }

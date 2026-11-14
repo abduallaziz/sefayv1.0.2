@@ -87,7 +87,7 @@ export function CustomersTable({ customers, onView, onEdit, onDelete }: Props) {
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors shrink-0">
+                  <button type="button" aria-label={t('actions.more')} title={t('actions.more')} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors shrink-0">
                     <MoreVertical className="w-4 h-4" />
                   </button>
                 </DropdownMenuTrigger>
@@ -143,7 +143,7 @@ export function CustomersTable({ customers, onView, onEdit, onDelete }: Props) {
               <th className="text-start py-3 px-4 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary font-medium">{t('table.lastAmount')}</th>
               <th className="text-start py-3 px-4 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary font-medium">{t('table.lastOperation')}</th>
               <th className="text-start py-3 px-4 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary font-medium">{t('table.status')}</th>
-              <th className="py-3 px-4" />
+              <th className="sticky end-0 bg-white dark:bg-gray-900 py-3 px-4"><span className="sr-only">{t('actions.more')}</span></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
@@ -155,7 +155,7 @@ export function CustomersTable({ customers, onView, onEdit, onDelete }: Props) {
                       <User className="w-4 h-4" />
                     </span>
                     <span>
-                      <span className="block font-medium text-gray-900 dark:text-white">{customer.full_name}</span>
+                      <span className="block whitespace-nowrap font-medium text-gray-900 dark:text-white">{customer.full_name}</span>
                       <span className="block text-xs text-posCloud-primary font-mono">#CUST-{customer.id.slice(-6).toUpperCase()}</span>
                     </span>
                   </button>
@@ -228,10 +228,10 @@ export function CustomersTable({ customers, onView, onEdit, onDelete }: Props) {
                     {customer.is_active ? t('fields.status.active') : t('fields.status.inactive')}
                   </span>
                 </td>
-                <td className="py-3 px-4">
+                <td className="sticky end-0 bg-white dark:bg-gray-900 py-3 px-4">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <button className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                      <button type="button" aria-label={t('actions.more')} title={t('actions.more')} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                         <MoreVertical className="w-4 h-4" />
                       </button>
                     </DropdownMenuTrigger>

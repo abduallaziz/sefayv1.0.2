@@ -6,7 +6,7 @@ import { toast } from 'sonner'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetBody, SheetFooter } from '@/shared/ui/sheet'
 import { SingleDatePicker } from '@/shared/ui/date-range-picker'
 import { useBranches } from '@/shared/hooks/useBranches'
-import { useAccountingOwners, useAssignBranchAccountingOwner } from '../hooks/useAccountingConfig'
+import { useAccountingOwners, useAssignBranchAccountingOwner, useBranchAssignments } from '../hooks/useAccountingConfig'
 import { ApiError } from '@/lib/api'
 
 interface Props {
@@ -22,12 +22,17 @@ export function AssignBranchOwnerSheet({ open, onOpenChange }: Props) {
 
   const { data: branches } = useBranches()
   const owners = useAccountingOwners(open)
+  const assignments = useBranchAssignments(open)
   const assign = useAssignBranchAccountingOwner()
 
   const [branchId, setBranchId] = useState('')
   const [ownerId, setOwnerId] = useState('')
   const [effectiveFrom, setEffectiveFrom] = useState<string | undefined>(undefined)
   const [reason, setReason] = useState('')
+
+  // Only active branches without a current (open-ended) accountant link can be linked.
+  const linkedBranchIds = new Set((assignments.data ?? []).filter((a) => !a.effective_to).map((a) => a.branch_id))
+  const linkableBranches = (branches ?? []).filter((b) => !linkedBranchIds.has(b.id))
 
   const canSubmit = !!branchId && !!ownerId && !!effectiveFrom
 
@@ -71,10 +76,13 @@ export function AssignBranchOwnerSheet({ open, onOpenChange }: Props) {
             <label className="text-sm text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{t('branch')}</label>
             <select value={branchId} onChange={(e) => setBranchId(e.target.value)} className={inputClass}>
               <option value="">{t('selectBranch')}</option>
-              {(branches ?? []).map((b) => (
+              {linkableBranches.map((b) => (
                 <option key={b.id} value={b.id}>{b.name}</option>
               ))}
             </select>
+            {assignments.isSuccess && linkableBranches.length === 0 && (
+              <p className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('noUnlinkedBranches')}</p>
+            )}
           </div>
 
           <div className="space-y-1.5">

@@ -85,7 +85,9 @@ export function Modal({
               {description && <p className={cn('mt-1 text-sm', mutedColor)}>{description}</p>}
             </div>
             <button
+              type="button"
               onClick={onClose}
+              aria-label={typeof document !== 'undefined' && document.documentElement.lang === 'en' ? 'Close' : 'إغلاق'}
               className={cn('rounded-lg p-1.5 transition-colors', closeBtn)}
             >
               <X className="w-4 h-4" />

@@ -11,6 +11,7 @@ import { Skeleton } from '@/shared/ui/skeleton'
 import { ApiError } from '@/lib/api'
 import { useJournalEntryDetail, useChartOfAccounts } from '../hooks/useJournalEntries'
 import { useUsers } from '@/features/users/hooks/useUsers'
+import { accountLabel } from '../lib/accounting-utils'
 
 interface Props {
   entryId: string | null
@@ -55,6 +56,8 @@ export function JournalEntryDetailSheet({ entryId, open, onOpenChange, canView, 
   const tStatus = useTranslations('accounting.journalEntries.status')
   const tRoot = useTranslations('accounting.journalEntries')
   const locale = useLocale()
+  const tAccounts = useTranslations('accounting.accountNames')
+  const tOrders = useTranslations('orders')
 
   const detail = useJournalEntryDetail(entryId, open && canView)
   const accounts = useChartOfAccounts(open && canView)
@@ -142,6 +145,13 @@ export function JournalEntryDetailSheet({ entryId, open, onOpenChange, canView, 
               </SectionCard>
 
               <SectionCard title={t('lines.title')} theme="dashboard" padding="none">
+                <div className="flex items-center justify-between px-5 py-2 text-xs font-semibold text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary border-b border-posCloud-border dark:border-posCloudDark-border">
+                  <span>{t('lines.account')}</span>
+                  <div className="flex gap-4 shrink-0">
+                    <span className="w-20 text-end">{t('lines.debit')}</span>
+                    <span className="w-20 text-end">{t('lines.credit')}</span>
+                  </div>
+                </div>
                 <div className="divide-y divide-slate-100 dark:divide-posCloudDark-border">
                   {detail.data.lines.map((line) => {
                     const account = accountById.get(line.account_id)
@@ -149,7 +159,7 @@ export function JournalEntryDetailSheet({ entryId, open, onOpenChange, canView, 
                       <div key={line.id} className="flex items-center justify-between px-5 py-3 text-sm">
                         <div className="min-w-0">
                           <p className="text-posCloud-text-primary dark:text-posCloudDark-text-primary truncate">
-                            {account ? `${account.code} — ${account.name}` : line.account_id}
+                            <bdi>{account ? accountLabel(account, tAccounts) : line.account_id}</bdi>
                           </p>
                           {line.description && (
                             <p className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{line.description}</p>
@@ -167,6 +177,25 @@ export function JournalEntryDetailSheet({ entryId, open, onOpenChange, canView, 
                     )
                   })}
                 </div>
+                {(() => {
+                  const debitTotal = detail.data.lines.reduce((s, l) => s + Number(l.debit_amount || 0), 0)
+                  const creditTotal = detail.data.lines.reduce((s, l) => s + Number(l.credit_amount || 0), 0)
+                  const balanced = Math.abs(debitTotal - creditTotal) < 0.005
+                  return (
+                    <div className="px-5 py-3 border-t border-posCloud-border dark:border-posCloudDark-border text-sm">
+                      <div className="flex items-center justify-between font-semibold">
+                        <span>{t('lines.total')}</span>
+                        <div className="flex gap-4 tabular-nums shrink-0">
+                          <span className="w-20 text-end">{formatAmount(debitTotal)}</span>
+                          <span className="w-20 text-end">{formatAmount(creditTotal)}</span>
+                        </div>
+                      </div>
+                      <p className={`text-xs mt-1 ${balanced ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                        {balanced ? t('lines.balanced') : t('lines.unbalanced')}
+                      </p>
+                    </div>
+                  )
+                })()}
               </SectionCard>
 
               {detail.data.order && (
@@ -174,7 +203,7 @@ export function JournalEntryDetailSheet({ entryId, open, onOpenChange, canView, 
                   <div className="space-y-2 text-sm">
                     <div className="flex items-center justify-between">
                       <span className="text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('order.paymentMethod')}</span>
-                      <span className="text-posCloud-text-primary dark:text-posCloudDark-text-primary">{detail.data.order.payment_method ?? '—'}</span>
+                      <span className="text-posCloud-text-primary dark:text-posCloudDark-text-primary">{detail.data.order.payment_method ? (tOrders.has(`payment_method.${detail.data.order.payment_method}`) ? tOrders(`payment_method.${detail.data.order.payment_method}`) : detail.data.order.payment_method) : '—'}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('order.subtotal')}</span>
@@ -193,7 +222,7 @@ export function JournalEntryDetailSheet({ entryId, open, onOpenChange, canView, 
                       <span className="tabular-nums text-posCloud-text-primary dark:text-posCloudDark-text-primary">{formatAmount(detail.data.order.total)}</span>
                     </div>
                     <Link
-                      href={`/${locale}/dashboard/orders`}
+                      href={`/${locale}/dashboard/orders?search=${encodeURIComponent(detail.data.order.invoice_no ?? detail.data.order.id)}`}
                       className="inline-block pt-2 text-sm text-posCloud-primary hover:underline"
                     >
                       {t('order.viewInOrders')}
@@ -245,12 +274,15 @@ export function JournalEntryDetailSheet({ entryId, open, onOpenChange, canView, 
               {detail.data.reversalEntry && (
                 <SectionCard title={t('reversal.reversedByTitle')} theme="dashboard">
                   <div className="flex items-center justify-between text-sm">
+                    <span className="tabular-nums text-posCloud-text-primary dark:text-posCloudDark-text-primary" title={t('reversal.reversedByRef')}>
+                      {tRoot('referenceFallback', { shortId: shortenReference(detail.data.reversalEntry.reference ?? detail.data.reversalEntry.id) })}
+                    </span>
                     <StatusBadge
                       label={tStatus(detail.data.reversalEntry.status)}
                       tone={statusTone[detail.data.reversalEntry.status] ?? 'neutral'}
                     />
                     <span className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
-                      {new Date(detail.data.reversalEntry.created_at).toLocaleDateString('en-US')}
+                      {new Date(detail.data.reversalEntry.created_at).toLocaleDateString('en-CA')}
                     </span>
                   </div>
                 </SectionCard>
@@ -267,14 +299,14 @@ export function JournalEntryDetailSheet({ entryId, open, onOpenChange, canView, 
                   <div className="flex items-center justify-between">
                     <span className="text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('audit.createdAt')}</span>
                     <span className="tabular-nums text-posCloud-text-primary dark:text-posCloudDark-text-primary">
-                      {new Date(detail.data.created_at).toLocaleString('en-US')}
+                      {new Date(detail.data.created_at).toLocaleString('en-CA', { hour12: false })}
                     </span>
                   </div>
                   {detail.data.posted_at && (
                     <div className="flex items-center justify-between">
                       <span className="text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('audit.postedAt')}</span>
                       <span className="tabular-nums text-posCloud-text-primary dark:text-posCloudDark-text-primary">
-                        {new Date(detail.data.posted_at).toLocaleString('en-US')}
+                        {new Date(detail.data.posted_at).toLocaleString('en-CA', { hour12: false })}
                       </span>
                     </div>
                   )}
@@ -282,7 +314,7 @@ export function JournalEntryDetailSheet({ entryId, open, onOpenChange, canView, 
                     <div className="flex items-center justify-between">
                       <span className="text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('audit.reversedAt')}</span>
                       <span className="tabular-nums text-posCloud-text-primary dark:text-posCloudDark-text-primary">
-                        {new Date(detail.data.reversed_at).toLocaleString('en-US')}
+                        {new Date(detail.data.reversed_at).toLocaleString('en-CA', { hour12: false })}
                       </span>
                     </div>
                   )}

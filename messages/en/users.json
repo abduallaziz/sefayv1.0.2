@@ -64,6 +64,18 @@
     "manager": "Manager",
     "cashier": "Cashier",
     "worker": "Worker",
-    "none": "None"
-  }
+    "none": "None",
+    "inventory_clerk": "Inventory clerk"
+  },
+  "searchPlaceholder": "Search by name or email",
+  "allRoles": "All roles",
+  "allStatuses": "All statuses",
+  "noMatch": "No matching results",
+  "errName": "Name is required",
+  "errEmail": "Invalid email address",
+  "errPasswordShort": "Password must be at least 8 characters",
+  "close": "Close",
+  "countFiltered": "{shown} of {count} users",
+  "roleFilterLabel": "Filter by role",
+  "statusFilterLabel": "Filter by status"
 }

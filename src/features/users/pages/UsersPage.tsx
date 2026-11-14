@@ -1,12 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useUsers, useDeleteUser, useUpdateUser } from '../hooks/useUsers'
 import { CreateUserDialog } from '../components/CreateUserDialog'
 import type { User } from '../api/users.api'
-import { Trash2, Plus, Eye, Ban, UserCheck } from 'lucide-react'
+import { Trash2, Plus, Eye, Ban, UserCheck, Search } from 'lucide-react'
 import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
 
 type PendingAction = { type: 'disable' | 'enable' | 'delete'; user: User }
@@ -20,7 +20,21 @@ const ROLE_COLORS: Record<string, string> = {
 
 export function UsersPage() {
   const t = useTranslations('users')
-  const { data: users, isLoading } = useUsers()
+  const { data: allUsers, isLoading } = useUsers()
+  const [search, setSearch] = useState('')
+  const [roleFilter, setRoleFilter] = useState('')
+  const [statusFilter, setStatusFilter] = useState<'' | 'active' | 'inactive'>('')
+  const users = useMemo(() => {
+    const q = search.trim().toLowerCase()
+    return (allUsers ?? []).filter((u) => {
+      if (roleFilter && u.role !== roleFilter) return false
+      if (statusFilter === 'active' && !u.is_active) return false
+      if (statusFilter === 'inactive' && u.is_active) return false
+      if (q && !`${u.name ?? ''} ${u.email ?? ''}`.toLowerCase().includes(q)) return false
+      return true
+    })
+  }, [allUsers, search, roleFilter, statusFilter])
+  const filtering = !!(search || roleFilter || statusFilter)
   const { mutate: deleteUser, isPending: deleting } = useDeleteUser()
   const { mutate: updateUser, isPending: updating } = useUpdateUser()
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -46,16 +60,53 @@ export function UsersPage() {
         <div>
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t('title')}</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            {t('count', { count: users?.length ?? 0 })}
+            {filtering ? t('countFiltered', { shown: users.length, count: allUsers?.length ?? 0 }) : t('count', { count: allUsers?.length ?? 0 })}
           </p>
         </div>
         <button
+          type="button"
+          aria-label={t('addUser')}
           onClick={() => setDialogOpen(true)}
           className="flex items-center gap-2 px-3 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] rounded-lg text-sm text-white transition-colors shrink-0"
         >
           <Plus className="w-4 h-4" />
           <span className="hidden sm:inline">{t('addUser')}</span>
         </button>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="relative flex-1 min-w-[180px]">
+          <Search className="w-4 h-4 text-gray-400 absolute start-3 top-1/2 -translate-y-1/2" />
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={t('searchPlaceholder')}
+            aria-label={t('searchPlaceholder')}
+            className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg ps-9 pe-3 py-2 text-sm text-gray-900 dark:text-white"
+          />
+        </div>
+        <select
+          value={roleFilter}
+          onChange={(e) => setRoleFilter(e.target.value)}
+          aria-label={t('roleFilterLabel')}
+          className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white"
+        >
+          <option value="">{t('allRoles')}</option>
+          {['owner', 'manager', 'cashier', 'worker', 'inventory_clerk', 'none'].map((r) => (
+            <option key={r} value={r}>{t(`roles.${r}`)}</option>
+          ))}
+        </select>
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value as '' | 'active' | 'inactive')}
+          aria-label={t('statusFilterLabel')}
+          className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white"
+        >
+          <option value="">{t('allStatuses')}</option>
+          <option value="active">{t('active')}</option>
+          <option value="inactive">{t('inactive')}</option>
+        </select>
       </div>
 
       {isLoading ? (
@@ -68,7 +119,7 @@ export function UsersPage() {
         <>
           {/* Mobile cards */}
           <div className="md:hidden space-y-2">
-            {users?.map((user) => (
+            {users.map((user) => (
               <div key={user.id} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-3">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
@@ -91,14 +142,18 @@ export function UsersPage() {
                       <Eye className="w-4 h-4" />
                     </Link>
                     <button
-                      onClick={() => setPendingAction({ type: user.is_active ? 'disable' : 'enable', user })}
+                      type="button"
+ aria-label={user.is_active ? t('disable') : t('enable')}
+ onClick={() => setPendingAction({ type: user.is_active ? 'disable' : 'enable', user })}
                       className={`p-1.5 transition-colors ${user.is_active ? 'text-gray-400 dark:text-gray-600 hover:text-amber-500 dark:hover:text-amber-400' : 'text-emerald-500 hover:text-emerald-600'}`}
                       title={user.is_active ? t('disable') : t('enable')}
                     >
                       {user.is_active ? <Ban className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
                     </button>
                     <button
-                      onClick={() => setPendingAction({ type: 'delete', user })}
+                      type="button"
+ aria-label={t('delete')}
+ onClick={() => setPendingAction({ type: 'delete', user })}
                       className="p-1.5 text-gray-400 dark:text-gray-600 hover:text-red-500 dark:hover:text-red-400 transition-colors"
                       title={t('delete')}
                     >
@@ -116,8 +171,8 @@ export function UsersPage() {
                 </div>
               </div>
             ))}
-            {users?.length === 0 && (
-              <div className="py-12 text-center text-gray-500 dark:text-gray-400 text-sm">{t('empty')}</div>
+            {users.length === 0 && (
+              <div className="py-12 text-center text-gray-500 dark:text-gray-400 text-sm">{filtering ? t('noMatch') : t('empty')}</div>
             )}
           </div>
 
@@ -135,7 +190,7 @@ export function UsersPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {users?.map((user) => (
+                  {users.map((user) => (
                     <tr key={user.id} className="border-b border-gray-100 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-700/50">
                       <td className="px-3 py-3">
                         <div className="flex items-center gap-2">
@@ -168,14 +223,18 @@ export function UsersPage() {
                             <Eye className="w-4 h-4" />
                           </Link>
                           <button
-                            onClick={() => setPendingAction({ type: user.is_active ? 'disable' : 'enable', user })}
+                            type="button"
+ aria-label={user.is_active ? t('disable') : t('enable')}
+ onClick={() => setPendingAction({ type: user.is_active ? 'disable' : 'enable', user })}
                             className={`p-1.5 transition-colors ${user.is_active ? 'text-gray-400 dark:text-gray-600 hover:text-amber-500 dark:hover:text-amber-400' : 'text-emerald-500 hover:text-emerald-600'}`}
                             title={user.is_active ? t('disable') : t('enable')}
                           >
                             {user.is_active ? <Ban className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
                           </button>
                           <button
-                            onClick={() => setPendingAction({ type: 'delete', user })}
+                            type="button"
+ aria-label={t('delete')}
+ onClick={() => setPendingAction({ type: 'delete', user })}
                             className="p-1.5 text-gray-400 dark:text-gray-600 hover:text-red-500 dark:hover:text-red-400 transition-colors"
                             title={t('delete')}
                           >
@@ -188,8 +247,8 @@ export function UsersPage() {
                 </tbody>
               </table>
             </div>
-            {users?.length === 0 && (
-              <div className="py-12 text-center text-gray-500 dark:text-gray-400 text-sm">{t('empty')}</div>
+            {users.length === 0 && (
+              <div className="py-12 text-center text-gray-500 dark:text-gray-400 text-sm">{filtering ? t('noMatch') : t('empty')}</div>
             )}
           </div>
         </>

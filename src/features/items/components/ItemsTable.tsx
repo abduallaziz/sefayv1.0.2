@@ -13,11 +13,18 @@ interface Props {
   onBarcodes: (item: Item) => void;
   onPackaging: (item: Item) => void;
   onToggleActive: (item: Item) => void;
+  selectedIds: Set<string>;
+  onToggleSelected: (id: string) => void;
+  allSelected: boolean;
+  onToggleAll: () => void;
 }
 
-export function ItemsTable({ items, onEdit, onDelete, onVariants, onBarcodes, onPackaging, onToggleActive }: Props) {
+export function ItemsTable({ items, onEdit, onDelete, onVariants, onBarcodes, onPackaging, onToggleActive, selectedIds, onToggleSelected, allSelected, onToggleAll }: Props) {
   const t = useTranslations('items');
   const currency = useCurrencyDisplay();
+  // Always two decimals, English digits: same format as the KPI cards.
+  const fmtPrice = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const checkboxClass = 'w-4 h-4 accent-posCloud-primary cursor-pointer';
 
   const typeColors: Record<string, string> = {
     product: 'bg-posCloud-primary-light dark:bg-posCloud-primary/15 text-posCloud-primary',
@@ -45,7 +52,14 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onBarcodes, on
         {items.map((item) => (
           <div key={item.id} className="bg-posCloud-surface dark:bg-posCloudDark-surface border border-posCloud-border dark:border-posCloudDark-border rounded-xl p-3">
             <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0">
+              <input
+                type="checkbox"
+                checked={selectedIds.has(item.id)}
+                onChange={() => onToggleSelected(item.id)}
+                aria-label={t('selectRow', { name: item.name })}
+                className={`${checkboxClass} mt-1 shrink-0`}
+              />
+              <div className="min-w-0 flex-1">
                 <p className="font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary truncate">{item.name}</p>
                 <div className="flex items-center gap-2 mt-1">
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${typeColors[item.type]}`}>
@@ -57,23 +71,23 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onBarcodes, on
                 </div>
               </div>
               <div className="flex items-center gap-1 shrink-0">
-                <button onClick={() => onBarcodes(item)} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary transition-colors">
+                <button type="button" aria-label={t('barcodes')} title={t('barcodes')} onClick={() => onBarcodes(item)} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary transition-colors">
                   <Barcode className="w-3.5 h-3.5" />
                 </button>
-                <button onClick={() => onPackaging(item)} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary transition-colors">
+                <button type="button" aria-label={t('attributesAndPackaging')} title={t('attributesAndPackaging')} onClick={() => onPackaging(item)} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary transition-colors">
                   <Boxes className="w-3.5 h-3.5" />
                 </button>
-                <button onClick={() => onEdit(item)} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary transition-colors">
+                <button type="button" aria-label={t('editItem')} title={t('editItem')} onClick={() => onEdit(item)} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary transition-colors">
                   <Edit className="w-3.5 h-3.5" />
                 </button>
-                <button onClick={() => onDelete(item)} className="p-1.5 rounded-lg hover:bg-posCloud-danger-light dark:hover:bg-posCloud-danger/15 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-danger transition-colors">
+                <button type="button" aria-label={t('deleteItem')} title={t('deleteItem')} onClick={() => onDelete(item)} className="p-1.5 rounded-lg hover:bg-posCloud-danger-light dark:hover:bg-posCloud-danger/15 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-danger transition-colors">
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
             <div className="flex items-center justify-between mt-3 pt-2 border-t border-posCloud-border dark:border-posCloudDark-border">
               <span className="font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary tabular-nums">
-                {item.price.toLocaleString('en-US')} {currency}
+                {fmtPrice(item.price)} {currency}
               </span>
               <div className="flex items-center gap-3">
                 {item.has_variants && (
@@ -104,6 +118,9 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onBarcodes, on
         <table className="w-full text-sm">
           <thead className="bg-posCloud-background dark:bg-posCloudDark-background border-b border-posCloud-border dark:border-posCloudDark-border">
             <tr>
+              <th className="px-3 py-3 w-10">
+                <input type="checkbox" checked={allSelected} onChange={onToggleAll} aria-label={t('selectAll')} className={checkboxClass} />
+              </th>
               <th className="text-start px-3 py-3 font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('name')}</th>
               <th className="text-start px-3 py-3 font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('type')}</th>
               <th className="text-start px-3 py-3 font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('category')}</th>
@@ -116,6 +133,15 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onBarcodes, on
           <tbody className="divide-y divide-posCloud-border dark:divide-posCloudDark-border">
             {items.map((item, i) => (
               <tr key={item.id} className={`hover:bg-slate-50 dark:hover:bg-white/5 transition-colors ${i % 2 === 1 ? 'bg-posCloud-background/40 dark:bg-white/[0.02]' : ''}`}>
+                <td className="px-3 py-3 w-10">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.has(item.id)}
+                    onChange={() => onToggleSelected(item.id)}
+                    aria-label={t('selectRow', { name: item.name })}
+                    className={checkboxClass}
+                  />
+                </td>
                 <td className="px-3 py-3 font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary max-w-[160px] truncate">
                   {item.name}
                 </td>
@@ -128,7 +154,7 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onBarcodes, on
                   {item.category_name ?? '—'}
                 </td>
                 <td className="px-3 py-3 font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary w-24 tabular-nums">
-                  {item.price.toLocaleString('en-US')} {currency}
+                  {fmtPrice(item.price)} {currency}
                 </td>
                 <td className="px-3 py-3">
                   {item.has_variants ? (
@@ -162,6 +188,7 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onBarcodes, on
                       onClick={() => onBarcodes(item)}
                       className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary transition-colors"
                       title={t('barcodes')}
+                      aria-label={t('barcodes')}
                     >
                       <Barcode className="w-3.5 h-3.5" />
                     </button>
@@ -169,16 +196,23 @@ export function ItemsTable({ items, onEdit, onDelete, onVariants, onBarcodes, on
                       onClick={() => onPackaging(item)}
                       className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary transition-colors"
                       title={t('attributesAndPackaging')}
+                      aria-label={t('attributesAndPackaging')}
                     >
                       <Boxes className="w-3.5 h-3.5" />
                     </button>
                     <button
+                      type="button"
+                      title={t('editItem')}
+                      aria-label={t('editItem')}
                       onClick={() => onEdit(item)}
                       className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary transition-colors"
                     >
                       <Edit className="w-3.5 h-3.5" />
                     </button>
                     <button
+                      type="button"
+                      title={t('deleteItem')}
+                      aria-label={t('deleteItem')}
                       onClick={() => onDelete(item)}
                       className="p-1.5 rounded-lg hover:bg-posCloud-danger-light dark:hover:bg-posCloud-danger/15 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-danger transition-colors"
                     >

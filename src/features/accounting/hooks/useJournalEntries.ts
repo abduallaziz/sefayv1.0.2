@@ -1,4 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { retryUnlessClientError } from '../lib/query-retry'
 import { accountingApi, JournalEntriesQuery } from '../api/accounting.api'
 
 export function useJournalEntries(query: JournalEntriesQuery, enabled: boolean) {
@@ -6,6 +7,8 @@ export function useJournalEntries(query: JournalEntriesQuery, enabled: boolean) 
     queryKey: ['accounting', 'journal-entries', query],
     queryFn: () => accountingApi.getJournalEntries(query),
     enabled,
+    retry: retryUnlessClientError,
+    placeholderData: keepPreviousData,
   })
 }
 
@@ -34,5 +37,7 @@ export function useCogsReconciliation(query: JournalEntriesQuery, enabled: boole
     queryKey: ['accounting', 'cogs-reconciliation', query],
     queryFn: () => accountingApi.getCogsReconciliation(query),
     enabled,
+    retry: retryUnlessClientError,
+    placeholderData: keepPreviousData,
   })
 }

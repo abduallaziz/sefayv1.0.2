@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
+import { toast } from 'sonner';
 import { useProfile, useSubscription, useUsage, useUpdateProfile } from '../hooks/useSettings';
 import { useTenantStore } from '@/core/tenant/stores/tenant.store';
 import { ApiError } from '@/lib/api';
@@ -15,6 +16,8 @@ import { CustomFieldsManager } from '@/features/customers/components/CustomField
 import { LoyaltyTiersManager } from '@/features/loyalty-tiers/components/LoyaltyTiersManager';
 import { NumberInput } from '@/shared/ui/number-input';
 import type { NotificationPreferences } from '../api/settings.api';
+import { zatcaApi } from '@/features/zatca/api/zatca.api';
+import { checkTaxRatePercent, checkVatNumber, effectiveSubscriptionStatus, normalizeDigits } from '../lib/validators';
 
 // T11 - every method the API knows (default of tenants.enabled_payment_methods)
 // and the ones the owner may switch on/off at the POS.
@@ -43,11 +46,14 @@ const CURRENCIES = [
 
 export function SettingsPage() {
   const t = useTranslations('settings');
+  const locale = useLocale();
   const tPrint = useTranslations('print.designer');
   const tz = useTranslations('zatca');
   const td = useTranslations('documents');
   const { data: documentsEnabled } = useQuery({ queryKey: ['documents', 'enabled'], queryFn: documentsApi.enabled });
   const { data: profile, isLoading: profileLoading } = useProfile();
+  const { data: zatcaDevices } = useQuery({ queryKey: ['zatca', 'devices'], queryFn: zatcaApi.devices, retry: false });
+  const zatcaEnabled = (zatcaDevices ?? []).length > 0;
   const { data: subscriptionData, isLoading: subLoading } = useSubscription();
   const { data: usage, isLoading: usageLoading } = useUsage();
   // Customer capture on, yet nothing for the cashier to fill (no active field and
@@ -76,7 +82,9 @@ export function SettingsPage() {
   const [name, setName] = useState('');
   const [selectedCurrency, setSelectedCurrency] = useState(currency_code);
   const [taxRatePercent, setTaxRatePercent] = useState('');
-  const [taxRateError, setTaxRateError] = useState(false);
+  const [taxRateError, setTaxRateError] = useState<null | 'required' | 'range' | 'decimals'>(null);
+  const [vatError, setVatError] = useState<null | 'digits' | 'zatca'>(null);
+  const [nameError, setNameError] = useState(false);
   const [logoUrl, setLogoUrl] = useState('');
   const [taxNumber, setTaxNumber] = useState('');
   const [invoiceFooter, setInvoiceFooter] = useState('');
@@ -91,11 +99,13 @@ export function SettingsPage() {
   // 429 from the rate limiter, or any network error) previously failed completely
   // silently: the toggle/field just stayed as it was, with no indication anything
   // went wrong, which read as "the toggle doesn't save."
+  const onSaved = () => { toast.success(t('saved'), { id: 'settings-saved' }); };
   function onSaveError(e: unknown) {
     setSaveError(e instanceof ApiError ? e.message : t('saveError'));
   }
 
   const sub = subscriptionData?.subscription;
+  const subStatus = effectiveSubscriptionStatus(sub);
   const authUser = useAuthStore((s) => s.user);
   const canManageAccessControl = authUser?.role === 'owner' || authUser?.role === 'superadmin';
 
@@ -130,14 +140,15 @@ export function SettingsPage() {
   }
 
   function handleSaveName() {
-    if (!name.trim()) return;
+    if (name.trim().length < 2) { setNameError(true); return; }
+    setNameError(false);
     setSaveError(null);
-    saveName({ name: name.trim() }, { onError: onSaveError });
+    saveName({ name: name.trim() }, { onSuccess: onSaved, onError: onSaveError });
   }
 
   function handleToggleCustomerCapture(enabled: boolean) {
     setSaveError(null);
-    saveCustomerCapture({ customer_capture_enabled: enabled }, { onError: onSaveError });
+    saveCustomerCapture({ customer_capture_enabled: enabled }, { onSuccess: onSaved, onError: onSaveError });
   }
 
   function handleSaveCurrency() {
@@ -147,32 +158,40 @@ export function SettingsPage() {
     saveCurrency(
       { currency_code: cur.code, currency_symbol: cur.symbol },
       {
-        onSuccess: () => setCurrency(cur.code, cur.symbol),
+        onSuccess: () => { setCurrency(cur.code, cur.symbol); onSaved(); },
         onError: onSaveError,
       }
     );
   }
 
   function handleSaveTaxRate() {
-    const value = Number(taxRatePercent);
-    if (Number.isNaN(value) || value < 0 || value > 100) {
-      setTaxRateError(true);
+    const check = checkTaxRatePercent(taxRatePercent);
+    if (!check.ok) {
+      setTaxRateError(check.reason);
       return;
     }
-    setTaxRateError(false);
+    setTaxRateError(null);
     setSaveError(null);
-    saveTaxRate({ tax_rate: value / 100 }, { onError: onSaveError });
+    saveTaxRate({ tax_rate: Math.round(check.value * 100) / 10000 }, { onSuccess: onSaved, onError: onSaveError });
   }
 
   function handleSaveInvoiceCustomization() {
+    const vat = normalizeDigits(taxNumber).trim();
+    const vatCheck = checkVatNumber(vat, zatcaEnabled);
+    if (vatCheck !== 'ok') {
+      setVatError(vatCheck);
+      return;
+    }
+    setVatError(null);
+    setTaxNumber(vat);
     setSaveError(null);
     saveInvoiceCustomization(
       {
         ...(logoUrl.trim() ? { logo_url: logoUrl.trim() } : {}),
-        tax_number: taxNumber.trim(),
+        tax_number: vat,
         invoice_footer: invoiceFooter.trim(),
       },
-      { onError: onSaveError },
+      { onSuccess: onSaved, onError: onSaveError },
     );
   }
 
@@ -180,7 +199,7 @@ export function SettingsPage() {
     setSaveError(null);
     savePrinterSettings(
       { printer_settings: { paper_width: paperWidth, auto_print: autoPrint, kitchen_auto_print: kitchenAutoPrint } },
-      { onError: onSaveError },
+      { onSuccess: onSaved, onError: onSaveError },
     );
   }
 
@@ -190,22 +209,25 @@ export function SettingsPage() {
     const current = profile?.enabled_payment_methods ?? [...ALL_METHODS];
     const next = enabled ? [...new Set([...current, method])] : current.filter((m) => m !== method);
     setSaveError(null);
-    savePaymentMethods({ enabled_payment_methods: next }, { onError: onSaveError });
+    savePaymentMethods({ enabled_payment_methods: next }, { onSuccess: onSaved, onError: onSaveError });
   }
 
   function handleToggleLoyaltyEnabled(enabled: boolean) {
     setSaveError(null);
-    saveLoyaltyEnabled({ loyalty_enabled: enabled }, { onError: onSaveError });
+    saveLoyaltyEnabled({ loyalty_enabled: enabled }, { onSuccess: onSaved, onError: onSaveError });
   }
 
   function handleSaveLoyaltySettings() {
     const perCurrency = Number(pointsPerCurrency);
     const redemption = Number(redemptionValue);
-    if (Number.isNaN(perCurrency) || perCurrency < 0 || Number.isNaN(redemption) || redemption < 0) return;
+    if (!pointsPerCurrency.trim() || !redemptionValue.trim() || Number.isNaN(perCurrency) || perCurrency < 0 || Number.isNaN(redemption) || redemption < 0) {
+      toast.error(t('loyalty.invalid'), { id: 'loyalty-invalid' });
+      return;
+    }
     setSaveError(null);
     saveLoyaltySettings(
       { loyalty_points_per_currency: perCurrency, loyalty_redemption_value: redemption },
-      { onError: onSaveError },
+      { onSuccess: onSaved, onError: onSaveError },
     );
   }
 
@@ -213,7 +235,7 @@ export function SettingsPage() {
     setSaveError(null);
     saveNotification(
       { notification_preferences: { ...profile?.notification_preferences, [key]: enabled } },
-      { onError: onSaveError },
+      { onSuccess: onSaved, onError: onSaveError },
     );
   }
 
@@ -246,7 +268,9 @@ export function SettingsPage() {
               <input
                 type="text"
                 defaultValue={profile?.name}
-                onChange={(e) => setName(e.target.value)}
+                maxLength={100}
+                aria-invalid={nameError}
+                onChange={(e) => { setName(e.target.value); setNameError(false); }}
                 className="w-full bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-[#0C447C] dark:focus:border-[#0C447C]"
               />
             </div>
@@ -259,6 +283,7 @@ export function SettingsPage() {
                 className="w-full bg-slate-100 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-400"
               />
             </div>
+            {nameError && <p role="alert" className="text-xs text-red-500">{t('nameError')}</p>}
             <button
               onClick={handleSaveName}
               disabled={savingName || !name.trim()}
@@ -338,6 +363,9 @@ export function SettingsPage() {
           {CURRENCIES.map((cur) => (
             <button
               key={cur.code}
+              type="button"
+              aria-pressed={selectedCurrency === cur.code}
+              aria-label={`${cur.code} ${cur.symbol}`}
               onClick={() => setSelectedCurrency(cur.code)}
               className={`flex flex-col items-center gap-1 p-3 rounded-xl border text-sm transition-all ${
                 selectedCurrency === cur.code
@@ -373,13 +401,15 @@ export function SettingsPage() {
             <div className="flex items-center gap-2 max-w-[160px]">
               <NumberInput
                 value={taxRatePercent}
-                onChange={(v) => { setTaxRatePercent(v); setTaxRateError(false); }}
+                onChange={(v) => { setTaxRatePercent(v); setTaxRateError(null); }}
+                aria-invalid={!!taxRateError}
+                aria-label={t('taxRate')}
                 className="w-full bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-[#0C447C] dark:focus:border-[#0C447C]"
               />
               <span className="text-sm text-slate-500">%</span>
             </div>
             <p className="text-xs text-slate-500">{t('taxRateHint')}</p>
-            {taxRateError && <p className="text-xs text-red-500">{t('taxRateError')}</p>}
+            {taxRateError && <p role="alert" className="text-xs text-red-500">{t(`taxRateErrors.${taxRateError}`)}</p>}
             <button
               onClick={handleSaveTaxRate}
               disabled={savingTaxRate}
@@ -407,9 +437,14 @@ export function SettingsPage() {
               <input
                 type="text"
                 value={taxNumber}
-                onChange={(e) => setTaxNumber(e.target.value)}
+                inputMode="numeric"
+                dir="ltr"
+                maxLength={15}
+                aria-invalid={!!vatError}
+                onChange={(e) => { setTaxNumber(normalizeDigits(e.target.value).replace(/\D/g, '')); setVatError(null); }}
                 className="w-full bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-[#0C447C] dark:focus:border-[#0C447C]"
               />
+              {vatError && <p role="alert" className="mt-1 text-xs text-red-500">{t(`vatErrors.${vatError}`)}</p>}
             </div>
             <div>
               <label className="text-xs text-slate-500 mb-1 block">{t('invoiceFooter')}</label>
@@ -469,6 +504,8 @@ export function SettingsPage() {
                 {(['58mm', '80mm'] as const).map((width) => (
                   <button
                     key={width}
+                    type="button"
+                    aria-pressed={paperWidth === width}
                     onClick={() => setPaperWidth(width)}
                     className={`px-4 py-2 rounded-lg border text-sm transition-all ${
                       paperWidth === width
@@ -484,6 +521,10 @@ export function SettingsPage() {
             <div className="flex items-center justify-between">
               <span className="text-xs text-slate-500">{t('autoPrint')}</span>
               <button
+                type="button"
+                role="switch"
+                aria-checked={autoPrint}
+                aria-label={t('autoPrint')}
                 onClick={() => setAutoPrint(!autoPrint)}
                 className={`relative w-12 h-6 rounded-full transition-colors ${
                   autoPrint ? 'bg-[#0C447C]' : 'bg-slate-200 dark:bg-gray-700'
@@ -499,6 +540,10 @@ export function SettingsPage() {
             <div className="flex items-center justify-between">
               <span className="text-xs text-slate-500">{t('kitchenAutoPrint')}</span>
               <button
+                type="button"
+                role="switch"
+                aria-checked={kitchenAutoPrint}
+                aria-label={t('kitchenAutoPrint')}
                 onClick={() => setKitchenAutoPrint(!kitchenAutoPrint)}
                 className={`relative w-12 h-6 rounded-full transition-colors ${
                   kitchenAutoPrint ? 'bg-[#0C447C]' : 'bg-slate-200 dark:bg-gray-700'
@@ -534,6 +579,10 @@ export function SettingsPage() {
             <div className="h-6 w-12 bg-slate-100 dark:bg-gray-800 rounded-full animate-pulse" />
           ) : (
             <button
+              type="button"
+              role="switch"
+              aria-checked={profile?.loyalty_enabled ?? true}
+              aria-label={t('loyalty.title')}
               onClick={() => handleToggleLoyaltyEnabled(!(profile?.loyalty_enabled ?? true))}
               disabled={savingLoyaltyEnabled}
               className={`relative w-12 h-6 rounded-full transition-colors disabled:opacity-50 ${
@@ -612,6 +661,10 @@ export function SettingsPage() {
                 <div key={method} className="flex items-center justify-between">
                   <span className="text-xs text-slate-600 dark:text-slate-300">{t(`paymentMethods.methods.${method}`)}</span>
                   <button
+                    type="button"
+                    role="switch"
+                    aria-checked={enabled}
+                    aria-label={t(`paymentMethods.methods.${method}`)}
                     onClick={() => handleTogglePaymentMethod(method, !enabled)}
                     disabled={savingPaymentMethods}
                     className={`relative w-12 h-6 rounded-full transition-colors disabled:opacity-50 ${
@@ -652,6 +705,10 @@ export function SettingsPage() {
                 <div key={key} className="flex items-center justify-between">
                   <span className="text-xs text-slate-600 dark:text-slate-300">{t(`notifications.${key}`)}</span>
                   <button
+                    type="button"
+                    role="switch"
+                    aria-checked={enabled}
+                    aria-label={t(`notifications.${key}`)}
                     onClick={() => handleToggleNotification(key, !enabled)}
                     disabled={savingNotification}
                     className={`relative w-12 h-6 rounded-full transition-colors disabled:opacity-50 ${
@@ -682,6 +739,10 @@ export function SettingsPage() {
             <div className="h-6 w-12 bg-slate-100 dark:bg-gray-800 rounded-full animate-pulse" />
           ) : (
             <button
+              type="button"
+              role="switch"
+              aria-checked={!!profile?.customer_capture_enabled}
+              aria-label={t('customFields')}
               onClick={() => handleToggleCustomerCapture(!profile?.customer_capture_enabled)}
               disabled={savingCustomerCapture}
               className={`relative w-12 h-6 rounded-full transition-colors disabled:opacity-50 ${
@@ -720,20 +781,24 @@ export function SettingsPage() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-xs text-slate-500">{t('plan')}</p>
-              <p className="text-sm font-medium text-slate-800 dark:text-white mt-1">{sub?.plan_name ?? '—'}</p>
+              <p className="text-sm font-medium text-slate-800 dark:text-white mt-1">
+                {sub?.plan_name ? (t.has(`planNames.${sub.plan_name.toLowerCase()}`) ? t(`planNames.${sub.plan_name.toLowerCase()}`) : sub.plan_name) : '—'}
+              </p>
             </div>
             <div>
               <p className="text-xs text-slate-500">{t('status')}</p>
-              <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400 mt-1">{sub?.status ?? '—'}</p>
+              <p className={`text-sm font-medium mt-1 ${subStatus === 'expired' || subStatus === 'cancelled' || subStatus === 'suspended' || subStatus === 'none' ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                {sub ? (t.has(`subStatus.${subStatus}`) ? t(`subStatus.${subStatus}`) : subStatus) : '—'}
+              </p>
             </div>
             <div>
               <p className="text-xs text-slate-500">{t('interval')}</p>
-              <p className="text-sm font-medium text-slate-800 dark:text-white mt-1">{sub?.billing_cycle ?? '—'}</p>
+              <p className="text-sm font-medium text-slate-800 dark:text-white mt-1">{sub?.billing_cycle ? (t.has(`billingCycles.${sub.billing_cycle}`) ? t(`billingCycles.${sub.billing_cycle}`) : sub.billing_cycle) : '—'}</p>
             </div>
             <div>
               <p className="text-xs text-slate-500">{t('endsAt')}</p>
               <p className="text-sm font-medium text-slate-800 dark:text-white mt-1">
-                {sub?.current_period_end ? new Date(sub.current_period_end).toLocaleDateString('en-US') : '—'}
+                {sub?.current_period_end ? new Date(sub.current_period_end).toLocaleDateString(locale === 'ar' ? 'ar-SA-u-nu-latn-ca-gregory' : 'en-CA') : '—'}
               </p>
             </div>
           </div>

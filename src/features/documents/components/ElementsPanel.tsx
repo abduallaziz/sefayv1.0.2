@@ -45,7 +45,10 @@ export function ElementsPanel({
         }`}
       >
         <button type="button" className="min-w-0 flex-1 truncate text-start" onClick={() => onSelect(e.id)}>
-          {t(`block.${e.type}` as never)}
+          {(() => {
+            const kind = e.type === 'qr' ? e.config?.kind : undefined
+            return typeof kind === 'string' && t.has(`qr.${kind}` as never) ? t(`qr.${kind}` as never) : t(`block.${e.type}` as never)
+          })()}
         </button>
         {e.locked && <Lock className="h-3.5 w-3.5 text-slate-400" aria-hidden />}
         <button

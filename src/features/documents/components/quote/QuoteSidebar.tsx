@@ -3,6 +3,7 @@
 import { useMemo, useState, type ComponentType } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
+import { toast } from 'sonner'
 import {
   Building2,
   Calculator,
@@ -62,6 +63,11 @@ export function QuoteSidebar({ assets, canInsertField, onAdd, onAddAsset, onAddQ
   const [q, setQ] = useState('')
   const [closed, setClosed] = useState<Record<string, boolean>>({})
 
+  // logo/image/stamp/signature blocks are picked from the asset library: say so instead of switching silently
+  const pickAsset = () => {
+    setTab('assets')
+    toast.info(assets.length === 0 ? tq('noAssetsHint') : tq('pickAssetHint'), { id: 'pick-asset-hint' })
+  }
   const flow = (type: FlowType, icon: Tile['icon']): Tile => ({
     key: type,
     label: t(`block.${type}` as never),
@@ -82,8 +88,8 @@ export function QuoteSidebar({ assets, canInsertField, onAdd, onAddAsset, onAddQ
           key: 'basic',
           title: tq('groupBasic'),
           tiles: [
-            { key: 'logo', label: t('block.logo'), icon: ImageIcon, run: () => setTab('assets') },
-            { key: 'image', label: t('block.image'), icon: ImagePlus, run: () => setTab('assets') },
+            { key: 'logo', label: t('block.logo'), icon: ImageIcon, run: pickAsset },
+            { key: 'image', label: t('block.image'), icon: ImagePlus, run: pickAsset },
             { key: 'text_box', label: t('block.text_box'), icon: TextCursorInput, run: onAddTextBox },
             flow('heading', Heading),
             flow('text', Type),
@@ -109,8 +115,8 @@ export function QuoteSidebar({ assets, canInsertField, onAdd, onAddAsset, onAddQ
           key: 'approval',
           title: tq('groupApproval'),
           tiles: [
-            { key: 'stamp', label: t('block.stamp'), icon: Stamp, run: () => setTab('assets') },
-            { key: 'signature', label: t('block.signature'), icon: PenLine, run: () => setTab('assets') },
+            { key: 'stamp', label: t('block.stamp'), icon: Stamp, run: pickAsset },
+            { key: 'signature', label: t('block.signature'), icon: PenLine, run: pickAsset },
             qr('verification'),
             qr('zatca'),
             qr('payment'),
@@ -119,7 +125,7 @@ export function QuoteSidebar({ assets, canInsertField, onAdd, onAddAsset, onAddQ
         },
       ] as { key: string; title: string; tiles: Tile[] }[],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [t, tq, onAdd, onAddQr, onAddTextBox],
+    [t, tq, onAdd, onAddQr, onAddTextBox, assets.length],
   )
 
   const needle = q.trim().toLowerCase()

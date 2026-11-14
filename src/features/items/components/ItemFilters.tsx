@@ -12,9 +12,11 @@ interface Props {
   onChange: (filters: ItemFilters) => void;
   categories: Category[];
   onBarcodeFound?: (item: Item) => void;
+  sortKey?: string;
+  onSortChange?: (key: string) => void;
 }
 
-export function ItemFiltersBar({ filters, onChange, categories, onBarcodeFound }: Props) {
+export function ItemFiltersBar({ filters, onChange, categories, onBarcodeFound, sortKey = 'name:asc', onSortChange }: Props) {
   const t = useTranslations('items');
   const [barcodeQuery, setBarcodeQuery] = useState('');
   const [isScanning, setIsScanning] = useState(false);
@@ -43,6 +45,7 @@ export function ItemFiltersBar({ filters, onChange, categories, onBarcodeFound }
         <input
           type="text"
           placeholder={t('searchPlaceholder')}
+          aria-label={t('searchPlaceholder')}
           value={filters.search}
           onChange={(e) => onChange({ ...filters, search: e.target.value })}
           className="w-full bg-transparent text-sm text-posCloud-text-primary dark:text-posCloudDark-text-primary outline-none placeholder:text-posCloud-text-tertiary dark:placeholder:text-posCloudDark-text-tertiary"
@@ -101,6 +104,22 @@ export function ItemFiltersBar({ filters, onChange, categories, onBarcodeFound }
         <option value="true">{t('active')}</option>
         <option value="false">{t('inactive')}</option>
       </select>
+
+      {onSortChange && (
+        <select
+          value={sortKey}
+          onChange={(e) => onSortChange(e.target.value)}
+          aria-label={t('sortBy')}
+          className="px-3 py-2 text-sm bg-posCloud-surface dark:bg-posCloudDark-surface border border-posCloud-border dark:border-posCloudDark-border rounded-lg focus:outline-none focus:border-posCloud-primary text-posCloud-text-primary dark:text-posCloudDark-text-primary"
+        >
+          <option value="name:asc">{t('sortNameAsc')}</option>
+          <option value="name:desc">{t('sortNameDesc')}</option>
+          <option value="price:asc">{t('sortPriceAsc')}</option>
+          <option value="price:desc">{t('sortPriceDesc')}</option>
+          <option value="created_at:desc">{t('sortNewest')}</option>
+          <option value="sku:asc">{t('sortSku')}</option>
+        </select>
+      )}
     </div>
   );
 }

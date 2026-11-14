@@ -47,7 +47,11 @@
     "visibilityAll": "Visible to all cashiers",
     "visibilitySelf": "Visible to me only",
     "cancel": "Cancel hold",
-    "resume": "Resume"
+    "resume": "Resume",
+    "cancelConfirmTitle": "Delete held order",
+    "cancelConfirmMessage": "This held order will be permanently deleted. Continue?",
+    "keepOrder": "Keep order",
+    "preTax": "before tax"
   },
   "allCategories": "All",
   "currentOrder": "Current Order",
@@ -166,7 +170,8 @@
     "freeItemsTitle": "Free item(s) to give the customer:",
     "taxLabel": "Tax {percent}",
     "currency": "SAR",
-    "methodSplit": "Cash + Card"
+    "methodSplit": "Cash + Card",
+    "tendered": "Amount tendered"
   },
   "variant": {
     "title": "Select Option",
@@ -232,5 +237,10 @@
     "saving": "...",
     "cancel": "Cancel",
     "failed": "Could not save the note"
-  }
+  },
+  "qtyInvalid": "Enter a valid quantity greater than zero",
+  "qtyMax": "Maximum quantity per line is {max}",
+  "zeroTotal": "A sale with a zero total cannot be completed",
+  "outOfStockBlocked": "Out of stock, this item cannot be added",
+  "clearCustomer": "Remove customer"
 }

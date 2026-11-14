@@ -9,10 +9,11 @@ import { DataTable, Column } from '@/shared/ui/data-table'
 import { StatusBadge, StatusTone } from '@/shared/ui/status-badge'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { usePermission } from '@/core/permissions/hooks/usePermission'
-import { useBranches } from '@/shared/hooks/useBranches'
+import { useBranchesAdmin } from '@/features/branches/hooks/useBranchesAdmin'
 import { useFiscalPeriods } from '../hooks/useAccountingCommandCenter'
 import { useChartOfAccounts } from '../hooks/useJournalEntries'
 import { useAccountingOwners, useBranchAssignments } from '../hooks/useAccountingConfig'
+import { accountLabel } from '../lib/accounting-utils'
 import { AssignBranchOwnerSheet } from '../components/AssignBranchOwnerSheet'
 import { FiscalPeriod, AccountingOwner, BranchAssignment, Account } from '../api/accounting.api'
 
@@ -35,7 +36,9 @@ export function AccountingConfigurationPage() {
   const owners = useAccountingOwners(canManageConfig)
   const assignments = useBranchAssignments(canManageConfig)
   const accounts = useChartOfAccounts(canViewLedger)
-  const branches = useBranches()
+  const tAccounts = useTranslations('accounting.accountNames')
+  // Every branch (inactive ones too): an existing link may point at a branch that is no longer active.
+  const branches = useBranchesAdmin()
 
   const branchNameById = new Map((branches.data ?? []).map((b) => [b.id, b.name]))
   const ownerNameById = new Map((owners.data ?? []).map((o) => [o.id, o.name]))
@@ -80,7 +83,7 @@ export function AccountingConfigurationPage() {
 
   const accountColumns: Column<Account>[] = [
     { key: 'code', header: t('chartOfAccounts.columns.code'), render: (row) => <span className="tabular-nums">{row.code}</span> },
-    { key: 'name', header: t('chartOfAccounts.columns.name') },
+    { key: 'name', header: t('chartOfAccounts.columns.name'), render: (row) => <span>{accountLabel(row, tAccounts).replace(`${row.code} - `, '')}</span> },
     { key: 'account_type', header: t('chartOfAccounts.columns.type'), render: (row) => <span>{t(`chartOfAccounts.type.${row.account_type}`)}</span> },
     { key: 'normal_balance', header: t('chartOfAccounts.columns.normalBalance'), render: (row) => <span>{t(`chartOfAccounts.normalBalanceValue.${row.normal_balance}`)}</span> },
     {

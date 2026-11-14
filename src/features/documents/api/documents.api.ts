@@ -103,6 +103,7 @@ export const documentsApi = {
     id: string,
     dto: { body: TemplateBody; paper: Paper; orientation: Orientation; lang: 'ar' | 'en'; overlays?: boolean },
   ) => apiClient.post<{ html: string; assetUrls: Record<string, string>; warnings: string[] }>(`/documents/templates/${id}/preview`, dto),
+  restoreDefaults: () => apiClient.post<{ created: boolean }>('/documents/templates/defaults', {}),
   pdf: async (id: string, lang: 'ar' | 'en'): Promise<Blob> => {
     const res = await rawFetch(`/documents/templates/${id}/pdf?lang=${lang}`, { method: 'GET' })
     return res.blob()

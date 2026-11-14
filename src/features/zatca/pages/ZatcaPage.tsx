@@ -8,11 +8,13 @@ import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import { ApiError } from '@/lib/api'
 import { useBranches } from '@/shared/hooks/useBranches'
+import { normalizeDigits } from '@/features/settings/lib/validators'
 import { zatcaApi, type CreateZatcaDevice, type ZatcaDevice, type ZatcaEnv } from '../api/zatca.api'
 
 const card = 'rounded-2xl border border-slate-200 bg-white p-5 space-y-4 dark:border-gray-800 dark:bg-gray-900'
 const label = 'text-xs font-medium text-slate-600 dark:text-gray-400'
 const msg = (e: unknown) => (e instanceof ApiError ? e.message : 'Failed')
+// (msg stays for the per-device actions; the add-device form shows its errors inline)
 
 const EMPTY = {
   branch_id: '',
@@ -114,7 +116,32 @@ export function ZatcaPage() {
   const branches = useBranches()
   const [open, setOpen] = useState(false)
   const [f, setF] = useState(EMPTY)
-  const set = (k: keyof typeof EMPTY) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setF({ ...f, [k]: e.target.value })
+  const [errors, setErrors] = useState<string[]>([])
+  const NUMERIC: (keyof typeof EMPTY)[] = ['vat_number', 'building_no', 'postal_zone']
+  const set = (k: keyof typeof EMPTY) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const raw = e.target.value
+    setErrors([])
+    setF({ ...f, [k]: NUMERIC.includes(k) ? normalizeDigits(raw).replace(/\D/g, '') : raw })
+  }
+
+  const validate = (): string[] => {
+    const out: string[] = []
+    const need: [keyof typeof EMPTY, string][] = [
+      ['branch_id', 'branch'], ['legal_name', 'legalName'], ['vat_number', 'vat'], ['crn', 'crn'], ['egs_name', 'egsName'],
+      ['business_category', 'category'], ['street', 'street'], ['building_no', 'building'], ['district', 'district'],
+      ['city', 'city'], ['postal_zone', 'postal'],
+    ]
+    for (const [k, key] of need) if (!f[k].trim()) out.push(t('errRequired', { field: t(`f.${key}`) }))
+    if (f.vat_number && !/^3\d{13}3$/.test(f.vat_number)) out.push(t('errVat'))
+    if (f.building_no && !/^\d{4}$/.test(f.building_no)) out.push(t('errBuilding'))
+    if (f.postal_zone && !/^\d{5}$/.test(f.postal_zone)) out.push(t('errPostal'))
+    return out
+  }
+  const submit = () => {
+    const errs = validate()
+    setErrors(errs)
+    if (errs.length === 0) create.mutate()
+  }
 
   const create = useMutation({
     mutationFn: () => {
@@ -131,7 +158,7 @@ export function ZatcaPage() {
       return zatcaApi.createDevice(dto)
     },
     onSuccess: () => { toast.success(t('deviceCreated')); setOpen(false); setF(EMPTY); qc.invalidateQueries({ queryKey: ['zatca'] }) },
-    onError: (e) => toast.error(msg(e)),
+    onError: (e) => setErrors(e instanceof ApiError ? e.message.split(/[،,]\s*/).filter(Boolean) : [t('errGeneric')]),
   })
   const flush = useMutation({
     mutationFn: zatcaApi.flush,
@@ -140,7 +167,6 @@ export function ZatcaPage() {
   })
 
   const branchName = (id: string) => branches.data?.find((b) => b.id === id)?.name ?? id
-  const ready = Object.values(f).every((v) => v.trim() !== '')
   const pending = invoices.data?.filter((i) => i.status === 'pending' || i.status === 'error').length ?? 0
 
   return (
@@ -180,9 +206,14 @@ export function ZatcaPage() {
             <Field l={t('f.city')}><Input value={f.city} onChange={set('city')} /></Field>
             <Field l={t('f.postal')}><Input value={f.postal_zone} maxLength={5} inputMode="numeric" onChange={set('postal_zone')} /></Field>
           </div>
+          {errors.length > 0 && (
+            <ul role="alert" className="space-y-1 rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-600 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400">
+              {errors.map((er, i) => <li key={i}>{er}</li>)}
+            </ul>
+          )}
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setOpen(false)}>{t('cancel')}</Button>
-            <Button onClick={() => create.mutate()} disabled={!ready || create.isPending}>{t('save')}</Button>
+            <Button variant="outline" onClick={() => { setOpen(false); setErrors([]) }}>{t('cancel')}</Button>
+            <Button onClick={submit} disabled={create.isPending}>{t('save')}</Button>
           </div>
         </div>
       ) : (

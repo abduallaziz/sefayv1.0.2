@@ -90,7 +90,7 @@ function SheetContent({ side = 'end', className, children, ...props }: SheetCont
           reinventing which side is "correct." */}
       <DialogPrimitive.Content dir={isRtl ? 'rtl' : 'ltr'} className={cn(sheetVariants({ side }), animationClass, className)} {...props}>
         {children}
-        <DialogPrimitive.Close className="absolute end-4 top-4 rounded opacity-70 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary transition-opacity hover:opacity-100 focus:outline-none">
+        <DialogPrimitive.Close aria-label={isRtl ? 'إغلاق' : 'Close'} className="absolute end-4 top-4 rounded opacity-70 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary transition-opacity hover:opacity-100 focus:outline-none">
           <X className="h-4 w-4" />
         </DialogPrimitive.Close>
       </DialogPrimitive.Content>

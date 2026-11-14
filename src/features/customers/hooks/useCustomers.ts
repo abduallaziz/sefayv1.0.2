@@ -57,6 +57,8 @@ export const useVehicleMutations = (customerId: string) => {
   const done = () => {
     qc.invalidateQueries({ queryKey: ['customers', customerId, 'vehicles'] });
     qc.invalidateQueries({ queryKey: ['customers', 'lookup'] });
+    // The list shows the plate stored on the customer row, which the API keeps in step with the cars.
+    qc.invalidateQueries({ queryKey: ['customers', 'paged'] });
   };
   return {
     add: useMutation({

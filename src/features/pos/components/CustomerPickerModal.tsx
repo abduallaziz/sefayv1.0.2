@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { Search, UserPlus, Car, CheckCircle2, AlertTriangle } from 'lucide-react'
 import { useCustomerSearch, useCustomerFieldDefinitions } from '@/features/customers/hooks/useCustomers'
 import { customersApi } from '@/features/customers/api/customers.api'
 import { useProfile } from '@/features/settings/hooks/useSettings'
 import { ApiError } from '@/lib/api'
+import { useEscape } from '@/lib/use-escape'
+import { formatDate } from '@/lib/format'
 import { SingleDatePicker } from '@/shared/ui/date-range-picker'
 import { NumberInput } from '@/shared/ui/number-input'
 import { Button } from '@/shared/ui/button'
@@ -90,7 +92,12 @@ function CreateForm({
   const plateRequired = active.some((f) => f.contact_role === 'plate_number' && f.required)
   const nothingToFill = !fieldsLoading && !nameFieldEnabled && !phoneOn && !plateOn && extraFields.length === 0
 
+  // A completely blank form must not silently create an anonymous customer.
+  const emptyForm =
+    !fullName.trim() && !phone.trim() && !plate.trim() && !Object.values(values).some((v) => v?.trim())
+
   const missingRequired =
+    emptyForm ||
     (nameFieldEnabled && !fullName.trim()) ||
     (phoneRequired && !phone.trim()) ||
     (plateRequired && !plate.trim()) ||
@@ -229,6 +236,7 @@ function MatchCard({
   showVehicles: boolean
 }) {
   const t = useTranslations('pos.customerPicker')
+  const locale = useLocale()
   const customer = result.customer!
   const vehicles = showVehicles ? result.vehicles : []
   const [vehicleId, setVehicleId] = useState<string | null>(showVehicles ? result.vehicle?.id ?? null : null)
@@ -249,7 +257,7 @@ function MatchCard({
       {result.stats && (
         <p className={`text-xs ${mutedClass}`}>
           {t('visits', { count: result.stats.visit_count })}
-          {result.stats.last_visit_at ? ` · ${t('lastVisit')}: ${new Date(result.stats.last_visit_at).toLocaleDateString('en-US')}` : ''}
+          {result.stats.last_visit_at ? ` · ${t('lastVisit')}: ${formatDate(result.stats.last_visit_at, locale)}` : ''}
           {` · ${t('totalSpent')}: ${fmt(result.stats.total_spent)}`}
         </p>
       )}
@@ -291,6 +299,7 @@ function MatchCard({
 }
 
 export function CustomerPickerModal({ onSelect, onClose }: Props) {
+  useEscape(onClose)
   const t = useTranslations('pos.customerPicker')
   const [text, setText] = useState('')
   const [debounced, setDebounced] = useState('')
@@ -362,7 +371,7 @@ export function CustomerPickerModal({ onSelect, onClose }: Props) {
           <h3 className="font-bold text-lg text-posCloud-text-primary dark:text-posCloudDark-text-primary">
             {view.name === 'create' ? t('newTitle') : t('selectTitle')}
           </h3>
-          <button onClick={onClose} className={`${mutedClass} hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary text-xl`}>✕</button>
+          <button onClick={onClose} aria-label={t('cancel')} className={`${mutedClass} hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary text-xl`}>✕</button>
         </div>
 
         <div className="p-5 space-y-4 overflow-y-auto flex-1">

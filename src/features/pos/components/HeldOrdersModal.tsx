@@ -1,6 +1,7 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
+import { useState } from 'react'
+import { useLocale, useTranslations } from 'next-intl'
 import { X, Clock, Users, Lock, PlayCircle, Trash2 } from 'lucide-react'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import {
@@ -9,6 +10,9 @@ import {
   useCancelHeldOrder,
 } from '../hooks/useHeldOrders'
 import type { HeldOrder } from '@/features/orders/api/orders.api'
+import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
+import { formatNumber, formatTime } from '@/lib/format'
+import { useEscape } from '@/lib/use-escape'
 
 interface Props {
   branchId: string
@@ -18,17 +22,21 @@ interface Props {
 
 export function HeldOrdersModal({ branchId, onClose, onResume }: Props) {
   const t = useTranslations('pos.heldOrders')
+  const locale = useLocale()
+  const [toDelete, setToDelete] = useState<string | null>(null)
   const currency = useCurrencyDisplay()
   const { data: heldOrders = [], isLoading } = useHeldOrders(branchId)
   const updateVisibility = useUpdateHeldOrderVisibility(branchId)
   const cancelHeld = useCancelHeldOrder(branchId)
+  // Escape closes the list; while the delete confirmation is open it closes only that.
+  useEscape(onClose, toDelete === null)
 
   return (
     <div
       className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[400] flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
-      onKeyDown={(e) => { if (e.key === 'Escape') onClose() }}
+      aria-label={t('title')}
     >
       <div className="bg-posCloud-surface dark:bg-posCloudDark-surface border border-posCloud-border dark:border-posCloudDark-border rounded-2xl shadow-xl w-full max-w-lg max-h-[85vh] flex flex-col">
         <div className="flex items-center justify-between p-5 border-b border-posCloud-border dark:border-posCloudDark-border shrink-0">
@@ -63,7 +71,7 @@ export function HeldOrdersModal({ branchId, onClose, onResume }: Props) {
                         </span>
                         <span className="flex items-center gap-1 text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
                           <Clock className="w-3 h-3" />
-                          {new Date(order.held_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                          {formatTime(order.held_at, locale)}
                         </span>
                       </div>
                       <p className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary mt-0.5">
@@ -73,8 +81,9 @@ export function HeldOrdersModal({ branchId, onClose, onResume }: Props) {
                         <p className="text-xs text-posCloud-text-secondary dark:text-posCloudDark-text-secondary mt-1 truncate">{order.notes}</p>
                       )}
                     </div>
-                    <span className="shrink-0 font-bold text-posCloud-primary text-sm">
-                      {order.total.toLocaleString('en-US')} {currency}
+                    <span className="shrink-0 text-end font-bold text-posCloud-primary text-sm">
+                      {formatNumber(order.total)} {currency}
+                      <span className="block text-[10px] font-normal text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('preTax')}</span>
                     </span>
                   </div>
 
@@ -96,7 +105,7 @@ export function HeldOrdersModal({ branchId, onClose, onResume }: Props) {
 
                     <div className="flex items-center gap-1.5">
                       <button
-                        onClick={() => cancelHeld.mutate(order.id)}
+                        onClick={() => setToDelete(order.id)}
                         disabled={cancelHeld.isPending}
                         aria-label={t('cancel')}
                         className="p-1.5 rounded-lg text-posCloud-danger hover:bg-posCloud-danger-light dark:hover:bg-posCloud-danger/15 transition-colors disabled:opacity-60"
@@ -118,6 +127,18 @@ export function HeldOrdersModal({ branchId, onClose, onResume }: Props) {
           )}
         </div>
       </div>
+      <ConfirmDialog
+        open={toDelete !== null}
+        onClose={() => setToDelete(null)}
+        onConfirm={() => {
+          if (toDelete) cancelHeld.mutate(toDelete, { onSettled: () => setToDelete(null) })
+        }}
+        title={t('cancelConfirmTitle')}
+        message={t('cancelConfirmMessage')}
+        confirmLabel={t('cancel')}
+        cancelLabel={t('keepOrder')}
+        isLoading={cancelHeld.isPending}
+      />
     </div>
   )
 }

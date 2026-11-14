@@ -32,6 +32,7 @@ const TONE = { draft: 'warning', published: 'success', archived: 'neutral' } as 
 export function EditorToolbar(p: Props) {
   const t = useTranslations('documents')
   const ta = useTranslations('documents.approval')
+  const te = useTranslations('documents.editor')
   const status =
     p.saveStatus === 'saving' ? (
       <span className="flex items-center gap-1 text-xs text-slate-500">
@@ -62,19 +63,19 @@ export function EditorToolbar(p: Props) {
       <div className="mx-2">{status}</div>
 
       <div className="ms-auto flex flex-wrap items-center gap-1.5">
-        <Button variant="ghost" size="icon" onClick={p.onUndo} disabled={!p.canUndo} aria-label="Undo (Ctrl+Z)" title="Ctrl+Z">
+        <Button variant="ghost" size="icon" onClick={p.onUndo} disabled={!p.canUndo} aria-label={te('undo')} title="Ctrl+Z">
           <Undo2 className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="icon" onClick={p.onRedo} disabled={!p.canRedo} aria-label="Redo (Ctrl+Y)" title="Ctrl+Y">
+        <Button variant="ghost" size="icon" onClick={p.onRedo} disabled={!p.canRedo} aria-label={te('redo')} title="Ctrl+Y">
           <Redo2 className="h-4 w-4" />
         </Button>
 
         <div className="flex items-center rounded-lg border border-slate-200 dark:border-gray-800">
-          <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => p.onZoom(Math.max(0.3, +(p.zoom - 0.1).toFixed(2)))} aria-label="-">
+          <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => p.onZoom(Math.max(0.3, +(p.zoom - 0.1).toFixed(2)))} aria-label={te('zoomOut')}>
             <Minus className="h-4 w-4" />
           </Button>
           <span className="w-12 text-center text-xs tabular-nums">{Math.round(p.zoom * 100)}%</span>
-          <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => p.onZoom(Math.min(2, +(p.zoom + 0.1).toFixed(2)))} aria-label="+">
+          <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => p.onZoom(Math.min(2, +(p.zoom + 0.1).toFixed(2)))} aria-label={te('zoomIn')}>
             <Plus className="h-4 w-4" />
           </Button>
         </div>

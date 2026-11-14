@@ -9,6 +9,7 @@ import { useShiftReport } from '../hooks/useShifts';
 import { printPdf, sharePdf } from '../utils/reportOutput';
 import { formatCurrency, formatDateTime, formatNumber } from '@/lib/format';
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store';
+import { useEscape } from '@/lib/use-escape';
 import type { CloseReport } from '../types';
 
 interface Props {
@@ -27,6 +28,7 @@ const diffClass = (n: number | null) =>
 
 const signed = (n: number | null) =>
   n === null ? '—' : n === 0 ? '0.00' : `${n > 0 ? '+' : '-'}${formatNumber(Math.abs(n))}`;
+// the sign must stay on the left of the number inside an RTL page
 
 export function ShiftReportModal({ shiftId, initialReport, onClose }: Props) {
   const t = useTranslations('shifts');
@@ -35,6 +37,7 @@ export function ShiftReportModal({ shiftId, initialReport, onClose }: Props) {
   const currency = useCurrencyDisplay();
   const { data: fetched, isLoading, isError } = useShiftReport(initialReport ? '' : shiftId);
   const report = initialReport ?? fetched;
+  useEscape(onClose);
   const [busy, setBusy] = useState<'print' | 'share' | null>(null);
 
   const getPdf = async () => shiftsApi.getReportPdf(shiftId, lang);
@@ -45,7 +48,7 @@ export function ShiftReportModal({ shiftId, initialReport, onClose }: Props) {
     try {
       printPdf(await getPdf());
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('report_failed'));
+      toast.error(t('report_failed'), { id: 'shift-report-failed' });
     } finally {
       setBusy(null);
     }
@@ -57,7 +60,7 @@ export function ShiftReportModal({ shiftId, initialReport, onClose }: Props) {
       const result = await sharePdf(await getPdf(), fileName, t('report_title'));
       if (result === 'downloaded') toast.success(t('report_downloaded'));
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('report_failed'));
+      toast.error(t('report_failed'), { id: 'shift-report-failed' });
     } finally {
       setBusy(null);
     }
@@ -67,7 +70,7 @@ export function ShiftReportModal({ shiftId, initialReport, onClose }: Props) {
 
   return (
     <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/60 p-4">
-      <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl shadow-xl w-full max-w-md max-h-[92vh] overflow-y-auto">
+      <div role="dialog" aria-modal="true" aria-label={t('report_title')} className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl shadow-xl w-full max-w-md max-h-[92vh] overflow-y-auto">
         <div className="flex items-center justify-between px-5 pt-4">
           <h2 className="text-lg font-bold text-slate-800 dark:text-white">{t('report_title')}</h2>
           <button
@@ -97,8 +100,8 @@ export function ShiftReportModal({ shiftId, initialReport, onClose }: Props) {
             <dl className="space-y-1.5">
               <Row label={t('branch')} value={report.shift.branch_name ?? '—'} />
               <Row label={t('cashier')} value={report.shift.cashier_name ?? '—'} />
-              <Row label={t('opened_at')} value={formatDateTime(report.shift.opened_at)} ltr />
-              <Row label={t('closed_at')} value={formatDateTime(report.shift.closed_at)} ltr />
+              <Row label={t('opened_at')} value={formatDateTime(report.shift.opened_at, locale)} ltr />
+              <Row label={t('closed_at')} value={formatDateTime(report.shift.closed_at, locale)} ltr />
             </dl>
 
             <hr className="border-dashed border-slate-200 dark:border-gray-800" />
@@ -145,7 +148,7 @@ export function ShiftReportModal({ shiftId, initialReport, onClose }: Props) {
                       <td className="py-1.5 text-end tabular-nums">{formatNumber(m.returns ?? 0)}</td>
                       <td className="py-1.5 text-end tabular-nums">{formatNumber(m.expected)}</td>
                       <td className="py-1.5 text-end tabular-nums">{m.counted === null ? '—' : formatNumber(m.counted)}</td>
-                      <td className={`py-1.5 text-end tabular-nums font-semibold ${diffClass(m.difference)}`}>
+                      <td dir="ltr" className={`py-1.5 text-end tabular-nums font-semibold ${diffClass(m.difference)}`}>
                         {m.counted === null ? '—' : signed(m.difference)}
                       </td>
                     </tr>

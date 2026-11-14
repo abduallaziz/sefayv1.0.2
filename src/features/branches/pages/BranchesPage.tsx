@@ -4,11 +4,12 @@ import { useMemo, useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { toast } from 'sonner'
 import Link from 'next/link'
-import { Plus, Search, Pencil, Pause, Play, Building2, AlertTriangle, MapPin, CalendarDays, Warehouse, Filter, ShieldAlert, ArrowUpCircle } from 'lucide-react'
+import { Plus, Search, Pencil, Pause, Play, Trash2, Building2, AlertTriangle, MapPin, CalendarDays, Warehouse, Filter, ShieldAlert, ArrowUpCircle } from 'lucide-react'
 import { Card, CardContent } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
+import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
 import { StatusBadge } from '@/shared/ui/status-badge'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetBody, SheetFooter } from '@/shared/ui/sheet'
@@ -16,7 +17,7 @@ import { usePermission } from '@/core/permissions/hooks/usePermission'
 import { ApiError } from '@/lib/api'
 import { useUsage, useSubscription } from '@/features/settings/hooks/useSettings'
 import { useWarehouses } from '@/features/warehouses/hooks/useWarehouses'
-import { useBranchesAdmin, useCreateBranch, useUpdateBranch } from '../hooks/useBranchesAdmin'
+import { useBranchesAdmin, useCreateBranch, useUpdateBranch, useDeleteBranch } from '../hooks/useBranchesAdmin'
 import { BranchRecord } from '../api/branches.api'
 
 // Statuses BillingService.checkBranchLimit() treats as a valid, capacity-bearing
@@ -45,6 +46,9 @@ export function BranchesPage() {
   const warehouses = useWarehouses()
   const createBranch = useCreateBranch()
   const updateBranch = useUpdateBranch()
+  const deleteBranch = useDeleteBranch()
+  const [toDelete, setToDelete] = useState<BranchRecord | null>(null)
+  const [nameError, setNameError] = useState<string | null>(null)
 
   const warehouseNameById = useMemo(() => {
     const map = new Map<string, string>()
@@ -65,40 +69,66 @@ export function BranchesPage() {
     setEditing(null)
     setName('')
     setAddress('')
+    setNameError(null)
     setSheetOpen(true)
   }
   const openEdit = (b: BranchRecord) => {
     setEditing(b)
     setName(b.name)
     setAddress(b.address ?? '')
+    setNameError(null)
     setSheetOpen(true)
   }
 
   const handleSave = () => {
-    if (!name.trim()) return
-    if (editing) {
-      updateBranch.mutate(
-        { id: editing.id, dto: { name: name.trim(), address: address.trim() || undefined } },
-        {
-          onSuccess: () => setSheetOpen(false),
-          onError: (err) => toast.error(err instanceof ApiError ? err.message : 'Failed'),
-        },
-      )
+    if (createBranch.isPending || updateBranch.isPending) return
+    const trimmed = name.trim()
+    if (!trimmed) {
+      setNameError(t('nameRequired'))
       return
     }
-    createBranch.mutate(
-      { name: name.trim(), address: address.trim() || undefined },
-      {
-        onSuccess: () => setSheetOpen(false),
-        onError: (err) => toast.error(err instanceof ApiError ? err.message : 'Failed'),
+    if (trimmed.length > 100) {
+      setNameError(t('nameTooLong'))
+      return
+    }
+    const lower = trimmed.toLowerCase()
+    if ((branches.data ?? []).some((b) => b.id !== editing?.id && b.name.trim().toLowerCase() === lower)) {
+      setNameError(t('nameDuplicate'))
+      return
+    }
+    setNameError(null)
+    const dto = { name: trimmed, address: address.trim() || undefined }
+    const opts = {
+      onSuccess: () => {
+        setSheetOpen(false)
+        toast.success(t('saved'))
       },
-    )
+      onError: (err: unknown) => {
+        setNameError(err instanceof ApiError ? err.message : t('saveFailed'))
+      },
+    }
+    if (editing) updateBranch.mutate({ id: editing.id, dto }, opts)
+    else createBranch.mutate(dto, opts)
+  }
+
+  const confirmDelete = () => {
+    if (!toDelete) return
+    deleteBranch.mutate(toDelete.id, {
+      onSuccess: () => {
+        toast.success(t('deleted'))
+        setToDelete(null)
+      },
+      onError: () => setToDelete(null),
+    })
   }
 
   const toggleActive = (b: BranchRecord) => {
     updateBranch.mutate(
       { id: b.id, dto: { is_active: !b.is_active } },
-      { onError: (err) => toast.error(err instanceof ApiError ? err.message : 'Failed') },
+      {
+        onSuccess: () => toast.success(b.is_active ? t('deactivated') : t('activated')),
+        onError: (err) => toast.error(err instanceof ApiError ? err.message : t('saveFailed')),
+      },
     )
   }
 
@@ -264,7 +294,7 @@ export function BranchesPage() {
           ))}
         </div>
       ) : pageRows.length === 0 ? (
-        <EmptyState icon={Building2} title={t('empty')} theme="dashboard" size="sm" />
+        <EmptyState icon={Building2} title={(branches.data ?? []).length > 0 ? t('noResults') : t('empty')} theme="dashboard" size="sm" />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {pageRows.map((b) => (
@@ -334,6 +364,16 @@ export function BranchesPage() {
                       <Pencil className="h-3.5 w-3.5" />
                       {t('editTitle')}
                     </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="rounded-lg text-posCloud-danger hover:text-posCloud-danger"
+                      aria-label={t('deleteBranch')}
+                      title={t('deleteBranch')}
+                      onClick={() => setToDelete(b)}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
                   </div>
                 )}
               </CardContent>
@@ -368,7 +408,21 @@ export function BranchesPage() {
               <label className="block text-xs font-medium mb-1.5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
                 {t('name')}
               </label>
-              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t('namePlaceholder')} />
+              <Input
+                value={name}
+                maxLength={100}
+                aria-invalid={!!nameError}
+                onChange={(e) => {
+                  setName(e.target.value)
+                  if (nameError) setNameError(null)
+                }}
+                placeholder={t('namePlaceholder')}
+              />
+              {nameError && (
+                <p role="alert" className="mt-1.5 text-xs text-posCloud-danger">
+                  {nameError}
+                </p>
+              )}
             </div>
             <div>
               <label className="block text-xs font-medium mb-1.5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
@@ -381,12 +435,23 @@ export function BranchesPage() {
             <Button variant="outline" onClick={() => setSheetOpen(false)}>
               {t('cancel')}
             </Button>
-            <Button onClick={handleSave} disabled={!name.trim() || createBranch.isPending || updateBranch.isPending}>
+            <Button onClick={handleSave} disabled={createBranch.isPending || updateBranch.isPending}>
               {t('save')}
             </Button>
           </SheetFooter>
         </SheetContent>
       </Sheet>
+
+      <ConfirmDialog
+        open={!!toDelete}
+        onClose={() => setToDelete(null)}
+        onConfirm={confirmDelete}
+        title={t('deleteTitle')}
+        message={t('deleteConfirm', { name: toDelete?.name ?? '' })}
+        confirmLabel={t('deleteBranch')}
+        cancelLabel={t('cancel')}
+        isLoading={deleteBranch.isPending}
+      />
     </div>
   )
 }

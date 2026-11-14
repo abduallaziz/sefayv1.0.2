@@ -187,7 +187,7 @@ export function EditorCanvas({
             <button
               key={b.id}
               type="button"
-              aria-label={b.id}
+              aria-label={labels?.[b.id] ?? undefined}
               onPointerDown={(ev) => dragBlock(ev, b0)}
               className={`group absolute rounded-sm outline-none transition-colors ${
                 selectedId === b.id

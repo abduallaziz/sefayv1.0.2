@@ -11,13 +11,15 @@ import { PriceOverrideAuditQuery } from '../api/accounting.api'
 interface Props {
   filters: PriceOverrideAuditQuery
   onChange: (filters: PriceOverrideAuditQuery) => void
+  orderRefInvalid?: boolean
 }
 
 const inputClass =
   'border border-posCloud-border dark:border-posCloudDark-border rounded-lg px-3 py-2 text-sm bg-posCloud-surface dark:bg-posCloudDark-surface text-posCloud-text-primary dark:text-posCloudDark-text-primary focus:outline-none focus:border-posCloud-primary'
 
-export function PriceOverrideAuditFilters({ filters, onChange }: Props) {
+export function PriceOverrideAuditFilters({ filters, onChange, orderRefInvalid = false }: Props) {
   const t = useTranslations('accounting.priceOverrideAudit.filters')
+  const tRoot = useTranslations('accounting.priceOverrideAudit')
 
   const { data: branches } = useBranches()
   const { data: users } = useUsers()
@@ -43,8 +45,12 @@ export function PriceOverrideAuditFilters({ filters, onChange }: Props) {
         placeholder={t('orderId')}
         value={filters.order_id ?? ''}
         onChange={(e) => set('order_id', e.target.value || undefined)}
-        className={`${inputClass} w-48`}
+        aria-invalid={orderRefInvalid}
+        className={`${inputClass} w-48 ${orderRefInvalid ? 'border-red-500' : ''}`}
       />
+      {orderRefInvalid && (
+        <span role="alert" className="text-xs text-red-600 dark:text-red-400">{tRoot('invalidOrderRef')}</span>
+      )}
 
       <select
         value={filters.item_id ?? ''}
@@ -75,7 +81,7 @@ export function PriceOverrideAuditFilters({ filters, onChange }: Props) {
       >
         <option value="">{t('effectiveRole')}</option>
         {(roles ?? []).map((r) => (
-          <option key={r.id} value={r.id}>{r.name}</option>
+          <option key={r.id} value={r.id}>{tRoot.has(`roleNames.${r.name}`) ? tRoot(`roleNames.${r.name}`) : r.name}</option>
         ))}
       </select>
 

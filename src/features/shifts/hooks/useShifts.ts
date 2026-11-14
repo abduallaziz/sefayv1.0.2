@@ -1,5 +1,4 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
 import { shiftsApi } from '../api/shifts.api';
 import { ApiError } from '@/lib/api';
 import type { OpenShiftDto, CloseShiftDto } from '../types';
@@ -64,11 +63,7 @@ export const useOpenShift = () => {
       qc.setQueryData(KEYS.current, data);
       qc.invalidateQueries({ queryKey: KEYS.all });
     },
-    // كانت تفشل بصمت — الكاشير يرى الزر "لا يستجيب" بلا أي رسالة (مثلًا محاولة فتح
-    // صندوق ثانٍ بينما لديه واحد مفتوح أصلًا). كل فشل الآن يظهر كتنبيه واضح.
-    onError: (error: unknown) => {
-      toast.error(error instanceof ApiError ? error.message : 'Failed to open cash register session');
-    },
+    // failures are toasted centrally (MutationCache in core/providers.tsx)
   });
 };
 
@@ -90,9 +85,6 @@ export const useCloseShift = () => {
       qc.setQueryData(KEYS.current, null);
       qc.invalidateQueries({ queryKey: KEYS.all });
       qc.invalidateQueries({ queryKey: KEYS.current });
-    },
-    onError: (error: unknown) => {
-      toast.error(error instanceof ApiError ? error.message : 'Failed to close cash register session');
     },
   });
 };

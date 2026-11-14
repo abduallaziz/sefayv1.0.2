@@ -61,6 +61,9 @@ export function calcCart(
   }
 }
 
+// A single line can hold at most this many units (a typing slip like 99999999 must not reach checkout).
+export const MAX_LINE_QTY = 9999
+
 export function useCart(taxRate: number = 0, taxInclusive: boolean = false) {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [couponCode, setCouponCode] = useState<string | undefined>()
@@ -88,7 +91,10 @@ export function useCart(taxRate: number = 0, taxInclusive: boolean = false) {
       if (existing) {
         return prev.map((ci) =>
           ci.id === cartId
-            ? { ...ci, quantity: ci.quantity + 1, total_price: (ci.quantity + 1) * ci.unit_price }
+            ? (() => {
+                const q = Math.min(ci.quantity + 1, MAX_LINE_QTY)
+                return { ...ci, quantity: q, total_price: parseFloat((q * ci.unit_price).toFixed(2)) }
+              })()
             : ci
         )
       }
@@ -124,7 +130,9 @@ export function useCart(taxRate: number = 0, taxInclusive: boolean = false) {
     }
     setCartItems((prev) =>
       prev.map((ci) =>
-        ci.id === cartId ? { ...ci, quantity: qty, total_price: qty * ci.unit_price } : ci
+        ci.id === cartId
+          ? { ...ci, quantity: Math.min(qty, MAX_LINE_QTY), total_price: parseFloat((Math.min(qty, MAX_LINE_QTY) * ci.unit_price).toFixed(2)) }
+          : ci
       )
     )
     clearCouponIfAny()

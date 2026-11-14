@@ -16,6 +16,7 @@ import { useUsers } from '@/features/users/hooks/useUsers'
 import { JournalEntriesFilters } from '../components/JournalEntriesFilters'
 import { JournalEntryDetailSheet } from '../components/JournalEntryDetailSheet'
 import { JournalEntriesQuery, JournalEntry } from '../api/accounting.api'
+import { getAmountError, shortId } from '../lib/accounting-utils'
 
 const statusTone: Record<string, StatusTone> = {
   draft: 'neutral',
@@ -69,7 +70,10 @@ export function JournalEntriesListPage() {
     setPage(1)
   }
 
-  const query = useJournalEntries({ ...filters, page, per_page: perPage }, canView)
+  const amountError = getAmountError(filters)
+  const query = useJournalEntries({ ...filters, page, per_page: perPage }, canView && !amountError)
+  const [sort, setSort] = useState<{ key: string; dir: 'asc' | 'desc' }>({ key: 'posting_date', dir: 'desc' })
+  const handleSort = (key: string) => setSort((s) => (s.key === key ? { key, dir: s.dir === 'asc' ? 'desc' : 'asc' } : { key, dir: 'asc' }))
   const fiscalPeriods = useFiscalPeriods(canView)
   const fiscalPeriodById = new Map((fiscalPeriods.data ?? []).map((p) => [p.id, p]))
   const users = useUsers()
@@ -84,7 +88,12 @@ export function JournalEntriesListPage() {
   }
 
   const isForbidden = query.error instanceof ApiError && query.error.status === 403
-  const rows = query.data?.data ?? []
+  // Sorting applies to the loaded page (the API pages by posting date, newest first).
+  const rows = [...(query.data?.data ?? [])].sort((a, b) => {
+    const av = String((a as unknown as Record<string, unknown>)[sort.key] ?? '')
+    const bv = String((b as unknown as Record<string, unknown>)[sort.key] ?? '')
+    return sort.dir === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av)
+  })
   const total = query.data?.total ?? 0
   const totalPages = Math.max(1, Math.ceil(total / perPage))
 
@@ -98,11 +107,11 @@ export function JournalEntriesListPage() {
         </span>
       ),
     },
-    { key: 'posting_date', header: t('columns.postingDate'), render: (row) => <span className="tabular-nums">{row.posting_date}</span> },
+    { key: 'posting_date', header: t('columns.postingDate'), sortable: true, render: (row) => <span className="tabular-nums whitespace-nowrap">{row.posting_date}</span> },
     {
       key: 'source_module',
       header: t('columns.source'),
-      render: (row) => <span>{t(`sourceLabels.${sourceLabelKey(row)}`)}</span>,
+      render: (row) => <span className="whitespace-nowrap">{t(`sourceLabels.${sourceLabelKey(row)}`)}</span>,
     },
     {
       key: 'description',
@@ -111,6 +120,7 @@ export function JournalEntriesListPage() {
     },
     {
       key: 'status',
+      sortable: true,
       header: t('columns.status'),
       render: (row) => <StatusBadge label={t(`status.${row.status}`)} tone={statusTone[row.status] ?? 'neutral'} />,
     },
@@ -163,6 +173,10 @@ export function JournalEntriesListPage() {
           theme="dashboard"
           loading={query.isLoading}
           onRowClick={(row) => setSelectedId(row.id)}
+          sortKey={sort.key}
+          sortDir={sort.dir}
+          onSort={handleSort}
+          sortLabel={(h, dir) => `${h} - ${t(dir === 'asc' ? 'sort.ascending' : 'sort.descending')}`}
           emptyState={
             <EmptyState icon={BookText} title={t('empty.title')} description={t('empty.description')} theme="dashboard" size="md" />
           }
@@ -170,7 +184,7 @@ export function JournalEntriesListPage() {
       )}
 
       {totalPages > 1 && (
-        <Pagination page={page} totalPages={totalPages} onChange={setPage} label={t('title')} />
+        <Pagination page={page} totalPages={totalPages} onChange={setPage} label={t('title')} prevLabel={t('pagination.prev')} nextLabel={t('pagination.next')} />
       )}
 
       <JournalEntryDetailSheet

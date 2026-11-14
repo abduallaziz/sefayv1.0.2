@@ -47,7 +47,11 @@
     "visibilityAll": "مرئي لجميع الكاشيرات",
     "visibilitySelf": "مرئي لي فقط",
     "cancel": "إلغاء التعليق",
-    "resume": "استئناف"
+    "resume": "استئناف",
+    "cancelConfirmTitle": "إلغاء تعليق الطلب",
+    "cancelConfirmMessage": "سيتم حذف هذا الطلب المعلّق نهائيًا. هل تريد المتابعة؟",
+    "keepOrder": "إبقاء الطلب",
+    "preTax": "قبل الضريبة"
   },
   "allCategories": "الكل",
   "currentOrder": "الطلب الحالي",
@@ -166,7 +170,8 @@
     "freeItemsTitle": "عنصر مجاني يجب تسليمه للعميل:",
     "taxLabel": "الضريبة {percent}",
     "currency": "ر.س",
-    "methodSplit": "نقد + بطاقة"
+    "methodSplit": "نقد + بطاقة",
+    "tendered": "المبلغ المدفوع"
   },
   "variant": {
     "title": "اختر الخيار",
@@ -232,5 +237,10 @@
     "saving": "...",
     "cancel": "إلغاء",
     "failed": "تعذّر حفظ الملاحظة"
-  }
+  },
+  "qtyInvalid": "أدخل كمية صحيحة أكبر من صفر",
+  "qtyMax": "أقصى كمية للسطر الواحد {max}",
+  "zeroTotal": "لا يمكن إتمام بيع بإجمالي صفر",
+  "outOfStockBlocked": "نفد المخزون، لا يمكن إضافة هذا الصنف",
+  "clearCustomer": "إزالة العميل"
 }

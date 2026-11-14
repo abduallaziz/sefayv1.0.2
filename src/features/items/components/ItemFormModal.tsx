@@ -2,22 +2,51 @@
 
 import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { X } from 'lucide-react';
 import type { Item, Category, ItemType, CreateItemDTO } from '../types/item.types';
 import { Button } from '@/shared/ui/button';
+import { NumberInput } from '@/shared/ui/number-input';
+import { parseStrictNumber } from '@/lib/number-input';
+import { useEscapeClose } from '@/shared/hooks/useEscapeClose';
+
+export const MAX_ITEM_PRICE = 99_999_999;
 
 const schema = z.object({
-  name: z.string().min(1),
+  name: z.string().trim().min(1).max(200),
   type: z.enum(['product', 'service', 'custom', 'raw_material', 'semi_finished', 'finished_goods', 'asset', 'consumable']),
   operation_type: z.enum(['sell', 'book', 'repair', 'rent']),
-  price: z.string().transform(val => parseFloat(val) || 0),
+  // Strict: empty -> 0 (free item), anything non-numeric / negative / huge is
+  // rejected with a message key instead of being silently saved as 0.
+  price: z.string().transform((val, ctx) => {
+    if (val.trim() === '') return 0;
+    const n = parseStrictNumber(val);
+    if (n === null) {
+      ctx.addIssue({ code: 'custom', message: 'priceInvalid' });
+      return z.NEVER;
+    }
+    if (n < 0) {
+      ctx.addIssue({ code: 'custom', message: 'priceNegative' });
+      return z.NEVER;
+    }
+    if (n > MAX_ITEM_PRICE) {
+      ctx.addIssue({ code: 'custom', message: 'priceTooLarge' });
+      return z.NEVER;
+    }
+    return Math.round(n * 100) / 100;
+  }),
   category_id: z.string().optional(),
   has_inventory: z.boolean(),
   has_variants: z.boolean(),
-  sku: z.string().optional(),
+  sku: z.string().trim().max(64, 'skuTooLong').optional(),
+  image_url: z
+    .string()
+    .trim()
+    .max(2000)
+    .refine((v) => v === '' || /^https?:\/\/\S+$/i.test(v), 'imageUrlInvalid')
+    .optional(),
 });
 
 // `price` is a zod `.transform()` — the form's actual input shape (what the
@@ -36,15 +65,17 @@ interface Props {
   defaultType?: ItemType;
   categories: Category[];
   isLoading?: boolean;
+  /** Server-side error from the last save attempt, shown inline. */
+  serverError?: string | null;
 }
 
 const inputClass = "w-full px-3 py-2 text-sm bg-posCloud-background dark:bg-posCloudDark-background border border-posCloud-border dark:border-posCloudDark-border text-posCloud-text-primary dark:text-posCloudDark-text-primary rounded-lg focus:outline-none focus:border-posCloud-primary";
 const labelClass = "block text-xs font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary mb-1";
 
-export function ItemFormModal({ open, onClose, onSubmit, item, defaultType = 'product', categories, isLoading }: Props) {
+export function ItemFormModal({ open, onClose, onSubmit, item, defaultType = 'product', categories, isLoading, serverError }: Props) {
   const t = useTranslations('items');
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormInput, unknown, FormOutput>({
+  const { register, handleSubmit, reset, control, formState: { errors } } = useForm<FormInput, unknown, FormOutput>({
     resolver: zodResolver(schema),
     defaultValues: {
       has_inventory: false,
@@ -66,17 +97,22 @@ export function ItemFormModal({ open, onClose, onSubmit, item, defaultType = 'pr
         has_inventory: item.has_inventory,
         has_variants: item.has_variants,
         sku: item.sku ?? '',
+        image_url: item.image_url ?? '',
       });
     } else {
-      reset({ has_inventory: false, has_variants: false, type: defaultType, operation_type: 'sell', price: '', sku: '' });
+      reset({ has_inventory: false, has_variants: false, type: defaultType, operation_type: 'sell', price: '', sku: '', image_url: '' });
     }
   }, [item, defaultType, reset]);
+
+  useEscapeClose(open, onClose);
 
   if (!open) return null;
 
   const handleFormSubmit = (data: FormOutput) => {
-    const { sku, ...rest } = data;
+    const { sku, image_url, ...rest } = data;
     const payload: CreateItemDTO = { ...rest, category_id: data.category_id || undefined };
+    const originalImage = item?.image_url ?? '';
+    if ((image_url ?? '') !== originalImage) payload.image_url = image_url || undefined;
     // Only include sku in the request if the user actually changed it —
     // resubmitting the same value on every edit must never flip an 'auto'
     // sku to 'manual', and creating with an empty field means "auto-generate".
@@ -94,7 +130,7 @@ export function ItemFormModal({ open, onClose, onSubmit, item, defaultType = 'pr
           <h2 className="text-base font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary">
             {item ? t('editItem') : t('addItem')}
           </h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary">
+          <button type="button" onClick={onClose} aria-label={t('close')} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -102,7 +138,7 @@ export function ItemFormModal({ open, onClose, onSubmit, item, defaultType = 'pr
         <form onSubmit={handleSubmit(handleFormSubmit)} className="p-5 space-y-4">
           <div>
             <label className={labelClass}>{t('name')}</label>
-            <input {...register('name')} className={inputClass} />
+            <input {...register('name')} maxLength={200} className={inputClass} />
             {errors.name && <p className="text-xs text-posCloud-danger mt-1">{t('required')}</p>}
           </div>
 
@@ -134,7 +170,20 @@ export function ItemFormModal({ open, onClose, onSubmit, item, defaultType = 'pr
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={labelClass}>{t('price')}</label>
-              <input type="text" inputMode="decimal" placeholder="0.00" {...register('price')} className={inputClass} />
+              <Controller
+                control={control}
+                name="price"
+                render={({ field }) => (
+                  <NumberInput
+                    value={field.value ?? ''}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    placeholder="0.00"
+                    className={inputClass}
+                  />
+                )}
+              />
+              {errors.price && <p className="text-xs text-posCloud-danger mt-1">{t(String(errors.price.message))}</p>}
             </div>
             <div>
               <label className={labelClass}>{t('category')}</label>
@@ -149,10 +198,16 @@ export function ItemFormModal({ open, onClose, onSubmit, item, defaultType = 'pr
 
           <div>
             <label className={labelClass}>{t('sku')}</label>
-            <input placeholder={t('autoGenerated')} {...register('sku')} className={inputClass} />
+            <input placeholder={t('autoGenerated')} maxLength={64} {...register('sku')} className={inputClass} />
             {item?.sku_source === 'manual' && (
               <p className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary mt-1">{t('skuManualHint')}</p>
             )}
+          </div>
+
+          <div>
+            <label className={labelClass}>{t('imageUrl')}</label>
+            <input type="url" dir="ltr" placeholder="https://" {...register('image_url')} className={inputClass} />
+            {errors.image_url && <p className="text-xs text-posCloud-danger mt-1">{t('imageUrlInvalid')}</p>}
           </div>
 
           <div className="flex gap-6">
@@ -175,6 +230,10 @@ export function ItemFormModal({ open, onClose, onSubmit, item, defaultType = 'pr
                 {item.stock_quantity ?? 0}
               </div>
             </div>
+          )}
+
+          {serverError && (
+            <p role="alert" className="text-sm text-posCloud-danger">{serverError}</p>
           )}
 
           <div className="flex gap-3 pt-2">

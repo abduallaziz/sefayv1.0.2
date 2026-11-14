@@ -61,5 +61,8 @@
   "difference": "Difference",
   "notes": "Notes",
   "returned": "Returns",
-  "returns_col": "Returns"
+  "returns_col": "Returns",
+  "close_confirm_title": "Close the register?",
+  "close_confirm_message": "The register will be closed with the counted amounts and this cannot be undone. Continue?",
+  "load_more": "Show more"
 }

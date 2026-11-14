@@ -1,16 +1,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useSearchParams } from 'next/navigation';
-import { ApiError } from '@/lib/api';
 import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 import {
-  Plus, Package, ChevronDown, Upload, Download, Star,
+  Plus, Package, ChevronDown, Download, Star, ListChecks,
   CheckCircle2, AlertTriangle, Layers, Wallet,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/shared/ui/button';
+import { ConfirmDialog } from '@/shared/ui/confirm-dialog';
+import { downloadCsv } from './utils/csv-export';
 import { PageHeader } from '@/shared/ui/page-header';
 import { StatCard } from '@/shared/ui/stat-card';
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store';
@@ -27,7 +29,8 @@ import { Pagination } from '@/shared/components/ui/Pagination';
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
 import type { ItemsQuery } from './api/items.api';
 import { useItemStats, usePagedItems } from './hooks/useItems';
-import { useCategories, useCreateItem, useUpdateItem, useDeleteItem, useCreateVariant, useUpdateVariant, useDeleteVariant } from './hooks/useItems';
+import { useCategories, useCreateItem, useUpdateItem, useDeleteItem } from './hooks/useItems';
+import { itemsApi } from './api/items.api';
 import { ItemFiltersBar } from './components/ItemFilters';
 import { ItemsTable } from './components/ItemsTable';
 import { ItemFormModal } from './components/ItemFormModal';
@@ -53,6 +56,7 @@ const ITEM_TYPES: ItemType[] = [
 
 export function ItemsPage() {
   const t = useTranslations('items');
+  const queryClient = useQueryClient();
   const locale = useLocale();
   const currency = useCurrencyDisplay();
   const [filters, setFilters] = useState<ItemFilters>({
@@ -66,6 +70,7 @@ export function ItemsPage() {
   // request per pause, not one per keystroke.
   const [page, setPage] = useState(1);
   const [perPage, setPerPageState] = useState(50);
+  const [sortKey, setSortKey] = useState('name:asc');
   const debouncedSearch = useDebouncedValue(filters.search, 350);
 
   // Page resets must happen *before* the query runs, never in an effect: an
@@ -82,6 +87,8 @@ export function ItemsPage() {
     category_id: filters.category_id === 'all' ? undefined : filters.category_id,
     is_active:
       filters.is_active === 'all' ? 'all' : filters.is_active ? 'true' : 'false',
+    sort: sortKey.split(':')[0] as ItemsQuery['sort'],
+    dir: sortKey.split(':')[1] as ItemsQuery['dir'],
     page,
     perPage,
   };
@@ -93,6 +100,7 @@ export function ItemsPage() {
     serverQuery.type,
     serverQuery.category_id,
     serverQuery.is_active,
+    sortKey,
     perPage,
   ]);
   const [filterKeyAtPage, setFilterKeyAtPage] = useState(filterKey);
@@ -135,9 +143,6 @@ export function ItemsPage() {
   const createItem = useCreateItem();
   const updateItem = useUpdateItem();
   const deleteItem = useDeleteItem();
-  const createVariant = useCreateVariant();
-  const updateVariant = useUpdateVariant();
-  const deleteVariant = useDeleteVariant();
 
   const [formOpen, setFormOpen] = useState(false);
   const [variantsOpen, setVariantsOpen] = useState(false);
@@ -147,6 +152,70 @@ export function ItemsPage() {
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   // Type chosen from the "New Item" dropdown, pre-selected in the create form.
   const [newItemType, setNewItemType] = useState<ItemType>('product');
+
+  // Row selection for bulk actions. Cleared whenever the visible list changes.
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const listKey = `${filterKey}|${effectivePage}`;
+  const [listKeyAtSelection, setListKeyAtSelection] = useState(listKey);
+  if (listKeyAtSelection !== listKey) {
+    setListKeyAtSelection(listKey);
+    if (selectedIds.size > 0) setSelectedIds(new Set());
+  }
+  const toggleSelected = (id: string) =>
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  const allOnPageSelected = items.length > 0 && items.every((i) => selectedIds.has(i.id));
+  const toggleAllOnPage = () =>
+    setSelectedIds(allOnPageSelected ? new Set() : new Set(items.map((i) => i.id)));
+
+  const runBulk = async (fn: (id: string) => Promise<unknown>, doneKey: 'bulkDone' | 'bulkDeleted') => {
+    setBulkBusy(true);
+    const ids = [...selectedIds];
+    const results = await Promise.allSettled(ids.map(fn));
+    const ok = results.filter((r) => r.status === 'fulfilled').length;
+    setBulkBusy(false);
+    setSelectedIds(new Set());
+    await queryClient.invalidateQueries({ queryKey: ['items'] });
+    if (ok > 0) toast.success(t(doneKey, { count: ok }));
+    if (ok < ids.length) toast.error(t('bulkFailed', { count: ids.length - ok }));
+  };
+
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      const all: Item[] = [];
+      for (let p = 1; p <= 200; p++) {
+        const res = await itemsApi.getPaged({ ...serverQuery, page: p, perPage: 100 });
+        all.push(...(res.data as unknown as Item[]));
+        if (p * res.perPage >= res.total) break;
+      }
+      downloadCsv(
+        `items-${new Date().toISOString().slice(0, 10)}.csv`,
+        [t('name'), t('type'), t('category'), t('sku'), t('price'), t('variants'), t('stock'), t('status')],
+        all.map((i) => [
+          i.name,
+          t(i.type),
+          i.category_name ?? '',
+          i.sku ?? '',
+          i.price.toFixed(2),
+          i.variants_count ?? 0,
+          i.stock_quantity ?? '',
+          i.is_active ? t('active') : t('inactive'),
+        ]),
+      );
+    } catch {
+      toast.error(t('exportFailed'));
+    } finally {
+      setExporting(false);
+    }
+  };
 
   // Lets other pages (e.g. the POS "New Product" toolbar button) jump
   // straight into item creation via /items?create=1, without needing any
@@ -188,6 +257,8 @@ export function ItemsPage() {
   };
 
   const handleCreateNew = (type: ItemType) => {
+    createItem.reset();
+    updateItem.reset();
     setSelectedItem(null);
     setNewItemType(type);
     setFormOpen(true);
@@ -228,29 +299,41 @@ export function ItemsPage() {
         }
         actions={
           <>
-            {/* Reference-design actions with no backend yet (import/export/bulk)
-                are rendered disabled rather than omitted, so the header matches
-                the approved visual. The span wrapper is required — a disabled
-                button swallows the pointer events a native title tooltip needs. */}
-            <span title={t('comingSoon')}>
-              <Button variant="outline" disabled className="px-5">
-                <Plus className="w-4 h-4" />
-                {t('bulkActions')}
-                <ChevronDown className="w-4 h-4" />
-              </Button>
-            </span>
-            <span title={t('comingSoon')}>
-              <Button variant="outline" disabled className="px-5">
-                <Download className="w-4 h-4" />
-                {t('export')}
-              </Button>
-            </span>
-            <span title={t('comingSoon')}>
-              <Button variant="outline" disabled className="px-5">
-                <Upload className="w-4 h-4" />
-                {t('import')}
-              </Button>
-            </span>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="px-5" disabled={bulkBusy}>
+                  <ListChecks className="w-4 h-4" />
+                  {t('bulkActions')}
+                  {selectedIds.size > 0 && <span className="tabular-nums">({selectedIds.size})</span>}
+                  <ChevronDown className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>
+                  {selectedIds.size > 0 ? t('selectedCount', { count: selectedIds.size }) : t('selectRowsFirst')}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  disabled={selectedIds.size === 0}
+                  onClick={() => runBulk((id) => itemsApi.update(id, { is_active: true }), 'bulkDone')}
+                >
+                  {t('bulkActivate')}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  disabled={selectedIds.size === 0}
+                  onClick={() => runBulk((id) => itemsApi.update(id, { is_active: false }), 'bulkDone')}
+                >
+                  {t('bulkDeactivate')}
+                </DropdownMenuItem>
+                <DropdownMenuItem disabled={selectedIds.size === 0} onClick={() => setBulkDeleteOpen(true)}>
+                  {t('bulkDelete')}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button variant="outline" className="px-5" onClick={handleExport} disabled={exporting}>
+              <Download className="w-4 h-4" />
+              {exporting ? t('exporting') : t('export')}
+            </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button className="px-5">
@@ -326,6 +409,8 @@ export function ItemsPage() {
         onChange={setFilters}
         categories={categories}
         onBarcodeFound={(item) => { setSelectedItem(item); setFormOpen(true); }}
+        sortKey={sortKey}
+        onSortChange={setSortKey}
       />
 
       {isLoading ? (
@@ -333,6 +418,10 @@ export function ItemsPage() {
       ) : (
         <ItemsTable
           items={items}
+          selectedIds={selectedIds}
+          onToggleSelected={toggleSelected}
+          allSelected={allOnPageSelected}
+          onToggleAll={toggleAllOnPage}
           onEdit={(item) => { setSelectedItem(item); setFormOpen(true); }}
           onDelete={(item) => { setSelectedItem(item); setDeleteOpen(true); }}
           onVariants={(item) => { setSelectedItem(item); setVariantsOpen(true); }}
@@ -365,35 +454,18 @@ export function ItemsPage() {
 
       <ItemFormModal
         open={formOpen}
-        onClose={() => { setFormOpen(false); setSelectedItem(null); }}
+        onClose={() => { setFormOpen(false); setSelectedItem(null); createItem.reset(); updateItem.reset(); }}
         onSubmit={handleSubmit}
         item={selectedItem}
         defaultType={newItemType}
         categories={categories}
         isLoading={createItem.isPending || updateItem.isPending}
+        serverError={(selectedItem ? updateItem.error : createItem.error)?.message ?? null}
       />
       <VariantsModal
         open={variantsOpen}
         onClose={() => { setVariantsOpen(false); setSelectedItem(null); }}
         item={selectedItem}
-        onAddVariant={(itemId, data) =>
-          createVariant.mutate(
-            { itemId, data },
-            { onError: (error: unknown) => toast.error(error instanceof ApiError ? error.message : 'Failed to add variant') },
-          )
-        }
-        onUpdateVariant={(itemId, variantId, data) =>
-          updateVariant.mutate(
-            { itemId, variantId, data },
-            { onError: (error: unknown) => toast.error(error instanceof ApiError ? error.message : 'Failed to update variant') },
-          )
-        }
-        onDeleteVariant={(itemId, variantId) =>
-          deleteVariant.mutate(
-            { itemId, variantId },
-            { onError: (error: unknown) => toast.error(error instanceof ApiError ? error.message : 'Failed to delete variant') },
-          )
-        }
       />
       <BarcodesModal
         open={barcodesOpen}
@@ -404,6 +476,19 @@ export function ItemsPage() {
         open={packagingOpen}
         onClose={() => { setPackagingOpen(false); setSelectedItem(null); }}
         item={selectedItem}
+      />
+      <ConfirmDialog
+        open={bulkDeleteOpen}
+        onClose={() => setBulkDeleteOpen(false)}
+        onConfirm={async () => {
+          setBulkDeleteOpen(false);
+          await runBulk((id) => itemsApi.delete(id), 'bulkDeleted');
+        }}
+        variant="danger"
+        title={t('bulkDelete')}
+        message={t('bulkDeleteConfirm', { count: selectedIds.size })}
+        confirmLabel={t('delete')}
+        cancelLabel={t('cancel')}
       />
       <DeleteItemModal
         open={deleteOpen}

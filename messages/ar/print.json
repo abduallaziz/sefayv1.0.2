@@ -232,6 +232,14 @@
         "notes": "ملاحظات",
         "taxNumber": "الرقم الضريبي",
         "commercialRegister": "السجل التجاري"
+      },
+      "accentNames": {
+        "black": "أسود",
+        "blue": "أزرق",
+        "green": "أخضر",
+        "red": "أحمر",
+        "purple": "بنفسجي",
+        "gray": "رمادي"
       }
     }
   }

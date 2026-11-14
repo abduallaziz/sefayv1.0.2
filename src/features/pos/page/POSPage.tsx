@@ -41,6 +41,8 @@ export function POSPage() {
     subtotal: number; discountAmount: number; taxAmount: number; items: ReceiptLineItem[]
   } | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  // Synchronous guard: state updates are async, so two rapid clicks could both pass the check.
+  const submittingRef = useRef(false)
   const [paymentError, setPaymentError] = useState<string | null>(null)
   // M187 idempotency: one id per checkout attempt — reused across a
   // double-click/retry of the SAME attempt (openPayment only generates a
@@ -151,7 +153,8 @@ export function POSPage() {
     : notePresets.filter((p) => selectedPresetIds.includes(p.id)).map((p) => p.text).join('، ')
 
   const handleConfirmPayment = async (data: PaymentData) => {
-    if (isSubmitting) return
+    if (isSubmitting || submittingRef.current) return
+    submittingRef.current = true
     setIsSubmitting(true)
     setPaymentError(null)
     try {
@@ -183,6 +186,7 @@ export function POSPage() {
       })
       saleAttemptIdRef.current = null
       setShowPayment(false)
+      setPaymentError(null)
       setReceipt({
         payment: data,
         invoiceNumber: order.invoice_no ?? order.id.slice(-6).toUpperCase(),
@@ -218,6 +222,7 @@ export function POSPage() {
           : rawMessage || t('payment.failed'),
       )
     } finally {
+      submittingRef.current = false
       setIsSubmitting(false)
     }
   }

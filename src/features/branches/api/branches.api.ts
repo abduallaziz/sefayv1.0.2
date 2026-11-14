@@ -36,4 +36,5 @@ export const branchesApi = {
   getOne: (id: string) => apiClient.get<BranchRecord>(`/branches/${id}`),
   create: (dto: CreateBranchDto) => apiClient.post<BranchRecord>('/branches', dto),
   update: (id: string, dto: UpdateBranchDto) => apiClient.patch<BranchRecord>(`/branches/${id}`, dto),
+  remove: (id: string) => apiClient.delete<{ success: boolean }>(`/branches/${id}`),
 }

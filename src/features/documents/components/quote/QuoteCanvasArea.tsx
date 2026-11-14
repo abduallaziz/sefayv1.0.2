@@ -99,11 +99,11 @@ export function QuoteCanvasArea({ widthMm, heightMm, zoom, paper, showGrid, dir,
 
       <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-t border-slate-200 bg-white px-3 py-2 dark:border-gray-800 dark:bg-gray-900">
         <div className="flex items-center rounded-lg border border-slate-200 dark:border-gray-800">
-          <button type="button" className="h-9 w-9 hover:bg-slate-100 dark:hover:bg-gray-800" aria-label="-" onClick={() => onZoom(Math.max(0.3, +(zoom - 0.1).toFixed(2)))}>
+          <button type="button" className="h-9 w-9 hover:bg-slate-100 dark:hover:bg-gray-800" aria-label={te('zoomOut')} onClick={() => onZoom(Math.max(0.3, +(zoom - 0.1).toFixed(2)))}>
             <Minus className="mx-auto h-4 w-4" />
           </button>
           <span className="w-14 text-center text-xs tabular-nums">{Math.round(zoom * 100)}%</span>
-          <button type="button" className="h-9 w-9 hover:bg-slate-100 dark:hover:bg-gray-800" aria-label="+" onClick={() => onZoom(Math.min(2, +(zoom + 0.1).toFixed(2)))}>
+          <button type="button" className="h-9 w-9 hover:bg-slate-100 dark:hover:bg-gray-800" aria-label={te('zoomIn')} onClick={() => onZoom(Math.min(2, +(zoom + 0.1).toFixed(2)))}>
             <Plus className="mx-auto h-4 w-4" />
           </button>
         </div>

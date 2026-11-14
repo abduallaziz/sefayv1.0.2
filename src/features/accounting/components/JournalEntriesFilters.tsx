@@ -7,6 +7,7 @@ import { useUsers } from '@/features/users/hooks/useUsers'
 import { useFiscalPeriods } from '../hooks/useAccountingCommandCenter'
 import { useChartOfAccounts } from '../hooks/useJournalEntries'
 import { JournalEntriesQuery } from '../api/accounting.api'
+import { accountLabel, getAmountError } from '../lib/accounting-utils'
 
 interface Props {
   filters: JournalEntriesQuery
@@ -25,6 +26,8 @@ const inputClass =
 export function JournalEntriesFilters({ filters, onChange, canView, hideSource = false }: Props) {
   const t = useTranslations('accounting.journalEntries.filters')
   const tRoot = useTranslations('accounting.journalEntries')
+  const tAccounts = useTranslations('accounting.accountNames')
+  const amountError = getAmountError(filters)
 
   // Only fetched when the parent already knows the user can view journal
   // entries — same enabled-gating pattern as Step 1's Command Center, so an
@@ -79,7 +82,7 @@ export function JournalEntriesFilters({ filters, onChange, canView, hideSource =
       >
         <option value="">{t('account')}</option>
         {(accounts ?? []).map((a) => (
-          <option key={a.id} value={a.id}>{a.code} — {a.name}</option>
+          <option key={a.id} value={a.id}>{accountLabel(a, tAccounts)}</option>
         ))}
       </select>
 
@@ -91,6 +94,7 @@ export function JournalEntriesFilters({ filters, onChange, canView, hideSource =
         >
           <option value="">{t('source')}</option>
           <option value="sales">{t('sourceSales')}</option>
+          <option value="manual">{t('sourceManual')}</option>
         </select>
       )}
 
@@ -122,7 +126,10 @@ export function JournalEntriesFilters({ filters, onChange, canView, hideSource =
         placeholder={t('amountMin')}
         value={filters.amount_min ?? ''}
         onChange={(e) => set('amount_min', e.target.value === '' ? undefined : Number(e.target.value))}
-        className={`${inputClass} w-28 tabular-nums`}
+        min={0}
+        aria-label={t('amountMin')}
+        aria-invalid={amountError !== null}
+        className={`${inputClass} w-28 tabular-nums ${amountError ? 'border-red-500' : ''}`}
       />
       <input
         type="number"
@@ -130,8 +137,16 @@ export function JournalEntriesFilters({ filters, onChange, canView, hideSource =
         placeholder={t('amountMax')}
         value={filters.amount_max ?? ''}
         onChange={(e) => set('amount_max', e.target.value === '' ? undefined : Number(e.target.value))}
-        className={`${inputClass} w-28 tabular-nums`}
+        min={0}
+        aria-label={t('amountMax')}
+        aria-invalid={amountError !== null}
+        className={`${inputClass} w-28 tabular-nums ${amountError ? 'border-red-500' : ''}`}
       />
+      {amountError && (
+        <span role="alert" className="text-xs text-red-600 dark:text-red-400">
+          {amountError === 'negative' ? t('amountNegative') : t('amountRangeInvalid')}
+        </span>
+      )}
     </div>
   )
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useCreateUser } from '../hooks/useUsers'
 import { useBranches } from '@/shared/hooks/useBranches'
@@ -26,11 +26,27 @@ export function CreateUserDialog({ open, onClose }: Props) {
     branch_id: '',
   })
 
+  const [touched, setTouched] = useState(false)
+  const errors = {
+    name: form.name.trim() ? '' : t('errName'),
+    email: /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(form.email.trim()) ? '' : t('errEmail'),
+    password: form.password.length >= 8 ? '' : t('errPasswordShort'),
+  }
+
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [open, onClose])
+
   function handleSubmit() {
-    if (!form.name || !form.email || !form.password) return
-    createUser({ ...form, branch_id: form.branch_id || undefined }, {
+    setTouched(true)
+    if (errors.name || errors.email || errors.password) return
+    createUser({ ...form, name: form.name.trim(), email: form.email.trim(), branch_id: form.branch_id || undefined }, {
       onSuccess: () => {
         setForm({ name: '', email: '', password: '', role: 'cashier', branch_id: '' })
+        setTouched(false)
         onClose()
       },
     })
@@ -44,7 +60,7 @@ export function CreateUserDialog({ open, onClose }: Props) {
       <div className="relative bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6 w-full max-w-md mx-4 space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-base font-semibold text-gray-900 dark:text-white">{t('addUser')}</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors">
+          <button type="button" aria-label={t('close')} onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -58,6 +74,7 @@ export function CreateUserDialog({ open, onClose }: Props) {
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-[#0C447C]"
             />
+            {touched && errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
           </div>
           <div>
             <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">{t('email')}</label>
@@ -67,6 +84,7 @@ export function CreateUserDialog({ open, onClose }: Props) {
               onChange={(e) => setForm({ ...form, email: e.target.value })}
               className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-[#0C447C]"
             />
+            {touched && errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
           </div>
           <div>
             <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">{t('password')}</label>
@@ -76,7 +94,11 @@ export function CreateUserDialog({ open, onClose }: Props) {
               onChange={(e) => setForm({ ...form, password: e.target.value })}
               className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-[#0C447C]"
             />
-            <p className="text-xs text-gray-400 dark:text-gray-600 mt-1">{t('passwordHint')}</p>
+            {touched && errors.password ? (
+              <p className="text-xs text-red-500 mt-1">{errors.password}</p>
+            ) : (
+              <p className="text-xs text-gray-400 dark:text-gray-600 mt-1">{t('passwordHint')}</p>
+            )}
           </div>
           <div>
             <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">{t('role')}</label>
@@ -86,7 +108,7 @@ export function CreateUserDialog({ open, onClose }: Props) {
               className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-[#0C447C]"
             >
               {ROLES.map((r) => (
-                <option key={r} value={r}>{r}</option>
+                <option key={r} value={r}>{t.has(`roles.${r}`) ? t(`roles.${r}`) : r}</option>
               ))}
             </select>
           </div>
@@ -107,14 +129,16 @@ export function CreateUserDialog({ open, onClose }: Props) {
 
         <div className="flex gap-2 pt-2">
           <button
+            type="button"
             onClick={onClose}
             className="flex-1 px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
           >
             {t('cancel')}
           </button>
           <button
+            type="button"
             onClick={handleSubmit}
-            disabled={isPending || !form.name || !form.email || form.password.length < 8}
+            disabled={isPending}
             className="flex-1 px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 rounded-lg text-sm text-white transition-colors"
           >
             {isPending ? t('creating') : t('create')}

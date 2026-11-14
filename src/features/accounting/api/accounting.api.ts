@@ -64,6 +64,7 @@ export interface JournalLine {
 // exactly. No order_items array exists here; order is aggregate totals only.
 export interface JournalEntryOrderSummary {
   id: string
+  invoice_no?: string | null
   branch_id: string | null
   payment_method: string | null
   subtotal: number
@@ -89,6 +90,7 @@ export interface JournalEntryPriceOverrideAudit {
 
 export interface JournalEntryReversalRef {
   id: string
+  reference?: string | null
   status: string
   created_at: string
 }

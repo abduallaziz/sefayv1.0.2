@@ -1,10 +1,12 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
+import { ApiError } from '@/lib/api'
+import { localizeServerMessage } from '@/lib/server-messages'
 import { documentsApi } from '../api/documents.api'
 import { useTemplateDraft } from '../hooks/useTemplateDraft'
 import { EditorToolbar } from '../components/EditorToolbar'
@@ -62,6 +64,9 @@ export function TemplateEditorPage({ id }: { id: string }) {
   const [approvalOpen, setApprovalOpen] = useState(false)
   const [warnings, setWarnings] = useState<string[]>([])
   const [showGrid, setShowGrid] = useState(false)
+  // preview requests: debounced, only the latest one is applied, and a 429 backs off before retrying
+  const previewSeq = useRef(0)
+  const [previewRetry, setPreviewRetry] = useState(0)
   const bindingsQ = useQuery({ queryKey: ['documents', 'bindings'], queryFn: documentsApi.bindings, staleTime: 10 * 60_000 })
 
   const selected: TemplateElement | null = useMemo(
@@ -72,8 +77,10 @@ export function TemplateEditorPage({ id }: { id: string }) {
   // Live page: the SAME renderer the PDF uses, fed the unsaved draft (overlays are drawn by the canvas).
   useEffect(() => {
     if (!state) return
-    let cancelled = false
+    const seq = ++previewSeq.current
+    let retryTimer: ReturnType<typeof setTimeout> | undefined
     const h = setTimeout(async () => {
+      if (seq !== previewSeq.current) return
       try {
         const r = await documentsApi.previewHtml(id, {
           body: state.body,
@@ -82,28 +89,31 @@ export function TemplateEditorPage({ id }: { id: string }) {
           lang,
           overlays: false,
         })
-        if (!cancelled) {
-          setHtml(r.html)
-          setWarnings(r.warnings ?? [])
-          const now = Date.now()
-          setUrls((prev) => {
-            const next = { ...prev }
-            for (const [k, v] of Object.entries(r.assetUrls ?? {})) {
-              // signed URLs live 5 min: keep the current one while it is fresh, renew it afterwards
-              if (!next[k] || now - next[k].at > 240_000) next[k] = { url: v, at: now }
-            }
-            return next
-          })
+        // a newer edit already superseded this request: drop the stale answer
+        if (seq !== previewSeq.current) return
+        setHtml(r.html)
+        setWarnings(r.warnings ?? [])
+        const now = Date.now()
+        setUrls((prev) => {
+          const next = { ...prev }
+          for (const [k, v] of Object.entries(r.assetUrls ?? {})) {
+            // signed URLs live 5 min: keep the current one while it is fresh, renew it afterwards
+            if (!next[k] || now - next[k].at > 240_000) next[k] = { url: v, at: now }
+          }
+          return next
+        })
+      } catch (e) {
+        // rate limited: wait, then try again with the then-current draft; otherwise keep the last good render
+        if (e instanceof ApiError && e.status === 429 && seq === previewSeq.current) {
+          retryTimer = setTimeout(() => setPreviewRetry((n) => n + 1), 5000)
         }
-      } catch {
-        /* keep the last good render */
       }
-    }, 150)
+    }, 700)
     return () => {
-      cancelled = true
       clearTimeout(h)
+      if (retryTimer) clearTimeout(retryTimer)
     }
-  }, [id, state, lang])
+  }, [id, state, lang, previewRetry])
 
   const setSelected = useCallback((next: string | null) => setSelectedId(next), [])
 
@@ -175,7 +185,10 @@ export function TemplateEditorPage({ id }: { id: string }) {
 
   const labels = useMemo(() => {
     const m: Record<string, string> = {}
-    for (const e of state?.body.elements ?? []) m[e.id] = t(`editor.block.${e.type}` as never)
+    for (const e of state?.body.elements ?? []) {
+      const kind = e.type === 'qr' ? e.config?.kind : undefined
+      m[e.id] = typeof kind === 'string' && t.has(`editor.qr.${kind}` as never) ? t(`editor.qr.${kind}` as never) : t(`editor.block.${e.type}` as never)
+    }
     return m
   }, [state?.body.elements, t])
 
@@ -256,7 +269,7 @@ export function TemplateEditorPage({ id }: { id: string }) {
       await qc.invalidateQueries({ queryKey: ['documents'] })
       toast.success(t('published'))
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('failed'))
+      toast.error(e instanceof Error ? localizeServerMessage(e.message) : t('failed'))
     } finally {
       setBusy(false)
     }
@@ -274,7 +287,7 @@ export function TemplateEditorPage({ id }: { id: string }) {
       a.click()
       setTimeout(() => URL.revokeObjectURL(url), 10_000)
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('failed'))
+      toast.error(e instanceof Error ? localizeServerMessage(e.message) : t('failed'))
     } finally {
       setBusy(false)
     }
@@ -314,7 +327,7 @@ export function TemplateEditorPage({ id }: { id: string }) {
         window.open(url, '_blank', 'noopener')
         setTimeout(() => URL.revokeObjectURL(url), 60_000)
       } catch (e) {
-        toast.error(e instanceof Error ? e.message : t('failed'))
+        toast.error(e instanceof Error ? localizeServerMessage(e.message) : t('failed'))
       } finally {
         setBusy(false)
       }
@@ -371,7 +384,7 @@ export function TemplateEditorPage({ id }: { id: string }) {
             />
           </aside>
 
-          <main className="min-h-0 flex-1">
+          <main className="min-h-0 min-w-0 flex-1">
             <QuoteCanvasArea
               widthMm={size.w}
               heightMm={size.h}
@@ -507,7 +520,7 @@ export function TemplateEditorPage({ id }: { id: string }) {
           />
         </aside>
 
-        <main className="min-h-0 flex-1 overflow-auto p-6">
+        <main className="min-h-0 min-w-0 flex-1 overflow-auto p-6">
           <div className="mx-auto flex w-max min-w-full justify-center">
             <EditorCanvas
               html={html}

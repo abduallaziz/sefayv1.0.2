@@ -71,6 +71,7 @@ export function InvoiceStyleSections({
 }) {
   const t = useTranslations('print.designer.v2')
   const tl = useTranslations('print.designer.v2.labelNames')
+  const tn = useTranslations('print.designer.v2.accentNames')
   const st = draft.style
   const setStyle = (p: Partial<InvoiceStyle>) => patch({ style: { ...st, ...p } })
   const fields = draft.custom_fields ?? []
@@ -122,7 +123,7 @@ export function InvoiceStyleSections({
             <button
               key={v}
               type="button"
-              aria-label={v}
+              aria-label={tn(v)}
               onClick={() => setStyle({ accent: v })}
               className={`h-8 w-8 rounded-full border-2 ${st.accent === v ? 'border-[#0C447C] ring-2 ring-[#0C447C]/30' : 'border-slate-200 dark:border-gray-700'}`}
               style={{ background: ACCENT_HEX[v] }}
@@ -204,7 +205,7 @@ export function InvoiceStyleSections({
               min={3}
               max={10}
               value={draft.invoice_number.padding}
-              onChange={(e) => patch({ invoice_number: { ...draft.invoice_number, padding: Math.min(10, Math.max(3, Number(e.target.value) || 6)) } })}
+              onChange={(e) => patch({ invoice_number: { ...draft.invoice_number, padding: Math.min(10, Math.max(3, Math.round(Number(e.target.value)) || 6)) } })}
             />
           </div>
         </div>

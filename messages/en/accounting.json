@@ -89,7 +89,10 @@
       "statusReversed": "Reversed",
       "user": "User",
       "amountMin": "Min amount",
-      "amountMax": "Max amount"
+      "amountMax": "Max amount",
+      "sourceManual": "Manual entry",
+      "amountRangeInvalid": "Min amount is greater than max amount",
+      "amountNegative": "Amount cannot be negative"
     },
     "detail": {
       "title": "Journal Entry",
@@ -116,7 +119,13 @@
         "viewInCogs": "View in COGS Reconciliation"
       },
       "lines": {
-        "title": "Journal Lines"
+        "title": "Journal Lines",
+        "account": "Account",
+        "debit": "Debit",
+        "credit": "Credit",
+        "total": "Total",
+        "balanced": "Entry is balanced",
+        "unbalanced": "Entry is NOT balanced"
       },
       "order": {
         "title": "Source Order",
@@ -136,7 +145,8 @@
       "reversal": {
         "title": "Reversal Chain",
         "reversalOf": "This entry reverses entry {id}",
-        "reversedByTitle": "Reversed By"
+        "reversedByTitle": "Reversed By",
+        "reversedByRef": "Reversing entry"
       },
       "audit": {
         "title": "Audit Context",
@@ -144,7 +154,16 @@
         "createdAt": "Created At",
         "postedAt": "Posted At",
         "reversedAt": "Reversed At"
-      }
+      },
+      "close": "Close"
+    },
+    "sort": {
+      "ascending": "Sort ascending",
+      "descending": "Sort descending"
+    },
+    "pagination": {
+      "prev": "Previous page",
+      "next": "Next page"
     }
   },
   "cogsReconciliation": {
@@ -266,6 +285,13 @@
         "reversed": "Reversed"
       },
       "createdAt": "Created At"
+    },
+    "invalidOrderRef": "Enter an invoice number (INV-...) or a valid order id",
+    "roleNames": {
+      "owner": "Owner",
+      "cashier": "Cashier",
+      "manager": "Manager",
+      "admin": "Admin"
     }
   },
   "configuration": {
@@ -378,7 +404,19 @@
       "submit": "Assign",
       "submitting": "Assigning…",
       "success": "Branch assigned successfully",
-      "error": "Couldn't assign the branch. Try again."
+      "error": "Couldn't assign the branch. Try again.",
+      "noUnlinkedBranches": "All active branches are already linked to an accountant",
+      "noOwners": "No accountants available"
     }
+  },
+  "accountNames": {
+    "cash": "Cash",
+    "sales_revenue": "Sales Revenue",
+    "tax_payable": "Tax Payable",
+    "accounts_receivable": "Accounts Receivable",
+    "cost_of_goods_sold": "Cost of Goods Sold",
+    "inventory_asset": "Inventory Asset",
+    "accounts_payable": "Accounts Payable",
+    "bank": "Bank"
   }
 }

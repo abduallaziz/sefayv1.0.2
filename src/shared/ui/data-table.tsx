@@ -2,6 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import { ReactNode } from 'react';
+import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 export interface Column<T> {
@@ -11,6 +12,8 @@ export interface Column<T> {
   align?: 'left' | 'center' | 'right';
   /** Pins the column to the end edge so row actions stay reachable on narrow screens. */
   sticky?: boolean;
+  /** Shows a sort toggle in the header (requires onSort on the table). */
+  sortable?: boolean;
   render?: (row: T, index: number) => ReactNode;
 }
 
@@ -23,6 +26,11 @@ interface DataTableProps<T> {
   onRowClick?: (row: T) => void;
   emptyState?: ReactNode;
   className?: string;
+  sortKey?: string;
+  sortDir?: 'asc' | 'desc';
+  onSort?: (key: string) => void;
+  /** Accessible names for the sort buttons (defaults to the column header). */
+  sortLabel?: (header: string, dir: 'asc' | 'desc') => string;
 }
 
 export function DataTable<T>({
@@ -34,6 +42,10 @@ export function DataTable<T>({
   onRowClick,
   emptyState,
   className,
+  sortKey,
+  sortDir,
+  onSort,
+  sortLabel,
 }: DataTableProps<T>) {
   // Matrix D6: this `theme` prop is a per-section visual variant
   // (superadmin area vs. regular dashboard), independent of the app's
@@ -76,7 +88,23 @@ export function DataTable<T>({
                     col.sticky && headerBg
                   )}
                 >
-                  {col.header}
+                  {col.sortable && onSort ? (
+                    <button
+                      type="button"
+                      onClick={() => onSort(col.key)}
+                      aria-label={sortLabel ? sortLabel(col.header, sortKey === col.key && sortDir === 'asc' ? 'desc' : 'asc') : col.header}
+                      className="inline-flex items-center gap-1 uppercase tracking-wide font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0C447C] rounded"
+                    >
+                      {col.header}
+                      {sortKey === col.key ? (
+                        sortDir === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                      ) : (
+                        <ArrowUpDown className="w-3 h-3 opacity-50" />
+                      )}
+                    </button>
+                  ) : (
+                    col.header
+                  )}
                 </th>
               ))}
             </tr>
@@ -110,10 +138,15 @@ export function DataTable<T>({
                 <tr
                   key={keyExtractor(row, i)}
                   onClick={() => onRowClick?.(row)}
+                  tabIndex={onRowClick ? 0 : undefined}
+                  onKeyDown={onRowClick ? (e) => {
+                    if (e.target !== e.currentTarget) return;
+                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onRowClick(row); }
+                  } : undefined}
                   className={cn(
                     'transition-colors duration-150',
                     rowHover,
-                    onRowClick && 'cursor-pointer'
+                    onRowClick && 'cursor-pointer focus-visible:outline-none focus-visible:bg-posCloud-sidebar dark:focus-visible:bg-posCloudDark-background'
                   )}
                 >
                   {columns.map((col) => (

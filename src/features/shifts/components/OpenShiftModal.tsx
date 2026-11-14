@@ -1,8 +1,10 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useOpenShift } from '../hooks/useShifts';
+import { NumberInput } from '@/shared/ui/number-input';
+import { useEscape } from '@/lib/use-escape';
 
 interface Props {
   branchId: string;
@@ -13,36 +15,38 @@ export function OpenShiftModal({ branchId, onClose }: Props) {
   const t = useTranslations('shifts');
   const mutation = useOpenShift();
 
-  const { register, handleSubmit, formState: { errors } } = useForm({
-    defaultValues: { opening_cash: '', branch_id: branchId },
-  });
+  const [openingCash, setOpeningCash] = useState('');
+  useEscape(onClose, !mutation.isPending);
 
-  const onSubmit = async (data: { opening_cash: string; branch_id: string }) => {
-    await mutation.mutateAsync({ ...data, opening_cash: Number(data.opening_cash) || 0 });
-    onClose();
+  const invalid = openingCash !== '' && !Number.isFinite(Number(openingCash));
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (invalid || mutation.isPending) return;
+    try {
+      await mutation.mutateAsync({ opening_cash: Number(openingCash) || 0, branch_id: branchId });
+      onClose();
+    } catch {
+      /* the failure toast is shown centrally; keep the dialog open */
+    }
   };
 
   return (
     <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/60">
-      <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl shadow-xl w-full max-w-sm mx-4 p-6">
+      <div role="dialog" aria-modal="true" aria-label={t('open_shift')} className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl shadow-xl w-full max-w-sm mx-4 p-6">
         <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-4">{t('open_shift')}</h2>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={onSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
               {t('opening_cash')}
             </label>
-            <input
-              type="text"
-              inputMode="decimal"
+            <NumberInput
+              value={openingCash}
+              onChange={setOpeningCash}
               placeholder="0.00"
-              {...register('opening_cash')}
               className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-950 text-slate-800 dark:text-white focus:outline-none focus:border-[#0C447C] dark:focus:border-[#0C447C]"
             />
-            {errors.opening_cash && (
-              <p className="text-xs text-red-500 mt-1">{String(errors.opening_cash.message)}</p>
-            )}
           </div>
-          <input type="hidden" {...register('branch_id')} />
           <div className="flex gap-3 pt-2">
             <button
               type="button"

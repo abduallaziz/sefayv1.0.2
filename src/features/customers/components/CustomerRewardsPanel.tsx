@@ -22,7 +22,9 @@ export function CustomerRewardsPanel({ customerId }: { customerId: string }) {
   const t = useTranslations('rewards')
   const rawLocale = useLocale()
   const locale: 'ar' | 'en' = rawLocale === 'ar' ? 'ar' : 'en'
-  const { data: instances, isLoading } = useCustomerRewardsHistory(customerId)
+  const { data: rawInstances, isLoading } = useCustomerRewardsHistory(customerId)
+  // The history hook merges one query per status; the same instance must never be listed twice.
+  const instances = rawInstances ? [...new Map(rawInstances.map((i) => [i.id, i])).values()] : rawInstances
 
   return (
     <div>

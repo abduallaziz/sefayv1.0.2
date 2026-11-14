@@ -60,7 +60,11 @@
     "tierMinPoints": "Minimum points",
     "tierMultiplier": "Points multiplier",
     "tierThreshold": "From {points} points",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "invalid": "Enter valid values (0 or more) for the loyalty settings",
+    "deleteConfirm": "Confirm delete",
+    "deleteTier": "Delete tier",
+    "tierRequired": "Enter the tier name, minimum points and multiplier"
   },
   "paymentMethods": {
     "title": "Payment methods",
@@ -76,5 +80,42 @@
       "wallet": "E-Wallet",
       "split": "Split (cash + card)"
     }
+  },
+  "saved": "Saved",
+  "nameError": "Enter the store name (at least 2 characters)",
+  "taxRateErrors": {
+    "required": "Enter the tax rate",
+    "range": "Enter a rate between 0 and 100",
+    "decimals": "At most 2 decimal places"
+  },
+  "vatErrors": {
+    "digits": "The VAT number must be 15 digits",
+    "zatca": "A ZATCA VAT number starts and ends with 3"
+  },
+  "subStatus": {
+    "trial": "Trial",
+    "active": "Active",
+    "grace_period": "Grace period",
+    "suspended": "Suspended",
+    "cancelled": "Cancelled",
+    "expired": "Expired",
+    "none": "Not found"
+  },
+  "billingCycles": {
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "annual": "Yearly",
+    "quarterly": "Quarterly",
+    "weekly": "Weekly"
+  },
+  "planNames": {
+    "starter": "Starter",
+    "basic": "Basic",
+    "pro": "Pro",
+    "professional": "Professional",
+    "business": "Business",
+    "enterprise": "Enterprise",
+    "free": "Free",
+    "trial": "Trial"
   }
 }

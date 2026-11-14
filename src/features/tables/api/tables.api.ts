@@ -125,8 +125,11 @@ export const tablesApi = {
   createReservation: (data: { table_id: string; customer_name: string; customer_phone?: string; party_size?: number; reservation_time: string; notes?: string }): Promise<Reservation> =>
     apiClient.post('/reservations', data),
 
-  updateReservation: (id: string, data: Partial<{ status: string; customer_name: string; party_size: number; reservation_time: string; notes: string }>): Promise<Reservation> =>
+  updateReservation: (id: string, data: Partial<{ status: string; customer_name: string; customer_phone: string; party_size: number; reservation_time: string; notes: string }>): Promise<Reservation> =>
     apiClient.patch(`/reservations/${id}`, data),
+
+  deleteReservation: (id: string): Promise<{ id: string }> =>
+    apiClient.delete(`/reservations/${id}`),
 
   getWaitlist: (branchId?: string, status?: string): Promise<WaitlistEntry[]> => {
     const params = new URLSearchParams()

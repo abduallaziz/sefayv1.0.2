@@ -60,7 +60,11 @@
     "tierMinPoints": "الحد الأدنى من النقاط",
     "tierMultiplier": "مضاعِف النقاط",
     "tierThreshold": "من {points} نقطة",
-    "cancel": "إلغاء"
+    "cancel": "إلغاء",
+    "invalid": "أدخل قيمًا صحيحة (صفر أو أكبر) لإعدادات الولاء",
+    "deleteConfirm": "تأكيد الحذف",
+    "deleteTier": "حذف الفئة",
+    "tierRequired": "أدخل اسم الفئة والحد الأدنى للنقاط والمضاعِف"
   },
   "paymentMethods": {
     "title": "طرق الدفع",
@@ -76,5 +80,42 @@
       "wallet": "محفظة إلكترونية",
       "split": "مقسّم (نقد + شبكة)"
     }
+  },
+  "saved": "تم الحفظ",
+  "nameError": "أدخل اسم المتجر (حرفان على الأقل)",
+  "taxRateErrors": {
+    "required": "أدخل نسبة الضريبة",
+    "range": "أدخل نسبة بين 0 و 100",
+    "decimals": "النسبة تقبل خانتين عشريتين كحد أقصى"
+  },
+  "vatErrors": {
+    "digits": "الرقم الضريبي يتكون من 15 رقمًا",
+    "zatca": "الرقم الضريبي لزاتكا يبدأ وينتهي بالرقم 3"
+  },
+  "subStatus": {
+    "trial": "تجريبي",
+    "active": "نشط",
+    "grace_period": "فترة سماح",
+    "suspended": "معلّق",
+    "cancelled": "ملغى",
+    "expired": "منتهي",
+    "none": "غير موجود"
+  },
+  "billingCycles": {
+    "monthly": "شهري",
+    "yearly": "سنوي",
+    "annual": "سنوي",
+    "quarterly": "ربع سنوي",
+    "weekly": "أسبوعي"
+  },
+  "planNames": {
+    "starter": "البداية",
+    "basic": "الأساسية",
+    "pro": "الاحترافية",
+    "professional": "الاحترافية",
+    "business": "الأعمال",
+    "enterprise": "المؤسسات",
+    "free": "مجانية",
+    "trial": "تجريبية"
   }
 }

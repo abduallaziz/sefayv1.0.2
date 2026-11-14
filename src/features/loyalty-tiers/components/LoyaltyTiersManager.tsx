@@ -22,9 +22,15 @@ export function LoyaltyTiersManager() {
   const [name, setName] = useState('')
   const [minPoints, setMinPoints] = useState('')
   const [multiplier, setMultiplier] = useState('1')
+  const [confirmId, setConfirmId] = useState<string | null>(null)
+  const [formError, setFormError] = useState<string | null>(null)
 
   const handleAdd = () => {
-    if (!name.trim() || !minPoints || !multiplier) return
+    if (!name.trim() || !minPoints || !multiplier) {
+      setFormError(t('loyalty.tierRequired'))
+      return
+    }
+    setFormError(null)
     createTier.mutate(
       {
         name: name.trim(),
@@ -59,12 +65,29 @@ export function LoyaltyTiersManager() {
                   {t('loyalty.tierThreshold', { points: tier.min_lifetime_points })} · x{tier.points_multiplier}
                 </p>
               </div>
-              <button
-                onClick={() => deleteTier.mutate(tier.id)}
-                className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-slate-400 hover:text-red-500 shrink-0"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
+              {confirmId === tier.id ? (
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    onClick={() => deleteTier.mutate(tier.id, { onSettled: () => setConfirmId(null) })}
+                    disabled={deleteTier.isPending}
+                    className="text-xs text-red-500 hover:text-red-600"
+                  >
+                    {t('loyalty.deleteConfirm')}
+                  </button>
+                  <button onClick={() => setConfirmId(null)} className="text-xs text-slate-400">
+                    {t('loyalty.cancel')}
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setConfirmId(tier.id)}
+                  aria-label={t('loyalty.deleteTier')}
+                  title={t('loyalty.deleteTier')}
+                  className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-slate-400 hover:text-red-500 shrink-0"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
           ))}
         </div>
@@ -84,6 +107,7 @@ export function LoyaltyTiersManager() {
             <label className={labelClass}>{t('loyalty.tierMultiplier')}</label>
             <input type="number" min={0.01} step="0.1" value={multiplier} onChange={(e) => setMultiplier(e.target.value)} className={inputClass} />
           </div>
+          {formError && <p role="alert" className="sm:col-span-3 text-xs text-red-500">{formError}</p>}
           <div className="sm:col-span-3 flex gap-2">
             <button
               onClick={handleAdd}

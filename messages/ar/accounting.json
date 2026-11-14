@@ -89,7 +89,10 @@
       "statusReversed": "معكوس",
       "user": "المستخدم",
       "amountMin": "أقل مبلغ",
-      "amountMax": "أعلى مبلغ"
+      "amountMax": "أعلى مبلغ",
+      "sourceManual": "قيد يدوي",
+      "amountRangeInvalid": "الحد الأدنى للمبلغ أكبر من الحد الأقصى",
+      "amountNegative": "المبلغ لا يمكن أن يكون سالبًا"
     },
     "detail": {
       "title": "قيد اليومية",
@@ -116,7 +119,13 @@
         "viewInCogs": "عرض في تسوية تكلفة البضاعة"
       },
       "lines": {
-        "title": "بنود القيد"
+        "title": "بنود القيد",
+        "account": "الحساب",
+        "debit": "مدين",
+        "credit": "دائن",
+        "total": "الإجمالي",
+        "balanced": "القيد متوازن",
+        "unbalanced": "القيد غير متوازن"
       },
       "order": {
         "title": "الطلب المصدر",
@@ -136,7 +145,8 @@
       "reversal": {
         "title": "سلسلة العكس",
         "reversalOf": "هذا القيد يعكس القيد {id}",
-        "reversedByTitle": "تم عكسه بواسطة"
+        "reversedByTitle": "تم عكسه بواسطة",
+        "reversedByRef": "مرجع القيد العكسي"
       },
       "audit": {
         "title": "سياق التدقيق",
@@ -144,7 +154,16 @@
         "createdAt": "تاريخ الإنشاء",
         "postedAt": "تاريخ الترحيل",
         "reversedAt": "تاريخ العكس"
-      }
+      },
+      "close": "إغلاق"
+    },
+    "sort": {
+      "ascending": "ترتيب تصاعدي",
+      "descending": "ترتيب تنازلي"
+    },
+    "pagination": {
+      "prev": "السابق",
+      "next": "التالي"
     }
   },
   "cogsReconciliation": {
@@ -266,6 +285,13 @@
         "reversed": "معكوس"
       },
       "createdAt": "تاريخ الإنشاء"
+    },
+    "invalidOrderRef": "أدخل رقم فاتورة (INV-...) أو معرّف طلب صحيح",
+    "roleNames": {
+      "owner": "المالك",
+      "cashier": "كاشير",
+      "manager": "مدير",
+      "admin": "مدير النظام"
     }
   },
   "configuration": {
@@ -378,7 +404,19 @@
       "submit": "ربط",
       "submitting": "جارٍ الربط…",
       "success": "تم ربط الفرع بنجاح",
-      "error": "تعذّر ربط الفرع. حاول مرة أخرى."
+      "error": "تعذّر ربط الفرع. حاول مرة أخرى.",
+      "noUnlinkedBranches": "كل الفروع النشطة مرتبطة بمحاسب بالفعل",
+      "noOwners": "لا يوجد محاسبون"
     }
+  },
+  "accountNames": {
+    "cash": "النقدية",
+    "sales_revenue": "إيرادات المبيعات",
+    "tax_payable": "ضريبة مستحقة",
+    "accounts_receivable": "الذمم المدينة",
+    "cost_of_goods_sold": "تكلفة البضاعة المباعة",
+    "inventory_asset": "أصل المخزون",
+    "accounts_payable": "الذمم الدائنة",
+    "bank": "البنك"
   }
 }

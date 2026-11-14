@@ -1,10 +1,10 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Clock, CheckCircle } from 'lucide-react';
 import { useCurrentShift } from '../hooks/useShifts';
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
-import { formatCurrency } from '@/lib/format'
+import { formatCurrency, formatTime } from '@/lib/format'
 
 interface Props {
   onOpenShift: () => void;
@@ -16,6 +16,7 @@ export function CurrentShiftBanner({ onOpenShift, onCloseShift, onViewSummary }:
   const t = useTranslations('shifts');
   const { data: shift, isLoading } = useCurrentShift();
   const currency = useCurrencyDisplay()
+  const locale = useLocale();
 
   if (isLoading) return null;
 
@@ -36,10 +37,7 @@ export function CurrentShiftBanner({ onOpenShift, onCloseShift, onViewSummary }:
     );
   }
 
-  const openedAt = new Date(shift.opened_at).toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  const openedAt = formatTime(shift.opened_at, locale);
 
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20">

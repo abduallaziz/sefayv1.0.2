@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { tablesApi, AddDineInItemInput, CheckoutDineInInput } from '../api/tables.api'
+import { tablesApi, AddDineInItemInput, CheckoutDineInInput, RestaurantTable, TableStatus } from '../api/tables.api'
 import { useRealtimeStatusStore } from '@/core/realtime/realtime-status.store'
 
 // Table status changes push instantly via RealtimeProvider's postgres_changes
@@ -24,6 +24,23 @@ export function useCreateTable() {
     mutationFn: (data: { branch_id: string; name: string; capacity?: number }) => tablesApi.create(data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['tables'] }),
   })
+}
+
+export function useUpdateTable() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<{ name: string; capacity: number }> }) => tablesApi.update(id, data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['tables'] }),
+  })
+}
+
+/** Flips one table's status in every cached list at once (no stale "occupied" flash, B-16). */
+function setTableStatusInCache(qc: ReturnType<typeof useQueryClient>, tableId: string, status: TableStatus) {
+  qc.setQueriesData<RestaurantTable[]>({ queryKey: ['tables'] }, (old) =>
+    Array.isArray(old) ? old.map((tb) => (tb.id === tableId ? { ...tb, status } : tb)) : old,
+  )
+  // the order is gone: drop it so nothing refetches a 404
+  qc.removeQueries({ queryKey: ['tables', tableId, 'order'] })
 }
 
 export function useDeleteTable() {
@@ -88,7 +105,10 @@ export function useReleaseTable(tableId: string) {
   return useMutation({
     mutationFn: () => tablesApi.release(tableId),
     onSuccess: () => {
+      setTableStatusInCache(qc, tableId, 'available')
       qc.invalidateQueries({ queryKey: ['tables'] })
+      qc.invalidateQueries({ queryKey: ['kitchen'] })
+      qc.invalidateQueries({ queryKey: ['orders'] })
     },
   })
 }
@@ -98,9 +118,10 @@ export function useCheckoutTable(tableId: string) {
   return useMutation({
     mutationFn: (data: CheckoutDineInInput) => tablesApi.checkout(tableId, data),
     onSuccess: () => {
+      setTableStatusInCache(qc, tableId, 'available')
       qc.invalidateQueries({ queryKey: ['tables'] })
-      qc.invalidateQueries({ queryKey: ['tables', tableId, 'order'] })
       qc.invalidateQueries({ queryKey: ['kitchen'] })
+      qc.invalidateQueries({ queryKey: ['orders'] })
     },
   })
 }
@@ -126,11 +147,29 @@ export function useCreateReservation() {
 export function useUpdateReservation() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<{ status: string }> }) => tablesApi.updateReservation(id, data),
+    mutationFn: ({ id, data }: { id: string; data: Partial<{ status: string; customer_name: string; customer_phone: string; party_size: number; reservation_time: string; notes: string }> }) => tablesApi.updateReservation(id, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['reservations'] })
       qc.invalidateQueries({ queryKey: ['tables'] })
     },
+  })
+}
+
+export function useDeleteReservation() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => tablesApi.deleteReservation(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['reservations'] }),
+  })
+}
+
+/** Tables of every branch — only used to hint that another branch holds tables (B-1). */
+export function useAllBranchesTableCount(enabled: boolean) {
+  return useQuery({
+    queryKey: ['tables', 'all-branches-count'],
+    queryFn: async () => (await tablesApi.getAll()).length,
+    enabled,
+    staleTime: 30000,
   })
 }
 

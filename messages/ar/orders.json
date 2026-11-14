@@ -75,7 +75,9 @@
     "more": "المزيد",
     "branch": "الفرع",
     "allBranches": "كل الفروع",
-    "export": "تصدير"
+    "export": "تصدير",
+    "exportEmpty": "لا توجد فواتير للتصدير",
+    "exportDone": "تم تصدير {count} فاتورة"
   },
   "pagination": {
     "prev": "السابق",
@@ -95,7 +97,9 @@
     "reasonOptional": "(اختياري)",
     "reasonPlaceholder": "اكتب سبب الإلغاء...",
     "submitting": "جاري الإلغاء...",
-    "submit": "تأكيد الإلغاء"
+    "submit": "تأكيد الإلغاء",
+    "reasonRequired": "اكتب سبب الإلغاء",
+    "done": "تم إلغاء الفاتورة"
   },
   "stats": {
     "total": "إجمالي الفواتير",

@@ -12,6 +12,7 @@ import { useCatalogItems, useCategories, useItemVariants } from '@/features/item
 import { itemsApi } from '@/features/items/api/items.api'
 import type { ItemVariant } from '@/features/items/types/item.types'
 import { ApiError } from '@/lib/api'
+import { formatNumber } from '@/lib/format'
 import { useOpenDrawer } from '@/features/shifts/hooks/useShifts'
 
 // Sefay's real Item model has no image_url field anywhere (confirmed — no
@@ -111,7 +112,7 @@ const ProductCard = memo(function ProductCard({ item, currency, onPick, serviceL
           {item.name_ar}
         </p>
         <div className="ms-auto flex shrink-0 items-center gap-1.5">
-          <span className="text-[11px] font-bold text-posCloud-primary">{item.price.toLocaleString('en-US')} {currency}</span>
+          <span className="text-[11px] font-bold text-posCloud-primary">{formatNumber(item.price)} {currency}</span>
         </div>
       </div>
     </button>
@@ -149,7 +150,7 @@ function VariantModal({ item, onAddItem, onClose, t }: {
               className="flex justify-between items-center p-3 rounded-xl border border-posCloud-border dark:border-posCloudDark-border hover:border-posCloud-primary/40 hover:bg-posCloud-primary-light/50 dark:hover:bg-white/5 transition-all"
             >
               <span className="font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary">{item.name_ar}</span>
-              <span className="text-posCloud-primary font-bold">{item.price.toLocaleString('en-US')} {currency}</span>
+              <span className="text-posCloud-primary font-bold">{formatNumber(item.price)} {currency}</span>
             </button>
           ) : (
             variants.map((v: ItemVariant) => (
@@ -167,7 +168,7 @@ function VariantModal({ item, onAddItem, onClose, t }: {
               >
                 <span className="font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary">{v.name}</span>
                 <span className="text-posCloud-primary font-bold">
-                  {(item.price + (v.price_adjustment ?? 0)).toLocaleString('en-US')} {currency}
+                  {formatNumber(item.price + (v.price_adjustment ?? 0))} {currency}
                 </span>
               </button>
             ))
@@ -262,6 +263,8 @@ export function ItemGrid({ onAddItem, onOpenHeldOrders, heldOrdersCount = 0, asi
   // Stable callback (reads the latest onAddItem from a ref) so memoized cards
   // are not re-rendered on every cart change. A 150ms per-item guard swallows
   // an accidental double-fire without blocking deliberate repeated taps.
+  const tRef = useRef(t)
+  tRef.current = t
   const onAddItemRef = useRef(onAddItem)
   onAddItemRef.current = onAddItem
   const lastPickRef = useRef<{ id: string; at: number } | null>(null)
@@ -270,6 +273,11 @@ export function ItemGrid({ onAddItem, onOpenHeldOrders, heldOrdersCount = 0, asi
     const last = lastPickRef.current
     if (last && last.id === item.id && now - last.at < 150) return
     lastPickRef.current = { id: item.id, at: now }
+    // An item with no stock left cannot be sold from the till.
+    if (item.out_of_stock) {
+      toast.error(tRef.current('outOfStockBlocked'), { id: 'pos-out-of-stock' })
+      return
+    }
     if (item.has_variants) {
       setVariantModal(item)
     } else {
@@ -288,13 +296,14 @@ export function ItemGrid({ onAddItem, onOpenHeldOrders, heldOrdersCount = 0, asi
   // or code" field can each supply their own value + own clear-on-success
   // behavior, without sharing state — the scan bar is barcode-only, not a
   // live name filter, per explicit design intent.
-  const runBarcodeLookup = async (rawValue: string, onSuccess: () => void) => {
+  const runBarcodeLookup = async (rawValue: string, onSuccess: () => void, clearOnMiss = false) => {
     const query = rawValue.trim()
     if (!query) return
     try {
       const result = await itemsApi.lookupBarcode(query)
       if (!result.items || !result.items.is_active) {
-        toast.error(t('barcodeNotFound'))
+        toast.error(t('barcodeNotFound'), { id: 'pos-barcode-miss' })
+        if (clearOnMiss) onSuccess()
         return
       }
       const posItem: POSItem = {
@@ -327,7 +336,9 @@ export function ItemGrid({ onAddItem, onOpenHeldOrders, heldOrdersCount = 0, asi
       // a cashier who's just typing a product name and hits Enter by habit
       // never sees error noise for the common case.
       if (err instanceof ApiError && err.status === 404) {
-        toast.error(t('barcodeNotFound'))
+        toast.error(t('barcodeNotFound'), { id: 'pos-barcode-miss' })
+        // the scan bar is emptied so the same wrong code is not looked up again
+        if (clearOnMiss) onSuccess()
       }
     }
   }
@@ -341,7 +352,7 @@ export function ItemGrid({ onAddItem, onOpenHeldOrders, heldOrdersCount = 0, asi
     // Cancel any pending scan-speed auto-submit so a fast scanner that
     // *does* also send Enter (most do) doesn't trigger the lookup twice.
     if (barcodeDebounceRef.current) clearTimeout(barcodeDebounceRef.current)
-    runBarcodeLookup(barcodeCode, () => setBarcodeCode(''))
+    runBarcodeLookup(barcodeCode, () => setBarcodeCode(''), true)
   }
 
   const MIN_BARCODE_LENGTH = 6
@@ -374,7 +385,7 @@ export function ItemGrid({ onAddItem, onOpenHeldOrders, heldOrdersCount = 0, asi
       const gaps = keyGapsRef.current
       const avgGap = gaps.length ? gaps.reduce((a, b) => a + b, 0) / gaps.length : Infinity
       if (avgGap <= SCANNER_MAX_AVG_GAP_MS) {
-        runBarcodeLookup(value, () => setBarcodeCode(''))
+        runBarcodeLookup(value, () => setBarcodeCode(''), true)
         keyGapsRef.current = []
       }
     }, AUTO_SUBMIT_DEBOUNCE_MS)
@@ -397,7 +408,7 @@ export function ItemGrid({ onAddItem, onOpenHeldOrders, heldOrdersCount = 0, asi
             at the right edge in RTL flex flow. */}
         <button
           type="button"
-          onClick={() => runBarcodeLookup(barcodeCode, () => setBarcodeCode(''))}
+          onClick={() => runBarcodeLookup(barcodeCode, () => setBarcodeCode(''), true)}
           aria-label={t('scanBarcodeHere')}
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-posCloud-primary text-white hover:bg-posCloud-primary-dark transition-colors"
         >

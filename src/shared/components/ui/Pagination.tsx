@@ -7,9 +7,11 @@ interface Props {
   totalPages: number;
   onChange: (page: number) => void;
   label?: string;
+  prevLabel?: string;
+  nextLabel?: string;
 }
 
-export function Pagination({ page, totalPages, onChange, label }: Props) {
+export function Pagination({ page, totalPages, onChange, label, prevLabel, nextLabel }: Props) {
   return (
     <nav
       className="flex items-center justify-between text-sm text-slate-500 pt-1"
@@ -23,7 +25,7 @@ export function Pagination({ page, totalPages, onChange, label }: Props) {
           type="button"
           onClick={() => onChange(Math.max(1, page - 1))}
           disabled={page <= 1}
-          aria-label="Previous page"
+          aria-label={prevLabel ?? 'Previous page'}
           className="p-1.5 rounded-lg border border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0C447C]"
         >
           <ChevronLeft className="w-4 h-4 rtl:rotate-180" />
@@ -32,7 +34,7 @@ export function Pagination({ page, totalPages, onChange, label }: Props) {
           type="button"
           onClick={() => onChange(Math.min(totalPages, page + 1))}
           disabled={page >= totalPages}
-          aria-label="Next page"
+          aria-label={nextLabel ?? 'Next page'}
           className="p-1.5 rounded-lg border border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0C447C]"
         >
           <ChevronRight className="w-4 h-4 rtl:rotate-180" />

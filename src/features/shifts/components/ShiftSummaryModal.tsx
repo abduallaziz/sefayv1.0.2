@@ -5,6 +5,7 @@ import { useShiftSummary } from '../hooks/useShifts'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { TrendingUp, TrendingDown, DollarSign, FileText, X } from 'lucide-react'
 import { formatCurrency } from '@/lib/format'
+import { useEscape } from '@/lib/use-escape'
 
 interface Props {
   shiftId: string
@@ -13,16 +14,17 @@ interface Props {
 
 export function ShiftSummaryModal({ shiftId, onClose }: Props) {
   const t = useTranslations('shifts')
+  useEscape(onClose)
   const currency = useCurrencyDisplay()
   const { data, isLoading } = useShiftSummary(shiftId)
   const summary = data?.summary
 
   return (
     <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/60">
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl w-full max-w-md mx-4 p-6">
+      <div role="dialog" aria-modal="true" aria-label={t('summary')} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl w-full max-w-md mx-4 p-6">
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-lg font-bold text-gray-900 dark:text-white">{t('summary')}</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors">
+          <button type="button" onClick={onClose} aria-label={t('close')} className="text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -39,9 +41,12 @@ export function ShiftSummaryModal({ shiftId, onClose }: Props) {
 
             <div className="border-t border-gray-100 dark:border-gray-700 pt-3 mt-3 space-y-1">
               <Row icon={DollarSign} label={t('opening_cash')} value={formatCurrency(summary.openingCash, currency)} />
-              <Row icon={DollarSign} label={t('closing_cash')} value={formatCurrency(summary.closingCash ?? 0, currency)} />
+              {data?.shift.status === 'closed' && (
+                <Row icon={DollarSign} label={t('closing_cash')} value={formatCurrency(summary.closingCash ?? 0, currency)} />
+              )}
               <Row icon={DollarSign} label={t('expected_cash')} value={formatCurrency(summary.expectedCash, currency)} />
-              {summary.discrepancy !== null && (
+              {/* an OPEN register has no count yet: its "difference" would only mislead */}
+              {data?.shift.status === 'closed' && summary.discrepancy !== null && (
                 <Row
                   icon={DollarSign}
                   label={t('discrepancy')}
@@ -83,7 +88,7 @@ function Row({ icon: Icon, label, value, color, prefix = '' }: {
         <Icon className="w-4 h-4" />
         {label}
       </div>
-      <span className={`text-sm font-semibold ${valueColor}`}>{prefix}{value}</span>
+      <span dir="ltr" className={`text-sm font-semibold ${valueColor}`}>{prefix}{value}</span>
     </div>
   )
 }

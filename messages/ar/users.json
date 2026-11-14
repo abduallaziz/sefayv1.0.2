@@ -64,6 +64,18 @@
     "manager": "مدير",
     "cashier": "كاشير",
     "worker": "عامل",
-    "none": "بلا"
-  }
+    "none": "بلا",
+    "inventory_clerk": "أمين مخزن"
+  },
+  "searchPlaceholder": "ابحث بالاسم أو البريد",
+  "allRoles": "كل الصلاحيات",
+  "allStatuses": "كل الحالات",
+  "noMatch": "لا توجد نتائج مطابقة",
+  "errName": "الاسم مطلوب",
+  "errEmail": "البريد الإلكتروني غير صحيح",
+  "errPasswordShort": "كلمة المرور يجب ألا تقل عن 8 أحرف",
+  "close": "إغلاق",
+  "countFiltered": "{shown} من {count} مستخدم",
+  "roleFilterLabel": "تصفية حسب الصلاحية",
+  "statusFilterLabel": "تصفية حسب الحالة"
 }

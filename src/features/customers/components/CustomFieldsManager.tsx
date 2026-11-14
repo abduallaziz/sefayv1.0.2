@@ -62,6 +62,7 @@ function AddFieldForm({ onClose, businessType }: { onClose: () => void; business
   const fieldTypeOptions = useFieldTypeOptions()
   const contactRoleOptions = useContactRoleOptions(businessType)
   const createMutation = useCreateFieldDefinition()
+  const [formError, setFormError] = useState<string | null>(null)
   const [form, setForm] = useState({
     field_key: '',
     label_ar: '',
@@ -73,11 +74,23 @@ function AddFieldForm({ onClose, businessType }: { onClose: () => void; business
   })
 
   function handleSubmit() {
-    if (!form.field_key.trim() || !form.label_ar.trim() || !form.label_en.trim()) return
+    if (createMutation.isPending) return
+    if (!form.field_key.trim() || !form.label_ar.trim() || !form.label_en.trim()) {
+      setFormError(t('fields.required_error'))
+      return
+    }
+    if (!/^[a-z][a-z0-9_]*$/.test(form.field_key.trim())) {
+      setFormError(t('fields.key_error'))
+      return
+    }
 
     const options = form.field_type === 'select' ? parseOptionsText(form.options) : undefined
 
-    if (form.field_type === 'select' && (!options || options.length === 0)) return
+    if (form.field_type === 'select' && (!options || options.length === 0)) {
+      setFormError(t('fields.options_error'))
+      return
+    }
+    setFormError(null)
 
     createMutation.mutate({
       field_key: form.field_key.trim(),
@@ -87,7 +100,7 @@ function AddFieldForm({ onClose, businessType }: { onClose: () => void; business
       options,
       required: form.required,
       contact_role: form.contact_role || undefined,
-    }, { onSuccess: onClose })
+    }, { onSuccess: onClose, onError: (e) => setFormError(e instanceof ApiError ? e.message : t('fields.toggle_error')) })
   }
 
   return (
@@ -100,7 +113,7 @@ function AddFieldForm({ onClose, businessType }: { onClose: () => void; business
           <label className={labelClass}>{t('fields.key_label')}</label>
           <input
             value={form.field_key}
-            onChange={e => setForm(p => ({ ...p, field_key: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '_') }))}
+            onChange={e => { setFormError(null); setForm(p => ({ ...p, field_key: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '_') })) }}
             placeholder={t('fields.key_placeholder')}
             dir="ltr"
             className={inputClass}
@@ -172,13 +185,14 @@ function AddFieldForm({ onClose, businessType }: { onClose: () => void; business
         <label htmlFor="field_required" className="text-sm text-slate-600 dark:text-slate-400">{t('fields.required_checkbox')}</label>
       </div>
 
+      {formError && <p role="alert" className="text-xs text-red-500">{formError}</p>}
       <div className="flex gap-3 pt-1">
         <button onClick={onClose} className="flex-1 py-2 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-800 rounded-lg text-sm">
           {t('fields.cancel')}
         </button>
         <button
           onClick={handleSubmit}
-          disabled={createMutation.isPending || !form.field_key.trim() || !form.label_ar.trim() || !form.label_en.trim()}
+          disabled={createMutation.isPending}
           className="flex-1 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 text-white rounded-lg text-sm font-medium"
         >
           {createMutation.isPending ? t('fields.saving') : t('fields.add')}
@@ -354,6 +368,9 @@ export function CustomFieldsManager() {
               <button
                 onClick={() => updateProfileMutation.mutate({ name_field_enabled: !profile?.name_field_enabled })}
                 disabled={updateProfileMutation.isPending}
+                role="switch"
+                aria-checked={!!profile?.name_field_enabled}
+                aria-label={t('fields.name_row.label')}
                 className={`px-2 py-0.5 rounded-full text-xs font-medium border transition-all ${
                   profile?.name_field_enabled
                     ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
@@ -392,6 +409,9 @@ export function CustomFieldsManager() {
                       updateMutation.mutate({ id: field.id, dto: { required: !field.required } }, { onError: onToggleError })
                     }}
                     disabled={updateMutation.isPending}
+                    role="switch"
+                    aria-checked={field.required}
+                    aria-label={t('fields.required_checkbox')}
                     className={`px-2 py-0.5 rounded-full text-xs font-medium border transition-all ${
                       field.required
                         ? 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20'
@@ -406,6 +426,9 @@ export function CustomFieldsManager() {
                       updateMutation.mutate({ id: field.id, dto: { is_active: !field.is_active } }, { onError: onToggleError })
                     }}
                     disabled={updateMutation.isPending}
+                    role="switch"
+                    aria-checked={field.is_active}
+                    aria-label={t('fields.status.active')}
                     className={`px-2 py-0.5 rounded-full text-xs font-medium border transition-all ${
                       field.is_active
                         ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
@@ -414,7 +437,7 @@ export function CustomFieldsManager() {
                   >
                     {field.is_active ? t('fields.status.active') : t('fields.status.inactive')}
                   </button>
-                  <button onClick={() => setEditingId(field.id)} className="text-slate-400 hover:text-[#0C447C]">
+                  <button onClick={() => setEditingId(field.id)} aria-label={t('fields.edit_aria')} title={t('fields.edit_aria')} className="text-slate-400 hover:text-[#0C447C]">
                     <Pencil className="w-4 h-4" />
                   </button>
                   {confirmDeleteId === field.id ? (
@@ -423,7 +446,7 @@ export function CustomFieldsManager() {
                       <button onClick={() => setConfirmDeleteId(null)} className="text-xs text-slate-400">{t('fields.cancel')}</button>
                     </div>
                   ) : (
-                    <button onClick={() => setConfirmDeleteId(field.id)} className="text-slate-400 hover:text-red-500">
+                    <button onClick={() => setConfirmDeleteId(field.id)} aria-label={t('fields.delete_aria')} title={t('fields.delete_aria')} className="text-slate-400 hover:text-red-500">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   )}

@@ -84,5 +84,18 @@
   "shortage": "Shortage",
   "overage": "Overage",
   "cancelledInvoices": "Cancelled",
-  "returnedInvoices": "Returns"
+  "returnedInvoices": "Returns",
+  "payments": "payments",
+  "units": "units",
+  "cogsCoverageNote": "COGS only includes items with inventory tracking enabled, sold at a branch with a warehouse configured. Revenue includes all sales, so margin may be understated until inventory tracking is fully configured.",
+  "allBranches": "All branches",
+  "branchFilter": "Branch",
+  "exportCsv": "Export CSV",
+  "print": "Print",
+  "noPreviousData": "No data for the previous period",
+  "csvSection": "Section",
+  "csvMetric": "Metric",
+  "csvValue": "Value",
+  "csvCount": "Count",
+  "taxNote": "Total = subtotal − discount + tax. Any gap comes from orders whose total does not match their components."
 }

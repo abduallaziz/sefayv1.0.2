@@ -51,5 +51,17 @@
     "cancelled": "cancelled",
     "expired": "expired",
     "none": "not found"
-  }
+  },
+  "nameRequired": "Enter the branch name",
+  "nameTooLong": "Branch name must be 100 characters or fewer",
+  "nameDuplicate": "A branch with this name already exists",
+  "saved": "Branch saved",
+  "saveFailed": "Action failed",
+  "deleted": "Branch deleted",
+  "activated": "Branch activated",
+  "deactivated": "Branch deactivated",
+  "noResults": "No matching branches",
+  "deleteBranch": "Delete branch",
+  "deleteTitle": "Delete this branch?",
+  "deleteConfirm": "Branch \"{name}\" will be deleted. A branch with shifts, invoices or an open shift cannot be deleted. This cannot be undone."
 }

@@ -79,7 +79,9 @@
     "more": "More",
     "branch": "Branch",
     "allBranches": "All Branches",
-    "export": "Export"
+    "export": "Export",
+    "exportEmpty": "No invoices to export",
+    "exportDone": "Exported {count} invoices"
   },
   "pagination": {
     "prev": "Previous",
@@ -95,7 +97,9 @@
     "reasonOptional": "(optional)",
     "reasonPlaceholder": "Enter reason...",
     "submitting": "Cancelling...",
-    "submit": "Confirm Cancel"
+    "submit": "Confirm Cancel",
+    "reasonRequired": "Enter the cancellation reason",
+    "done": "Invoice cancelled"
   },
   "stats": {
     "total": "Total Orders",

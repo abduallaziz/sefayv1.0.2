@@ -16,6 +16,7 @@ import { useUsers } from '@/features/users/hooks/useUsers'
 import { JournalEntriesFilters } from '../components/JournalEntriesFilters'
 import { JournalEntryDetailSheet } from '../components/JournalEntryDetailSheet'
 import { JournalEntriesQuery, JournalEntry } from '../api/accounting.api'
+import { getAmountError, shortId } from '../lib/accounting-utils'
 
 const statusTone: Record<string, StatusTone> = {
   draft: 'neutral',
@@ -40,7 +41,8 @@ export function CogsReconciliationPage() {
     setPage(1)
   }
 
-  const query = useCogsReconciliation({ ...filters, page, per_page: perPage }, canView)
+  const amountError = getAmountError(filters)
+  const query = useCogsReconciliation({ ...filters, page, per_page: perPage }, canView && !amountError)
   const fiscalPeriods = useFiscalPeriods(canView)
   const fiscalPeriodById = new Map((fiscalPeriods.data ?? []).map((p) => [p.id, p]))
   const users = useUsers()
@@ -64,10 +66,15 @@ export function CogsReconciliationPage() {
       key: 'reference',
       header: tJournal('columns.reference'),
       render: (row) => (
-        <span className="text-posCloud-text-primary dark:text-posCloudDark-text-primary">{row.reference ?? row.id}</span>
+        <span
+          title={row.reference ?? row.id}
+          className="text-posCloud-text-primary dark:text-posCloudDark-text-primary tabular-nums"
+        >
+          {tJournal('referenceFallback', { shortId: shortId(row.reference ?? row.id) })}
+        </span>
       ),
     },
-    { key: 'posting_date', header: tJournal('columns.postingDate'), render: (row) => <span className="tabular-nums">{row.posting_date}</span> },
+    { key: 'posting_date', header: tJournal('columns.postingDate'), render: (row) => <span className="tabular-nums whitespace-nowrap">{row.posting_date}</span> },
     {
       key: 'description',
       header: tJournal('columns.description'),
@@ -136,7 +143,7 @@ export function CogsReconciliationPage() {
       )}
 
       {totalPages > 1 && (
-        <Pagination page={page} totalPages={totalPages} onChange={setPage} label={t('title')} />
+        <Pagination page={page} totalPages={totalPages} onChange={setPage} label={t('title')} prevLabel={tJournal('pagination.prev')} nextLabel={tJournal('pagination.next')} />
       )}
 
       <JournalEntryDetailSheet

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { toast } from 'sonner'
 import { Check } from 'lucide-react'
 import { usePrinting } from '@/lib/print/usePrinting'
@@ -9,6 +9,7 @@ import { printApi } from '@/lib/print/print.api'
 import { PaymentData } from '../types/pos.types'
 import type { ReceiptLineItem } from '@/features/orders/types/order.types'
 import { Button } from '@/shared/ui/button'
+import { formatDateTimeSeconds } from '@/lib/format'
 import { InvoiceNoteEditor } from './InvoiceNoteEditor'
 
 interface Props {
@@ -36,7 +37,8 @@ export function ReceiptModal({
   payment, invoiceNumber, orderId, taxRate, total, onNewOrder,
 }: Props) {
   const t = useTranslations('pos')
-  const now = new Date().toLocaleString('en-US')
+  const locale = useLocale()
+  const [now] = useState(() => formatDateTimeSeconds(new Date().toISOString(), locale))
   const fmt = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
   const taxPct = `${(taxRate * 100).toLocaleString('en-US', { maximumFractionDigits: 2 })}%`
 
@@ -147,7 +149,7 @@ export function ReceiptModal({
                 <span className="text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">
                   {item.item_name} {item.variant_name ? `(${item.variant_name})` : ''} × {item.quantity}
                 </span>
-                <span className="text-posCloud-text-primary dark:text-posCloudDark-text-primary">{fmt(item.quantity * item.unit_price)}</span>
+                <span className="text-posCloud-text-primary dark:text-posCloudDark-text-primary">{fmt(item.quantity * item.unit_price)} {t('receipt.currency')}</span>
               </div>
             ))}
           </div>
@@ -178,6 +180,12 @@ export function ReceiptModal({
               <span className="text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('receipt.paymentMethod')}</span>
               <span className="font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary">{paymentLabel}</span>
             </div>
+            {payment.method === 'cash' && payment.cash_tendered !== undefined && (
+              <div className="flex justify-between">
+                <span className="text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('receipt.tendered')}</span>
+                <span className="font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary">{fmt(payment.cash_tendered)} {t('receipt.currency')}</span>
+              </div>
+            )}
             {payment.method === 'cash' && payment.change !== undefined && payment.change > 0 && (
               <div className="flex justify-between">
                 <span className="text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('receipt.change')}</span>

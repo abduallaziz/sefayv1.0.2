@@ -23,6 +23,7 @@ export const useCreateBranch = () => {
       // A new branch is created together with its default warehouse (API),
       // so refresh the warehouses list or the card shows "not set" until reload.
       qc.invalidateQueries({ queryKey: ['warehouses'] })
+      qc.invalidateQueries({ queryKey: ['tenant', 'usage'] })
     },
   })
 }
@@ -34,6 +35,21 @@ export const useUpdateBranch = () => {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: KEY })
       qc.invalidateQueries({ queryKey: ['branches'] })
+      qc.invalidateQueries({ queryKey: ['warehouses'] })
+      qc.invalidateQueries({ queryKey: ['tenant', 'usage'] })
+    },
+  })
+}
+
+export const useDeleteBranch = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => branchesApi.remove(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: KEY })
+      qc.invalidateQueries({ queryKey: ['branches'] })
+      qc.invalidateQueries({ queryKey: ['warehouses'] })
+      qc.invalidateQueries({ queryKey: ['tenant', 'usage'] })
     },
   })
 }

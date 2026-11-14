@@ -11,6 +11,8 @@ import { Cart, CartItem } from '../types/pos.types'
 import type { Customer } from '@/features/customers/types/customer.types'
 import type { NotePreset } from '@/features/note-presets/api/note-presets.api'
 import { Button } from '@/shared/ui/button'
+import { toast } from 'sonner'
+import { MAX_LINE_QTY } from '../hooks/useCart'
 
 // The line's photo: the product's own image, or (no photo / failed to load)
 // the same calm tile with its first character that the product cards use.
@@ -45,7 +47,7 @@ function CartLineImage({ cartItem }: { cartItem: CartItem }) {
 // type a new number) without fighting the controlled `item.quantity` prop
 // on every keystroke. Commits (calls onChange) on blur or Enter; reverts
 // to the last real quantity if left empty or non-numeric.
-function QtyInput({ value, onChange }: { value: number; onChange: (n: number) => void }) {
+function QtyInput({ value, onChange, invalidMsg, maxMsg }: { value: number; onChange: (n: number) => void; invalidMsg: string; maxMsg: string }) {
   const [local, setLocal] = useState(String(value))
   // React's documented "adjusting state when a prop changes" pattern —
   // setState during render (not in an effect) when the prop diverges from
@@ -61,9 +63,14 @@ function QtyInput({ value, onChange }: { value: number; onChange: (n: number) =>
 
   const commit = () => {
     const n = parseInt(local, 10)
-    if (Number.isFinite(n) && n > 0) {
+    if (Number.isFinite(n) && n > MAX_LINE_QTY) {
+      toast.error(maxMsg, { id: 'pos-qty-max' })
+      onChange(MAX_LINE_QTY)
+      setLocal(String(MAX_LINE_QTY))
+    } else if (Number.isFinite(n) && n > 0) {
       onChange(n)
     } else {
+      toast.error(invalidMsg, { id: 'pos-qty-invalid' })
       setLocal(String(value))
     }
   }
@@ -73,7 +80,7 @@ function QtyInput({ value, onChange }: { value: number; onChange: (n: number) =>
       type="text"
       inputMode="numeric"
       value={local}
-      onChange={(e) => setLocal(e.target.value.replace(/[^0-9]/g, ''))}
+      onChange={(e) => setLocal(e.target.value.replace(/[^0-9]/g, '').slice(0, 6))}
       onBlur={commit}
       onKeyDown={(e) => {
         if (e.key === 'Enter') {
@@ -262,7 +269,7 @@ export function CartPanel({
                     >
                       <Minus className="h-4 w-4" />
                     </button>
-                    <QtyInput value={item.quantity} onChange={(n) => onUpdateQty(item.id, n)} />
+                    <QtyInput value={item.quantity} onChange={(n) => onUpdateQty(item.id, n)} invalidMsg={t('qtyInvalid')} maxMsg={t('qtyMax', { max: MAX_LINE_QTY })} />
                     <button
                       onClick={() => onUpdateQty(item.id, item.quantity + 1)}
                       aria-label="+"
@@ -304,7 +311,7 @@ export function CartPanel({
                 {selectedCustomer.phone && <p className={`text-xs ${mutedText}`} dir="ltr">{selectedCustomer.phone}</p>}
               </div>
             </div>
-            <button onClick={onClearCustomer} className={`shrink-0 hover:text-posCloud-danger ${mutedText}`}>
+            <button onClick={onClearCustomer} aria-label={t('clearCustomer')} className={`shrink-0 hover:text-posCloud-danger ${mutedText}`}>
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -518,7 +525,8 @@ export function CartPanel({
           )}
           <Button
             size="lg"
-            disabled={cart.items.length === 0}
+            disabled={cart.items.length === 0 || cart.rawSubtotal <= 0}
+            title={cart.items.length > 0 && cart.rawSubtotal <= 0 ? t('zeroTotal') : undefined}
             onClick={onCheckout}
             className="min-w-0 flex-[2] gap-2"
           >

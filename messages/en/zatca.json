@@ -24,10 +24,29 @@
   "queueHint": "Invoices waiting to be sent: {count}",
   "send": "Send now",
   "flushed": "{sent} sent, {waiting} waiting",
-  "env": { "sandbox": "Sandbox", "simulation": "Simulation", "production": "Production" },
-  "stage": { "new": "New", "csr": "Awaiting OTP", "compliance": "Compliance certificate", "active": "Active" },
-  "kind": { "invoice": "Invoice", "credit_note": "Credit note", "debit_note": "Debit note" },
-  "status": { "pending": "Pending", "reported": "Reported", "cleared": "Cleared", "rejected": "Rejected", "error": "Error" },
+  "env": {
+    "sandbox": "Sandbox",
+    "simulation": "Simulation",
+    "production": "Production"
+  },
+  "stage": {
+    "new": "New",
+    "csr": "Awaiting OTP",
+    "compliance": "Compliance certificate",
+    "active": "Active"
+  },
+  "kind": {
+    "invoice": "Invoice",
+    "credit_note": "Credit note",
+    "debit_note": "Debit note"
+  },
+  "status": {
+    "pending": "Pending",
+    "reported": "Reported",
+    "cleared": "Cleared",
+    "rejected": "Rejected",
+    "error": "Error"
+  },
   "f": {
     "branch": "Branch",
     "env": "Environment",
@@ -41,5 +60,10 @@
     "district": "District",
     "city": "City",
     "postal": "Postal code (5 digits)"
-  }
+  },
+  "errRequired": "Required: {field}",
+  "errVat": "VAT number must be 15 digits starting and ending with 3",
+  "errBuilding": "Building number must be 4 digits",
+  "errPostal": "Postal code must be 5 digits",
+  "errGeneric": "Could not save the device, please try again"
 }

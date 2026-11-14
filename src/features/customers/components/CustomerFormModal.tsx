@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { X } from 'lucide-react';
 import { Customer, CreateCustomerDto } from '../types/customer.types';
@@ -9,11 +9,19 @@ import { useProfile } from '@/features/settings/hooks/useSettings';
 import { SingleDatePicker } from '@/shared/ui/date-range-picker';
 import { NumberInput } from '@/shared/ui/number-input';
 import { VehiclesEditor } from './VehiclesEditor';
+import {
+  NAME_MAX_LENGTH,
+  PHONE_MAX_LENGTH,
+  PLATE_MAX_LENGTH,
+  isValidPhone,
+  toEnglishDigits,
+} from '../lib/customer-input';
 
 interface Props {
   customer?: Customer | null;
   onClose: () => void;
-  onSubmit: (data: CreateCustomerDto) => void;
+  /** Rejects with the server's (already translated) error so the form can show it inline. */
+  onSubmit: (data: CreateCustomerDto) => Promise<void> | void;
   isLoading?: boolean;
 }
 
@@ -23,6 +31,8 @@ const labelClass = 'block text-sm font-medium text-slate-700 dark:text-slate-300
 export function CustomerFormModal({ customer, onClose, onSubmit, isLoading }: Props) {
   const t = useTranslations('customers');
   const tCommon = useTranslations('common');
+  const [formError, setFormError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const isEdit = !!customer;
   const { data: fieldDefs, isLoading: fieldsLoading } = useCustomerFieldDefinitions();
   const { data: profile } = useProfile();
@@ -40,6 +50,15 @@ export function CustomerFormModal({ customer, onClose, onSubmit, isLoading }: Pr
     return initial;
   });
   const [fullName, setFullName] = useState(customer?.full_name ?? '');
+
+  // Escape closes the form (the details modal and the delete dialog already did).
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !isLoading) onClose();
+    };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [onClose, isLoading]);
 
   const activeFields = (fieldDefs ?? [])
     .filter((f) => f.is_active)
@@ -65,31 +84,75 @@ export function CustomerFormModal({ customer, onClose, onSubmit, isLoading }: Pr
     (nameFieldEnabled && !fullName.trim()) ||
     shownFields.some((f) => f.required && !fieldValue(f).trim());
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (missingRequired || nothingToFill) return;
+  const setValue = (key: string, value: string) => {
+    setValues((p) => ({ ...p, [key]: value }));
+    setFieldErrors((p) => {
+      if (!p[key]) return p;
+      const next = { ...p };
+      delete next[key];
+      return next;
+    });
+    setFormError(null);
+  };
 
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (missingRequired || nothingToFill || isLoading) return;
+
+    // Digits typed as Arabic-Indic are converted to English before anything is sent.
     const custom_fields: Record<string, string | number | boolean> = {};
+    const errors: Record<string, string> = {};
+    let phoneValue = '';
+    let plateValue = '';
     for (const field of activeFields) {
       const raw = values[field.field_key];
+      if (field.contact_role === 'phone') phoneValue = (raw ?? fieldValue(field)).trim();
+      if (field.contact_role === 'plate_number') plateValue = (raw ?? '').trim();
       if (raw === undefined || raw === '') continue;
-      if (field.field_type === 'number') custom_fields[field.field_key] = Number(raw);
+      if (field.field_type === 'number') custom_fields[field.field_key] = Number(toEnglishDigits(raw));
       else if (field.field_type === 'boolean') custom_fields[field.field_key] = raw === 'true';
-      else custom_fields[field.field_key] = raw;
+      else if (field.contact_role === 'phone') custom_fields[field.field_key] = toEnglishDigits(raw).trim();
+      else custom_fields[field.field_key] = raw.trim();
+    }
+    const phoneKey = activeFields.find((f) => f.contact_role === 'phone')?.field_key;
+    const plateKey = activeFields.find((f) => f.contact_role === 'plate_number')?.field_key;
+    if (phoneKey && phoneValue && !isValidPhone(phoneValue)) errors[phoneKey] = t('form.errors.phone');
+    if (plateKey && plateValue.length > PLATE_MAX_LENGTH) {
+      errors[plateKey] = t('form.errors.plateTooLong', { max: PLATE_MAX_LENGTH });
+    }
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      return;
+    }
+    // Adding a customer with nothing that identifies them would create a blank record.
+    const hasIdentity =
+      !!phoneValue ||
+      !!plateValue ||
+      (nameFieldEnabled && !!fullName.trim()) ||
+      activeFields.some((f) => f.contact_role === 'email' && !!values[f.field_key]?.trim());
+    if (!isEdit && !hasIdentity) {
+      setFormError(t('form.errors.phoneOrPlate'));
+      return;
     }
 
-    onSubmit({ ...(nameFieldEnabled ? { full_name: fullName.trim() } : {}), custom_fields });
+    try {
+      await onSubmit({ ...(nameFieldEnabled ? { full_name: fullName.trim() } : {}), custom_fields });
+    } catch (err) {
+      // Duplicate phone (400), duplicate plate (409), too-long (400)... arrive
+      // already translated by the API client; keep the form open and show them here.
+      setFormError(err instanceof Error && err.message ? err.message : t('form.errors.generic'));
+    }
   }
 
   return (
     <div className="fixed inset-0 z-[400] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-      <div className="relative bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] flex flex-col">
+      <div role="dialog" aria-modal="true" className="relative bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] flex flex-col">
         <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-gray-800 shrink-0">
           <h2 className="text-lg font-semibold text-slate-800 dark:text-white">
             {isEdit ? t('form.title_edit') : t('form.title_add')}
           </h2>
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-800 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors">
+          <button type="button" onClick={onClose} aria-label={tCommon('close')} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-800 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -103,7 +166,8 @@ export function CustomerFormModal({ customer, onClose, onSubmit, isLoading }: Pr
               <input
                 type="text"
                 value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
+                onChange={(e) => { setFullName(e.target.value); setFormError(null); }}
+                maxLength={NAME_MAX_LENGTH}
                 className={inputClass}
                 autoFocus
               />
@@ -128,7 +192,7 @@ export function CustomerFormModal({ customer, onClose, onSubmit, isLoading }: Pr
                 {field.field_type === 'select' ? (
                   <select
                     value={values[field.field_key] ?? ''}
-                    onChange={(e) => setValues((p) => ({ ...p, [field.field_key]: e.target.value }))}
+                    onChange={(e) => setValue(field.field_key, e.target.value)}
                     className={inputClass}
                   >
                     <option value="">—</option>
@@ -139,7 +203,7 @@ export function CustomerFormModal({ customer, onClose, onSubmit, isLoading }: Pr
                 ) : field.field_type === 'boolean' ? (
                   <select
                     value={values[field.field_key] ?? ''}
-                    onChange={(e) => setValues((p) => ({ ...p, [field.field_key]: e.target.value }))}
+                    onChange={(e) => setValue(field.field_key, e.target.value)}
                     className={inputClass}
                   >
                     <option value="">—</option>
@@ -149,24 +213,48 @@ export function CustomerFormModal({ customer, onClose, onSubmit, isLoading }: Pr
                 ) : field.field_type === 'date' ? (
                   <SingleDatePicker
                     value={values[field.field_key] || undefined}
-                    onChange={(v) => setValues((p) => ({ ...p, [field.field_key]: v ?? '' }))}
+                    onChange={(v) => setValue(field.field_key, v ?? '')}
                   />
                 ) : field.field_type === 'number' ? (
                   <NumberInput
                     value={values[field.field_key] ?? ''}
-                    onChange={(v) => setValues((p) => ({ ...p, [field.field_key]: v }))}
+                    onChange={(v) => setValue(field.field_key, v)}
                     className={inputClass}
                   />
                 ) : (
                   <input
                     type="text"
                     value={fieldValue(field)}
-                    onChange={(e) => setValues((p) => ({ ...p, [field.field_key]: e.target.value }))}
+                    onChange={(e) =>
+                      setValue(
+                        field.field_key,
+                        field.contact_role === 'phone' ? toEnglishDigits(e.target.value) : e.target.value,
+                      )
+                    }
+                    inputMode={field.contact_role === 'phone' ? 'tel' : undefined}
+                    dir={field.contact_role === 'phone' || field.contact_role === 'plate_number' ? 'ltr' : undefined}
+                    maxLength={
+                      field.contact_role === 'phone'
+                        ? PHONE_MAX_LENGTH
+                        : field.contact_role === 'plate_number'
+                          ? PLATE_MAX_LENGTH
+                          : 200
+                    }
+                    aria-invalid={!!fieldErrors[field.field_key]}
                     className={inputClass}
                   />
                 )}
+                {fieldErrors[field.field_key] && (
+                  <p role="alert" className="mt-1 text-xs text-red-500">{fieldErrors[field.field_key]}</p>
+                )}
               </div>
             ))
+          )}
+
+          {formError && (
+            <p role="alert" className="rounded-lg bg-red-50 dark:bg-red-500/10 px-3 py-2 text-sm text-red-600 dark:text-red-400">
+              {formError}
+            </p>
           )}
 
           <div className="flex gap-3 pt-2">

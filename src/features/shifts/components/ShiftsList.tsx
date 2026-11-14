@@ -1,11 +1,14 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import { useShifts } from '../hooks/useShifts';
 import { useShiftReportStore } from '../stores/shift-report.store';
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store';
 import { formatCurrency, formatDateTime } from '@/lib/format';
 import type { Shift } from '../types';
+
+const PAGE_SIZE = 20;
 
 interface Props {
   onViewSummary: (id: string) => void;
@@ -13,7 +16,9 @@ interface Props {
 
 export function ShiftsList({ onViewSummary }: Props) {
   const t = useTranslations('shifts');
-  const { data: shifts, isLoading } = useShifts();
+  const { data: allShifts, isLoading } = useShifts();
+  const [visible, setVisible] = useState(PAGE_SIZE);
+  const shifts = allShifts?.slice(0, visible);
 
   if (isLoading) {
     return <div className="py-8 text-center text-slate-500 text-sm">{t('loading')}</div>;
@@ -52,12 +57,25 @@ export function ShiftsList({ onViewSummary }: Props) {
           </tbody>
         </table>
       </div>
+
+      {allShifts && allShifts.length > visible && (
+        <div className="py-3 text-center">
+          <button
+            type="button"
+            onClick={() => setVisible((v) => v + PAGE_SIZE)}
+            className="text-sm font-medium text-[#0C447C] dark:text-[#5B9BD5] hover:underline"
+          >
+            {t('load_more')} ({allShifts.length - visible})
+          </button>
+        </div>
+      )}
     </>
   );
 }
 
 function ShiftCard({ shift, onViewSummary }: { shift: Shift; onViewSummary: (id: string) => void }) {
   const t = useTranslations('shifts');
+  const locale = useLocale();
   const currency = useCurrencyDisplay();
   const showReport = useShiftReportStore((st) => st.show);
 
@@ -74,7 +92,7 @@ function ShiftCard({ shift, onViewSummary }: { shift: Shift; onViewSummary: (id:
         </span>
       </div>
       <div className="flex items-center justify-between mt-1.5 text-xs text-slate-500">
-        <span>{formatDateTime(shift.opened_at)}{shift.closed_at ? ` — ${formatDateTime(shift.closed_at)}` : ''}</span>
+        <span>{formatDateTime(shift.opened_at, locale)}{shift.closed_at ? ` — ${formatDateTime(shift.closed_at, locale)}` : ''}</span>
       </div>
       <div className="flex items-center justify-between mt-1.5">
         <span className="text-xs text-slate-500 tabular-nums">{t('opening_cash')}: {formatCurrency(shift.opening_cash, currency)}</span>
@@ -99,6 +117,7 @@ function ShiftCard({ shift, onViewSummary }: { shift: Shift; onViewSummary: (id:
 
 function ShiftRow({ shift, onViewSummary }: { shift: Shift; onViewSummary: (id: string) => void }) {
   const t = useTranslations('shifts');
+  const locale = useLocale();
   const currency = useCurrencyDisplay();
   const showReport = useShiftReportStore((st) => st.show);
 
@@ -108,10 +127,10 @@ function ShiftRow({ shift, onViewSummary }: { shift: Shift; onViewSummary: (id: 
         {shift.cashier_name ?? shift.cashier_id}
       </td>
       <td className="py-3 px-3 text-slate-500 text-xs">
-        {formatDateTime(shift.opened_at)}
+        {formatDateTime(shift.opened_at, locale)}
       </td>
       <td className="py-3 px-3 text-slate-500 text-xs">
-        {shift.closed_at ? formatDateTime(shift.closed_at) : '—'}
+        {shift.closed_at ? formatDateTime(shift.closed_at, locale) : '—'}
       </td>
       <td className="py-3 px-3 text-slate-500 tabular-nums">
         {formatCurrency(shift.opening_cash, currency)}

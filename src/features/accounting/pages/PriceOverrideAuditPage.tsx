@@ -17,6 +17,7 @@ import { usePriceOverrideAudits } from '../hooks/usePriceOverrideAudit'
 import { PriceOverrideAuditFilters } from '../components/PriceOverrideAuditFilters'
 import { PriceOverrideAuditDetailSheet } from '../components/PriceOverrideAuditDetailSheet'
 import { PriceOverrideAuditQuery, PriceOverrideAudit } from '../api/accounting.api'
+import { isValidOrderRef } from '../lib/accounting-utils'
 
 const directionTone: Record<string, StatusTone> = {
   discount: 'warning',
@@ -43,7 +44,13 @@ export function PriceOverrideAuditPage() {
     setPage(1)
   }
 
-  const query = usePriceOverrideAudits({ ...filters, page, per_page: perPage }, canView)
+  // A malformed order reference never reaches the API (it would only answer 400).
+  const orderRef = filters.order_id?.trim()
+  const orderRefInvalid = !!orderRef && !isValidOrderRef(orderRef)
+  const query = usePriceOverrideAudits(
+    { ...filters, order_id: orderRef || undefined, page, per_page: perPage },
+    canView && !orderRefInvalid,
+  )
   const branches = useBranches()
   const branchNameById = new Map((branches.data ?? []).map((b) => [b.id, b.name]))
   const items = useItems()
@@ -68,7 +75,7 @@ export function PriceOverrideAuditPage() {
     {
       key: 'created_at',
       header: t('columns.date'),
-      render: (row) => <span className="tabular-nums">{new Date(row.created_at).toLocaleDateString('en-US')}</span>,
+      render: (row) => <span className="tabular-nums">{new Date(row.created_at).toLocaleDateString('en-CA')}</span>,
     },
     {
       key: 'item_id',
@@ -101,7 +108,7 @@ export function PriceOverrideAuditPage() {
     {
       key: 'actor_role_name_snapshot',
       header: t('columns.effectiveRole'),
-      render: (row) => <span className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{row.actor_role_name_snapshot}</span>,
+      render: (row) => <span className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t.has(`roleNames.${row.actor_role_name_snapshot}`) ? t(`roleNames.${row.actor_role_name_snapshot}`) : row.actor_role_name_snapshot}</span>,
     },
     {
       key: 'actor_id',
@@ -132,11 +139,11 @@ export function PriceOverrideAuditPage() {
         ]}
       />
 
-      <PriceOverrideAuditFilters filters={filters} onChange={handleFiltersChange} />
+      <PriceOverrideAuditFilters filters={filters} onChange={handleFiltersChange} orderRefInvalid={orderRefInvalid} />
 
       {isForbidden ? (
         <EmptyState icon={AlertTriangle} title={t('noPermission.title')} description={t('noPermission.description')} theme="dashboard" size="lg" />
-      ) : query.isError ? (
+      ) : orderRefInvalid ? null : query.isError ? (
         <EmptyState icon={AlertTriangle} title={t('error.title')} description={t('error.description')} theme="dashboard" size="md" />
       ) : (
         <DataTable

@@ -24,10 +24,29 @@
   "queueHint": "فواتير بانتظار الإرسال: {count}",
   "send": "إرسال الآن",
   "flushed": "أُرسل {sent} وبقي {waiting}",
-  "env": { "sandbox": "تجريبي", "simulation": "محاكاة", "production": "إنتاج" },
-  "stage": { "new": "جديد", "csr": "بانتظار الرمز", "compliance": "شهادة امتثال", "active": "مفعّل" },
-  "kind": { "invoice": "فاتورة", "credit_note": "إشعار دائن", "debit_note": "إشعار مدين" },
-  "status": { "pending": "بانتظار", "reported": "أُبلغ", "cleared": "مُخلّص", "rejected": "مرفوض", "error": "خطأ" },
+  "env": {
+    "sandbox": "تجريبي",
+    "simulation": "محاكاة",
+    "production": "إنتاج"
+  },
+  "stage": {
+    "new": "جديد",
+    "csr": "بانتظار الرمز",
+    "compliance": "شهادة امتثال",
+    "active": "مفعّل"
+  },
+  "kind": {
+    "invoice": "فاتورة",
+    "credit_note": "إشعار دائن",
+    "debit_note": "إشعار مدين"
+  },
+  "status": {
+    "pending": "بانتظار",
+    "reported": "أُبلغ",
+    "cleared": "مُخلّص",
+    "rejected": "مرفوض",
+    "error": "خطأ"
+  },
   "f": {
     "branch": "الفرع",
     "env": "البيئة",
@@ -41,5 +60,10 @@
     "district": "الحي",
     "city": "المدينة",
     "postal": "الرمز البريدي (5 أرقام)"
-  }
+  },
+  "errRequired": "الحقل مطلوب: {field}",
+  "errVat": "الرقم الضريبي يجب أن يكون 15 رقمًا يبدأ وينتهي بالرقم 3",
+  "errBuilding": "رقم المبنى يجب أن يكون 4 أرقام",
+  "errPostal": "الرمز البريدي يجب أن يكون 5 أرقام",
+  "errGeneric": "تعذّر حفظ الجهاز، حاول مرة أخرى"
 }

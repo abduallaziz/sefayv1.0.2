@@ -191,12 +191,47 @@ export function PaymentModal({
   })
   const missingVariant = variantTargets.some((t) => !freeVariants[`${t.rewardId}:${t.itemId}`])
 
-  // Points are taken off BEFORE tax by the server, so the amount due is
+  // Points and rewards are taken off BEFORE tax by the server, so the amount due is
   // recomputed with the same arithmetic (calcCart mirrors pos.engine) instead
   // of simply subtracting from the total.
   const pointsDiscount = redeemPointsNum > 0 ? round2(redeemPointsNum * redemptionValue) : 0
-  const priced = pointsDiscount > 0
-    ? calcCart(cart.items, cart.tax_rate, cart.coupon_discount_amount + pointsDiscount, cart.tax_inclusive)
+
+  // Reward discount preview: mirrors RewardRedemptionService.previewSelection (percentage
+  // rewards off the raw subtotal first, then balance-carrying fixed rewards against what is
+  // left, in their own VAT mode). Free items and coupon-reference rewards add no preview.
+  const baseDiscount = cart.coupon_discount_amount + pointsDiscount
+  const rewardDiscount = (() => {
+    if (selectedRewards.length === 0) return 0
+    const taxFactor = cart.tax_inclusive ? 1 : 1 + cart.tax_rate
+    let total = 0
+    const fixed: { remaining: number; including: boolean }[] = []
+    for (const r of selectedRewards) {
+      const def = r.reward_definitions
+      if (!def) continue
+      if (def.reward_type === 'percentage_discount') {
+        const pct = Math.min(Math.max(Number(def.reward_config?.percent ?? 0), 0), 100)
+        total += round2((cart.rawSubtotal * pct) / 100)
+      } else if (def.reward_type === 'fixed_discount') {
+        const amount = Number(def.reward_config?.amount ?? 0)
+        const remaining = r.remaining_amount !== null && r.remaining_amount !== undefined ? Number(r.remaining_amount) : amount
+        fixed.push({ remaining, including: def.reward_config?.tax_mode === 'including' })
+      }
+    }
+    let netLeft = Math.max(cart.rawSubtotal - baseDiscount - total, 0)
+    for (const f of fixed) {
+      if (netLeft <= 0) break
+      const consumed = f.including ? Math.min(f.remaining, netLeft * taxFactor) : Math.min(f.remaining, netLeft)
+      const netUsed = f.including ? round2(round2(consumed) / taxFactor) : round2(consumed)
+      if (round2(consumed) <= 0) continue
+      total += netUsed
+      netLeft = Math.max(round2(netLeft - netUsed), 0)
+    }
+    return round2(total)
+  })()
+
+  const extraDiscount = pointsDiscount + rewardDiscount
+  const priced = extraDiscount > 0
+    ? calcCart(cart.items, cart.tax_rate, cart.coupon_discount_amount + extraDiscount, cart.tax_inclusive)
     : cart
   const due = priced.total
   const totalDiscount = priced.coupon_discount_amount
@@ -231,6 +266,8 @@ export function PaymentModal({
   const canConfirm = () => {
     if (isSubmitting) return false
     if (missingChoice || missingVariant) return false
+    // Nothing to collect (discounts/rewards cover everything): any method confirms.
+    if (due <= 0) return true
     if (method === 'cash') return tenderedNum >= due && (!abnormalCash || abnormalConfirmed)
     if (method === 'split') return !isNaN(splitCashNum) && splitCashNum > 0 && splitCashNum < due
     return true
@@ -239,10 +276,10 @@ export function PaymentModal({
   const handleConfirm = () => {
     const data: PaymentData = {
       method,
-      cash_tendered: method === 'cash' ? tenderedNum : undefined,
-      change: method === 'cash' ? change : undefined,
-      split_cash: method === 'split' ? splitCashNum : undefined,
-      split_card: method === 'split' ? splitCard : undefined,
+      cash_tendered: method === 'cash' && due > 0 ? tenderedNum : undefined,
+      change: method === 'cash' && due > 0 ? change : undefined,
+      split_cash: method === 'split' && due > 0 ? splitCashNum : undefined,
+      split_card: method === 'split' && due > 0 ? splitCard : undefined,
       redeem_points: redeemPointsNum > 0 ? redeemPointsNum : undefined,
       redeem_reward_instance_ids: selectedRewards.length > 0 ? selectedRewards.map((r) => r.id) : undefined,
       free_item_choices: choiceRewards.length > 0
@@ -280,7 +317,7 @@ export function PaymentModal({
 
   return (
     <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm sm:p-8">
-      <div className="flex max-h-[min(70dvh,540px)] w-full max-w-lg lg:max-w-2xl flex-col overflow-hidden rounded-2xl border border-posCloud-border bg-posCloud-background shadow-xl dark:border-posCloudDark-border dark:bg-posCloudDark-background">
+      <div role="dialog" aria-modal="true" aria-label={t('payment.title')} className="flex max-h-[min(70dvh,540px)] w-full max-w-lg lg:max-w-2xl flex-col overflow-hidden rounded-2xl border border-posCloud-border bg-posCloud-background shadow-xl dark:border-posCloudDark-border dark:bg-posCloudDark-background">
         {/* Header: title + close only (no print before payment, and the
             invoice number does not exist until the order is created). */}
         <div className="flex shrink-0 items-center justify-between gap-3 border-b border-posCloud-border bg-posCloud-surface px-3 py-2 dark:border-posCloudDark-border dark:bg-posCloudDark-surface">
@@ -508,7 +545,7 @@ export function PaymentModal({
                           inputMode="decimal"
                           placeholder={fmt(due)}
                           value={cashTendered}
-                          onChange={(e) => setCashInput(e.target.value)}
+                          onChange={(e) => { const v = e.target.value; if (/^\d*\.?\d{0,2}$/.test(v)) setCashInput(v) }}
                           className={`min-w-0 flex-1 bg-transparent text-center text-base font-bold outline-none ${strong}`}
                         />
                       </div>
@@ -601,7 +638,7 @@ export function PaymentModal({
                     inputMode="decimal"
                     placeholder="0.00"
                     value={splitCash}
-                    onChange={(e) => setSplitCash(e.target.value)}
+                    onChange={(e) => { const v = e.target.value; if (/^\d*\.?\d{0,2}$/.test(v)) setSplitCash(v) }}
                     className={`h-9 w-full rounded-lg border border-posCloud-border bg-posCloud-background text-center text-base font-bold outline-none focus:border-posCloud-primary dark:border-posCloudDark-border dark:bg-posCloudDark-background ${strong}`}
                   />
                 </div>

@@ -1,9 +1,10 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { X, Phone, Mail, Star, ShoppingBag, TrendingUp } from 'lucide-react';
+import { X, Phone, Mail, Star, ShoppingBag, TrendingUp, Car } from 'lucide-react';
 import { Customer } from '../types/customer.types';
-import { useCustomerHistory } from '../hooks/useCustomers';
+import { useCustomerHistory, useCustomerVehicles } from '../hooks/useCustomers';
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store';
 import { formatNumber, formatDate } from '@/lib/locale';
 import { CustomerRewardsPanel } from './CustomerRewardsPanel';
@@ -19,7 +20,15 @@ export function CustomerDetailsModal({ customer, onClose, onEdit }: Props) {
   const rawLocale = useLocale();
   const locale: 'ar' | 'en' = rawLocale === 'ar' ? 'ar' : 'en';
   const currency = useCurrencyDisplay();
+  const tCommon = useTranslations('common');
   const { data: orders, isLoading } = useCustomerHistory(customer.id);
+  const { data: vehicles } = useCustomerVehicles(customer.id);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [onClose]);
 
   const statusColors: Record<string, string> = {
     completed: 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400',
@@ -30,7 +39,7 @@ export function CustomerDetailsModal({ customer, onClose, onEdit }: Props) {
   return (
     <div className="fixed inset-0 z-[400] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col">
+      <div role="dialog" aria-modal="true" className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col">
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-[#0C447C] font-bold">
@@ -45,7 +54,7 @@ export function CustomerDetailsModal({ customer, onClose, onEdit }: Props) {
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+          <button type="button" onClick={onClose} aria-label={tCommon('close')} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
             <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
@@ -63,6 +72,22 @@ export function CustomerDetailsModal({ customer, onClose, onEdit }: Props) {
               </div>
             )}
           </div>
+
+          {vehicles && vehicles.length > 0 && (
+            <div>
+              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                <Car className="w-4 h-4 text-gray-400" />
+                {t('form.vehicles.title')}
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {vehicles.map((v) => (
+                  <span key={v.id} dir="ltr" className="px-2.5 py-1 rounded-lg bg-gray-50 dark:bg-gray-800 text-xs font-medium text-gray-700 dark:text-gray-200">
+                    {v.plate}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3 text-center">
@@ -103,6 +128,7 @@ export function CustomerDetailsModal({ customer, onClose, onEdit }: Props) {
                 {orders.map((order) => (
                   <div key={order.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <div>
+                      <p className="text-xs font-mono text-posCloud-primary" dir="ltr">#{order.id.slice(-6).toUpperCase()}</p>
                       <p className="text-sm font-medium text-gray-900 dark:text-white">
                         {formatNumber(order.total, { locale, decimals: 2 })} {currency}
                       </p>

@@ -123,7 +123,7 @@ export function CustomersPage() {
           <h1 className="text-2xl font-extrabold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{t('title')}</h1>
           <p className="mt-1 text-sm text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('subtitle')}</p>
         </div>
-        <Button onClick={() => { setSelectedCustomer(null); setShowForm(true); }} className="shrink-0">
+        <Button onClick={() => { setSelectedCustomer(null); setShowForm(true); }} aria-label={t('add_customer')} className="shrink-0">
           <Plus className="w-4 h-4" />
           <span className="hidden sm:inline">{t('add_customer')}</span>
         </Button>
