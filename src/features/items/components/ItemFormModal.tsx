@@ -8,8 +8,7 @@ import { z } from 'zod';
 import { X } from 'lucide-react';
 import type { Item, Category, ItemType, CreateItemDTO } from '../types/item.types';
 import { Button } from '@/shared/ui/button';
-import { NumberInput } from '@/shared/ui/number-input';
-import { parseStrictNumber } from '@/lib/number-input';
+import { parseStrictNumber, normalizeDigits } from '@/lib/number-input';
 import { useEscapeClose } from '@/shared/hooks/useEscapeClose';
 
 export const MAX_ITEM_PRICE = 99_999_999;
@@ -18,10 +17,13 @@ const schema = z.object({
   name: z.string().trim().min(1).max(200),
   type: z.enum(['product', 'service', 'custom', 'raw_material', 'semi_finished', 'finished_goods', 'asset', 'consumable']),
   operation_type: z.enum(['sell', 'book', 'repair', 'rent']),
-  // Strict: empty -> 0 (free item), anything non-numeric / negative / huge is
-  // rejected with a message key instead of being silently saved as 0.
+  // Strict: a price is required (empty is rejected, not saved as 0), anything
+  // non-numeric / negative / huge is rejected with a message key.
   price: z.string().transform((val, ctx) => {
-    if (val.trim() === '') return 0;
+    if (val.trim() === '') {
+      ctx.addIssue({ code: 'custom', message: 'priceRequired' });
+      return z.NEVER;
+    }
     const n = parseStrictNumber(val);
     if (n === null) {
       ctx.addIssue({ code: 'custom', message: 'priceInvalid' });
@@ -100,9 +102,10 @@ export function ItemFormModal({ open, onClose, onSubmit, item, defaultType = 'pr
         image_url: item.image_url ?? '',
       });
     } else {
-      reset({ has_inventory: false, has_variants: false, type: defaultType, operation_type: 'sell', price: '', sku: '', image_url: '' });
+      reset({ name: '', category_id: '', has_inventory: false, has_variants: false, type: defaultType, operation_type: 'sell', price: '', sku: '', image_url: '' });
     }
-  }, [item, defaultType, reset]);
+    // `open` is a dependency so re-opening the create dialog always starts from an empty form.
+  }, [item, defaultType, reset, open]);
 
   useEscapeClose(open, onClose);
 
@@ -174,9 +177,14 @@ export function ItemFormModal({ open, onClose, onSubmit, item, defaultType = 'pr
                 control={control}
                 name="price"
                 render={({ field }) => (
-                  <NumberInput
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    lang="en"
+                    dir="ltr"
                     value={field.value ?? ''}
-                    onChange={field.onChange}
+                    // Arabic-Indic digits are converted to 0-9 as they are typed.
+                    onChange={(e) => field.onChange(normalizeDigits(e.target.value))}
                     onBlur={field.onBlur}
                     placeholder="0.00"
                     className={inputClass}

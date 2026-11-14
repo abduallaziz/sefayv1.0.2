@@ -126,6 +126,7 @@
   "sortPriceAsc": "السعر (الأقل)",
   "sortPriceDesc": "السعر (الأعلى)",
   "sortSku": "رمز الصنف (SKU)",
+  "priceRequired": "أدخل السعر",
   "priceInvalid": "أدخل سعرًا صحيحًا بالأرقام",
   "priceNegative": "السعر لا يمكن أن يكون سالبًا",
   "priceTooLarge": "السعر أكبر من الحد المسموح (99,999,999)",

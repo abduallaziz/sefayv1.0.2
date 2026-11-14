@@ -126,6 +126,7 @@
   "sortPriceAsc": "Price (low to high)",
   "sortPriceDesc": "Price (high to low)",
   "sortSku": "SKU",
+  "priceRequired": "Enter a price",
   "priceInvalid": "Enter a valid numeric price",
   "priceNegative": "Price cannot be negative",
   "priceTooLarge": "Price exceeds the maximum (99,999,999)",
