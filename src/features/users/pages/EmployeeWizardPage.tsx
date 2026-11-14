@@ -8,6 +8,8 @@ import { ApiError } from '@/lib/api'
 import { useCreateEmployee, useCheckDuplicate } from '../hooks/useUsers'
 import { SingleDatePicker } from '@/shared/ui/date-range-picker'
 import { useBranches } from '@/shared/hooks/useBranches'
+import { useBranchContext } from '@/core/branch/useBranchContext'
+import { useBranchIsolation } from '@/features/branches/hooks/useBranchesAdmin'
 import type { CreateEmployeeDto, LateDeductionMode } from '../api/users.api'
 import {
   toWesternDigits, normalizePhone, isValidEmail, isValidPhone, isValidIdentity, parseNumber, isPositiveNumber,
@@ -407,6 +409,17 @@ function JobInfoStep({ t, data, set, errors }: { t: ReturnType<typeof useTransla
 /* ── Step 3: Location ── */
 function LocationStep({ t, data, set, errors }: { t: ReturnType<typeof useTranslations>; data: WizardData; set: <K extends keyof WizardData>(key: K, value: WizardData[K]) => void; errors: FieldErrors }) {
   const { data: branches = [], isLoading: branchesLoading } = useBranches()
+  const { currentBranchId, isCentral } = useBranchContext()
+  const { data: isolation } = useBranchIsolation()
+  // Branch managers always create staff in their own branch (locked); under branch isolation the owner's
+  // working branch is the default and the only valid choice, so the "central / no branch" option is hidden.
+  const branchLocked = !isCentral || isolation?.enabled === true
+  const branchDefault = branchLocked ? currentBranchId : null
+
+  useEffect(() => {
+    if (branchDefault && data.branch_id !== branchDefault) set('branch_id', branchDefault)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [branchDefault])
 
   return (
     <div>
@@ -420,9 +433,10 @@ function LocationStep({ t, data, set, errors }: { t: ReturnType<typeof useTransl
             className={inputClass}
             value={data.branch_id}
             onChange={(e) => set('branch_id', e.target.value)}
-            disabled={branchesLoading}
+            disabled={branchesLoading || !isCentral}
+            aria-label={t('branch')}
           >
-            <option value="">{t('centralNoBranch')}</option>
+            {!branchLocked && <option value="">{t('centralNoBranch')}</option>}
             {branches.map((b) => (
               <option key={b.id} value={b.id}>{b.name}</option>
             ))}

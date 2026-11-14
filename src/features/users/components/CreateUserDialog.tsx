@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useCreateUser } from '../hooks/useUsers'
 import { useBranches } from '@/shared/hooks/useBranches'
+import { useBranchContext } from '@/core/branch/useBranchContext'
 import { X } from 'lucide-react'
 
 interface Props {
@@ -17,6 +18,7 @@ export function CreateUserDialog({ open, onClose }: Props) {
   const t = useTranslations('users')
   const { mutate: createUser, isPending } = useCreateUser()
   const { data: branches = [] } = useBranches()
+  const { isCentral, currentBranchId } = useBranchContext()
 
   const [form, setForm] = useState({
     name: '',
@@ -115,7 +117,9 @@ export function CreateUserDialog({ open, onClose }: Props) {
           <div>
             <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">{t('branch')}</label>
             <select
-              value={form.branch_id}
+              value={isCentral ? form.branch_id : (currentBranchId ?? '')}
+              disabled={!isCentral}
+              aria-label={t('branch')}
               onChange={(e) => setForm({ ...form, branch_id: e.target.value })}
               className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-[#0C447C]"
             >

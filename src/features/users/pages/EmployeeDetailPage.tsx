@@ -15,6 +15,7 @@ import { useLeaveRequests, useEmployeeGeofences, useCreateEmployeeGeofence, useD
 import { usePayrollReport } from '@/features/reports/hooks/useReports'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { useBranches, useBranchById } from '@/shared/hooks/useBranches'
+import { useBranchContext } from '@/core/branch/useBranchContext'
 import { formatNumber, formatDate, formatDateTime } from '@/lib/format'
 import { SectionErrorBoundary } from '../components/SectionErrorBoundary'
 import { parseNumber, isValidLatitude, isValidLongitude, isPositiveNumber } from '../lib/validation'
@@ -264,6 +265,8 @@ function JobInfoTab({ t, user }: { t: ReturnType<typeof useTranslations>; user: 
 /* ── Branch assignment (Branch System Step 2) ── */
 function BranchSection({ t, user }: { t: ReturnType<typeof useTranslations>; user: User }) {
   const { data: branches = [] } = useBranches()
+  // Only the owner (central user) can move an employee to another branch; branch managers see it read-only.
+  const { isCentral } = useBranchContext()
   const currentBranchId = user.branch_id ?? ''
   const currentBranchInList = branches.some((b) => b.id === currentBranchId)
   // The current assignment may point at a branch that's since gone inactive
@@ -290,6 +293,7 @@ function BranchSection({ t, user }: { t: ReturnType<typeof useTranslations>; use
           <select
             id="emp-branch"
             value={branchId}
+            disabled={!isCentral}
             onChange={(e) => setBranchId(e.target.value)}
             className="w-full bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white"
           >
@@ -307,7 +311,7 @@ function BranchSection({ t, user }: { t: ReturnType<typeof useTranslations>; use
         <button
           type="button"
           onClick={save}
-          disabled={saving || branchId === currentBranchId}
+          disabled={saving || !isCentral || branchId === currentBranchId}
           className="px-4 py-2 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 text-white rounded-lg text-sm font-medium"
         >
           {saving ? t('saving') : t('save')}
