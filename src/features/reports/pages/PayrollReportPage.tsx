@@ -24,7 +24,7 @@ function shiftMonth(month: string, delta: number) {
 function Amount({ value, currency, negative }: { value: number; currency: string; negative?: boolean }) {
   return (
     <span dir="ltr" className="whitespace-nowrap [unicode-bidi:isolate]">
-      {negative ? '-' : ''}{formatNumber(value)} {currency}
+      {negative && Math.abs(Number(value)) >= 0.005 ? '-' : ''}{formatNumber(value)} {currency}
     </span>
   )
 }
