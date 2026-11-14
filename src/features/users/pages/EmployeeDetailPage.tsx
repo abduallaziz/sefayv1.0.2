@@ -432,11 +432,14 @@ function AttendanceTab({
 }) {
   const { mutate: generateLink, isPending: generating } = useGenerateAttendanceLink()
   const { mutate: unbindDevice, isPending: unbinding } = useUnbindAttendanceDevice()
-  const [confirmType, setConfirmType] = useState<'enable' | 'regenerate' | 'reset' | null>(null)
+  const { mutate: updateEmployee, isPending: togglingAttendance } = useUpdateEmployee()
+  const [confirmType, setConfirmType] = useState<'enable' | 'regenerate' | 'reset' | 'disable' | null>(null)
 
   function handleConfirm() {
     if (confirmType === 'enable' || confirmType === 'regenerate') {
       generateLink(user.id, { onSuccess: () => setConfirmType(null) })
+    } else if (confirmType === 'disable') {
+      updateEmployee({ id: user.id, data: { attendance_enabled: false } }, { onSuccess: () => setConfirmType(null) })
     } else if (confirmType === 'reset') {
       unbindDevice(user.id, { onSuccess: () => setConfirmType(null) })
     }
@@ -445,6 +448,7 @@ function AttendanceTab({
   const confirmCopy: Record<string, { title: string; message: string; label: string }> = {
     enable: { title: t('enableAttendance'), message: t('confirmEnableAttendance'), label: t('confirm') },
     regenerate: { title: t('regenerateLink'), message: t('confirmRegenerateLink'), label: t('confirm') },
+    disable: { title: t('disableAttendance'), message: t('confirmDisableAttendance'), label: t('confirm') },
     reset: { title: t('resetDevice'), message: t('confirmResetDevice'), label: t('confirm') },
   }
 
@@ -525,6 +529,13 @@ function AttendanceTab({
         >
           {t('resetDevice')}
         </button>
+        <button
+          type="button"
+          onClick={() => setConfirmType('disable')}
+          className="px-4 py-2.5 rounded-xl text-sm font-medium border border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+        >
+          {t('disableAttendance')}
+        </button>
       </div>
 
       <GeofenceSection t={t} user={user} />
@@ -539,7 +550,7 @@ function AttendanceTab({
         confirmLabel={confirmType ? confirmCopy[confirmType].label : ''}
         cancelLabel={t('cancel')}
         loadingLabel={t('processing')}
-        isLoading={generating || unbinding}
+        isLoading={generating || unbinding || togglingAttendance}
       />
     </div>
   )

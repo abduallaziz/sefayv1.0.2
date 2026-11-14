@@ -42,6 +42,8 @@
   "attendanceDisabledDesc": "Attendance has not been enabled for this employee yet.",
   "enableAttendance": "Enable Attendance",
   "confirmEnableAttendance": "This will create a secure attendance link and enable access for this employee. Continue?",
+  "disableAttendance": "Disable attendance",
+  "confirmDisableAttendance": "Attendance will be disabled for this employee and the current link stops working. You can re-enable it later. Continue?",
   "attendanceStatus": "Attendance Status",
   "attendanceLink": "Attendance Link",
   "tokenStatus": "Token Status",

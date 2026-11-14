@@ -42,6 +42,8 @@
   "attendanceDisabledDesc": "لم يتم تفعيل نظام الحضور لهذا الموظف بعد.",
   "enableAttendance": "تفعيل الحضور",
   "confirmEnableAttendance": "سيتم إنشاء رابط حضور آمن وتفعيل الوصول لهذا الموظف. هل تريد المتابعة؟",
+  "disableAttendance": "تعطيل الحضور",
+  "confirmDisableAttendance": "سيتم تعطيل الحضور لهذا الموظف وإيقاف رابط الحضور الحالي. يمكنك إعادة تفعيله لاحقًا. هل تريد المتابعة؟",
   "attendanceStatus": "حالة الحضور",
   "attendanceLink": "رابط الحضور",
   "tokenStatus": "حالة الرمز",
