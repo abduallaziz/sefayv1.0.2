@@ -1,16 +1,22 @@
 'use client'
 
 import { useBranchIsolation } from '@/features/branches/hooks/useBranchesAdmin'
-import { useState } from 'react'
+import { useBranchContext } from '@/core/branch/useBranchContext'
+import { useMemo, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { useRevenueReport, useShiftsReport, useExpensesReport, useEmployeesReport, useTaxReport, useComparisonReport, useBranchComparisonReport, useCustomerChurnReport, useCustomersReport, useDailyReconciliation, useCogsReport } from '../hooks/useReports'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { Download, Printer, TrendingUp, Clock, TrendingDown, CreditCard, Users, Receipt, GitCompareArrows, Building2, UserMinus, ArrowUp, ArrowDown, Wallet, PieChart, type LucideIcon } from 'lucide-react'
+import { Area, AreaChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { CreditCard, Download, Percent, Printer, Receipt, Store, Tag, TrendingDown, TrendingUp } from 'lucide-react'
 import { DateRangePicker, SingleDatePicker, type DateRange } from '@/shared/ui/date-range-picker'
+import { PageHeader } from '@/shared/ui/page-header'
+import { StatCard } from '@/shared/ui/stat-card'
+import { Skeleton } from '@/shared/ui/skeleton'
+import { cn } from '@/lib/utils'
 import { formatNumber } from '@/lib/format'
 import { useBranches } from '@/shared/hooks/useBranches'
 import { fillMissingDays, downloadCsv } from '../lib/reports-utils'
+import { CHART_COLORS, GroupHeading, MetricTile, RankedList, ReportCard, Segmented } from '../components/report-ui'
 
 function toYMD(d: Date) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
@@ -22,36 +28,23 @@ function defaultRange(): DateRange {
   return { from: toYMD(from), to: toYMD(to) }
 }
 
-function ChangeBadge({ pct, emptyTitle }: { pct: number | null; emptyTitle?: string }) {
-  if (pct === null) return <span className="text-xs text-gray-400" title={emptyTitle} aria-label={emptyTitle}>—</span>
-  const positive = pct >= 0
-  const Icon = positive ? ArrowUp : ArrowDown
-  return (
-    <span className={`inline-flex items-center gap-0.5 text-xs font-medium ${positive ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-      <Icon className="w-3 h-3" />
-      {Math.abs(pct)}%
-    </span>
-  )
+type PresetKey = 'today' | 'd7' | 'month' | 'quarter' | 'year'
+function presetRange(key: PresetKey): DateRange {
+  const now = new Date()
+  const from = new Date(now)
+  if (key === 'd7') from.setDate(from.getDate() - 6)
+  else if (key === 'month') from.setDate(1)
+  else if (key === 'quarter') from.setMonth(Math.floor(now.getMonth() / 3) * 3, 1)
+  else if (key === 'year') from.setMonth(0, 1)
+  return { from: toYMD(from), to: toYMD(now) }
 }
+const PRESETS: PresetKey[] = ['today', 'd7', 'month', 'quarter', 'year']
 
-function StatCard({ label, value, icon: Icon, color }: {
-  label: string
-  value: string
-  icon: LucideIcon
-  color: string
-}) {
-  return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">{label}</span>
-        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${color}`}>
-          <Icon className="w-4 h-4 text-white" />
-        </div>
-      </div>
-      <p className="text-2xl font-bold text-gray-900 dark:text-white">{value}</p>
-    </div>
-  )
-}
+const num = (v: number | undefined | null) => formatNumber(v ?? 0)
+const int = (v: number | undefined | null) => formatNumber(v ?? 0, 0)
+const pct1 = (v: number | null | undefined) => (v === null || v === undefined ? undefined : Number(v.toFixed(1)))
+
+const ghostBtn = 'inline-flex items-center gap-1.5 rounded-lg border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-3 py-2 text-sm font-medium text-posCloud-text-secondary dark:text-posCloudDark-text-secondary hover:bg-posCloud-sidebar dark:hover:bg-posCloudDark-sidebar focus:outline-none focus-visible:ring-2 focus-visible:ring-posCloud-primary'
 
 export function ReportsPage() {
   const t = useTranslations('reports')
@@ -60,6 +53,7 @@ export function ReportsPage() {
   const [range, setRange] = useState<DateRange>(defaultRange)
   const [branchId, setBranchId] = useState('')
   const { data: branches } = useBranches()
+  const { currentBranchId, availableBranches } = useBranchContext()
   // Branch isolation: reports always follow the working branch (the server resolves it), so the
   // branch filter is hidden and no explicit branch_id is sent.
   const { data: isolation } = useBranchIsolation()
@@ -68,32 +62,53 @@ export function ReportsPage() {
   const [peopleSort, setPeopleSort] = useState<'sales' | 'orders'>('sales')
   const [reconciliationDate, setReconciliationDate] = useState<string>(toYMD(new Date()))
 
-  const { data: revenue, isLoading: revLoading } = useRevenueReport(query)
-  const { data: shifts, isLoading: shiftsLoading } = useShiftsReport(query)
-  const { data: expenses, isLoading: expLoading } = useExpensesReport(query)
-  const { data: employees, isLoading: employeesLoading } = useEmployeesReport(query)
-  const { data: tax, isLoading: taxLoading } = useTaxReport(query)
-  const { data: comparison, isLoading: comparisonLoading } = useComparisonReport(query)
-  const { data: byBranch, isLoading: byBranchLoading, error: byBranchError } = useBranchComparisonReport(query)
-  const { data: churn, isLoading: churnLoading } = useCustomerChurnReport(query)
-  const { data: customersReport, isLoading: customersLoading } = useCustomersReport(query)
-  const { data: reconciliation, isLoading: reconciliationLoading } = useDailyReconciliation(reconciliationDate, (!isolated && branchId) || undefined)
-  const { data: cogs, isLoading: cogsLoading } = useCogsReport(query)
+  const revenueQ = useRevenueReport(query)
+  const shiftsQ = useShiftsReport(query)
+  const expensesQ = useExpensesReport(query)
+  const employeesQ = useEmployeesReport(query)
+  const taxQ = useTaxReport(query)
+  const comparisonQ = useComparisonReport(query)
+  const byBranchQ = useBranchComparisonReport(query)
+  const churnQ = useCustomerChurnReport(query)
+  const customersQ = useCustomersReport(query)
+  const reconQ = useDailyReconciliation(reconciliationDate, (!isolated && branchId) || undefined)
+  const cogsQ = useCogsReport(query)
+
+  const { data: revenue } = revenueQ
+  const { data: shifts } = shiftsQ
+  const { data: expenses } = expensesQ
+  const { data: employees } = employeesQ
+  const { data: tax } = taxQ
+  const { data: comparison } = comparisonQ
+  const { data: byBranch, error: byBranchError } = byBranchQ
+  const { data: churn } = churnQ
+  const { data: customersReport } = customersQ
+  const { data: reconciliation } = reconQ
+  const { data: cogs } = cogsQ
 
   const summary = revenue?.summary
-  const dailyBreakdown = fillMissingDays(revenue?.daily_breakdown ?? [], range.from, range.to)
+  const dailyBreakdown = useMemo(() => fillMissingDays(revenue?.daily_breakdown ?? [], range.from, range.to), [revenue?.daily_breakdown, range.from, range.to])
   const byPaymentMethod = revenue?.by_payment_method ?? {}
   const byCategory = expenses?.by_category ?? []
   const shiftsSummary = shifts?.summary
   const sortedEmployees = [...(employees?.employees ?? [])].sort((a, b) => (peopleSort === 'sales' ? b.total_sales - a.total_sales : b.order_count - a.order_count))
   const sortedCustomers = [...(customersReport?.customers ?? [])].sort((a, b) => (peopleSort === 'sales' ? b.total_spent - a.total_spent : b.order_count - a.order_count))
+  const methodLabel = (m: string) => (tOrders.has(`payment_method.${m}`) ? tOrders(`payment_method.${m}`) : m)
+  const paymentRows = Object.entries(byPaymentMethod).map(([m, v]) => ({ key: m, name: methodLabel(m), count: v.count, total: v.total ?? 0 }))
+  const paymentTotal = paymentRows.reduce((s, r) => s + r.total, 0)
+  const workingBranchName = availableBranches?.find((b) => b.id === currentBranchId)?.name
+  const branchIndicator = isolated
+    ? (workingBranchName ?? '—')
+    : branchId
+      ? ((branches ?? []).find((b) => b.id === branchId)?.name ?? '—')
+      : t('allBranches')
 
   const exportCsv = () => {
     const rows: (string | number)[][] = [[t('csvSection'), t('csvMetric'), t('csvValue'), t('csvCount')]]
     rows.push([t('title'), t('totalRevenue'), summary?.total_revenue ?? 0, summary?.total_orders ?? 0])
     rows.push([t('title'), t('netRevenue'), summary?.net_revenue ?? 0, ''])
     for (const d of revenue?.daily_breakdown ?? []) rows.push([t('revenueChart'), d.date, d.total, ''])
-    for (const [m, v] of Object.entries(byPaymentMethod)) rows.push([t('paymentMethods'), tOrders.has(`payment_method.${m}`) ? tOrders(`payment_method.${m}`) : m, v.total, v.count])
+    for (const [m, v] of Object.entries(byPaymentMethod)) rows.push([t('paymentMethods'), methodLabel(m), v.total, v.count])
     rows.push([t('taxSummary'), t('subtotalGross'), tax?.summary.total_subtotal ?? 0, ''])
     rows.push([t('taxSummary'), t('discountsLabel'), tax?.summary.total_discount ?? 0, ''])
     rows.push([t('taxSummary'), t('taxCollected'), tax?.summary.total_tax_collected ?? 0, ''])
@@ -104,443 +119,327 @@ export function ReportsPage() {
     downloadCsv(`reports-${range.from ?? ''}_${range.to ?? ''}.csv`, rows)
   }
 
+  const money = (v: number | undefined) => `${num(v)} ${currency}`
+  const sparkValues = dailyBreakdown.map((d) => d.total)
+  const sortOptions = [
+    { value: 'sales' as const, label: t('sortBySales') },
+    { value: 'orders' as const, label: t('sortByOrders') },
+  ]
+  const delta = (p: number | null | undefined) => ({ change: pct1(p), changeLabel: p === null || p === undefined ? undefined : t('vsPrevShort') })
+  const discrepancy = reconciliation?.cash_shifts.total_discrepancy ?? 0
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t('title')}</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t('subtitle')}</p>
-        </div>
-        <div className="flex items-center gap-2 flex-wrap print:hidden">
-          {!isolated && <select
-            value={branchId}
-            onChange={(e) => setBranchId(e.target.value)}
-            aria-label={t('branchFilter')}
-            className="border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-          >
-            <option value="">{t('allBranches')}</option>
-            {(branches ?? []).map((b) => (
-              <option key={b.id} value={b.id}>{b.name}</option>
-            ))}
-          </select>}
+    <div className="space-y-5">
+      <PageHeader
+        className="!mb-0 !pb-0 !border-b-0"
+        title={t('title')}
+        description={t('subtitle')}
+        actions={
+          <div className="flex items-center gap-2 rounded-lg border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-3 py-1.5 text-sm">
+            <Store className="h-4 w-4 text-posCloud-primary" aria-hidden />
+            <span className="text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('workingBranch')}</span>
+            <span className="font-semibold text-posCloud-text-primary dark:text-posCloudDark-text-primary">{branchIndicator}</span>
+          </div>
+        }
+      />
+
+      {/* Filter bar */}
+      <div className="sticky top-0 z-20 -mx-1 px-1 py-2 bg-posCloud-background/90 dark:bg-posCloudDark-background/90 backdrop-blur print:hidden">
+        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface p-2">
+          <div role="group" aria-label={t('quickRanges')} className="inline-flex rounded-lg bg-posCloud-sidebar dark:bg-posCloudDark-sidebar p-0.5">
+            {PRESETS.map((k) => {
+              const r = presetRange(k)
+              const active = r.from === range.from && r.to === range.to
+              return (
+                <button
+                  key={k}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() => setRange(r)}
+                  className={cn(
+                    'rounded-md px-3 py-1.5 text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-posCloud-primary',
+                    active ? 'bg-posCloud-primary text-white shadow-sm' : 'text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary hover:text-posCloud-text-primary dark:hover:text-posCloudDark-text-primary',
+                  )}
+                >
+                  {t(`preset.${k}`)}
+                </button>
+              )
+            })}
+          </div>
           <DateRangePicker value={range} onChange={(r) => r.from && r.to && setRange(r)} />
-          <button type="button" onClick={exportCsv} className="inline-flex items-center gap-1.5 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">
-            <Download className="w-4 h-4" />{t('exportCsv')}
-          </button>
-          <button type="button" onClick={() => window.print()} className="inline-flex items-center gap-1.5 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">
-            <Printer className="w-4 h-4" />{t('print')}
-          </button>
+          {!isolated && (
+            <select
+              value={branchId}
+              onChange={(e) => setBranchId(e.target.value)}
+              aria-label={t('branchFilter')}
+              className="rounded-lg border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-3 py-2 text-sm text-posCloud-text-primary dark:text-posCloudDark-text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-posCloud-primary"
+            >
+              <option value="">{t('allBranches')}</option>
+              {(branches ?? []).map((b) => (
+                <option key={b.id} value={b.id}>{b.name}</option>
+              ))}
+            </select>
+          )}
+          <div className="ms-auto flex items-center gap-2">
+            <button type="button" onClick={exportCsv} className={ghostBtn}><Download className="h-4 w-4" aria-hidden />{t('exportCsv')}</button>
+            <button type="button" onClick={() => window.print()} className={ghostBtn}><Printer className="h-4 w-4" aria-hidden />{t('print')}</button>
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          label={t('totalRevenue')}
-          value={revLoading ? '...' : `${formatNumber(summary?.total_revenue ?? 0)} ${currency}`}
-          icon={TrendingUp}
-          color="bg-emerald-600"
-        />
-        <StatCard
-          label={t('totalOrders')}
-          value={revLoading ? '...' : String(summary?.total_orders ?? 0)}
-          icon={CreditCard}
-          color="bg-[#0C447C]"
-        />
-        <StatCard
-          label={t('totalShifts')}
-          value={shiftsLoading ? '...' : String(shiftsSummary?.total_shifts ?? 0)}
-          icon={Clock}
-          color="bg-violet-600"
-        />
-        <StatCard
-          label={`${t('totalExpenses')} (${t('beforeTax')})`}
-          value={expLoading ? '...' : `${formatNumber(expenses?.summary?.total_approved_amount ?? 0)} ${currency}`}
-          icon={TrendingDown}
-          color="bg-red-600"
-        />
-      </div>
-
-      <h2 className="pt-2 text-base font-bold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">{t('groups.sales')}</h2>
-
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
-        <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">{t('revenueChart')}</h2>
-        {revLoading ? (
-          <div className="h-[200px] flex items-center justify-center text-gray-500 dark:text-gray-400 text-sm">{t('loading')}</div>
-        ) : (
-          <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={dailyBreakdown}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:[stroke:#374151]" />
-              <XAxis dataKey="date" tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} minTickGap={24} tickFormatter={(v: string) => v.slice(5)} />
-              <YAxis tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v: number) => formatNumber(v)} />
-              <Tooltip
-                contentStyle={{
-                  background: 'var(--tooltip-bg, #ffffff)',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: 8,
-                  color: '#111827',
-                }}
-                formatter={(value?: number | string | readonly (number | string)[]) => [`${formatNumber(Number(value))} ${currency}`, t('revenue')]}
-              />
-              <Bar dataKey="total" fill="#0C447C" radius={[4, 4, 0, 0]} name={t('revenue')} />
-            </BarChart>
-          </ResponsiveContainer>
-        )}
-      </div>
-
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
-        <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">{t('paymentMethods')}</h2>
-        {revLoading ? (
-          <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
-        ) : (
-          <div className="space-y-2">
-            {Object.entries(byPaymentMethod).map(([method, data]: [string, { count: number; total: number }]) => (
-              <div key={method} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  {tOrders.has(`payment_method.${method}`) ? tOrders(`payment_method.${method}`) : method}
-                </span>
-                <div className="flex items-center gap-4 text-xs">
-                  <span className="text-gray-500 dark:text-gray-500">{data.count} {t('payments')}</span>
-                  <span className="text-gray-900 dark:text-white font-medium">{formatNumber(data.total ?? 0)} {currency}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <Receipt className="w-4 h-4 text-gray-400" />
-          <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{t('taxSummary')}</h2>
-        </div>
-        {taxLoading ? (
-          <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
-        ) : (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div>
-              <p className="text-xs text-gray-500">{t('subtotalGross')}</p>
-              <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{formatNumber(tax?.summary.total_subtotal ?? 0)} {currency}</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-500">{t('discountsLabel')}</p>
-              <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{formatNumber(tax?.summary.total_discount ?? 0)} {currency}</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-500">{t('taxCollected')} ({((tax?.tax_rate ?? 0) * 100).toFixed(0)}%)</p>
-              <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{formatNumber(tax?.summary.total_tax_collected ?? 0)} {currency}</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-500">{t('totalRevenue')}</p>
-              <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{formatNumber(tax?.summary.grand_total ?? 0)} {currency}</p>
-            </div>
-          </div>
-        )}
-        <p className="text-xs text-gray-400 mt-3">{t('taxNote')}</p>
-      </div>
-
-      {/* Period Comparison */}
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <GitCompareArrows className="w-4 h-4 text-gray-400" />
-          <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{t('periodComparison')}</h2>
-        </div>
-        {comparisonLoading ? (
-          <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
-        ) : (
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <p className="text-xs text-gray-500 mb-1">{t('totalRevenue')}</p>
-              <p className="text-sm font-medium text-gray-900 dark:text-white">{formatNumber(comparison?.current_period.revenue ?? 0)} {currency}</p>
-              <ChangeBadge pct={comparison?.change.revenue_pct ?? null} emptyTitle={t('noPreviousData')} />
-            </div>
-            <div>
-              <p className="text-xs text-gray-500 mb-1">{t('totalOrders')}</p>
-              <p className="text-sm font-medium text-gray-900 dark:text-white">{comparison?.current_period.order_count}</p>
-              <ChangeBadge pct={comparison?.change.order_count_pct ?? null} emptyTitle={t('noPreviousData')} />
-            </div>
-            <div>
-              <p className="text-xs text-gray-500 mb-1">{t('avgOrder')}</p>
-              <p className="text-sm font-medium text-gray-900 dark:text-white">{formatNumber(comparison?.current_period.avg_order_value ?? 0)} {currency}</p>
-              <ChangeBadge pct={comparison?.change.avg_order_value_pct ?? null} emptyTitle={t('noPreviousData')} />
-            </div>
-          </div>
-        )}
-        <p className="text-xs text-gray-400 mt-3">{t('vsPreviousPeriod')}</p>
-      </div>
-
-      <h2 className="pt-2 text-base font-bold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">{t('groups.cash')}</h2>
-
-      {/* Daily Reconciliation */}
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
-        <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
-          <div className="flex items-center gap-2">
-            <Wallet className="w-4 h-4 text-gray-400" />
-            <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{t('dailyReconciliation')}</h2>
-          </div>
-          <SingleDatePicker value={reconciliationDate} onChange={(v) => v && setReconciliationDate(v)} />
-        </div>
-        {reconciliationLoading ? (
-          <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
-        ) : (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div>
-                <p className="text-xs text-gray-500">{t('salesTotal')}</p>
-                <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{formatNumber(reconciliation?.sales.total_revenue ?? 0)} {currency}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{reconciliation?.sales.total_orders ?? 0} {t('orders')}</p>
-                <p className="text-xs text-gray-400 mt-0.5">
-                  {t('cancelledInvoices')}: {reconciliation?.sales.cancelled_count ?? 0} ({formatNumber(reconciliation?.sales.cancelled_amount ?? 0)})
-                  {' · '}
-                  {t('returnedInvoices')}: {reconciliation?.sales.returned_count ?? 0} ({formatNumber(reconciliation?.sales.returned_amount ?? 0)})
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">{t('expensesTotal')}</p>
-                <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{formatNumber(reconciliation?.expenses.total_approved_amount ?? 0)} {currency}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{reconciliation?.expenses.approved_count ?? 0} {t('items')}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">{t('closedShifts')}</p>
-                <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{reconciliation?.cash_shifts.closed_shift_count ?? 0}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">{t('discrepancy')}</p>
-                <p className={`text-sm font-medium mt-1 ${(reconciliation?.cash_shifts.total_discrepancy ?? 0) === 0 ? 'text-gray-900 dark:text-white' : 'text-red-600 dark:text-red-400'}`}>
-                  {formatNumber(reconciliation?.cash_shifts.total_discrepancy ?? 0)} {currency}
-                </p>
-                <p className="text-xs text-gray-400 mt-0.5">
-                  {t('shortage')}: {formatNumber(reconciliation?.cash_shifts.shortage_total ?? 0)}
-                  {' · '}
-                  {t('overage')}: {formatNumber(reconciliation?.cash_shifts.overage_total ?? 0)}
-                </p>
-              </div>
-            </div>
-
-            <div>
-              <p className="text-xs text-gray-500 mb-2">{t('paymentMethods')}</p>
-              <div className="space-y-2">
-                {Object.entries(reconciliation?.sales.by_payment_method ?? {}).map(([method, data]) => (
-                  <div key={method} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      {tOrders.has(`payment_method.${method}`) ? tOrders(`payment_method.${method}`) : method}
-                    </span>
-                    <div className="flex items-center gap-4 text-xs">
-                      <span className="text-gray-500 dark:text-gray-500">{data.count} {t('payments')}</span>
-                      <span className="text-gray-900 dark:text-white font-medium">{formatNumber(data.total)} {currency}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-4 pt-2 border-t border-gray-100 dark:border-gray-700">
-              <div>
-                <p className="text-xs text-gray-500">{t('openingCash')}</p>
-                <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{formatNumber(reconciliation?.cash_shifts.total_opening_cash ?? 0)} {currency}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">{t('closingCash')}</p>
-                <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{formatNumber(reconciliation?.cash_shifts.total_closing_cash ?? 0)} {currency}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">{t('expectedCash')}</p>
-                <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{formatNumber(reconciliation?.cash_shifts.total_expected_cash ?? 0)} {currency}</p>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      <h2 className="pt-2 text-base font-bold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">{t('groups.costs')}</h2>
-
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
-        <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">{t('expensesByCategory')} <span className="font-normal text-gray-400">({t('beforeTax')})</span></h2>
-        {expLoading ? (
-          <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
-        ) : (
-          <div className="space-y-2">
-            {byCategory.map((c) => (
-              <div key={c.category} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
-                <span className="text-sm text-gray-600 dark:text-gray-400">{c.category}</span>
-                <div className="flex items-center gap-4 text-xs">
-                  <span className="text-gray-500 dark:text-gray-500">{c.count} {t('items')}</span>
-                  <span className="text-gray-900 dark:text-white font-medium">{formatNumber(c.total ?? 0)} {currency}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* COGS (Cost of Goods Sold) */}
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <PieChart className="w-4 h-4 text-gray-400" />
-          <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{t('cogs')}</h2>
-        </div>
-        {cogsLoading ? (
-          <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
+      {/* KPI row */}
+      <section aria-label={t('kpiLabel')} className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+        {revenueQ.isLoading ? (
+          Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-[128px] rounded-xl" />)
         ) : (
           <>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-              <div>
-                <p className="text-xs text-gray-500">{t('cogsTotal')}</p>
-                <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{formatNumber(cogs?.summary.total_cogs ?? 0)} {currency}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">{t('netRevenue')}</p>
-                <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{formatNumber(cogs?.summary.total_revenue ?? 0)} {currency}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">{t('grossProfit')}</p>
-                <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{formatNumber(cogs?.summary.gross_profit ?? 0)} {currency}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">{t('grossMargin')}</p>
-                <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{cogs?.summary.gross_margin_pct ?? 0}%</p>
-              </div>
-            </div>
-            {(cogs?.top_by_cost ?? []).length > 0 && (
-              <div>
-                <p className="text-xs text-gray-500 mb-2">{t('cogsTopByCost')}</p>
-                <div className="space-y-2">
-                  {(cogs?.top_by_cost ?? []).map((item) => (
-                    <div key={item.item_id} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">{item.item_name}</span>
-                      <div className="flex items-center gap-4 text-xs">
-                        <span className="text-gray-500 dark:text-gray-500">{item.quantity_sold} {t('units')}</span>
-                        <span className="text-gray-900 dark:text-white font-medium">{formatNumber(item.total_cost)} {currency}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            {cogs?.coverage_note && (
-              <p className="text-xs text-gray-400 mt-3">{t('cogsCoverageNote')}</p>
-            )}
+            <StatCard className="col-span-2 lg:col-span-1" title={t('totalRevenue')} value={money(summary?.total_revenue)} icon={TrendingUp} variant="success" sparkline={sparkValues} sparklineColor="#16a34a" {...delta(comparison?.change.revenue_pct)} />
+            <StatCard title={t('totalOrders')} value={int(summary?.total_orders)} icon={CreditCard} variant="default" {...delta(comparison?.change.order_count_pct)} />
+            <StatCard title={t('avgInvoice')} value={money(summary?.avg_order_value)} icon={Receipt} variant="info" {...delta(comparison?.change.avg_order_value_pct)} />
+            <StatCard title={t('vatCollected')} value={money(summary?.total_tax)} icon={Percent} variant="warning" sub={`${t('netRevenue')}: ${num(summary?.net_revenue)}`} />
+            <StatCard title={t('discountsLabel')} value={money(summary?.total_discount)} icon={Tag} variant="danger" />
+            <StatCard title={`${t('totalExpenses')} (${t('beforeTax')})`} value={expensesQ.isLoading ? '…' : money(expenses?.summary?.total_approved_amount)} icon={TrendingDown} variant="danger" />
           </>
         )}
-      </div>
+      </section>
 
-      <h2 className="pt-2 text-base font-bold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">{t('groups.people')}</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4">
+        <GroupHeading>{t('groups.sales')}</GroupHeading>
 
-      <div className="flex items-center gap-2 text-sm print:hidden">
-        <label htmlFor="people-sort" className="text-gray-500 dark:text-gray-400">{t('sortBy')}</label>
-        <select
-          id="people-sort"
-          value={peopleSort}
-          onChange={(e) => setPeopleSort(e.target.value as 'sales' | 'orders')}
-          className="border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-        >
-          <option value="sales">{t('sortBySales')}</option>
-          <option value="orders">{t('sortByOrders')}</option>
-        </select>
-      </div>
+        <ReportCard className="md:col-span-2 lg:col-span-8" title={t('revenueChart')} description={t('revenueChartDesc')} isLoading={revenueQ.isLoading} error={revenueQ.error} onRetry={() => revenueQ.refetch()} isEmpty={dailyBreakdown.length === 0} minHeight="min-h-[260px]">
+          <div dir="ltr" className="h-[260px] text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary" role="img" aria-label={t('revenueChart')}>
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={dailyBreakdown} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="rev-fill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#2563eb" stopOpacity={0.28} />
+                    <stop offset="100%" stopColor="#2563eb" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-posCloud-border dark:stroke-posCloudDark-border" />
+                <XAxis dataKey="date" tick={{ fill: 'currentColor', fontSize: 11 }} axisLine={false} tickLine={false} minTickGap={28} tickFormatter={(v: string) => v.slice(5)} />
+                <YAxis width={56} tick={{ fill: 'currentColor', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v: number) => formatNumber(v, 0)} />
+                <Tooltip
+                  cursor={{ stroke: '#2563eb', strokeOpacity: 0.3 }}
+                  content={({ active, payload, label }) =>
+                    active && payload?.length ? (
+                      <div className="rounded-lg border border-posCloud-border dark:border-posCloudDark-border bg-posCloud-surface dark:bg-posCloudDark-surface px-3 py-2 text-xs shadow-md">
+                        <p className="text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary tabular-nums">{String(label)}</p>
+                        <p className="mt-0.5 font-semibold tabular-nums text-posCloud-text-primary dark:text-posCloudDark-text-primary">{formatNumber(Number(payload[0].value))} {currency}</p>
+                      </div>
+                    ) : null
+                  }
+                />
+                <Area type="monotone" dataKey="total" name={t('revenue')} stroke="#2563eb" strokeWidth={2} fill="url(#rev-fill)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </ReportCard>
 
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <Users className="w-4 h-4 text-gray-400" />
-          <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{t('employeePerformance')}</h2>
-        </div>
-        {employeesLoading ? (
-          <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
-        ) : (
-          <div className="space-y-2">
-            {sortedEmployees.map((e) => (
-              <div key={e.cashier_id ?? 'unassigned'} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
-                <span className="text-sm text-gray-600 dark:text-gray-400">{e.name ?? t('unassigned')}</span>
-                <div className="flex items-center gap-4 text-xs">
-                  <span className="text-gray-500 dark:text-gray-500">{e.order_count} {t('orders')}</span>
-                  <span className="text-gray-500 dark:text-gray-500">{t('avgOrder')}: {formatNumber(e.avg_order_value)} {currency}</span>
-                  <span className="text-gray-900 dark:text-white font-medium">{formatNumber(e.total_sales)} {currency}</span>
-                </div>
+        <ReportCard className="md:col-span-2 lg:col-span-4" title={t('paymentMethods')} description={t('paymentMethodsDesc')} isLoading={revenueQ.isLoading} error={revenueQ.error} onRetry={() => revenueQ.refetch()} isEmpty={paymentRows.length === 0} minHeight="min-h-[260px]">
+          <div className="flex flex-col gap-4">
+            <div dir="ltr" className="relative mx-auto h-[150px] w-[150px]" role="img" aria-label={t('paymentMethods')}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={paymentRows} dataKey="total" nameKey="name" innerRadius={52} outerRadius={72} paddingAngle={2} stroke="none">
+                    {paymentRows.map((r, i) => <Cell key={r.key} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-[11px] text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('totalRevenue')}</span>
+                <span className="text-sm font-bold tabular-nums text-posCloud-text-primary dark:text-posCloudDark-text-primary">{formatNumber(paymentTotal, 0)}</span>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Top Customers */}
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <Users className="w-4 h-4 text-gray-400" />
-          <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{t('topCustomers')}</h2>
-        </div>
-        {customersLoading ? (
-          <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
-        ) : (customersReport?.customers ?? []).length === 0 ? (
-          <p className="text-sm text-gray-500 dark:text-gray-400 py-4 text-center">{t('noCustomers')}</p>
-        ) : (
-          <div className="space-y-2">
-            {sortedCustomers.slice(0, 10).map((c) => (
-              <div key={c.customer_id} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
-                <span className="text-sm text-gray-600 dark:text-gray-400">{c.name}</span>
-                <div className="flex items-center gap-4 text-xs">
-                  <span className="text-gray-500 dark:text-gray-500">{c.order_count} {t('orders')}</span>
-                  <span className="text-gray-500 dark:text-gray-500">{t('avgOrder')}: {formatNumber(c.avg_order_value)} {currency}</span>
-                  <span className="text-gray-900 dark:text-white font-medium">{formatNumber(c.total_spent)} {currency}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Customer Churn */}
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <UserMinus className="w-4 h-4 text-gray-400" />
-          <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{t('customerChurn')}</h2>
-        </div>
-        {churnLoading ? (
-          <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
-        ) : (
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <p className="text-xs text-gray-500">{t('previousCustomers')}</p>
-              <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{churn?.previous_period_customers ?? 0}</p>
             </div>
-            <div>
-              <p className="text-xs text-gray-500">{t('churnedCustomers')}</p>
-              <p className="text-sm font-medium text-red-600 dark:text-red-400 mt-1">{churn?.churned_customers ?? 0}</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-500">{t('churnRate')}</p>
-              <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">{churn?.churn_rate_pct ?? 0}%</p>
-            </div>
-          </div>
-        )}
-      </div>
-
-      <h2 className="pt-2 text-base font-bold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">{t('groups.places')}</h2>
-
-      {/* Branch Comparison — only visible with reports.view.all */}
-      {!byBranchError && (
-        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
-          <div className="flex items-center gap-2 mb-4">
-            <Building2 className="w-4 h-4 text-gray-400" />
-            <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{t('branchComparison')}</h2>
-          </div>
-          {byBranchLoading ? (
-            <div className="h-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
-          ) : (byBranch?.branches ?? []).length === 0 ? (
-            <p className="text-sm text-gray-500 dark:text-gray-400 py-4 text-center">{t('noBranches')}</p>
-          ) : (
-            <div className="space-y-2">
-              {(byBranch?.branches ?? []).map((b) => (
-                <div key={b.branch_id ?? 'unassigned'} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">{b.branch_name ?? t('unassignedBranch')}</span>
-                  <div className="flex items-center gap-4 text-xs">
-                    <span className="text-gray-500 dark:text-gray-500">{b.order_count} {t('orders')}</span>
-                    <span className="text-gray-900 dark:text-white font-medium">{formatNumber(b.revenue)} {currency}</span>
-                  </div>
-                </div>
+            <ul className="space-y-2">
+              {paymentRows.map((r, i) => (
+                <li key={r.key} className="flex items-center gap-2 text-sm">
+                  <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ background: CHART_COLORS[i % CHART_COLORS.length] }} aria-hidden />
+                  <span className="min-w-0 flex-1 truncate text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">{r.name}</span>
+                  <span className="text-xs tabular-nums text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{paymentTotal ? Math.round((r.total / paymentTotal) * 100) : 0}% · {r.count} {t('payments')}</span>
+                  <span className="font-semibold tabular-nums text-posCloud-text-primary dark:text-posCloudDark-text-primary">{num(r.total)}</span>
+                </li>
               ))}
+            </ul>
+          </div>
+        </ReportCard>
+
+        <ReportCard className="lg:col-span-5" title={t('periodComparison')} description={t('vsPreviousPeriod')} isLoading={comparisonQ.isLoading} error={comparisonQ.error} onRetry={() => comparisonQ.refetch()}>
+          <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3 gap-3">
+            {([
+              ['totalRevenue', money(comparison?.current_period.revenue), comparison?.change.revenue_pct],
+              ['totalOrders', int(comparison?.current_period.order_count), comparison?.change.order_count_pct],
+              ['avgOrder', money(comparison?.current_period.avg_order_value), comparison?.change.avg_order_value_pct],
+            ] as const).map(([k, v, p]) => (
+              <MetricTile
+                key={k}
+                label={t(k)}
+                value={v}
+                hint={p === null || p === undefined
+                  ? t('noPreviousData')
+                  : <span className={p >= 0 ? 'text-posCloud-success' : 'text-posCloud-danger'}>{p >= 0 ? '▲' : '▼'} {Math.abs(Number(p.toFixed(1)))}%</span>}
+              />
+            ))}
+          </div>
+        </ReportCard>
+
+        <ReportCard className="lg:col-span-7" title={t('taxSummary')} description={t('taxSummaryDesc')} isLoading={taxQ.isLoading} error={taxQ.error} onRetry={() => taxQ.refetch()}>
+          <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
+            <MetricTile label={t('subtotalGross')} value={`${num(tax?.summary.total_subtotal)} ${currency}`} />
+            <MetricTile label={t('discountsLabel')} value={`${num(tax?.summary.total_discount)} ${currency}`} />
+            <MetricTile label={`${t('taxCollected')} (${((tax?.tax_rate ?? 0) * 100).toFixed(0)}%)`} value={`${num(tax?.summary.total_tax_collected)} ${currency}`} />
+            <MetricTile label={t('totalRevenue')} value={`${num(tax?.summary.grand_total)} ${currency}`} />
+          </div>
+          <p className="mt-3 text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('taxNote')}</p>
+        </ReportCard>
+
+        <GroupHeading>{t('groups.cash')}</GroupHeading>
+
+        <ReportCard
+          className="md:col-span-2 lg:col-span-8"
+          title={t('dailyReconciliation')}
+          description={t('reconciliationDesc')}
+          actions={<div className="print:hidden"><SingleDatePicker value={reconciliationDate} onChange={(v) => v && setReconciliationDate(v)} /></div>}
+          isLoading={reconQ.isLoading}
+          error={reconQ.error}
+          onRetry={() => reconQ.refetch()}
+          minHeight="min-h-[260px]"
+        >
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
+              <MetricTile label={t('salesTotal')} value={`${num(reconciliation?.sales.total_revenue)} ${currency}`} hint={`${int(reconciliation?.sales.total_orders)} ${t('orders')}`} />
+              <MetricTile label={t('expensesTotal')} value={`${num(reconciliation?.expenses.total_approved_amount)} ${currency}`} hint={`${int(reconciliation?.expenses.approved_count)} ${t('items')}`} />
+              <MetricTile label={t('closedShifts')} value={int(reconciliation?.cash_shifts.closed_shift_count)} />
+              <MetricTile
+                label={t('discrepancy')}
+                tone={discrepancy === 0 ? 'default' : 'danger'}
+                value={`${num(discrepancy)} ${currency}`}
+                hint={`${t('shortage')}: ${num(reconciliation?.cash_shifts.shortage_total)} · ${t('overage')}: ${num(reconciliation?.cash_shifts.overage_total)}`}
+              />
+            </div>
+            <p className="text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary tabular-nums">
+              {t('cancelledInvoices')}: {int(reconciliation?.sales.cancelled_count)} ({num(reconciliation?.sales.cancelled_amount)}) · {t('returnedInvoices')}: {int(reconciliation?.sales.returned_count)} ({num(reconciliation?.sales.returned_amount)})
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <MetricTile label={t('openingCash')} value={`${num(reconciliation?.cash_shifts.total_opening_cash)} ${currency}`} />
+              <MetricTile label={t('closingCash')} value={`${num(reconciliation?.cash_shifts.total_closing_cash)} ${currency}`} />
+              <MetricTile label={t('expectedCash')} value={`${num(reconciliation?.cash_shifts.total_expected_cash)} ${currency}`} />
+            </div>
+            {Object.keys(reconciliation?.sales.by_payment_method ?? {}).length > 0 && (
+              <RankedList
+                ariaLabel={t('paymentMethods')}
+                items={Object.entries(reconciliation?.sales.by_payment_method ?? {}).map(([m, v]) => ({ key: m, label: methodLabel(m), weight: v.total, display: `${num(v.total)} ${currency}`, meta: `${int(v.count)} ${t('payments')}` }))}
+              />
+            )}
+          </div>
+        </ReportCard>
+
+        <ReportCard className="md:col-span-2 lg:col-span-4" title={t('shiftsTitle')} description={t('shiftsDesc')} isLoading={shiftsQ.isLoading} error={shiftsQ.error} onRetry={() => shiftsQ.refetch()} minHeight="min-h-[260px]">
+          <div className="grid grid-cols-2 gap-3">
+            <MetricTile label={t('totalShifts')} value={int(shiftsSummary?.total_shifts)} />
+            <MetricTile label={t('closedShifts')} value={int(shiftsSummary?.closed_shifts)} tone="success" />
+            <MetricTile label={t('openShifts')} value={int(shiftsSummary?.open_shifts)} />
+            <MetricTile label={t('discrepancy')} tone={(shiftsSummary?.total_discrepancy ?? 0) === 0 ? 'default' : 'danger'} value={num(shiftsSummary?.total_discrepancy)} hint={`${t('shortage')}: ${num(shiftsSummary?.shortage_total)} · ${t('overage')}: ${num(shiftsSummary?.overage_total)}`} />
+          </div>
+        </ReportCard>
+
+        <GroupHeading>{t('groups.costs')}</GroupHeading>
+
+        <ReportCard className="lg:col-span-6" title={`${t('expensesByCategory')} (${t('beforeTax')})`} description={t('expensesDesc')} isLoading={expensesQ.isLoading} error={expensesQ.error} onRetry={() => expensesQ.refetch()} isEmpty={byCategory.length === 0}>
+          <RankedList
+            ariaLabel={t('expensesByCategory')}
+            color="#ef4444"
+            items={byCategory.map((c) => ({ key: c.category, label: c.category, weight: c.total ?? 0, display: `${num(c.total)} ${currency}`, meta: `${int(c.count)} ${t('items')}` }))}
+          />
+        </ReportCard>
+
+        <ReportCard className="lg:col-span-6" title={t('cogs')} description={t('cogsDesc')} isLoading={cogsQ.isLoading} error={cogsQ.error} onRetry={() => cogsQ.refetch()}>
+          <div className="grid grid-cols-2 gap-3">
+            <MetricTile label={t('cogsTotal')} value={`${num(cogs?.summary.total_cogs)} ${currency}`} />
+            <MetricTile label={t('netRevenue')} value={`${num(cogs?.summary.total_revenue)} ${currency}`} />
+            <MetricTile label={t('grossProfit')} value={`${num(cogs?.summary.gross_profit)} ${currency}`} tone="success" />
+            <MetricTile label={t('grossMargin')} value={`${cogs?.summary.gross_margin_pct ?? 0}%`} />
+          </div>
+          {(cogs?.top_by_cost ?? []).length > 0 && (
+            <div className="mt-4">
+              <p className="mb-2 text-xs font-medium text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('cogsTopByCost')}</p>
+              <RankedList
+                ariaLabel={t('cogsTopByCost')}
+                color="#f59e0b"
+                items={(cogs?.top_by_cost ?? []).map((i) => ({ key: i.item_id, label: i.item_name, weight: i.total_cost, display: `${num(i.total_cost)} ${currency}`, meta: `${int(i.quantity_sold)} ${t('units')}` }))}
+              />
             </div>
           )}
-        </div>
-      )}
+          {cogs?.coverage_note && <p className="mt-3 text-xs text-posCloud-text-tertiary dark:text-posCloudDark-text-tertiary">{t('cogsCoverageNote')}</p>}
+        </ReportCard>
+
+        <GroupHeading>{t('groups.people')}</GroupHeading>
+
+        <ReportCard
+          className="lg:col-span-6"
+          title={t('employeePerformance')}
+          description={t('employeesDesc')}
+          actions={<Segmented value={peopleSort} onChange={setPeopleSort} options={sortOptions} ariaLabel={t('sortBy')} />}
+          isLoading={employeesQ.isLoading}
+          error={employeesQ.error}
+          onRetry={() => employeesQ.refetch()}
+          isEmpty={sortedEmployees.length === 0}
+        >
+          <RankedList
+            ariaLabel={t('employeePerformance')}
+            items={sortedEmployees.map((e) => ({
+              key: e.cashier_id ?? 'unassigned',
+              label: e.name ?? t('unassigned'),
+              weight: peopleSort === 'sales' ? e.total_sales : e.order_count,
+              display: `${num(e.total_sales)} ${currency}`,
+              meta: `${int(e.order_count)} ${t('orders')} · ${t('avgOrder')}: ${num(e.avg_order_value)} ${currency}`,
+            }))}
+          />
+        </ReportCard>
+
+        <ReportCard
+          className="lg:col-span-6"
+          title={t('topCustomers')}
+          description={t('customersDesc')}
+          actions={<Segmented value={peopleSort} onChange={setPeopleSort} options={sortOptions} ariaLabel={t('sortBy')} />}
+          isLoading={customersQ.isLoading}
+          error={customersQ.error}
+          onRetry={() => customersQ.refetch()}
+          isEmpty={sortedCustomers.length === 0}
+          emptyTitle={t('noCustomers')}
+        >
+          <RankedList
+            ariaLabel={t('topCustomers')}
+            color="#7c3aed"
+            items={sortedCustomers.slice(0, 10).map((c) => ({
+              key: c.customer_id,
+              label: c.name,
+              weight: peopleSort === 'sales' ? c.total_spent : c.order_count,
+              display: `${num(c.total_spent)} ${currency}`,
+              meta: `${int(c.order_count)} ${t('orders')} · ${t('avgOrder')}: ${num(c.avg_order_value)} ${currency}`,
+            }))}
+          />
+        </ReportCard>
+
+        <ReportCard className={byBranchError ? 'md:col-span-2 lg:col-span-12' : 'lg:col-span-5'} title={t('customerChurn')} description={t('churnDesc')} isLoading={churnQ.isLoading} error={churnQ.error} onRetry={() => churnQ.refetch()}>
+          <div className="grid grid-cols-3 gap-3">
+            <MetricTile label={t('previousCustomers')} value={int(churn?.previous_period_customers)} />
+            <MetricTile label={t('churnedCustomers')} value={int(churn?.churned_customers)} tone="danger" />
+            <MetricTile label={t('churnRate')} value={`${churn?.churn_rate_pct ?? 0}%`} />
+          </div>
+        </ReportCard>
+
+        {/* Branch comparison: only visible with reports.view.all */}
+        {!byBranchError && (
+          <ReportCard className="lg:col-span-7" title={t('branchComparison')} description={t('branchDesc')} isLoading={byBranchQ.isLoading} isEmpty={(byBranch?.branches ?? []).length === 0} emptyTitle={t('noBranches')}>
+            <RankedList
+              ariaLabel={t('branchComparison')}
+              color="#16a34a"
+              items={(byBranch?.branches ?? []).map((b) => ({ key: b.branch_id ?? 'unassigned', label: b.branch_name ?? t('unassignedBranch'), weight: b.revenue, display: `${num(b.revenue)} ${currency}`, meta: `${int(b.order_count)} ${t('orders')}` }))}
+            />
+          </ReportCard>
+        )}
+      </div>
     </div>
   )
 }
