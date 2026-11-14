@@ -18,7 +18,7 @@
     "count": "Number of Purchases",
     "threshold": "Spend Threshold Amount",
     "categoryId": "Category ID",
-    "categoryIdPlaceholder": "Product category ID",
+    "categoryIdPlaceholder": "Select a category",
     "points": "Lifetime Points Required"
   },
   "rewardType": "Reward Type",
@@ -46,7 +46,7 @@
     "taxModeIncluding": "Including VAT (taken off what the customer pays)",
     "taxModeHint": "Any unused amount stays on the reward as a balance for the next purchase.",
     "couponId": "Coupon ID",
-    "couponIdPlaceholder": "Coupon ID to link"
+    "couponIdPlaceholder": "Select a coupon"
   },
   "usageConditions": {
     "minOrderAmount": "Minimum Order Amount",
@@ -103,5 +103,20 @@
     "chooseFreeItem": "Choose the free product for \"{name}\"",
     "pickOne": "Choose a product...",
     "chooseVariant": "Choose the size/variant of the free item \"{name}\""
+  },
+  "close": "Close",
+  "validation": {
+    "nameRequired": "Enter the reward name",
+    "nameShort": "Reward name is too short (min 2 characters)",
+    "count": "Purchase count must be a whole number greater than 0",
+    "threshold": "Spend threshold must be a number greater than 0 (up to 1,000,000)",
+    "points": "Required points must be a whole number greater than 0",
+    "category": "Pick a product category",
+    "coupon": "Pick the linked coupon",
+    "percent": "Discount percentage must be greater than 0 and at most 100",
+    "amount": "Discount amount must be a number greater than 0 (up to 1,000,000)",
+    "minOrder": "Minimum order must be a number from 0 to 1,000,000",
+    "expiration": "Expiry must be a whole number from 1 to 3650 days",
+    "branch": "Pick a branch"
   }
 }

@@ -7,6 +7,13 @@ import type { RewardDefinition, RewardTriggerType, RewardType, RewardBranchScope
 import { ApiError } from '@/lib/api'
 import { useBranches } from '@/shared/hooks/useBranches'
 import { ItemMultiPicker } from './ItemMultiPicker'
+import { useCategories } from '@/features/items/hooks/useItems'
+import { useCoupons } from '@/features/coupons/hooks/useCoupons'
+import { parseStrictNumber, normalizeDigits } from '@/lib/number-input'
+import { useEscapeClose } from '@/shared/hooks/useEscapeClose'
+import { X } from 'lucide-react'
+
+const MAX_AMOUNT = 1_000_000
 
 interface Props {
   reward?: RewardDefinition | null
@@ -22,6 +29,9 @@ export function RewardFormModal({ reward, onClose }: Props) {
   const t = useTranslations('rewards')
   const isEdit = !!reward
   const { data: branches = [] } = useBranches()
+  const { data: categories = [] } = useCategories()
+  const { data: coupons = [] } = useCoupons()
+  useEscapeClose(true, onClose)
   const { mutate: createReward, isPending: creating } = useCreateRewardDefinition()
   const { mutate: updateReward, isPending: updating } = useUpdateRewardDefinition()
   const isPending = creating || updating
@@ -87,16 +97,67 @@ export function RewardFormModal({ reward, onClose }: Props) {
 
   const [error, setError] = useState<string | null>(null)
 
+  // Strict parse: returns null for anything non-numeric (never silently 0).
+  const num = (v: string) => parseStrictNumber(v)
+
+  // Returns the i18n key of the first problem, or null when the form is valid.
+  const validate = (): string | null => {
+    if (!name.trim()) return 'validation.nameRequired'
+    if (name.trim().length < 2) return 'validation.nameShort'
+    switch (triggerType) {
+      case 'purchase_count': {
+        const n = num(purchaseCount)
+        if (n === null || !Number.isInteger(n) || n < 1 || n > 100000) return 'validation.count'
+        break
+      }
+      case 'spend_threshold': {
+        const n = num(spendThreshold)
+        if (n === null || n <= 0 || n > MAX_AMOUNT) return 'validation.threshold'
+        break
+      }
+      case 'loyalty_points': {
+        const n = num(pointsThreshold)
+        if (n === null || !Number.isInteger(n) || n < 1 || n > 10000000) return 'validation.points'
+        break
+      }
+      case 'product_category':
+        if (!categoryId) return 'validation.category'
+        break
+      default:
+        break
+    }
+    if (rewardType === 'free_item' && freeItemIds.length === 0) return 'rewardConfig.pickAtLeastOne'
+    if (rewardType === 'coupon_reference' && !couponId) return 'validation.coupon'
+    if (rewardType === 'percentage_discount') {
+      const n = num(discountValue)
+      if (n === null || n <= 0 || n > 100) return 'validation.percent'
+    }
+    if (rewardType === 'fixed_discount') {
+      const n = num(discountValue)
+      if (n === null || n <= 0 || n > MAX_AMOUNT) return 'validation.amount'
+    }
+    if (minOrderAmount.trim()) {
+      const n = num(minOrderAmount)
+      if (n === null || n < 0 || n > MAX_AMOUNT) return 'validation.minOrder'
+    }
+    if (expirationDays.trim()) {
+      const n = num(expirationDays)
+      if (n === null || !Number.isInteger(n) || n < 1 || n > 3650) return 'validation.expiration'
+    }
+    if (branchScope === 'specific' && !branchId) return 'validation.branch'
+    return null
+  }
+
   const buildTriggerConfig = (): Record<string, unknown> => {
     switch (triggerType) {
       case 'purchase_count':
-        return { count: parseInt(purchaseCount, 10) || 0 }
+        return { count: num(purchaseCount) }
       case 'spend_threshold':
-        return { threshold: parseFloat(spendThreshold) || 0 }
+        return { threshold: num(spendThreshold) }
       case 'product_category':
         return { category_id: categoryId }
       case 'loyalty_points':
-        return { points: parseInt(pointsThreshold, 10) || 0 }
+        return { points: num(pointsThreshold) }
       default:
         return {}
     }
@@ -111,23 +172,23 @@ export function RewardFormModal({ reward, onClose }: Props) {
       }
     }
     if (rewardType === 'percentage_discount') {
-      return { percent: parseFloat(discountValue) || 0 }
+      return { percent: num(discountValue) }
     }
     if (rewardType === 'coupon_reference') {
       return { coupon_id: couponId }
     }
-    return { amount: parseFloat(discountValue) || 0, tax_mode: taxMode }
+    return { amount: num(discountValue), tax_mode: taxMode }
   }
 
   const buildUsageConditions = (): Record<string, unknown> | undefined => {
-    const amount = parseFloat(minOrderAmount)
-    return minOrderAmount && !Number.isNaN(amount) ? { min_order_amount: amount } : undefined
+    const amount = num(minOrderAmount)
+    return amount !== null ? { min_order_amount: amount } : undefined
   }
 
   const handleSubmit = () => {
-    if (!name.trim()) return
-    if (rewardType === 'free_item' && freeItemIds.length === 0) {
-      setError(t('rewardConfig.pickAtLeastOne'))
+    const problem = validate()
+    if (problem) {
+      setError(t(problem))
       return
     }
     setError(null)
@@ -141,13 +202,13 @@ export function RewardFormModal({ reward, onClose }: Props) {
       usage_conditions: buildUsageConditions(),
       branch_scope: branchScope,
       branch_id: branchScope === 'specific' ? branchId || undefined : undefined,
-      expiration_days: expirationDays ? parseInt(expirationDays, 10) : undefined,
+      expiration_days: expirationDays.trim() ? num(expirationDays) ?? undefined : undefined,
       is_active: isActive,
     }
 
     const onDone = {
       onSuccess: () => onClose(),
-      onError: (e: unknown) => setError(e instanceof ApiError ? e.message : t('error')),
+      onError: (e: unknown) => setError(e instanceof ApiError || e instanceof Error ? e.message : t('error')),
     }
 
     if (isEdit) {
@@ -160,9 +221,14 @@ export function RewardFormModal({ reward, onClose }: Props) {
   return (
     <div className="fixed inset-0 bg-black/60 z-[400] flex items-center justify-center p-4">
       <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl p-5 w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <h3 className="font-semibold text-lg text-gray-900 dark:text-white mb-4">
-          {isEdit ? t('editReward') : t('newReward')}
-        </h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
+            {isEdit ? t('editReward') : t('newReward')}
+          </h3>
+          <button type="button" onClick={onClose} aria-label={t('close')} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
         <div className="space-y-3">
           <div>
             <label className="text-xs text-gray-500 mb-1 block">{t('name')}</label>
@@ -195,10 +261,10 @@ export function RewardFormModal({ reward, onClose }: Props) {
             <div>
               <label className="text-xs text-gray-500 mb-1 block">{t('triggerConfig.count')}</label>
               <input
-                type="number"
-                min={1}
+                type="text"
+                inputMode="numeric"
                 value={purchaseCount}
-                onChange={(e) => setPurchaseCount(e.target.value)}
+                onChange={(e) => setPurchaseCount(normalizeDigits(e.target.value))}
                 className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white"
               />
             </div>
@@ -207,11 +273,10 @@ export function RewardFormModal({ reward, onClose }: Props) {
             <div>
               <label className="text-xs text-gray-500 mb-1 block">{t('triggerConfig.threshold')}</label>
               <input
-                type="number"
-                min={0}
-                step="0.01"
+                type="text"
+                inputMode="decimal"
                 value={spendThreshold}
-                onChange={(e) => setSpendThreshold(e.target.value)}
+                onChange={(e) => setSpendThreshold(normalizeDigits(e.target.value))}
                 className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white"
               />
             </div>
@@ -219,23 +284,28 @@ export function RewardFormModal({ reward, onClose }: Props) {
           {triggerType === 'product_category' && (
             <div>
               <label className="text-xs text-gray-500 mb-1 block">{t('triggerConfig.categoryId')}</label>
-              <input
-                type="text"
+              <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                placeholder={t('triggerConfig.categoryIdPlaceholder')}
                 className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white"
-              />
+              >
+                <option value="">{t('triggerConfig.categoryIdPlaceholder')}</option>
+                {categories
+                  .filter((c) => c.type !== 'expense')
+                  .map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+              </select>
             </div>
           )}
           {triggerType === 'loyalty_points' && (
             <div>
               <label className="text-xs text-gray-500 mb-1 block">{t('triggerConfig.points')}</label>
               <input
-                type="number"
-                min={1}
+                type="text"
+                inputMode="numeric"
                 value={pointsThreshold}
-                onChange={(e) => setPointsThreshold(e.target.value)}
+                onChange={(e) => setPointsThreshold(normalizeDigits(e.target.value))}
                 className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white"
               />
             </div>
@@ -281,13 +351,16 @@ export function RewardFormModal({ reward, onClose }: Props) {
           ) : rewardType === 'coupon_reference' ? (
             <div>
               <label className="text-xs text-gray-500 mb-1 block">{t('rewardConfig.couponId')}</label>
-              <input
-                type="text"
+              <select
                 value={couponId}
                 onChange={(e) => setCouponId(e.target.value)}
-                placeholder={t('rewardConfig.couponIdPlaceholder')}
                 className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white"
-              />
+              >
+                <option value="">{t('rewardConfig.couponIdPlaceholder')}</option>
+                {coupons.map((c) => (
+                  <option key={c.id} value={c.id}>{c.code}</option>
+                ))}
+              </select>
             </div>
           ) : (
             <div>
@@ -295,11 +368,10 @@ export function RewardFormModal({ reward, onClose }: Props) {
                 {rewardType === 'percentage_discount' ? t('rewardConfig.percentageValue') : t('rewardConfig.fixedValue')}
               </label>
               <input
-                type="number"
-                min={0}
-                step="0.01"
+                type="text"
+                inputMode="decimal"
                 value={discountValue}
-                onChange={(e) => setDiscountValue(e.target.value)}
+                onChange={(e) => setDiscountValue(normalizeDigits(e.target.value))}
                 className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white"
               />
               {rewardType === 'fixed_discount' && (
@@ -351,11 +423,10 @@ export function RewardFormModal({ reward, onClose }: Props) {
           <div>
             <label className="text-xs text-gray-500 mb-1 block">{t('usageConditions.minOrderAmount')}</label>
             <input
-              type="number"
-              min={0}
-              step="0.01"
+              type="text"
+              inputMode="decimal"
               value={minOrderAmount}
-              onChange={(e) => setMinOrderAmount(e.target.value)}
+              onChange={(e) => setMinOrderAmount(normalizeDigits(e.target.value))}
               placeholder={t('usageConditions.minOrderAmountPlaceholder')}
               className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white"
             />
@@ -364,10 +435,10 @@ export function RewardFormModal({ reward, onClose }: Props) {
           <div>
             <label className="text-xs text-gray-500 mb-1 block">{t('expirationDays')}</label>
             <input
-              type="number"
-              min={1}
+              type="text"
+              inputMode="numeric"
               value={expirationDays}
-              onChange={(e) => setExpirationDays(e.target.value)}
+              onChange={(e) => setExpirationDays(normalizeDigits(e.target.value))}
               placeholder={t('noExpiryPlaceholder')}
               className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white"
             />
@@ -383,7 +454,7 @@ export function RewardFormModal({ reward, onClose }: Props) {
             {t('active')}
           </label>
 
-          {error && <p className="text-sm text-red-500">{error}</p>}
+          {error && <p role="alert" className="text-sm text-red-500">{error}</p>}
         </div>
         <div className="flex gap-3 mt-5">
           <button
@@ -394,7 +465,7 @@ export function RewardFormModal({ reward, onClose }: Props) {
           </button>
           <button
             onClick={handleSubmit}
-            disabled={isPending || !name.trim()}
+            disabled={isPending}
             className="flex-[2] py-2.5 bg-[#0C447C] hover:bg-[#0a3a6b] disabled:opacity-50 text-white rounded-xl text-sm font-bold"
           >
             {isPending ? t('saving') : t('save')}

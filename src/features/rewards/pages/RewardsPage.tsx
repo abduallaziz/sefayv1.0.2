@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
+import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
 import { Plus, Gift, Edit, Trash2, ToggleLeft, ToggleRight } from 'lucide-react'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { useRewardDefinitions, useUpdateRewardDefinition, useDeleteRewardDefinition } from '../hooks/useRewards'
@@ -71,8 +72,8 @@ export function RewardsPage() {
                     <p className="text-xs text-gray-500">{t(`trigger.${r.trigger_type}`)}</p>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
-                    <button onClick={() => openEdit(r)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400"><Edit className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => setDeleteTarget(r)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-gray-400 hover:text-red-500"><Trash2 className="w-3.5 h-3.5" /></button>
+                    <button type="button" aria-label={t('editReward')} title={t('editReward')} onClick={() => openEdit(r)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400"><Edit className="w-3.5 h-3.5" /></button>
+                    <button type="button" aria-label={t('deleteReward')} title={t('deleteReward')} onClick={() => setDeleteTarget(r)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-gray-400 hover:text-red-500"><Trash2 className="w-3.5 h-3.5" /></button>
                   </div>
                 </div>
                 <div className="flex items-center justify-between mt-3 pt-2 border-t border-gray-100 dark:border-gray-700">
@@ -120,8 +121,8 @@ export function RewardsPage() {
                     </td>
                     <td className="px-3 py-3 w-16">
                       <div className="flex items-center gap-1">
-                        <button onClick={() => openEdit(r)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600 dark:hover:text-white"><Edit className="w-3.5 h-3.5" /></button>
-                        <button onClick={() => setDeleteTarget(r)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-gray-400 hover:text-red-500"><Trash2 className="w-3.5 h-3.5" /></button>
+                        <button type="button" aria-label={t('editReward')} title={t('editReward')} onClick={() => openEdit(r)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600 dark:hover:text-white"><Edit className="w-3.5 h-3.5" /></button>
+                        <button type="button" aria-label={t('deleteReward')} title={t('deleteReward')} onClick={() => setDeleteTarget(r)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-gray-400 hover:text-red-500"><Trash2 className="w-3.5 h-3.5" /></button>
                       </div>
                     </td>
                   </tr>
@@ -136,22 +137,16 @@ export function RewardsPage() {
         <RewardFormModal reward={selected} onClose={() => { setFormOpen(false); setSelected(null) }} />
       )}
 
-      {deleteTarget && (
-        <div className="fixed inset-0 bg-black/60 z-[400] flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl p-5 w-full max-w-sm">
-            <h3 className="font-semibold text-lg text-gray-900 dark:text-white mb-2">{t('deleteReward')}</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">{t('deleteConfirm', { name: deleteTarget.name })}</p>
-            <div className="flex gap-3">
-              <button onClick={() => setDeleteTarget(null)} className="flex-1 py-2.5 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 rounded-lg text-sm font-medium">
-                {t('cancel')}
-              </button>
-              <button onClick={confirmDelete} className="flex-[2] py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-bold">
-                {t('delete')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={confirmDelete}
+        variant="danger"
+        title={t('deleteReward')}
+        message={t('deleteConfirm', { name: deleteTarget?.name ?? '' })}
+        confirmLabel={t('delete')}
+        cancelLabel={t('cancel')}
+      />
     </div>
   )
 }
