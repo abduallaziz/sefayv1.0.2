@@ -24,7 +24,21 @@ export function CustomerRewardsPanel({ customerId }: { customerId: string }) {
   const locale: 'ar' | 'en' = rawLocale === 'ar' ? 'ar' : 'en'
   const { data: rawInstances, isLoading } = useCustomerRewardsHistory(customerId)
   // The history hook merges one query per status; the same instance must never be listed twice.
-  const instances = rawInstances ? [...new Map(rawInstances.map((i) => [i.id, i])).values()] : rawInstances
+  const uniqueInstances = rawInstances ? [...new Map(rawInstances.map((i) => [i.id, i])).values()] : rawInstances
+  // One row per reward + status with a count, so a reward earned on every order is not listed N times.
+  const instances = uniqueInstances
+    ? [
+        ...uniqueInstances
+          .reduce((map, i) => {
+            const key = `${i.reward_definition_id ?? i.reward_definitions?.name ?? ''}|${i.status}`
+            const entry = map.get(key)
+            if (entry) entry.count += 1
+            else map.set(key, { instance: i, count: 1 })
+            return map
+          }, new Map<string, { instance: (typeof uniqueInstances)[number]; count: number }>())
+          .values(),
+      ]
+    : uniqueInstances
 
   return (
     <div>
@@ -38,11 +52,12 @@ export function CustomerRewardsPanel({ customerId }: { customerId: string }) {
         <p className="text-sm text-gray-400 text-center py-4">{t('customer.empty')}</p>
       ) : (
         <div className="space-y-2">
-          {instances.map((instance) => (
+          {instances.map(({ instance, count }) => (
             <div key={instance.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
               <div className="min-w-0">
                 <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                   {instance.reward_definitions?.name ?? '—'}
+                  {count > 1 && <span className="ms-1.5 text-xs text-gray-400">×{count}</span>}
                 </p>
                 {instance.status === 'redeemed' && instance.redeemed_at && (
                   <p className="text-xs text-gray-400">

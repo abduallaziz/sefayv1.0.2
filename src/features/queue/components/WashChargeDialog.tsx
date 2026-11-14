@@ -3,7 +3,8 @@
 import { useMemo, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
-import { ApiError } from '@/lib/api'
+import { useQuery } from '@tanstack/react-query'
+import { ApiError, apiClient } from '@/lib/api'
 import { useCurrencyDisplay } from '@/core/tenant/stores/tenant.store'
 import { NumberInput } from '@/shared/ui/number-input/NumberInput'
 import { DialogShell } from '@/features/tables/components/DialogShell'
@@ -37,7 +38,11 @@ export function WashChargeDialog({ job, branchId, onClose }: Props) {
   const [itemId, setItemId] = useState('')
   const [price, setPrice] = useState('')
   const [method, setMethod] = useState<'cash' | 'card'>('cash')
-  const [tendered, setTendered] = useState('')
+  const [tenderedEdit, setTenderedEdit] = useState<string | null>(null)
+  const { data: posConfig } = useQuery({
+    queryKey: ['tenant', 'pos-config'],
+    queryFn: () => apiClient.get<{ tax_rate?: number | null; tax_inclusive_pricing?: boolean }>('/tenant/pos-config'),
+  })
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   // one sale attempt per dialog, and the invoice survives a failed follow-up step (never charge twice)
@@ -59,8 +64,13 @@ export function WashChargeDialog({ job, branchId, onClose }: Props) {
 
   const amount = price === '' ? null : Number(price)
   const priceValid = amount !== null && Number.isFinite(amount) && amount > 0 && amount <= MAX_PRICE
+  const taxRate = typeof posConfig?.tax_rate === 'number' ? posConfig.tax_rate : 0
+  const factor = posConfig?.tax_inclusive_pricing ? 1 : 1 + taxRate
+  const total = amount !== null && Number.isFinite(amount) ? Math.round(amount * factor * 100) / 100 : null
+  const tendered = tenderedEdit ?? (total !== null ? String(total) : '')
+  const setTendered = (v: string) => setTenderedEdit(v)
   const tenderedNum = tendered === '' ? null : Number(tendered)
-  const cashValid = method === 'card' || (tenderedNum !== null && Number.isFinite(tenderedNum) && tenderedNum > 0)
+  const cashValid = method === 'card' || (tenderedNum !== null && Number.isFinite(tenderedNum) && tenderedNum > 0 && (total === null || tenderedNum >= total))
   const valid = !!itemId && priceValid && cashValid
 
   const pickItem = (id: string) => {
@@ -68,7 +78,7 @@ export function WashChargeDialog({ job, branchId, onClose }: Props) {
     const it = services.find((x) => x.id === id)
     if (it) {
       setPrice(String(it.price))
-      setTendered(String(it.price))
+      setTenderedEdit(null)
     }
   }
 

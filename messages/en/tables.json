@@ -63,6 +63,7 @@
   "remove": "Delete",
   "editTable": "Edit table",
   "deleteTable": "Delete table",
+  "deleteTableOccupiedHint": "An occupied table cannot be deleted. Release it or check it out first.",
   "deleteTableTitle": "Delete this table?",
   "deleteTableConfirm": "Table {name} will be removed from the list.",
   "capacityRange": "Capacity must be a whole number from 1 to {max}",

@@ -112,7 +112,14 @@ export function ExpenseFormSheet({ open, onOpenChange, branchId, editing }: Prop
       variant="warning"
     />
     <Sheet open={open} onOpenChange={requestClose} modal={false}>
-      <SheetContent side="end" className="sm:max-w-2xl">
+      <SheetContent
+        side="end"
+        className="sm:max-w-2xl"
+        onEscapeKeyDown={(e) => {
+          e.preventDefault()
+          requestClose(false)
+        }}
+      >
         {open && (
           // Keyed by the target record so switching between "add" and
           // "edit X" (or between two different edits) fully remounts the
@@ -225,7 +232,10 @@ function ExpenseFormBody({
     onDirtyChange(dirty)
   }, [dirty, onDirtyChange])
 
-  const isPending = createExpense.isPending || updateExpense.isPending
+  // Synchronous lock: covers the whole save (create + attachment uploads), not just the POST.
+  const submitLock = useRef(false)
+  const [submitting, setSubmitting] = useState(false)
+  const isPending = createExpense.isPending || updateExpense.isPending || submitting
 
   const addFiles = (files: FileList | null) => {
     if (!files || files.length === 0) return
@@ -259,7 +269,13 @@ function ExpenseFormBody({
   }
 
   const handleSubmit = () => {
-    if (!canSubmit) return
+    if (!canSubmit || submitLock.current) return
+    submitLock.current = true
+    setSubmitting(true)
+    const release = () => {
+      submitLock.current = false
+      setSubmitting(false)
+    }
 
     if (editing) {
       updateExpense.mutate(
@@ -282,6 +298,7 @@ function ExpenseFormBody({
         },
         {
           onSuccess: onDone,
+          onError: release,
         },
       )
       return
@@ -310,6 +327,7 @@ function ExpenseFormBody({
           if (failed.length > 0) toast.error(t('attachmentsPartialFailed', { names: failed.join(', ') }))
           onDone()
         },
+        onError: release,
       },
     )
   }
@@ -390,6 +408,11 @@ function ExpenseFormBody({
             <SectionHeading icon={ClipboardList}>{t('sectionBasicInfo')}</SectionHeading>
           </CardHeader>
           <CardContent className="p-4 space-y-4">
+            <div>
+              <label className={fieldLabel}>{t('title')}</label>
+              <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t('titlePlaceholder')} />
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className={fieldLabel}>{t('category')}</label>
@@ -457,11 +480,6 @@ function ExpenseFormBody({
                 onChange={(e) => setReferenceNumber(e.target.value)}
                 placeholder={t('referenceNumberPlaceholder')}
               />
-            </div>
-
-            <div>
-              <label className={fieldLabel}>{t('title')}</label>
-              <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t('titlePlaceholder')} />
             </div>
 
             <div>

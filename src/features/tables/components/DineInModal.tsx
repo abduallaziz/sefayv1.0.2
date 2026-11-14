@@ -297,6 +297,20 @@ export function DineInModal({ table, onClose }: Props) {
           {error && <p className="text-sm text-red-500 mt-3">{error}</p>}
         </div>
 
+        {table.status === 'occupied' && view === 'order' && (
+          <div className="px-5 pb-2">
+            <button
+              type="button"
+              disabled
+              title={t('deleteTableOccupiedHint')}
+              className="flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-xs text-red-600 opacity-50 dark:border-red-900"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              {t('deleteTable')}
+            </button>
+            <p className="mt-1 text-xs text-gray-500">{t('deleteTableOccupiedHint')}</p>
+          </div>
+        )}
         {table.status === 'occupied' && (
           <div className="flex gap-3 p-5 pt-0">
             {view === 'order' && (

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
 import { Car, ArrowRight, RotateCcw, X, Plus } from 'lucide-react'
@@ -72,6 +72,17 @@ export function QueuePage() {
   const change = useChangeWashStatus(onError)
   const assign = useAssignWashWorker(onError)
 
+  // active, non-owner staff, one entry per id and per name (duplicates confuse the picker)
+  const workers = useMemo(() => {
+    const seen = new Set<string>()
+    return users.filter((u) => {
+      const key = u.name.trim().toLowerCase()
+      if (!u.is_active || u.role === 'owner' || seen.has(u.id) || seen.has(key)) return false
+      seen.add(u.id)
+      seen.add(key)
+      return true
+    })
+  }, [users])
   const workerName = (id: string | null) =>
     id ? (users.find((u) => u.id === id)?.name ?? t('unknownWorker')) : t('unassigned')
 
@@ -172,7 +183,7 @@ export function QueuePage() {
                           className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                         >
                           <option value="">{t('unassigned')}</option>
-                          {users.filter((u) => u.is_active).map((u) => (
+                          {workers.map((u) => (
                             <option key={u.id} value={u.id}>{u.name}</option>
                           ))}
                           {job.assigned_worker_id && !users.some((u) => u.id === job.assigned_worker_id) && (

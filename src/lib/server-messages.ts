@@ -248,3 +248,7 @@ RULES.push(
   [/^A role named "(.+)" already exists for this tenant$/, (m) => `يوجد دور بالاسم "${m[1]}" مسبقًا`],
   [/^Cannot delete role "(.+)" . (\d+) user\(s\) are still assigned to it$/, (m) => `لا يمكن حذف الدور "${m[1]}" لأن ${m[2]} مستخدم ما زالوا مرتبطين به`],
 );
+
+Object.assign(EXACT, {
+  'Insufficient cash tendered': 'المبلغ المدفوع أقل من إجمالي الفاتورة',
+});

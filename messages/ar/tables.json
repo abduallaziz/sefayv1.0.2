@@ -63,6 +63,7 @@
   "remove": "حذف",
   "editTable": "تعديل الطاولة",
   "deleteTable": "حذف الطاولة",
+  "deleteTableOccupiedHint": "لا يمكن حذف طاولة مشغولة. حرّر الطاولة أو أتمّ تحصيلها أولاً.",
   "deleteTableTitle": "حذف الطاولة؟",
   "deleteTableConfirm": "سيتم حذف الطاولة {name} نهائيًا من القائمة.",
   "capacityRange": "السعة يجب أن تكون عددًا صحيحًا من 1 إلى {max}",

@@ -98,7 +98,7 @@ export function ReservationDialog({ tables, reservation, onClose }: Props) {
           ) : (
             <SimpleSelect
               value={tableId}
-              onChange={setTableId}
+              onChange={(v) => { setError(null); setTableId(v) }}
               placeholder={t('selectTable')}
               ariaLabel={t('res.table')}
               options={tables.map((tb) => ({ value: tb.id, label: `${tb.name} (${tb.capacity})` }))}
@@ -108,7 +108,7 @@ export function ReservationDialog({ tables, reservation, onClose }: Props) {
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
             <label className="mb-1 block text-xs text-gray-500">{t('customerName')}</label>
-            <input value={name} onChange={(e) => setName(e.target.value)} maxLength={100} className={FIELD} />
+            <input value={name} onChange={(e) => { setError(null); setName(e.target.value) }} maxLength={100} className={FIELD} />
           </div>
           <div>
             <label className="mb-1 block text-xs text-gray-500">{t('res.phone')}</label>
@@ -123,18 +123,18 @@ export function ReservationDialog({ tables, reservation, onClose }: Props) {
           </div>
           <div>
             <label className="mb-1 block text-xs text-gray-500">{t('res.date')}</label>
-            <SingleDatePicker value={date || undefined} onChange={(v) => setDate(v ?? '')} min={ymd(new Date())} />
+            <SingleDatePicker value={date || undefined} onChange={(v) => { setError(null); setDate(v ?? '') }} min={ymd(new Date())} />
           </div>
           <div>
             <label className="mb-1 block text-xs text-gray-500">{t('res.time')}</label>
-            <TimeSelect value={time} onChange={setTime} hourLabel={t('res.hour')} minuteLabel={t('res.minute')} />
+            <TimeSelect value={time} onChange={(v) => { setError(null); setTime(v) }} hourLabel={t('res.hour')} minuteLabel={t('res.minute')} />
           </div>
           <div>
             <label className="mb-1 block text-xs text-gray-500">{t('res.party')}</label>
             <NumberInput
               allowDecimal={false}
               value={partySize}
-              onChange={setPartySize}
+              onChange={(v) => { setError(null); setPartySize(v) }}
               maxLength={4}
               aria-invalid={!!partyError}
               className={FIELD}

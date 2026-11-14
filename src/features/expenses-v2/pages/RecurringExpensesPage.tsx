@@ -170,7 +170,7 @@ export function RecurringExpensesPage() {
           >
             <Pencil className="h-4 w-4" />
           </Button>
-          {canManage && !row.cancelled_at && (
+          {canManage && (
             <Button
               variant="ghost"
               size="icon"

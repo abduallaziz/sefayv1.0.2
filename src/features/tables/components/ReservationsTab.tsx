@@ -173,7 +173,7 @@ export function ReservationsTab({ tables }: { tables: RestaurantTable[] }) {
                     <RotateCcw className="h-4 w-4" />
                   </button>
                 )}
-                {r.status !== 'seated' && (
+                {(
                   <button className={`${ICON_BTN} hover:text-red-600`} onClick={() => setPending({ kind: 'delete', r })} aria-label={t('res.delete')} title={t('res.delete')}>
                     <Trash2 className="h-4 w-4" />
                   </button>

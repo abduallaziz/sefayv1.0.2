@@ -3,7 +3,7 @@
 import { useTranslations, useLocale } from 'next-intl'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { ListChecks, Repeat } from 'lucide-react'
+import { ListChecks, Repeat, Zap } from 'lucide-react'
 
 // New Expenses — shared cross-page navigation strip. Rendered at the top
 // of all 5 related pages (Expenses List, Recurring, Quick Expenses,
@@ -21,6 +21,7 @@ export function ExpensesSectionNav() {
   const items = [
     { key: 'list', href: `${base}/expenses`, icon: ListChecks, match: `${base}/expenses` },
     { key: 'recurring', href: `${base}/recurring-expenses`, icon: Repeat, match: `${base}/recurring-expenses` },
+    { key: 'quick', href: `${base}/quick-definitions`, icon: Zap, match: `${base}/quick-definitions` },
   ]
 
   return (
