@@ -16,6 +16,13 @@ const ENTITIES: Record<string, string> = {
   snapshot: 'اللقطة', 'shift pattern': 'نمط الدوام', 'attribute value': 'قيمة الخاصية',
 };
 
+// Arabic agreement: feminine nouns take "غير موجودة".
+const FEMININE = new Set([
+  'المنشأة', 'الفاتورة', 'الوردية', 'الطاولة', 'الخطة', 'الصلاحية', 'الفئة', 'الشحنة', 'الاتفاقية', 'الجلسة',
+  'الوحدة', 'الموجة', 'السيارة', 'اللقطة', 'الملاحظة الجاهزة', 'قائمة المواد', 'مهمة الغسيل', 'مهمة المستودع',
+  'قيمة الخاصية', 'قائمة الانتظار', 'القالب الجاهز',
+]);
+
 const EXACT: Record<string, string> = {
   'Not found': 'غير موجود',
   Unauthorized: 'انتهت الجلسة، سجّل الدخول من جديد',
@@ -50,7 +57,13 @@ const EXACT: Record<string, string> = {
 };
 
 const RULES: Array<[RegExp, (m: RegExpMatchArray) => string]> = [
-  [/^(.+?) not found$/i, (m) => `${ENTITIES[m[1].toLowerCase()] ?? 'العنصر'} غير موجود`],
+  [
+    /^(.+?) not found$/i,
+    (m) => {
+      const name = ENTITIES[m[1].toLowerCase()] ?? 'العنصر';
+      return `${name} ${FEMININE.has(name) ? 'غير موجودة' : 'غير موجود'}`;
+    },
+  ],
   [/^Table is not available \(status: (.+)\)$/, () => 'الطاولة غير متاحة'],
   [/^(\w+) should not be empty$/, (m) => `الحقل ${m[1]} مطلوب`],
   [/^(\w+) must be an email$|^(\w+) must be a valid email$/, () => 'البريد الإلكتروني غير صحيح'],
