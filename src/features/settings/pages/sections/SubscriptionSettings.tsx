@@ -97,6 +97,9 @@ export function SubscriptionSettings() {
         <SettingsSection title={t('usage')} description={t('sections.usageHint')}>
           <Meter label={t('users')} used={usage?.users?.used ?? 0} limit={usage?.users?.limit ?? sub?.max_users ?? 0} color="bg-posCloud-primary" />
           <Meter label={t('branches')} used={usage?.branches?.used ?? 0} limit={usage?.branches?.limit ?? sub?.max_branches ?? 0} color="bg-violet-500" />
+          {usage?.pos && (
+            <Meter label={t('posRegisters')} used={usage.pos.used} limit={usage.pos.limit ?? ent?.limits?.max_pos ?? 0} color="bg-amber-500" />
+          )}
           <div className="flex items-center justify-between px-5 py-4 text-sm">
             <span className="font-medium text-posCloud-text-primary dark:text-posCloudDark-text-primary">{t('invoicesThisMonth')}</span>
             <span className="font-semibold tabular-nums text-posCloud-text-primary dark:text-posCloudDark-text-primary">{usage?.invoices_this_month?.used ?? 0}</span>

@@ -58,6 +58,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
     zatca,
     documents,
     subscriptionGate,
+    registers,
   ] = await Promise.all([
     loadFile(`${locale}.json`),
     loadFile(`${locale}/common.json`),
@@ -100,6 +101,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
     loadFile(`${locale}/zatca.json`),
     loadFile(`${locale}/documents.json`),
     loadFile(`${locale}/subscription-gate.json`),
+    loadFile(`${locale}/registers.json`),
   ])
 
   return {
@@ -152,6 +154,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
       zatca,
       documents,
       subscriptionGate,
+      registers,
       queue,
       stock: inventory?.stock,
       adjustments: inventory?.adjustments,

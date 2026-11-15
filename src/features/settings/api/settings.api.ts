@@ -48,6 +48,7 @@ export interface TenantSubscription {
 export interface TenantUsage {
   users: { used: number; limit: number | null }
   branches: { used: number; limit: number | null }
+  pos?: { used: number; limit: number | null }
   invoices_this_month: { used: number; limit: number | null }
 }
 

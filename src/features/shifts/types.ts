@@ -33,6 +33,7 @@ export interface ShiftSummaryResponse {
 export interface OpenShiftDto {
   opening_cash: number;
   branch_id: string;
+  register_id?: string;
 }
 
 export type CountedMethod = 'cash' | 'mada' | 'visa' | 'mastercard';

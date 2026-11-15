@@ -1,0 +1,12 @@
+{
+  "title": "POS registers",
+  "hint": "Each register has only one open shift at a time. Create one register per cashier if you want shortages attributed per person.",
+  "namePlaceholder": "Register name (e.g. Register 1, Ahmed)",
+  "add": "Add",
+  "addFailed": "Could not add — you may have reached your plan's POS limit or the name is taken",
+  "inactive": "Inactive",
+  "activate": "Activate",
+  "deactivate": "Deactivate",
+  "delete": "Delete",
+  "empty": "No registers yet"
+}

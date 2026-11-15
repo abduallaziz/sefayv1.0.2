@@ -10,7 +10,7 @@ export interface Entitlements {
   status: string | null
   billing_cycle: 'monthly' | 'yearly' | null
   plan: { id: string; name: string } | null
-  limits: { max_users: number; max_branches: number }
+  limits: { max_users: number; max_branches: number; max_pos: number }
   features: string[]
 }
 

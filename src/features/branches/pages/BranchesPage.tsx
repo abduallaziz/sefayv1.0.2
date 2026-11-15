@@ -4,7 +4,8 @@ import { useMemo, useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { toast } from 'sonner'
 import Link from 'next/link'
-import { Plus, Search, Pencil, Pause, Play, Trash2, Building2, AlertTriangle, MapPin, Phone, Clock, CalendarDays, Warehouse, Filter, ShieldAlert, ArrowUpCircle, Loader2 } from 'lucide-react'
+import { Plus, Search, Pencil, Pause, Play, Trash2, Building2, AlertTriangle, MapPin, Phone, Clock, CalendarDays, Warehouse, Filter, ShieldAlert, ArrowUpCircle, Loader2, Monitor } from 'lucide-react'
+import { RegistersDialog } from '@/features/pos-registers/RegistersDialog'
 import { Card, CardContent } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
@@ -63,6 +64,7 @@ function todayHours(b: BranchRecord, t: ReturnType<typeof useTranslations>): str
 
 export function BranchesPage() {
   const t = useTranslations('branches')
+  const tReg = useTranslations('registers')
   const locale = useLocale()
   const canView = usePermission('branches.view')
   const canManage = usePermission('branches.manage')
@@ -87,6 +89,7 @@ export function BranchesPage() {
 
   const [wizardOpen, setWizardOpen] = useState(false)
   const [sheetOpen, setSheetOpen] = useState(false)
+  const [registersFor, setRegistersFor] = useState<BranchRecord | null>(null)
   const [editing, setEditing] = useState<BranchRecord | null>(null)
   const [draft, setDraft] = useState<BranchDraft | null>(null)
   const [showErrors, setShowErrors] = useState(false)
@@ -408,6 +411,16 @@ export function BranchesPage() {
                     <Button
                       variant="outline"
                       size="sm"
+                      className="rounded-lg"
+                      aria-label={tReg('title')}
+                      title={tReg('title')}
+                      onClick={() => setRegistersFor(b)}
+                    >
+                      <Monitor className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
                       className="rounded-lg text-posCloud-danger hover:text-posCloud-danger"
                       aria-label={t('deleteBranch')}
                       title={t('deleteBranch')}
@@ -437,6 +450,15 @@ export function BranchesPage() {
             </Button>
           </div>
         </div>
+      )}
+
+      {registersFor && (
+        <RegistersDialog
+          branchId={registersFor.id}
+          branchName={registersFor.name}
+          open={!!registersFor}
+          onOpenChange={(v) => !v && setRegistersFor(null)}
+        />
       )}
 
       <BranchWizard
