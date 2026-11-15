@@ -38,6 +38,10 @@ export function SubscriptionLockModal({
     queryKey: ['subscription', 'plans'],
     queryFn: subscriptionGateApi.getPlans,
     enabled: step === 'renew' && canRenew,
+    // Always refetch when the renewal screen opens: a plan added after the first visit must appear without a
+    // hard refresh (the owner saw an empty list from a stale first fetch).
+    staleTime: 0,
+    refetchOnMount: 'always',
   })
   const plans = (plansQ.data ?? []).filter((p) => p.is_active)
   const selected = plans.find((p) => p.id === planId) ?? null
