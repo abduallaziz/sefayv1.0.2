@@ -57,7 +57,7 @@
     "expenses": "المصروفات",
     "shifts": "الورديات",
     "reports": "التقارير",
-    "users": "المستخدمون",
+    "users": "المستخدمون والصلاحيات",
     "settings": "الإعدادات",
     "branches": "الفروع",
     "plan": "الخطة الحالية",
@@ -103,7 +103,15 @@
     "suppliers": "الموردون",
     "purchaseOrders": "أوامر الشراء",
     "goodsReceipts": "إيصالات الاستلام",
-    "inventoryReports": "تقارير المخزون"
+    "inventoryReports": "تقارير المخزون",
+    "group": {
+      "sales": "المبيعات",
+      "inventory": "المخزون والمستودعات",
+      "purchasing": "المشتريات",
+      "finance": "المحاسبة والمالية",
+      "hr": "الموارد البشرية",
+      "admin": "الإدارة والنظام"
+    }
   },
   "common": {
     "save": "حفظ",

@@ -47,59 +47,94 @@ export interface NavItem {
   href: string
   icon: React.ElementType
   roles?: string[]
-  section: string
+  section?: string
 }
 
+export interface NavGroup {
+  key: string
+  icon: React.ElementType
+  children: NavItem[]
+}
+
+type NavEntry = { kind: 'item'; item: NavItem } | { kind: 'group'; group: NavGroup }
+
 const INVENTORY_ROLES = ['superadmin', 'owner', 'manager', 'inventory_clerk']
+const MG = ['owner', 'manager']
 
-export const ALL_NAV_ITEMS: NavItem[] = [
-  { key: 'dashboard', href: '/dashboard',           icon: LayoutDashboard, section: 'general' },
-  { key: 'pos',       href: '/dashboard/pos',        icon: ShoppingCart,    section: 'sales' },
-  { key: 'orders',    href: '/dashboard/orders',     icon: Receipt,         section: 'sales' },
-  { key: 'items',     href: '/dashboard/items',      icon: Package,         section: 'inventory' },
-  { key: 'customers', href: '/dashboard/customers',  icon: Users,           section: 'customers' },
-  { key: 'expenses',  href: '/dashboard/expenses-v2/expenses',   icon: Receipt,         section: 'finance', roles: ['owner', 'manager'] },
-  { key: 'accounting', href: '/dashboard/accounting', icon: Calculator,     section: 'finance', roles: ['owner', 'manager'] },
-  { key: 'shifts',    href: '/dashboard/shifts',     icon: Clock,           section: 'hr' },
-  { key: 'tables',    href: '/dashboard/tables',     icon: Utensils,        section: 'sales' },
-  { key: 'kitchen',   href: '/dashboard/kitchen',    icon: ChefHat,         section: 'sales' },
-  { key: 'washQueue', href: '/dashboard/queue',      icon: Car,             section: 'sales' },
-  { key: 'coupons',   href: '/dashboard/coupons',    icon: Ticket,          section: 'sales',    roles: ['owner', 'manager'] },
-  { key: 'rewards',   href: '/dashboard/rewards',    icon: Gift,            section: 'sales',    roles: ['owner', 'manager'] },
-  { key: 'notePresets', href: '/dashboard/note-presets', icon: StickyNote, section: 'sales',    roles: ['owner', 'manager'] },
-  { key: 'reports',   href: '/dashboard/reports',    icon: BarChart3,       section: 'reports',  roles: ['owner', 'manager'] },
-  { key: 'users',     href: '/dashboard/users',      icon: UserCog,         section: 'hr',       roles: ['owner', 'manager'] },
-  { key: 'employees', href: '/dashboard/employees',  icon: IdCard,          section: 'hr',       roles: ['owner', 'manager'] },
-  { key: 'attendance', href: '/dashboard/attendance', icon: CalendarClock, section: 'hr' },
-  { key: 'schedules', href: '/dashboard/schedules',  icon: CalendarDays,    section: 'hr',       roles: ['owner', 'manager'] },
-  { key: 'payroll',   href: '/dashboard/payroll',    icon: Wallet,          section: 'hr',       roles: ['owner'] },
-  { key: 'leaves',    href: '/dashboard/leaves',     icon: LeavesIcon,      section: 'hr',       roles: ['owner', 'manager'] },
-  { key: 'branches',  href: '/dashboard/branches',   icon: Building2,       section: 'admin',    roles: ['owner', 'manager'] },
-  { key: 'settings',  href: '/dashboard/settings',   icon: Settings,        section: 'admin',    roles: ['owner'] },
+// Sidebar organization is deliberately kept separate from module internals (owner-approved layout,
+// 2026-11-15): one ordered list of top-level items and collapsible groups. Order here IS the sidebar order.
+export const NAV_ENTRIES: NavEntry[] = [
+  { kind: 'item', item: { key: 'dashboard', href: '/dashboard', icon: LayoutDashboard } },
+
+  { kind: 'group', group: { key: 'sales', icon: ShoppingCart, children: [
+    { key: 'pos',         href: '/dashboard/pos',          icon: ShoppingCart },
+    { key: 'orders',      href: '/dashboard/orders',       icon: Receipt },
+    { key: 'tables',      href: '/dashboard/tables',       icon: Utensils },
+    { key: 'kitchen',     href: '/dashboard/kitchen',      icon: ChefHat },
+    { key: 'washQueue',   href: '/dashboard/queue',        icon: Car },
+    { key: 'coupons',     href: '/dashboard/coupons',      icon: Ticket,     roles: MG },
+    { key: 'rewards',     href: '/dashboard/rewards',      icon: Gift,       roles: MG },
+    { key: 'notePresets', href: '/dashboard/note-presets', icon: StickyNote, roles: MG },
+  ] } },
+
+  { kind: 'item', item: { key: 'items', href: '/dashboard/items', icon: Package } },
+
+  { kind: 'group', group: { key: 'inventory', icon: Layers, children: [
+    { key: 'inventoryDashboard', href: '/dashboard/inventory',           icon: LayoutDashboard },
+    { key: 'warehouses',         href: '/dashboard/warehouses',          icon: Warehouse },
+    { key: 'locations',          href: '/dashboard/locations',           icon: MapPin },
+    { key: 'stock',              href: '/dashboard/stock',               icon: Boxes },
+    { key: 'movements',          href: '/dashboard/movements',           icon: ArrowLeftRight },
+    { key: 'transfers',          href: '/dashboard/transfers',           icon: Layers,            roles: INVENTORY_ROLES },
+    { key: 'adjustments',        href: '/dashboard/adjustments',         icon: SlidersHorizontal, roles: INVENTORY_ROLES },
+    { key: 'stockCounts',        href: '/dashboard/stock-counts',        icon: ClipboardCheck,    roles: INVENTORY_ROLES },
+    { key: 'planning',           href: '/dashboard/planning',            icon: ListChecks,        roles: INVENTORY_ROLES },
+    { key: 'inventoryAnalytics', href: '/dashboard/inventory-analytics', icon: LineChart,         roles: INVENTORY_ROLES },
+    { key: 'quality',            href: '/dashboard/quality',             icon: ShieldCheck,       roles: INVENTORY_ROLES },
+    { key: 'wms',                href: '/dashboard/wms',                 icon: Forklift,          roles: INVENTORY_ROLES },
+    { key: 'inventoryReports',   href: '/dashboard/inventory/reports',   icon: FileBarChart,      roles: INVENTORY_ROLES },
+  ] } },
+
+  { kind: 'group', group: { key: 'purchasing', icon: Truck, children: [
+    { key: 'suppliers',      href: '/dashboard/suppliers',       icon: Truck,         roles: INVENTORY_ROLES },
+    { key: 'purchaseOrders', href: '/dashboard/purchase-orders', icon: ClipboardList, roles: INVENTORY_ROLES },
+    { key: 'goodsReceipts',  href: '/dashboard/goods-receipts',  icon: PackageCheck,  roles: INVENTORY_ROLES },
+  ] } },
+
+  { kind: 'item', item: { key: 'customers', href: '/dashboard/customers', icon: Users } },
+
+  { kind: 'group', group: { key: 'finance', icon: Calculator, children: [
+    { key: 'accounting', href: '/dashboard/accounting',            icon: Calculator, roles: MG },
+    { key: 'expenses',   href: '/dashboard/expenses-v2/expenses',  icon: Receipt,    roles: MG },
+  ] } },
+
+  { kind: 'group', group: { key: 'hr', icon: IdCard, children: [
+    { key: 'employees',  href: '/dashboard/employees',  icon: IdCard,        roles: MG },
+    { key: 'attendance', href: '/dashboard/attendance', icon: CalendarClock },
+    { key: 'schedules',  href: '/dashboard/schedules',  icon: CalendarDays,  roles: MG },
+    { key: 'shifts',     href: '/dashboard/shifts',     icon: Clock },
+    { key: 'payroll',    href: '/dashboard/payroll',    icon: Wallet,        roles: ['owner'] },
+    { key: 'leaves',     href: '/dashboard/leaves',     icon: LeavesIcon,    roles: MG },
+  ] } },
+
+  { kind: 'item', item: { key: 'reports', href: '/dashboard/reports', icon: BarChart3, roles: MG } },
+
+  { kind: 'group', group: { key: 'admin', icon: Settings, children: [
+    { key: 'branches', href: '/dashboard/branches', icon: Building2, roles: MG },
+    { key: 'users',    href: '/dashboard/users',    icon: UserCog,   roles: MG },
+    { key: 'settings', href: '/dashboard/settings', icon: Settings,  roles: ['owner'] },
+  ] } },
 ]
 
-// Children of the single collapsible "Inventory" sidebar group. Kept out of
-// ALL_NAV_ITEMS so they never render as separate top-level rows.
-export const INVENTORY_GROUP_ITEMS: NavItem[] = [
-  { key: 'inventoryDashboard', href: '/dashboard/inventory',         icon: LayoutDashboard,   section: 'inventory-group' },
-  { key: 'warehouses',         href: '/dashboard/warehouses',        icon: Warehouse,         section: 'inventory-group' },
-  { key: 'locations',          href: '/dashboard/locations',         icon: MapPin,            section: 'inventory-group' },
-  { key: 'stock',              href: '/dashboard/stock',             icon: Boxes,             section: 'inventory-group' },
-  { key: 'movements',          href: '/dashboard/movements',         icon: ArrowLeftRight,    section: 'inventory-group' },
-  { key: 'transfers',          href: '/dashboard/transfers',         icon: Layers,            section: 'inventory-group', roles: INVENTORY_ROLES },
-  { key: 'adjustments',        href: '/dashboard/adjustments',       icon: SlidersHorizontal, section: 'inventory-group', roles: INVENTORY_ROLES },
-  { key: 'stockCounts',        href: '/dashboard/stock-counts',      icon: ClipboardCheck,    section: 'inventory-group', roles: INVENTORY_ROLES },
-  { key: 'planning',           href: '/dashboard/planning',          icon: ListChecks,        section: 'inventory-group', roles: INVENTORY_ROLES },
-  { key: 'inventoryAnalytics', href: '/dashboard/inventory-analytics', icon: LineChart,       section: 'inventory-group', roles: INVENTORY_ROLES },
-  { key: 'quality',            href: '/dashboard/quality',            icon: ShieldCheck,      section: 'inventory-group', roles: INVENTORY_ROLES },
-  { key: 'wms',                href: '/dashboard/wms',                icon: Forklift,         section: 'inventory-group', roles: INVENTORY_ROLES },
-  { key: 'suppliers',          href: '/dashboard/suppliers',         icon: Truck,             section: 'inventory-group', roles: INVENTORY_ROLES },
-  { key: 'purchaseOrders',     href: '/dashboard/purchase-orders',   icon: ClipboardList,     section: 'inventory-group', roles: INVENTORY_ROLES },
-  { key: 'goodsReceipts',      href: '/dashboard/goods-receipts',    icon: PackageCheck,      section: 'inventory-group', roles: INVENTORY_ROLES },
-  { key: 'inventoryReports',   href: '/dashboard/inventory/reports', icon: FileBarChart,      section: 'inventory-group', roles: INVENTORY_ROLES },
-]
+const GROUP_KEYS = NAV_ENTRIES.flatMap((e) => (e.kind === 'group' ? [e.group.key] : []))
 
-const INVENTORY_GROUP_STORAGE_KEY = 'sidebar.inventoryGroupExpanded'
+// Back-compat flat exports for GlobalSearch (it unions both to search every navigable page).
+export const ALL_NAV_ITEMS: NavItem[] = NAV_ENTRIES.flatMap((e) => (e.kind === 'item' ? [e.item] : []))
+export const INVENTORY_GROUP_ITEMS: NavItem[] = NAV_ENTRIES.flatMap((e) =>
+  e.kind === 'group' ? e.group.children : [],
+)
+
+const GROUP_STORAGE_PREFIX = 'sidebar.group.'
 
 export function DashboardSidebar({ open, onClose }: SidebarProps) {
   const t = useTranslations('sidebar')
@@ -138,58 +173,42 @@ export function DashboardSidebar({ open, onClose }: SidebarProps) {
 
   const userRole = user?.role ?? 'cashier'
 
-  const visibleItems = ALL_NAV_ITEMS.filter((item) => {
-    const inBusinessType = config.sidebar.includes(item.key)
-    const hasRole = !item.roles || item.roles.includes(userRole)
-    return inBusinessType && hasRole && featureAllowed(item.key)
-  })
-
-  const visibleInventoryItems = INVENTORY_GROUP_ITEMS.filter((item) => {
-    const inBusinessType = config.sidebar.includes(item.key)
-    const hasRole = !item.roles || item.roles.includes(userRole)
-    return inBusinessType && hasRole && featureAllowed(item.key)
-  })
+  const canSee = (item: NavItem) =>
+    config.sidebar.includes(item.key) &&
+    (!item.roles || item.roles.includes(userRole)) &&
+    featureAllowed(item.key)
 
   const isActive = (href: string) => {
     if (href === '/dashboard') return pathname === `/${locale}/dashboard`
     return pathname.startsWith(`/${locale}${href}`)
   }
 
-  const inventoryGroupActive = visibleInventoryItems.some((item) => isActive(item.href))
+  // The ordered entries after role / business-type / feature filtering; empty groups are dropped.
+  const visibleEntries = NAV_ENTRIES.flatMap((entry): NavEntry[] => {
+    if (entry.kind === 'item') return canSee(entry.item) ? [entry] : []
+    const children = entry.group.children.filter(canSee)
+    return children.length ? [{ kind: 'group', group: { ...entry.group, children } }] : []
+  })
 
-  const [inventoryExpanded, setInventoryExpanded] = useState(inventoryGroupActive)
-
+  // Per-group expand/collapse, persisted. Undefined => fall back to "expanded when a child route is active".
+  const [groupState, setGroupState] = useState<Record<string, boolean>>({})
   useEffect(() => {
-    // Deliberately deferred to a post-mount effect rather than a useState
-    // lazy initializer: `window.localStorage` doesn't exist during SSR, so
-    // reading it in the initializer would return a different value on the
-    // server render than on the client's first render and produce a
-    // hydration mismatch. This effect intentionally runs once, client-only,
-    // after hydration completes.
-    const stored = window.localStorage.getItem(INVENTORY_GROUP_STORAGE_KEY)
-    if (stored !== null) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setInventoryExpanded(stored === 'true')
-    } else if (inventoryGroupActive) {
-       
-      setInventoryExpanded(true)
+    // Client-only (localStorage is absent during SSR) — read once after hydration to avoid a mismatch.
+    const next: Record<string, boolean> = {}
+    for (const key of GROUP_KEYS) {
+      const v = window.localStorage.getItem(`${GROUP_STORAGE_PREFIX}${key}`)
+      if (v !== null) next[key] = v === 'true'
     }
-    // Only read the persisted preference once on mount; active-route detection
-    // below keeps the group open while navigating its own children.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (Object.keys(next).length) setGroupState(next)
   }, [])
 
-  useEffect(() => {
-    // Keeps the group expanded whenever route navigation lands inside it —
-    // a genuine external-signal (route) -> state sync, not initialization.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (inventoryGroupActive) setInventoryExpanded(true)
-  }, [inventoryGroupActive])
-
-  const toggleInventoryGroup = () => {
-    const next = !inventoryExpanded
-    setInventoryExpanded(next)
-    window.localStorage.setItem(INVENTORY_GROUP_STORAGE_KEY, String(next))
+  const isGroupActive = (g: NavGroup) => g.children.some((c) => isActive(c.href))
+  const isExpanded = (g: NavGroup) => groupState[g.key] ?? isGroupActive(g)
+  const toggleGroup = (g: NavGroup) => {
+    const next = !isExpanded(g)
+    setGroupState((s) => ({ ...s, [g.key]: next }))
+    window.localStorage.setItem(`${GROUP_STORAGE_PREFIX}${g.key}`, String(next))
   }
 
   return (
@@ -226,61 +245,63 @@ export function DashboardSidebar({ open, onClose }: SidebarProps) {
             (sidebar.tsx's <aside className="... px-4 py-6 ..."> wrapping
             SidebarContent's <nav>). */}
         <nav className="flex-1 overflow-y-auto px-4 pb-1 pt-6">
-          {visibleItems.map((item) => {
-            const active = isActive(item.href)
-            return (
-              <NavLink
-                key={item.key}
-                href={`/${locale}${item.href}`}
-                label={t(item.key)}
-                icon={item.icon}
-                active={active}
-                onClick={onClose}
-              />
-            )
-          })}
-
-          {visibleInventoryItems.length > 0 && (
-            <div className="mb-1">
-              <button
-                type="button"
-                onClick={toggleInventoryGroup}
-                aria-expanded={inventoryExpanded}
-                className={cn(
-                  'flex w-full items-center gap-3 rounded-xl px-4 py-3 text-[14px] transition-colors',
-                  inventoryGroupActive
-                    ? 'bg-posCloud-primary font-semibold text-white shadow-sm shadow-posCloud-primary/30'
-                    : 'font-medium text-posCloud-text-secondary hover:bg-slate-100 hover:text-posCloud-text-primary dark:text-posCloudDark-text-secondary dark:hover:bg-white/5 dark:hover:text-posCloudDark-text-primary'
-                )}
-              >
-                <Layers size={18} strokeWidth={2} className="shrink-0" />
-                <span className="flex-1 text-start">{t('inventory')}</span>
-                <ChevronDown
-                  size={16}
-                  className={cn('shrink-0 transition-transform duration-200', inventoryExpanded && 'rotate-180')}
+          {visibleEntries.map((entry) => {
+            if (entry.kind === 'item') {
+              const item = entry.item
+              return (
+                <NavLink
+                  key={item.key}
+                  href={`/${locale}${item.href}`}
+                  label={t(item.key)}
+                  icon={item.icon}
+                  active={isActive(item.href)}
+                  onClick={onClose}
                 />
-              </button>
+              )
+            }
+            const group = entry.group
+            const groupActive = isGroupActive(group)
+            const expanded = isExpanded(group)
+            const GroupIcon = group.icon
+            return (
+              <div key={group.key} className="mb-1">
+                <button
+                  type="button"
+                  onClick={() => toggleGroup(group)}
+                  aria-expanded={expanded}
+                  className={cn(
+                    'flex w-full items-center gap-3 rounded-xl px-4 py-3 text-[14px] transition-colors',
+                    groupActive
+                      ? 'bg-posCloud-primary font-semibold text-white shadow-sm shadow-posCloud-primary/30'
+                      : 'font-medium text-posCloud-text-secondary hover:bg-slate-100 hover:text-posCloud-text-primary dark:text-posCloudDark-text-secondary dark:hover:bg-white/5 dark:hover:text-posCloudDark-text-primary'
+                  )}
+                >
+                  <GroupIcon size={18} strokeWidth={2} className="shrink-0" />
+                  <span className="flex-1 text-start">{t(`group.${group.key}`)}</span>
+                  <ChevronDown
+                    size={16}
+                    className={cn('shrink-0 transition-transform duration-200', expanded && 'rotate-180')}
+                  />
+                </button>
 
-              {inventoryExpanded && (
-                <div className="mt-0.5 ps-3.5">
-                  {visibleInventoryItems.map((item) => {
-                    const active = isActive(item.href)
-                    return (
+                {expanded && (
+                  <div className="mt-0.5 ps-3.5">
+                    {group.children.map((item) => (
                       <NavLink
                         key={item.key}
                         href={`/${locale}${item.href}`}
                         label={t(item.key)}
                         icon={item.icon}
-                        active={active}
+                        active={isActive(item.href)}
                         onClick={onClose}
                         compact
                       />
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-          )}
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </nav>
 
         {/* Subscription card */}

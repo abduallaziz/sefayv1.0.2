@@ -57,7 +57,7 @@
     "expenses": "Expenses",
     "shifts": "Shifts",
     "reports": "Reports",
-    "users": "Users",
+    "users": "Users & Permissions",
     "settings": "Settings",
     "branches": "Branches",
     "plan": "Current Plan",
@@ -103,7 +103,15 @@
     "suppliers": "Suppliers",
     "purchaseOrders": "Purchase Orders",
     "goodsReceipts": "Goods Receipts",
-    "inventoryReports": "Inventory Reports"
+    "inventoryReports": "Inventory Reports",
+    "group": {
+      "sales": "Sales",
+      "inventory": "Inventory & Warehouses",
+      "purchasing": "Purchasing",
+      "finance": "Accounting & Finance",
+      "hr": "Human Resources",
+      "admin": "Administration"
+    }
   },
   "common": {
     "save": "Save",
