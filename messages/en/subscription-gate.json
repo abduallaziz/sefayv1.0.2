@@ -1,0 +1,32 @@
+{
+  "banner": {
+    "daysLeft": "Your subscription ends in {days} days",
+    "lastDay": "Your subscription ends today",
+    "renew": "Renew subscription"
+  },
+  "locked": {
+    "title": "Your plan has ended",
+    "endedOn": "Your plan ended on {date}",
+    "ownerHint": "Renew to keep working. All your data is safe.",
+    "staffHint": "The business subscription has ended. Contact the business owner to renew it.",
+    "renew": "Renew subscription"
+  },
+  "renew": {
+    "title": "Renew subscription",
+    "plan": "Plan",
+    "cycle": "Billing cycle",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "perMonth": "/ month",
+    "perYear": "/ year",
+    "limits": "{users} users · {branches} branches",
+    "unlimited": "Unlimited",
+    "total": "Total",
+    "payNow": "Pay now",
+    "paying": "Paying...",
+    "back": "Back",
+    "failed": "Payment could not be completed, please try again",
+    "loadFailed": "Could not load the plans",
+    "current": "Your current plan"
+  }
+}

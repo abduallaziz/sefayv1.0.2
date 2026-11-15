@@ -10,6 +10,10 @@ import { settingsApi } from '@/features/settings/api/settings.api'
 import { useTenantStore } from '@/core/tenant/stores/tenant.store'
 import { RealtimeProvider } from '@/core/realtime/RealtimeProvider'
 import { ShiftReportHost } from '@/features/shifts/components/ShiftReportHost'
+import { useAuthStore } from '@/core/auth/stores/auth.store'
+import { useEntitlements } from '@/features/subscription-gate/useEntitlements'
+import { SubscriptionBanner } from '@/features/subscription-gate/SubscriptionBanner'
+import { SubscriptionLockModal } from '@/features/subscription-gate/SubscriptionLockModal'
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { isLoading, isAuthenticated } = useTenantAuth()
@@ -17,6 +21,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const t = useTranslations('common')
   const setCurrency = useTenantStore((s) => s.setCurrency)
   const [profileLoaded, setProfileLoaded] = useState(false)
+  const role = useAuthStore((s) => s.user?.role)
+  const { data: ent } = useEntitlements()
+  const [renewOpen, setRenewOpen] = useState(false)
+  // Plan ended (and enforcement is on for this tenant): every page is blocked behind the renewal popup.
+  const locked = !!ent?.enforced && ent.locked
+  const isOwner = role === 'owner'
+  const showBanner = !!ent?.enforced && !ent.locked && ent.show_countdown && (isOwner || role === 'manager')
 
   useEffect(() => {
     if (!isAuthenticated || profileLoaded) return
@@ -58,10 +69,19 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           />
 
           <main className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden p-4 lg:p-6">
-            {children}
+            {showBanner && ent && (
+              <div className="-mx-4 -mt-4 mb-4 lg:-mx-6 lg:-mt-6">
+                <SubscriptionBanner ent={ent} onRenew={() => setRenewOpen(true)} />
+              </div>
+            )}
+            {locked ? null : children}
           </main>
         </div>
       </div>
+      {locked && ent && <SubscriptionLockModal ent={ent} canRenew={isOwner} forced />}
+      {!locked && renewOpen && ent && (
+        <SubscriptionLockModal ent={ent} canRenew={isOwner} forced={false} onClose={() => setRenewOpen(false)} />
+      )}
     </ThemeProvider>
   )
 }

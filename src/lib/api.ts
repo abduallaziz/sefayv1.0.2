@@ -130,6 +130,10 @@ async function doRequest<T>(path: string, options: RequestOptions = {}): Promise
 
   if (!res.ok) {
     const error = await res.json().catch(() => ({ message: res.statusText }));
+    if (res.status === 402 && error?.code === 'SUBSCRIPTION_LOCKED' && typeof window !== 'undefined') {
+      // The plan ended: the dashboard layout re-reads the entitlements and shows the renewal popup.
+      window.dispatchEvent(new CustomEvent('sefay:subscription-locked'));
+    }
     throw new ApiError(res.status, localizeServerMessage(error.message ?? 'Request failed'));
   }
 
