@@ -15,8 +15,21 @@ import {
 import { useAuthStore } from '@/core/auth/stores/auth.store'
 import { useBusinessType } from '@/shared/hooks/useBusinessType'
 import { useSubscription } from '@/features/settings/hooks/useSettings'
+import { useEntitlements } from '@/features/subscription-gate/useEntitlements'
 import { cn } from '@/lib/utils'
 import type { NavKey } from '@/shared/config/business-type.config'
+
+// Nav keys that map to a gated feature. Anything absent here is always shown (core: POS, items, customers…).
+// Gating only bites when SUBSCRIPTION_ENFORCEMENT is on for the tenant — see the entitlements filter below.
+const NAV_FEATURE: Partial<Record<NavKey, string>> = {
+  reports: 'reports',
+  branches: 'multi_branch',
+  accounting: 'billing',
+  attendance: 'shifts',
+  schedules: 'shifts',
+  payroll: 'shifts',
+  leaves: 'shifts',
+}
 
 // Same valid-status set BillingService.checkBranchLimit() and the Branch
 // Management capacity card use — kept in sync manually, no shared enum
@@ -95,6 +108,14 @@ export function DashboardSidebar({ open, onClose }: SidebarProps) {
   const { user } = useAuthStore()
   const { config } = useBusinessType()
   const { data: subData } = useSubscription()
+  const { data: ent } = useEntitlements()
+  // A feature outside the plan is hidden entirely (never read), but only once enforcement is on for
+  // the tenant; otherwise `ent.enforced` is false and everything shows exactly as before.
+  const featureAllowed = (key: NavKey) => {
+    const feat = NAV_FEATURE[key]
+    if (!feat || !ent?.enforced) return true
+    return ent.features.includes(feat)
+  }
   // Lazy initializer, not a direct Date.now() call in the render body —
   // same pattern already used elsewhere in this codebase (system-health.tsx)
   // to keep "now" a stable, pure render input instead of drifting per render.
@@ -112,13 +133,13 @@ export function DashboardSidebar({ open, onClose }: SidebarProps) {
   const visibleItems = ALL_NAV_ITEMS.filter((item) => {
     const inBusinessType = config.sidebar.includes(item.key)
     const hasRole = !item.roles || item.roles.includes(userRole)
-    return inBusinessType && hasRole
+    return inBusinessType && hasRole && featureAllowed(item.key)
   })
 
   const visibleInventoryItems = INVENTORY_GROUP_ITEMS.filter((item) => {
     const inBusinessType = config.sidebar.includes(item.key)
     const hasRole = !item.roles || item.roles.includes(userRole)
-    return inBusinessType && hasRole
+    return inBusinessType && hasRole && featureAllowed(item.key)
   })
 
   const isActive = (href: string) => {
