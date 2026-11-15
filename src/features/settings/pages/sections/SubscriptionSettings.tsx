@@ -52,6 +52,14 @@ export function SubscriptionSettings() {
   const role = useAuthStore((s) => s.user?.role)
   const { data: ent } = useEntitlements()
   const qc = useQueryClient()
+
+  // Prefer entitlements (source of truth) for the plan card; fall back to /tenant/subscription.
+  const planName = ent?.plan?.name ?? sub?.plan_name ?? null
+  const effectiveStatus = ent?.status ?? (sub ? status : null)
+  const endsAt = ent?.ends_at ?? sub?.current_period_end ?? null
+  const badStatus = effectiveStatus
+    ? ['expired', 'cancelled', 'suspended', 'none'].includes(effectiveStatus)
+    : bad
   // Test-only control: shown to the owner only while enforcement (test mode) is on for this tenant.
   const showTestExpire = role === 'owner' && !!ent?.enforced && !ent.locked
   const expire = useMutation({
@@ -63,20 +71,22 @@ export function SubscriptionSettings() {
     <PageStack>
       <SettingsPageHeader title={t('nav.items.subscription')} description={t('nav.descriptions.subscription')} />
 
-      {subLoading ? <SettingsSkeleton rows={2} /> : (
+      {subLoading && !ent ? <SettingsSkeleton rows={2} /> : (
         <SectionCard title={t('subscription')} description={t('sections.subscriptionHint')}>
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <Stat label={t('plan')}>{sub?.plan_name ? tr('planNames', sub.plan_name.toLowerCase(), sub.plan_name) : '—'}</Stat>
+            {/* Entitlements is the source of truth (always correct, never blocked by the lock); /tenant/subscription
+                is only a fallback. This is why the plan no longer reads "no plan" after a renewal. */}
+            <Stat label={t('plan')}>{planName ? tr('planNames', planName.toLowerCase(), planName) : '—'}</Stat>
             <Stat label={t('status')}>
-              <span className={cn('inline-flex items-center gap-1.5', bad ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400')}>
-                <span className={cn('h-1.5 w-1.5 rounded-full', bad ? 'bg-red-500' : 'bg-emerald-500')} aria-hidden />
-                {sub ? tr('subStatus', status) : '—'}
+              <span className={cn('inline-flex items-center gap-1.5', badStatus ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400')}>
+                <span className={cn('h-1.5 w-1.5 rounded-full', badStatus ? 'bg-red-500' : 'bg-emerald-500')} aria-hidden />
+                {effectiveStatus ? tr('subStatus', effectiveStatus) : '—'}
               </span>
             </Stat>
-            <Stat label={t('interval')}>{tr('billingCycles', sub?.billing_cycle)}</Stat>
+            <Stat label={t('interval')}>{tr('billingCycles', ent?.billing_cycle ?? sub?.billing_cycle ?? undefined)}</Stat>
             <Stat label={t('endsAt')}>
               <span className="tabular-nums">
-                {sub?.current_period_end ? new Date(sub.current_period_end).toLocaleDateString(locale === 'ar' ? 'ar-SA-u-nu-latn-ca-gregory' : 'en-CA') : '—'}
+                {endsAt ? new Date(endsAt).toLocaleDateString(locale === 'ar' ? 'ar-SA-u-nu-latn-ca-gregory' : 'en-CA') : '—'}
               </span>
             </Stat>
           </div>

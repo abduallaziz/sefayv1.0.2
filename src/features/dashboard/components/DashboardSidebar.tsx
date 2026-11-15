@@ -122,10 +122,18 @@ export function DashboardSidebar({ open, onClose }: SidebarProps) {
   const [now] = useState(() => Date.now())
 
   const sub = subData?.subscription
-  const isValidSubscription = !!sub && VALID_SUBSCRIPTION_STATUSES.includes(sub.status)
-  const isTrialing = sub?.status === 'trial'
-  const trialDaysLeft = isTrialing && subData?.trial_ends_at
-    ? Math.max(0, Math.ceil((new Date(subData.trial_ends_at).getTime() - now) / 86_400_000))
+  // Entitlements is the source of truth for the plan name/validity (it can't go stale or 402 like
+  // /tenant/subscription), so the card never reads "no plan" while a plan is active.
+  const planName = ent?.plan?.name ?? sub?.plan_name ?? null
+  const subStatus = ent?.status ?? sub?.status
+  const isValidSubscription = ent
+    ? ['trial', 'active', 'grace'].includes(ent.phase)
+    : !!sub && VALID_SUBSCRIPTION_STATUSES.includes(sub.status)
+  const isTrialing = (ent?.phase ?? sub?.status) === 'trial'
+  const trialDaysLeft = isTrialing
+    ? (ent?.days_left ?? (subData?.trial_ends_at
+        ? Math.max(0, Math.ceil((new Date(subData.trial_ends_at).getTime() - now) / 86_400_000))
+        : null))
     : null
 
   const userRole = user?.role ?? 'cashier'
@@ -287,9 +295,9 @@ export function DashboardSidebar({ open, onClose }: SidebarProps) {
                   {t('planLabel')}
                 </div>
                 <div className="text-[13px] font-bold text-white">
-                  {sub?.plan_name ?? '—'}
+                  {planName ?? '—'}
                   {isTrialing && <> — {t('trial')}</>}
-                  {!isValidSubscription && <> — {t(`subStatus.${sub?.status ?? 'none'}`)}</>}
+                  {!isValidSubscription && <> — {t(`subStatus.${subStatus ?? 'none'}`)}</>}
                 </div>
               </div>
             </div>
