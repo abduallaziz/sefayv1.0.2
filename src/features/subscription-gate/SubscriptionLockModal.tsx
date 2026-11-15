@@ -45,9 +45,15 @@ export function SubscriptionLockModal({
 
   const pay = useMutation({
     mutationFn: () => subscriptionGateApi.renew(selected!.id, cycle),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ENTITLEMENTS_KEY })
-      qc.invalidateQueries()
+    // Wait for the fresh entitlements + subscription/usage before closing, so the plan card never flashes
+    // "no plan" right after a successful renewal (the stale-cache gap the owner hit).
+    onSuccess: async () => {
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ENTITLEMENTS_KEY }),
+        qc.invalidateQueries({ queryKey: ['tenant', 'subscription'] }),
+        qc.invalidateQueries({ queryKey: ['tenant', 'usage'] }),
+        qc.invalidateQueries({ queryKey: ['tenant', 'profile'] }),
+      ])
       onClose?.()
     },
   })
