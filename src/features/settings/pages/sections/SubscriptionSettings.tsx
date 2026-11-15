@@ -1,11 +1,16 @@
 'use client'
 
 import { useLocale, useTranslations } from 'next-intl'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { cn } from '@/lib/utils'
 import { SectionCard } from '@/shared/ui/section-card'
 import { useSubscription, useUsage } from '../../hooks/useSettings'
 import { effectiveSubscriptionStatus } from '../../lib/validators'
 import { PageStack, SettingsPageHeader, SettingsSection, SettingsSkeleton } from '../../components/settings-ui'
+import { useAuthStore } from '@/core/auth/stores/auth.store'
+import { useEntitlements } from '@/features/subscription-gate/useEntitlements'
+import { subscriptionGateApi } from '@/features/subscription-gate/api'
+import { ENTITLEMENTS_KEY } from '@/features/subscription-gate/useEntitlements'
 
 function Stat({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -44,6 +49,16 @@ export function SubscriptionSettings() {
   const bad = status === 'expired' || status === 'cancelled' || status === 'suspended' || status === 'none'
   const tr = (prefix: string, key?: string, fallback?: string) => (key ? (t.has(`${prefix}.${key}`) ? t(`${prefix}.${key}`) : (fallback ?? key)) : '—')
 
+  const role = useAuthStore((s) => s.user?.role)
+  const { data: ent } = useEntitlements()
+  const qc = useQueryClient()
+  // Test-only control: shown to the owner only while enforcement (test mode) is on for this tenant.
+  const showTestExpire = role === 'owner' && !!ent?.enforced && !ent.locked
+  const expire = useMutation({
+    mutationFn: subscriptionGateApi.devExpire,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ENTITLEMENTS_KEY }),
+  })
+
   return (
     <PageStack>
       <SettingsPageHeader title={t('nav.items.subscription')} description={t('nav.descriptions.subscription')} />
@@ -77,6 +92,24 @@ export function SubscriptionSettings() {
             <span className="font-semibold tabular-nums text-posCloud-text-primary dark:text-posCloudDark-text-primary">{usage?.invoices_this_month?.used ?? 0}</span>
           </div>
         </SettingsSection>
+      )}
+
+      {showTestExpire && (
+        <SectionCard title={t('testTools.title')} description={t('testTools.hint')}>
+          <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
+            <span className="text-sm text-posCloud-text-secondary dark:text-posCloudDark-text-secondary">
+              {t('testTools.expireHint')}
+            </span>
+            <button
+              type="button"
+              onClick={() => expire.mutate()}
+              disabled={expire.isPending}
+              className="rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition-colors hover:bg-red-100 disabled:opacity-50 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400"
+            >
+              {expire.isPending ? '…' : t('testTools.expireNow')}
+            </button>
+          </div>
+        </SectionCard>
       )}
     </PageStack>
   )

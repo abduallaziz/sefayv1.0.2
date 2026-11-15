@@ -173,5 +173,11 @@
       "loyalty": "Points and loyalty tiers",
       "notifications": "Choose which notifications reach you by email"
     }
+  },
+  "testTools": {
+    "title": "Test tools",
+    "hint": "Shown only because enforcement (test mode) is on for this tenant.",
+    "expireHint": "End the subscription now to try the lock screen. Deletes no data; renewing restores it.",
+    "expireNow": "End subscription now (test)"
   }
 }

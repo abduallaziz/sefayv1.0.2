@@ -30,4 +30,5 @@ export const subscriptionGateApi = {
   getPlans: (): Promise<RenewPlan[]> => apiClient.get('/plans'),
   renew: (planId: string, cycle: 'monthly' | 'yearly') =>
     apiClient.post('/subscriptions/upgrade', { plan_id: planId, billing_cycle: cycle }),
+  devExpire: () => apiClient.post('/subscriptions/dev-expire', {}),
 }
